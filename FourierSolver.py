@@ -21,10 +21,7 @@ def PoissonSolver(rho, x, return_potential=False, epsilon_0=1):
     potential_F[0] = 0 #ignore
     potential = fft.irfft(potential_F)
     field = -np.gradient(potential)
-    if(return_potential):
-        return field, potential
-    else:
-        return field
+    return field, potential
 
 if __name__=="__main__":
     L=1
