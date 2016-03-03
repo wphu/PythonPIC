@@ -17,19 +17,19 @@ class Simulation(object):
             charge_density="empty", electric_field="empty",
             particle_positions="empty", particle_velocities="empty"):
         self.x, self.dx = np.linspace(0,L,NGrid, retstep=True,endpoint=False)
-        if type(charge_density)==type(str):
+        if type(charge_density)==type("string"):
             self.charge_density = np.zeros((NT, NGrid))
         else:
             self.charge_density = charge_density
-        if type(electric_field)==type(str):
+        if type(electric_field)==type("string"):
             self.electric_field = np.zeros((NT, NGrid))
         else:
             self.electric_field = electric_field
-        if type(particle_positions)==type(str):
+        if type(particle_positions)==type("string"):
             self.particle_positions = np.zeros((NT, NParticle))
         else:
             self.particle_positions = particle_positions
-        if type(particle_velocities)==type(str):
+        if type(particle_velocities)==type("string"):
             self.particle_velocities = np.zeros((NT, NParticle))
         else:
             self.particle_velocities = particle_velocities

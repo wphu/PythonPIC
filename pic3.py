@@ -1,30 +1,30 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import FourierSolver, MatrixSolver
+import Simulation
 
 N=int(1e5)
 NG = 100
-NT = 25
+NT = 1000
 L=1
-dt=0.01
+dt=0.001
+T = NT*dt
+epsilon_0 = 1
 x, dx = np.linspace(0,L,NG, retstep=True,endpoint=False)
+particle_charge = -1
+particle_mass = 1
+
+S = Simulation.Simulation(NT, NG, N, T, particle_charge, particle_mass, L, epsilon_0)
+
+
 charge_density = np.zeros_like(x)
 x_particles = np.linspace(0,L,N, endpoint=False) + L/N/100
 x_particles += 0.001*np.sin(x_particles*np.pi/L)
-
-
-particle_charge = -1
-particle_mass = 1
 v_particles = np.ones(N)
 v_particles[::2] = -1
 
-#setting up the matrix solver
-matrix_diagonal = -2*np.ones(NG)
-matrix_offdiagonal = np.ones(NG-1)
-Neumann_FirstOrder_BC = np.zeros((NG-1, NG-1))
-Neumann_FirstOrder_BC[0,0] = Neumann_FirstOrder_BC[-1,-1] = 1
-matrix = np.diag(matrix_diagonal) + np.diag(matrix_offdiagonal, 1) + np.diag(matrix_offdiagonal, -1)
-matrix_inverse = np.linalg.inv(matrix)*(-2*dx)
+
+
 
 def charge_density_deposition(x, dx, x_particles, particle_charge):
     """Calculates the charge density on a 1D grid given an array of charged particle positions.
@@ -68,9 +68,6 @@ def leapfrog_particle_push(x, v, dt, electric_force):
     v_new = v + electric_force*dt
     return (x + v_new*dt)%L, v_new
 
-def save_all_the_data():
-    return
-
 def all_the_plots(i):
     # x_particles = np.random.random(100)
     field_particles = electric_field_function(x_particles)
@@ -111,7 +108,10 @@ def all_the_plots(i):
 x_dummy, v_particles = leapfrog_particle_push(x_particles, v_particles, -dt/2., electric_field_function(x_particles)*particle_charge/particle_mass)
 for i in range(NT):
     print(i)
-    all_the_plots(i)
+    S.update_grid(i, charge_density, electric_field)
+    S.update_particles(i, x_particles, v_particles)
+
     x_particles, v_particles = leapfrog_particle_push(x_particles,v_particles,dt,electric_field_function(x_particles)*particle_charge/particle_mass)
     charge_density = charge_density_deposition(x, dx, x_particles, particle_charge)
     potential, electric_field, electric_field_function = field_quantities(x, charge_density)
+S.save_data()
