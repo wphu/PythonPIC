@@ -12,28 +12,30 @@ class Simulation(object):
     particle_positions, velocities: shape (NT, NParticle) numpy arrays of historical particle data
     charge_density, electric_field: shape (NT, NGrid) numpy arrays of historical grid data
     """
-    def __init__(self, NT, NGrid, NParticle, T, L=1, epsilon_0 = 1,
+    def __init__(self, NT, NGrid, NParticle, T, q=1, m=1,
+            L=1, epsilon_0 = 1,
             charge_density="empty", electric_field="empty",
             particle_positions="empty", particle_velocities="empty"):
         self.x, self.dx = np.linspace(0,L,NGrid, retstep=True,endpoint=False)
-        if charge_density=="empty":
+        if type(charge_density)==type(str):
             self.charge_density = np.zeros((NT, NGrid))
         else:
             self.charge_density = charge_density
-        if electric_field=="empty":
+        if type(electric_field)==type(str):
             self.electric_field = np.zeros((NT, NGrid))
         else:
             self.electric_field = electric_field
-        if particle_positions=="empty":
+        if type(particle_positions)==type(str):
             self.particle_positions = np.zeros((NT, NParticle))
         else:
             self.particle_positions = particle_positions
-        if particle_velocities=="empty":
+        if type(particle_velocities)==type(str):
             self.particle_velocities = np.zeros((NT, NParticle))
         else:
             self.particle_velocities = particle_velocities
         self.NT, self.NGrid, self.NParticle = NT, NGrid, NParticle
         self.L, self.epsilon_0, self.T = L, epsilon_0, T
+        self.q, self.m = q, m
     def update_grid(self, i, charge_density, electric_field):
         """Update the i-th set of field values"""
         self.charge_density[i], self.electric_field[i] = charge_density, electric_field
