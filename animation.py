@@ -11,8 +11,9 @@ charge_axes, field_axes, phase_axes = subplots
 
 phase_plot, = phase_axes.plot([], [], "b,")
 phase_axes.set_xlim(0, S.L)
-maxv = np.mean(np.abs(S.particle_velocities))
-phase_axes.set_ylim(-maxv*5, maxv*5)
+
+maxv =5* np.mean(np.abs(S.particle_velocities))
+phase_axes.set_ylim(-maxv, maxv)
 # fig.subplots_adjust(hspace=0)
 
 charge_plot, = charge_axes.plot([],[])

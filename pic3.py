@@ -109,15 +109,16 @@ def all_the_plots(i):
     plt.close()
 
 x_dummy, v_particles = leapfrog_particle_push(x_particles, v_particles, -dt/2., electric_field_function(x_particles)*particle_charge/particle_mass)
+kinetic, field, total = 0, 0, 0
 for i in range(NT):
-    print(i)
     S.update_grid(i, charge_density, electric_field)
     S.update_particles(i, x_particles, v_particles)
+
+    diag = kinetic, field, total =diagnostics.energies(x_particles,v_particles,particle_mass,dx, potential, charge_density)
+    S.update_diagnostics(i, diag)
+    print("i{:4d} T{:12.3f} V{:12.3f} E{:12.3f}".format(i, kinetic, field, total))
 
     x_particles, v_particles = leapfrog_particle_push(x_particles,v_particles,dt,electric_field_function(x_particles)*particle_charge/particle_mass)
     charge_density = charge_density_deposition(x, dx, x_particles, particle_charge)
     potential, electric_field, electric_field_function = field_quantities(x, charge_density)
-    diag = kinetic_energy, field_energy, total_energy = diagnostics.energies(x_particles,v_particles,particle_mass,
-                                    dx, potential, charge_density)
-    S.update_diagnostics(i, diag)
 S.save_data(filename="test.hdf5")
