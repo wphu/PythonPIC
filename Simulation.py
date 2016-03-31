@@ -12,29 +12,19 @@ class Simulation(object):
     particle_positions, velocities: shape (NT, NParticle) numpy arrays of historical particle data
     charge_density, electric_field: shape (NT, NGrid) numpy arrays of historical grid data
     """
-    def __init__(self, NT, NGrid, NParticle, T, q=1, m=1,
-            L=1, epsilon_0 = 1,
-            charge_density="empty", electric_field="empty",
-            particle_positions="empty", particle_velocities="empty"):
+    def __init__(self, NT, NGrid, NParticle, T, q, m,
+            L, epsilon_0):
         self.x, self.dx = np.linspace(0,L,NGrid,
                         retstep=True,endpoint=False)
-        if type(charge_density)==type("string"):
-            self.charge_density = np.zeros((NT, NGrid))
-        else:
-            self.charge_density = charge_density
-        if type(electric_field)==type("string"):
-            self.electric_field = np.zeros((NT, NGrid))
-        else:
-            self.electric_field = electric_field
-        if type(particle_positions)==type("string"):
-            self.particle_positions = np.zeros((NT, NParticle))
-        else:
-            self.particle_positions = particle_positions
-        if type(particle_velocities)==type("string"):
-            self.particle_velocities = np.zeros((NT, NParticle))
-        else:
-            self.particle_velocities = particle_velocities
+        self.charge_density = np.zeros((NT, NGrid))
+        self.electric_field = np.zeros((NT, NGrid))
+        self.particle_positions = np.zeros((NT, NParticle))
+        self.particle_velocities = np.zeros((NT, NParticle))
         self.NT, self.NGrid, self.NParticle = NT, NGrid, NParticle
+        self.kinetic_energy = np.zeros(NT)
+        self.field_energy = np.zeros(NT)
+        self.total_energy = np.zeros(NT)
+
         self.L, self.epsilon_0, self.T = L, epsilon_0, T
         self.q, self.m = q, m
     def update_grid(self, i, charge_density, electric_field):
@@ -54,6 +44,11 @@ class Simulation(object):
     def fill_particles(self, particle_positions, particle_velocities):
         self.particle_positions = particle_positions
         self.particle_velocities = particle_velocities
+
+    ######
+    # data access
+    ######
+
     def save_data(self, filename=time.strftime("%Y-%m-%d_%H-%M-%S.hdf5")):
         """Save simulation data to hdf5.
         filename by default is the timestamp for the simulation."""

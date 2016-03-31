@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import FourierSolver, MatrixSolver
 import Simulation
 import diagnostics
+from constants import *
+from parameters import *
 
 N=int(1e4)
 NG = 32
