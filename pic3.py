@@ -5,7 +5,7 @@ import Simulation
 
 N=int(1e5)
 NG = 100
-NT = 1000
+NT = 100
 L=1
 dt=0.001
 T = NT*dt
@@ -21,7 +21,7 @@ charge_density = np.zeros_like(x)
 x_particles = np.linspace(0,L,N, endpoint=False) + L/N/100
 x_particles += 0.001*np.sin(x_particles*np.pi/L)
 v_particles = np.ones(N)
-v_particles[::2] = -1
+# v_particles[::2] = -1
 
 
 

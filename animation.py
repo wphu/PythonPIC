@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import Simulation
 import matplotlib.animation as anim
-S = Simulation.load_data("2016-03-03_22-21-21.hdf5")
+S = Simulation.load_data("onestream.hdf5")
 
 # fig, subplots = plt.subplots(3,2, squeeze=True, figsize=(20,20))
 # (charge_axes, phase_axes), (field_axes, d3), (position_hist_axes, velocity_hist_axes) = subplots
