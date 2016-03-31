@@ -2,29 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import FourierSolver, MatrixSolver
 import Simulation
+import diagnostics
+from constants import epsilon_0
+from parameters import NT, NG, N, T, dt, particle_mass, particle_charge, L,x, dx, x_particles, v_particles
 
-N=int(1e5)
-NG = 100
-NT = 100
-L=1
-dt=0.001
-T = NT*dt
-epsilon_0 = 1
-x, dx = np.linspace(0,L,NG, retstep=True,endpoint=False)
-particle_charge = -1
-particle_mass = 1
-
-S = Simulation.Simulation(NT, NG, N, T, particle_charge, particle_mass, L, epsilon_0)
-
-
-charge_density = np.zeros_like(x)
-x_particles = np.linspace(0,L,N, endpoint=False) + L/N/100
-x_particles += 0.001*np.sin(x_particles*np.pi/L)
-v_particles = np.ones(N)
-# v_particles[::2] = -1
-
-
-
+S = Simulation.Simulation(NT, NG, N, T, particle_charge, particle_mass, L, epsilon_0, particle_positions = x_particles, particle_velocities = v_particles)
 
 def charge_density_deposition(x, dx, x_particles, particle_charge):
     """Calculates the charge density on a 1D grid given an array of charged particle positions.
@@ -106,12 +88,16 @@ def all_the_plots(i):
     plt.close()
 
 x_dummy, v_particles = leapfrog_particle_push(x_particles, v_particles, -dt/2., electric_field_function(x_particles)*particle_charge/particle_mass)
+kinetic, field, total = 0, 0, 0
 for i in range(NT):
-    print(i)
     S.update_grid(i, charge_density, electric_field)
     S.update_particles(i, x_particles, v_particles)
+
+    diag = kinetic, field, total =diagnostics.energies(x_particles,v_particles,particle_mass,dx, potential, charge_density)
+    S.update_diagnostics(i, diag)
+    print("i{:4d} T{:12.3f} V{:12.3f} E{:12.3f}".format(i, kinetic, field, total))
 
     x_particles, v_particles = leapfrog_particle_push(x_particles,v_particles,dt,electric_field_function(x_particles)*particle_charge/particle_mass)
     charge_density = charge_density_deposition(x, dx, x_particles, particle_charge)
     potential, electric_field, electric_field_function = field_quantities(x, charge_density)
-S.save_data()
+S.save_data(filename="test.hdf5")
