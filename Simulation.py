@@ -13,14 +13,32 @@ class Simulation(object):
     charge_density, electric_field: shape (NT, NGrid) numpy arrays of historical grid data
     """
     def __init__(self, NT, NGrid, NParticle, T, q, m,
-            L, epsilon_0):
+            L, epsilon_0,
+            charge_density="empty",
+            electric_field="empty",
+            particle_positions = "empty",
+            particle_velocities  = "empty"):
         self.x, self.dx = np.linspace(0,L,NGrid,
                         retstep=True,endpoint=False)
-        self.charge_density = np.zeros((NT, NGrid))
-        self.electric_field = np.zeros((NT, NGrid))
-        self.particle_positions = np.zeros((NT, NParticle))
-        self.particle_velocities = np.zeros((NT, NParticle))
+
         self.NT, self.NGrid, self.NParticle = NT, NGrid, NParticle
+        self.charge_density = np.zeros((NT, NGrid))
+        if (type(charge_density) != type("empty")):
+            self.charge_density[0] = charge_density
+
+        self.electric_field = np.zeros((NT, NGrid))
+        if type(electric_field) != type("empty"):
+            self.electric_field[0] = electric_field
+
+        self.particle_positions = np.zeros((NT, NParticle))
+        if type(particle_positions) != type("empty"):
+            self.particle_positions[0] = particle_positions
+
+        self.particle_velocities= np.zeros((NT, NParticle))
+        if type(particle_velocities) != type("empty"):
+            self.particle_velocities[0] = particle_velocities
+
+
         self.kinetic_energy = np.zeros(NT)
         self.field_energy = np.zeros(NT)
         self.total_energy = np.zeros(NT)

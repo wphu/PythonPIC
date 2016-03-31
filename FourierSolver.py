@@ -15,6 +15,7 @@ def PoissonSolver(rho, x, return_potential=False, epsilon_0=1):
     NG = len(x)
     dx = x[1]-x[0]
     rho_F = fft.rfft(rho)
+    rho_F[0] = 0
     k = fft.rfftfreq(NG, dx)
     potential_F = rho_F[:]
     potential_F[1:] /= k[1:]**2 * epsilon_0
@@ -22,7 +23,15 @@ def PoissonSolver(rho, x, return_potential=False, epsilon_0=1):
     potential = fft.irfft(potential_F)
     field = -np.gradient(potential)
     return field, potential
-
+def PureFieldPoissonSolver(rho, x, epsilon_0 = 1):
+    NG = len(x)
+    dx = x[1]-x[0]
+    rho_F = fft.fft(rho)
+    k = fft.fftfreq(NG,dx)
+    field_F = rho_F[:]
+    field_F[1:] /= 1j*k[1:] * epsilon_0
+    field = fft.irfft(field_F).real()
+    return field
 if __name__=="__main__":
     L=1
     N=1000

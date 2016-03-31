@@ -3,31 +3,10 @@ import matplotlib.pyplot as plt
 import FourierSolver, MatrixSolver
 import Simulation
 import diagnostics
-from constants import *
-from parameters import *
+from constants import epsilon_0
+from parameters import NT, NG, N, T, dt, particle_mass, particle_charge, L,x, dx, x_particles, v_particles
 
-N=int(1e4)
-NG = 32
-NT = 100
-L=1
-dt=0.01
-T = NT*dt
-epsilon_0 = 1
-x, dx = np.linspace(0,L,NG, retstep=True,endpoint=False)
-particle_charge = -1
-particle_mass = 1
-
-S = Simulation.Simulation(NT, NG, N, T, particle_charge, particle_mass, L, epsilon_0)
-
-
-charge_density = np.zeros_like(x)
-x_particles = np.linspace(0,L,N, endpoint=False) + L/N/100
-x_particles += 0.001*np.sin(x_particles*np.pi/L)
-v_particles = np.ones(N)
-v_particles[::2] = -1
-
-
-
+S = Simulation.Simulation(NT, NG, N, T, particle_charge, particle_mass, L, epsilon_0, particle_positions = x_particles, particle_velocities = v_particles)
 
 def charge_density_deposition(x, dx, x_particles, particle_charge):
     """Calculates the charge density on a 1D grid given an array of charged particle positions.
