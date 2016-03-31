@@ -16,7 +16,8 @@ class Simulation(object):
             L=1, epsilon_0 = 1,
             charge_density="empty", electric_field="empty",
             particle_positions="empty", particle_velocities="empty"):
-        self.x, self.dx = np.linspace(0,L,NGrid, retstep=True,endpoint=False)
+        self.x, self.dx = np.linspace(0,L,NGrid,
+                        retstep=True,endpoint=False)
         if type(charge_density)==type("string"):
             self.charge_density = np.zeros((NT, NGrid))
         else:
@@ -43,6 +44,11 @@ class Simulation(object):
         """Update the i-th set of particle values"""
         self.particle_positions[i] = particle_position
         self.particle_velocities[i] = particle_velocity
+    def update_diagnostics(self, i, diagnostics):
+        kinetic_energy, field_energy, total_energy = diagnostics
+        self.kinetic_energy[i] = kinetic_energy
+        self.field_energy[i] = field_energy
+        self.total_energy[i] = total_energy
     def fill_grid(self, charge_density, electric_field):
         self.charge_density, self.electric_field = charge_density, electric_field
     def fill_particles(self, particle_positions, particle_velocities):
