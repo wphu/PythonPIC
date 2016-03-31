@@ -2,12 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import FourierSolver, MatrixSolver
 import Simulation
+import diagnostics
 
-N=int(1e5)
-NG = 100
-NT = 1000
+N=int(1e4)
+NG = 32
+NT = 100
 L=1
-dt=0.001
+dt=0.01
 T = NT*dt
 epsilon_0 = 1
 x, dx = np.linspace(0,L,NG, retstep=True,endpoint=False)
@@ -106,12 +107,15 @@ def all_the_plots(i):
     plt.close()
 
 x_dummy, v_particles = leapfrog_particle_push(x_particles, v_particles, -dt/2., electric_field_function(x_particles)*particle_charge/particle_mass)
+kinetic, field, total = 0, 0, 0
 for i in range(NT):
-    print(i)
     S.update_grid(i, charge_density, electric_field)
     S.update_particles(i, x_particles, v_particles)
+
+    diag = kinetic, field, total =diagnostics.energies(x_particles,v_particles,particle_mass,dx, potential, charge_density)
+    print("i{:4d} T{:12.3f} V{:12.3f} E{:12.3f}".format(i, kinetic, field, total))
 
     x_particles, v_particles = leapfrog_particle_push(x_particles,v_particles,dt,electric_field_function(x_particles)*particle_charge/particle_mass)
     charge_density = charge_density_deposition(x, dx, x_particles, particle_charge)
     potential, electric_field, electric_field_function = field_quantities(x, charge_density)
-S.save_data()
+S.save_data(filename="test.hdf5")

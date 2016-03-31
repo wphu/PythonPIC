@@ -2,16 +2,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 import Simulation
 import matplotlib.animation as anim
-S = Simulation.load_data("2016-03-03_22-21-21.hdf5")
+S = Simulation.load_data("test.hdf5")
 
 # fig, subplots = plt.subplots(3,2, squeeze=True, figsize=(20,20))
 # (charge_axes, phase_axes), (field_axes, d3), (position_hist_axes, velocity_hist_axes) = subplots
-fig, subplots = plt.subplots(3, squeeze=True, figsize=(20,20))
+fig, subplots = plt.subplots(3, squeeze=True, figsize=(10,5))
 charge_axes, field_axes, phase_axes = subplots
 
 phase_plot, = phase_axes.plot([], [], "b,")
 phase_axes.set_xlim(0, S.L)
-maxv = np.mean(np.abs(S.particle_velocities))
+maxv =5* np.mean(np.abs(S.particle_velocities))
 phase_axes.set_ylim(-maxv, maxv)
 # fig.subplots_adjust(hspace=0)
 
@@ -62,5 +62,5 @@ def animate(i):
     # phase_axes_scatter.set_array(S.particle_positions[i], S.particle_velocities[i])
     return charge_plot, field_plot, phase_plot
 animation = anim.FuncAnimation(fig, animate, interval=100, frames=S.NT,blit=True)
-animation.save("video.mp4", fps=30, extra_args=['-vcodec', 'libx264'])
+# animation.save("video.mp4", fps=30, extra_args=['-vcodec', 'libx264'])
 plt.show()
