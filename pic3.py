@@ -6,7 +6,7 @@ import diagnostics
 from constants import epsilon_0
 from parameters import NT, NG, N, T, dt, particle_mass, particle_charge, L,x, dx, x_particles, v_particles
 
-S = Simulation.Simulation(NT, NG, N, T, particle_charge, particle_mass, L, epsilon_0, particle_positions = x_particles, particle_velocities = v_particles)
+S = Simulation.Simulation(NT, NG, N, T, particle_charge, particle_mass, L, epsilon_0)
 
 def charge_density_deposition(x, dx, x_particles, particle_charge):
     """Calculates the charge density on a 1D grid given an array of charged particle positions.

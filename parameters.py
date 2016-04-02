@@ -1,9 +1,9 @@
 import numpy as np
-N = int(1e4)
-NG = 32
+N = int(1e5)
+NG = 128
 NT = 100
 L = 1
-dt = 0.01
+dt = 0.001
 T = NT*dt
 particle_charge = -1
 particle_mass = 1
