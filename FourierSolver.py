@@ -2,76 +2,74 @@ import numpy as np
 import scipy.fftpack as fft
 import matplotlib.pyplot as plt
 
-def PoissonSolver(rho, x, return_potential=False, epsilon_0=1):
-    """Solves the Poisson equation on uniform periodic grids via Fourier Transform
-    Assumes neutrality (0 fourier component of rho == 0)
-
-    rho: array of charge density
-    x: array of x positions
-    return_potential: flag for returning potential, for plotting\purposes
-    epsilon_0: the physical constant
-    """
-
-    NG = len(x)
-    dx = x[1]-x[0]
-    rho_F = fft.rfft(rho)
-    # rho_F[0] = 0
-    k = fft.rfftfreq(NG, dx)
-    potential_F = rho_F[:]
-    potential_F[1:] /= k[1:]**2 * epsilon_0
-    potential_F[0] = 0 #ignore
-    potential = fft.irfft(potential_F)
-    field = -np.gradient(potential)
-    return field, potential
-def PureFieldPoissonSolver(rho, x, epsilon_0 = 1):
+def PoissonSolver(rho, x, epsilon_0 = 1):
     NG = len(x)
     dx = x[1]-x[0]
     rho_F = fft.fft(rho)
     k = fft.fftfreq(NG,dx)
-    field_F = rho_F[:]
-    field_F[1:] /= 1j*k[1:] * epsilon_0
-    field = fft.irfft(field_F).real()
-    return field
-if __name__=="__main__":
+    field_F = np.zeros_like(rho_F)
+    field_F[1:] = rho_F[1:]/(np.pi*2j*k[1:] * epsilon_0)
+    potential_F = np.zeros_like(rho_F)
+    potential_F[1:] = field_F[1:]/(-2j*np.pi*k[1:] * epsilon_0)
+    field = fft.ifft(field_F).real
+    potential = fft.ifft(potential_F).real
+    return field, potential
+
+def PoissonSolver_test(debug=False):
+    from diagnostics import L2norm
+    NG = 128
+    L = 1
+
+    x, dx = np.linspace(-L/2,L/2,NG, retstep=True,endpoint=False)
+    charge_density = np.zeros_like(x)
+
+    charge_density = (2*np.pi)**2*np.sin(2*x*np.pi)
+    field = -2*np.pi*np.cos(2*np.pi*x)
+    potential = np.sin(2*np.pi*x)
+
+    FSfield, FSpotential = PoissonSolver(charge_density, x)
+
+    if debug:
+        fig, axes = plt.subplots(3)
+        ax0, ax1, ax2 = axes
+        ax0.plot(x, charge_density)
+        ax0.set_title("Charge density")
+        ax1.set_title("Field")
+        ax1.plot(x, FSfield, "r-", label="Fourier {:4.2f}".format(L2norm(field, FSfield)))
+        ax1.plot(x, field, "g-", label="Anal")
+        ax2.set_title("Potential")
+        ax2.plot(x, FSpotential, "r-", label="Fourier {:4.2f}".format(L2norm(potential, FSpotential)))
+        ax2.plot(x, potential, "g-", label="Anal")
+        for ax in axes:
+            ax.grid()
+            ax.legend()
+        plt.show()
+    assert np.logical_and(np.isclose(FSfield, field).all(), np.isclose(FSpotential, potential).all())
+
+
+def PoissonSolver_complex_test(debug=False):
     L=1
     N=1000
     epsilon_0 = 1
     x, dx = np.linspace(0, L, N, retstep=True, endpoint=False)
-    charge_density = np.sin(x*2*np.pi)+0.5*np.sin(x*6*np.pi)+0.1*np.sin(x*20*np.pi)
-    # charge_density = np.exp(-(x-L/2)**2/0.10)
+    anal_potential = np.sin(x*2*np.pi)+0.5*np.sin(x*6*np.pi)+0.1*np.sin(x*20*np.pi)
+    anal_field = -(2*np.pi*np.cos(x*2*np.pi)+3*np.pi*np.cos(x*6*np.pi)+20*np.pi*0.1*np.cos(x*20*np.pi))
+    charge_density = ((2*np.pi)**2*np.sin(x*2*np.pi)+18*np.pi**2*np.sin(x*6*np.pi)+(20*np.pi)**2*0.1*np.sin(x*20*np.pi))*epsilon_0
 
+    field, potential = PoissonSolver(charge_density, x)
 
-    rho_F = fft.rfft(charge_density)
-    k = fft.rfftfreq(N, dx)
-    dk = k[1]-k[0]
-
-
-
-    potential_F = np.empty_like(k)
-    potential_F[0]=0
-    potential_F[1:] = rho_F[1:]/k[1:]**2/epsilon_0
-
-    field, potential = PoissonSolver(charge_density, x, return_potential=True)
-
-    fig, (xspace, kspace) = plt.subplots(2,1)
-    xspace.set_title(r"Solving the Poisson equation $\Delta \psi = \rho / \epsilon_0$ via Fourier transform")
-
-    kspace.set_title(r"In Fourier space, $\Delta = k^{-2}$")
-    rhoFplot = kspace.bar(k, rho_F, dk, linewidth=0, color=[1,0,0], alpha=0.5, label=r"$\rho_F$")
-    VFplot = kspace.bar(k, potential_F, dk, linewidth=0, color=[0,1,0], alpha=0.5, label=r"$V_F$")
-    kspace.legend((rhoFplot, VFplot), (r"$\rho_F$",r"$V_F$"))
-    kspace.set_xlim(0,20)
-    kspace.set_xlabel(r"$k$")
-    kspace.grid()
-
-
-    rhoplot, = xspace.plot(x, charge_density, "r-", label=r"\rho")
-    Vplot, = xspace.plot(x, potential, "g-", label=r"$V$")
-    Eplot, = xspace.plot(x, field/np.max(field), "b-", label=r"$E$ (scaled)")
-    EplotNoScale, = xspace.plot(x, field, "b--", label=r"$E$ (not scaled)")
-    xspace.set_xlim(0,L)
-    xspace.set_xlabel("$x$")
-    xspace.grid()
-    xspace.legend((rhoplot, Vplot, Eplot, EplotNoScale), (r"$\rho$", r"$V$", r"$E$ (scaled)", "$E$ (not scaled)"))
-    plt.savefig("FourierSolver.pdf")
-    plt.show()
+    if debug:
+        fig, xspace = plt.subplots()
+        xspace.set_title(r"Solving the Poisson equation $\Delta \psi = \rho / \epsilon_0$ via Fourier transform")
+        rhoplot, = xspace.plot(x, charge_density, "r-", label=r"\rho")
+        Vplot, = xspace.plot(x, potential, "g-", label=r"$V$")
+        Eplot, = xspace.plot(x, field/np.max(field), "b-", label=r"$E$ (scaled)")
+        EplotNoScale, = xspace.plot(x, field, "b--", label=r"$E$ (not scaled)")
+        xspace.set_xlim(0,L)
+        xspace.set_xlabel("$x$")
+        xspace.grid()
+        xspace.legend((rhoplot, Vplot, Eplot, EplotNoScale), (r"$\rho$", r"$V$", r"$E$ (scaled)", "$E$ (not scaled)"))
+        plt.show()
+    print(field-anal_field)
+    print(potential-anal_potential)
+    assert np.logical_and(np.isclose(field, anal_field).all(), np.isclose(potential, anal_potential).all())

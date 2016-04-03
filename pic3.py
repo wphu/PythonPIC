@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import FourierSolver, MatrixSolver
+import FourierSolver
 import Simulation
 import diagnostics
 from constants import epsilon_0
@@ -32,19 +32,12 @@ def interpolateField(x_particles, electric_field, x):
         (x_particles - x[indices_on_grid]) * electric_field[(indices_on_grid+1)%NG]
     return field / dx
 
-matrix_inverse = MatrixSolver.setup_inverse_matrix(NG, dx)
-
-def field_quantities(x, charge_density, solver = "fourier"):
-    if solver=="matrix":
-        potential, electric_field = MatrixSolver.PoissonSolver(charge_density, matrix_inverse)
-    elif solver == "fourier":
-        potential, electric_field = FourierSolver.PoissonSolver(charge_density, x)
-    # electric_field_function = sp.interpolate.interp1d(x, electric_field, assume_sorted=True)
+def field_quantities(x, charge_density):
+    potential, electric_field = FourierSolver.PoissonSolver(charge_density, x)
     electric_field_function = lambda x_particles: interpolateField(x_particles, electric_field, x)
-
     return potential, electric_field, electric_field_function
 
-potential, electric_field, electric_field_function = field_quantities(x, charge_density, solver="fourier")
+potential, electric_field, electric_field_function = field_quantities(x, charge_density)
 
 def leapfrog_particle_push(x, v, dt, electric_force):
     v_new = v + electric_force*dt
