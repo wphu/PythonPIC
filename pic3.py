@@ -27,12 +27,16 @@ def charge_density_deposition(x, dx, x_particles, particle_charge):
 charge_density=charge_density_deposition(x, dx, x_particles, particle_charge)
 
 def interpolateField(x_particles, electric_field, x):
+    #TODO: test this function, see how it behaves at boundaries
+    #TODO: see birdsall 40
+    #TODO: implement cubic spline interpolation
     indices_on_grid = (x_particles/dx).astype(int)
     field = (x[indices_on_grid] + dx - x_particles) * electric_field[indices_on_grid] +\
         (x_particles - x[indices_on_grid]) * electric_field[(indices_on_grid+1)%NG]
     return field / dx
 
 def field_quantities(x, charge_density):
+    #TODO: this is not elegant :( can probably be rewritten)
     potential, electric_field = FourierSolver.PoissonSolver(charge_density, x)
     electric_field_function = lambda x_particles: interpolateField(x_particles, electric_field, x)
     return potential, electric_field, electric_field_function
@@ -40,6 +44,8 @@ def field_quantities(x, charge_density):
 potential, electric_field, electric_field_function = field_quantities(x, charge_density)
 
 def leapfrog_particle_push(x, v, dt, electric_force):
+    #TODO: make sure energies are given at proper times (at same time for position, velocity)
+    #TODO: make sure omega_zero * dt <= 2 to remove errors
     v_new = v + electric_force*dt
     return (x + v_new*dt)%L, v_new
 
