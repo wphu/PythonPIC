@@ -17,32 +17,28 @@ class Simulation(object):
             charge_density="empty",
             electric_field="empty",
             particle_positions = "empty",
-            particle_velocities  = "empty"):
+            particle_velocities  = "empty",
+            kinetic_energy="empty",
+            field_energy="empty",
+            total_energy="empty"):
         self.x, self.dx = np.linspace(0,L,NGrid,
                         retstep=True,endpoint=False)
 
         self.NT, self.NGrid, self.NParticle = NT, NGrid, NParticle
-        self.charge_density = np.zeros((NT, NGrid))
-        if (type(charge_density) != type("empty")):
-            self.charge_density = charge_density
 
-        self.electric_field = np.zeros((NT, NGrid))
-        if type(electric_field) != type("empty"):
-            self.electric_field = electric_field
+        def fill_array(hopefully_array, shape_tuple):
+            if type(hopefully_array) == type("empty"):
+                return np.zeros(shape_tuple)
+            else:
+                return hopefully_array
 
-        self.particle_positions = np.zeros((NT, NParticle))
-        if type(particle_positions) != type("empty"):
-            self.particle_positions = particle_positions
-
-        self.particle_velocities= np.zeros((NT, NParticle))
-        if type(particle_velocities) != type("empty"):
-            self.particle_velocities = particle_velocities
-
-
-        self.kinetic_energy = np.zeros(NT)
-        self.field_energy = np.zeros(NT)
-        self.total_energy = np.zeros(NT)
-
+        self.charge_density = fill_array(charge_density,(NT, NGrid))
+        self.electric_field = fill_array(electric_field,(NT, NGrid))
+        self.particle_positions = fill_array(particle_positions,(NT, NParticle))
+        self.particle_velocities= fill_array(particle_velocities,(NT, NParticle))
+        self.kinetic_energy=fill_array(kinetic_energy,NT)
+        self.field_energy=fill_array(field_energy,NT)
+        self.total_energy=fill_array(total_energy,NT)
         self.L, self.epsilon_0, self.T = L, epsilon_0, T
         self.q, self.m = q, m
     def update_grid(self, i, charge_density, electric_field):
@@ -62,6 +58,11 @@ class Simulation(object):
     def fill_particles(self, particle_positions, particle_velocities):
         self.particle_positions = particle_positions
         self.particle_velocities = particle_velocities
+    def fill_diagnostics(self, diagnostics):
+        kinetic_energy, field_energy, total_energy = diagnostics
+        self.kinetic_energy = kinetic_energy
+        self.field_energy = field_energy
+        self.total_energy = total_energy
 
     ######
     # data access
@@ -78,6 +79,9 @@ class Simulation(object):
             f.create_dataset(name = "Particle positions", dtype=float, data=S.particle_positions)
             f.create_dataset(name = "Particle velocities", dtype=float, data=S.particle_velocities)
             f.create_dataset(name = "Grid", dtype=float, data = S.x)
+            f.create_dataset(name = "Kinetic energy", dtype=float, data=S.kinetic_energy)
+            f.create_dataset(name = "Field energy", dtype=float, data=S.field_energy)
+            f.create_dataset(name = "Total energy", dtype=float, data=S.total_energy)
             f.attrs['NT'] = S.NT
             f.attrs['NGrid'] = S.NGrid
             f.attrs['NParticle'] = S.NParticle
@@ -92,13 +96,18 @@ def load_data(filename):
         field = f['Electric field'][...]
         positions = f['Particle positions'][...]
         velocities = f['Particle velocities'][...]
+        kinetic_energy = f['Kinetic energy'][...]
+        field_energy = f['Field energy'][...]
+        total_energy = f['Total energy'][...]
         NT = f.attrs['NT']
         T = f.attrs['T']
         NGrid = f.attrs['NGrid']
         NParticle = f.attrs['NParticle']
-    S = Simulation(NT, NGrid, NParticle, T, charge_density=charge_density, electric_field=field, particle_positions=positions, particle_velocities=velocities)
+    S = Simulation(NT, NGrid, NParticle, T, charge_density=charge_density, electric_field=field, particle_positions=positions, particle_velocities=velocities, kinetic_energy=kinetic_energy,
+    field_energy = field_energy, total_energy = total_energy)
     S.fill_grid(charge_density, field)
     S.fill_particles(positions, velocities)
+    S.fill_diagnostics((kinetic_energy, field_energy, total_energy))
     return S
 
 if __name__=="__main__":
