@@ -37,11 +37,11 @@ def interpolateField(x_particles, electric_field, x):
 
 def field_quantities(x, charge_density):
     #TODO: this is not elegant :( can probably be rewritten)
-    potential, electric_field = FourierSolver.PoissonSolver(charge_density, x)
+    potential, electric_field, fourier_field_energy = FourierSolver.PoissonSolver(charge_density, x)
     electric_field_function = lambda x_particles: interpolateField(x_particles, electric_field, x)
-    return potential, electric_field, electric_field_function
+    return potential, electric_field, electric_field_function, fourier_field_energy
 
-potential, electric_field, electric_field_function = field_quantities(x, charge_density)
+potential, electric_field, electric_field_function, fourier_field_energy = field_quantities(x, charge_density)
 
 def leapfrog_particle_push(x, v, dt, electric_force):
     #TODO: make sure energies are given at proper times (at same time for position, velocity)
@@ -92,11 +92,13 @@ for i in range(NT):
     S.update_grid(i, charge_density, electric_field)
     S.update_particles(i, x_particles, v_particles)
 
-    diag = kinetic, field, total =diagnostics.energies(x_particles,v_particles,particle_mass,dx, potential, charge_density)
-    S.update_diagnostics(i, diag)
+    kinetic, field, total =diagnostics.energies(x_particles,v_particles,particle_mass,dx, potential, charge_density)
     print("i{:4d} T{:12.3f} V{:12.3f} E{:12.3f}".format(i, kinetic, field, total))
 
     x_particles, v_particles = leapfrog_particle_push(x_particles,v_particles,dt,electric_field_function(x_particles)*particle_charge/particle_mass)
     charge_density = charge_density_deposition(x, dx, x_particles, particle_charge)
-    potential, electric_field, electric_field_function = field_quantities(x, charge_density)
+    potential, electric_field, electric_field_function, fourier_field_energy = field_quantities(x, charge_density)
+
+    diag = kinetic, fourier_field_energy, kinetic + fourier_field_energy
+    S.update_diagnostics(i, diag)
 S.save_data(filename="test.hdf5")

@@ -1,5 +1,5 @@
 import numpy as np
-N = int(1e4)
+N = int(1e5)
 NG = 32
 NT = 100
 L = 1

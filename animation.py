@@ -22,9 +22,9 @@ charge_plot, = charge_axes.plot([],[])
 
 
 
-energy_axes.plot(S.kinetic_energy, label="Kinetic energy")
-energy_axes.plot(S.field_energy, label="Field energy")
-energy_axes.plot(S.total_energy, label="Total energy")
+energy_axes.plot(np.arange(S.NT),np.log(S.kinetic_energy), label="Kinetic energy")
+energy_axes.plot(np.arange(S.NT),np.log(S.field_energy), label="Field energy")
+energy_axes.plot(np.arange(S.NT),np.log(S.total_energy), label="Total energy")
 energy_axes.grid()
 energy_axes.set_xlabel("Time")
 energy_axes.set_ylabel("Energy")

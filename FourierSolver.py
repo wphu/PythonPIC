@@ -21,10 +21,9 @@ def PoissonSolver(rho, x, epsilon_0 = 1):
     field = fft.ifft(field_F).real
     potential = fft.ifft(potential_F).real
 
-    #TODO: implement this
-    #energy = 0.5*np.sum(rho_F*potential_F.conjugate())
+    energy = (0.5*np.sum(rho_F*potential_F.conjugate())).real
 
-    return field, potential#, energy
+    return field, potential, energy
 
 def PoissonSolver_test(debug=False):
     from diagnostics import L2norm
@@ -38,7 +37,7 @@ def PoissonSolver_test(debug=False):
     field = -2*np.pi*np.cos(2*np.pi*x)
     potential = np.sin(2*np.pi*x)
 
-    FSfield, FSpotential = PoissonSolver(charge_density, x)
+    FSfield, FSpotential, FSenergy = PoissonSolver(charge_density, x)
 
     if debug:
         fig, axes = plt.subplots(3)
