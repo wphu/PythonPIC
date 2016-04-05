@@ -22,7 +22,6 @@ def PoissonSolver(rho, x, epsilon_0 = 1):
     potential = fft.ifft(potential_F).real
 
     energy = (0.5*np.sum(rho_F*potential_F.conjugate())).real
-
     return field, potential, energy
 
 def PoissonSolver_test(debug=False):

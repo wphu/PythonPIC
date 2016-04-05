@@ -5,6 +5,13 @@ import Simulation
 import diagnostics
 from constants import epsilon_0
 from parameters import NT, NG, N, T, dt, particle_mass, particle_charge, L,x, dx, x_particles, v_particles
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("filename", help="hdf5 file name for storing data")
+args = parser.parse_args()
+if(args.filename[-5:] != ".hdf5"):
+    args.filename = args.filename + ".hdf5"
 
 S = Simulation.Simulation(NT, NG, N, T, particle_charge, particle_mass, L, epsilon_0)
 
@@ -101,4 +108,4 @@ for i in range(NT):
 
     diag = kinetic, fourier_field_energy, kinetic + fourier_field_energy
     S.update_diagnostics(i, diag)
-S.save_data(filename="test.hdf5")
+S.save_data(filename=args.filename)

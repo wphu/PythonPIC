@@ -2,7 +2,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 import Simulation
 import matplotlib.animation as anim
-S = Simulation.load_data("test.hdf5")
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("filename", help="hdf5 file name for storing data")
+args = parser.parse_args()
+if(args.filename[-5:] != ".hdf5"):
+    args.filename = args.filename + ".hdf5"
+
+S = Simulation.load_data(args.filename)
 
 # fig, subplots = plt.subplots(3,2, squeeze=True, figsize=(20,20))
 # (charge_axes, phase_axes), (field_axes, d3), (position_hist_axes, velocity_hist_axes) = subplots
