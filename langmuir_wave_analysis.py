@@ -20,13 +20,12 @@ with h5py.File(args.filename) as f:
     freqstep = fourier_frequencies[1]-fourier_frequencies[0]
     print("NT: {}, dt: {}".format(NT, dt))
     fig, (timed, freqd) = plt.subplots(2)
-    freqd.plot(fourier_frequencies,
-        np.ones_like(fourier_frequencies)*parameters.plasma_frequency)
-    for i in (0, 8, 16, 30):
+    freqd.plot(parameters.plasma_frequency, 0, "ro")
+    for i in (0,):
         rho = charge_density = f['Charge density'][:,i]
         rho_F = fft.rfft(rho)
-        rho_F[0]=0
-        print("Discrepancy: {}".format(rho_F[0]/parameters.plasma_frequency))
+        rho_F[0] = 0
+        # print("Discrepancy: {}".format(rho_F[0]/parameters.plasma_frequency))
         timed.plot(np.arange(0,NT*dt,dt),charge_density, label=i)
         freqd.bar(fourier_frequencies, rho_F, width=freqstep, label=i)
     timed.legend()

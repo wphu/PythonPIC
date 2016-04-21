@@ -6,6 +6,7 @@ import diagnostics
 from constants import epsilon_0
 from parameters import NT, NG, N, T, dt, particle_mass, particle_charge, L,x, dx, x_particles, v_particles
 import argparse
+import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument("filename", help="hdf5 file name for storing data")
@@ -95,6 +96,8 @@ def all_the_plots(i):
 
 x_dummy, v_particles = leapfrog_particle_push(x_particles, v_particles, -dt/2., electric_field_function(x_particles)*particle_charge/particle_mass)
 kinetic, field, total = 0, 0, 0
+
+start_time = time.time()
 for i in range(NT):
     S.update_grid(i, charge_density, electric_field)
     S.update_particles(i, x_particles, v_particles)
@@ -108,4 +111,6 @@ for i in range(NT):
 
     diag = kinetic, fourier_field_energy, kinetic + fourier_field_energy
     S.update_diagnostics(i, diag)
+runtime = time.time()-start_time
+print("Runtime: {}".format(runtime))
 S.save_data(filename=args.filename)

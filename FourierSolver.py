@@ -14,17 +14,17 @@ def PoissonSolver(rho, x, epsilon_0 = 1):
     dx = x[1]-x[0]
     rho_F = fft.fft(rho)
     k = fft.fftfreq(NG,dx)
-    field_F = np.zeros_like(rho_F)
-    field_F[1:] = rho_F[1:]/(np.pi*2j*k[1:] * epsilon_0)
-    potential_F = np.zeros_like(rho_F)
-    potential_F[1:] = field_F[1:]/(-2j*np.pi*k[1:] * epsilon_0)
+    k[0] = 1.0
+    field_F = rho_F/(np.pi*2j*k * epsilon_0)
+    potential_F = field_F/(-2j*np.pi*k * epsilon_0)
     field = fft.ifft(field_F).real
     potential = fft.ifft(potential_F).real
-
-    energy = (0.5*np.sum(rho_F*potential_F.conjugate())).real
+    energy = np.abs((0.5*np.sum(rho_F*potential_F.conjugate())))
+    # field -= field.ptp()/2
+    # potential -= potential.ptp()/2
     return field, potential, energy
 
-def PoissonSolver_test(debug=False):
+def PoissonSolver_test(debug=True):
     from diagnostics import L2norm
     NG = 128
     L = 1
@@ -56,7 +56,7 @@ def PoissonSolver_test(debug=False):
     assert np.logical_and(np.isclose(FSfield, field).all(), np.isclose(FSpotential, potential).all())
 
 
-def PoissonSolver_complex_test(debug=False):
+def PoissonSolver_complex_test(debug=True):
     L=1
     N=1000
     epsilon_0 = 1
@@ -65,7 +65,7 @@ def PoissonSolver_complex_test(debug=False):
     anal_field = -(2*np.pi*np.cos(x*2*np.pi)+3*np.pi*np.cos(x*6*np.pi)+20*np.pi*0.1*np.cos(x*20*np.pi))
     charge_density = ((2*np.pi)**2*np.sin(x*2*np.pi)+18*np.pi**2*np.sin(x*6*np.pi)+(20*np.pi)**2*0.1*np.sin(x*20*np.pi))*epsilon_0
 
-    field, potential = PoissonSolver(charge_density, x)
+    field, potential, energy = PoissonSolver(charge_density, x)
 
     if debug:
         fig, xspace = plt.subplots()
