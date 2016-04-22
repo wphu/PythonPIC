@@ -10,7 +10,7 @@ particle_mass = 1
 epsilon_0 = constants.epsilon_0
 
 density = N/L
-plasma_frequency = np.sqrt(density*particle_charge**2/particle_mass/epsilon_0)/2
+plasma_frequency = np.sqrt(density*particle_charge**2/particle_mass/epsilon_0)
 print("Plasma frequency: {} rad/s".format(plasma_frequency))
 dt = 0.01/(plasma_frequency/np.pi/2)
 print("dt: {}".format(dt))

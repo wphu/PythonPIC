@@ -21,13 +21,15 @@ with h5py.File(args.filename) as f:
     print("NT: {}, dt: {}".format(NT, dt))
     fig, (timed, freqd) = plt.subplots(2)
     freqd.plot(parameters.plasma_frequency, 0, "ro")
-    for i in (0,):
+    for i, color in ((0, 'b'),(16,'g'),(24,'r')):
         rho = charge_density = f['Charge density'][:,i]
         rho_F = fft.rfft(rho)
         rho_F[0] = 0
         # print("Discrepancy: {}".format(rho_F[0]/parameters.plasma_frequency))
-        timed.plot(np.arange(0,NT*dt,dt),charge_density, label=i)
-        freqd.bar(fourier_frequencies, rho_F, width=freqstep, label=i)
+        timed.plot(np.arange(0,NT*dt,dt),charge_density, label=i, color=color, alpha=0.5)
+        freqd.bar(fourier_frequencies, rho_F, width=freqstep, label=i, color=color, alpha=0.5)
     timed.legend()
     freqd.legend()
+    timed.grid()
+    freqd.grid()
     plt.show()

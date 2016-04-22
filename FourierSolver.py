@@ -13,6 +13,7 @@ def PoissonSolver(rho, x, epsilon_0 = 1):
     NG = len(x)
     dx = x[1]-x[0]
     rho_F = fft.fft(rho)
+    rho_F[0] = 0
     k = fft.fftfreq(NG,dx)
     k[0] = 1.0
     field_F = rho_F/(np.pi*2j*k * epsilon_0)
