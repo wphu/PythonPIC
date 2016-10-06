@@ -44,7 +44,7 @@ def interpolateField(x_particles, electric_field, x):
     return field / dx
 
 def field_quantities(x, charge_density):
-    #TODO: this is not elegant :( can probably be rewritten)
+    #TODO: this is neither elegant nor efficient :( can probably be rewritten)
     potential, electric_field, fourier_field_energy = FourierSolver.PoissonSolver(charge_density, x)
     electric_field_function = lambda x_particles: interpolateField(x_particles, electric_field, x)
     return potential, electric_field, electric_field_function, fourier_field_energy
@@ -103,7 +103,7 @@ for i in range(NT):
     S.update_particles(i, x_particles, v_particles)
 
     kinetic, field, total =diagnostics.energies(x_particles,v_particles,particle_mass,dx, potential, charge_density)
-    print("i{:4d} T{:12.3f} V{:12.3f} E{:12.3f}".format(i, kinetic, field, total))
+    print("i{:4d} T{:12.3e} V{:12.3e} E{:12.3e}".format(i, kinetic, field, total))
 
     x_particles, v_particles = leapfrog_particle_push(x_particles,v_particles,dt,electric_field_function(x_particles)*particle_charge/particle_mass)
     charge_density = charge_density_deposition(x, dx, x_particles, particle_charge)
@@ -111,6 +111,7 @@ for i in range(NT):
 
     diag = kinetic, fourier_field_energy, kinetic + fourier_field_energy
     S.update_diagnostics(i, diag)
+
 runtime = time.time()-start_time
 print("Runtime: {}".format(runtime))
 S.save_data(filename=args.filename)

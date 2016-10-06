@@ -1,10 +1,10 @@
 import numpy as np
 import constants
-N = int(1e4)
+N = int(128)
 NG = 32
-NT = 400
-L = 1
-dt = 0.001
+NT = 150
+L = 2*np.pi
+dt = 0.2
 particle_charge = 1
 particle_mass = 1
 epsilon_0 = constants.epsilon_0
@@ -12,8 +12,9 @@ epsilon_0 = constants.epsilon_0
 density = N/L
 plasma_frequency = np.sqrt(density*particle_charge**2/particle_mass/epsilon_0)
 print("Plasma frequency: {} rad/s".format(plasma_frequency))
-dt = 0.01/(plasma_frequency/np.pi/2)
-print("dt: {}".format(dt))
+# dt = 0.01/(plasma_frequency/np.pi/2)
+dt = 0.2/plasma_frequency
+# print("dt: {}".format(dt))
 
 T = NT*dt
 

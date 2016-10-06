@@ -3,12 +3,6 @@ import scipy.fftpack as fft
 import matplotlib.pyplot as plt
 
 def PoissonSolver(rho, x, epsilon_0 = 1):
-    #TODO: $G(k) = delta_x sum_{j=0}^{NG-1} G(X_j) exp(-ikX_j)$
-    # so for k = 0, this reduces to
-    # $delta_x$ sum_{gridpoints} G(X_j)$
-    # this happens to be the integral of the thing
-    # does this let us regain potential(k=0)?
-
     #TODO: Aliasing: keep abs(delta_x k) < pi
     NG = len(x)
     dx = x[1]-x[0]
