@@ -3,7 +3,7 @@ import numpy as np
 
 qslashm = charge_to_mass_ratio = 1
 def BorisPush(x_particles, v_particles, E, B, dt, qslashm):
-    """Implements the Boris particle pusher given:
+    """Implements the 1D Boris particle pusher given:
     x_particles: nparray, locations of particles at time t
     v_particles: nparray, velocities of particles at time t-dt/2 (assumes the leapfrog staggering)
     E: nparray, electric field vector interpolated to particle positions
