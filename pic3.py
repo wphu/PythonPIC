@@ -8,13 +8,6 @@ from parameters import NT, NG, N, T, dt, particle_mass, particle_charge, L,x, dx
 import argparse
 import time
 
-parser = argparse.ArgumentParser()
-parser.add_argument("filename", help="hdf5 file name for storing data")
-args = parser.parse_args()
-if(args.filename[-5:] != ".hdf5"):
-    args.filename = args.filename + ".hdf5"
-
-S = Simulation.Simulation(NT, NG, N, T, particle_charge, particle_mass, L, epsilon_0)
 
 def charge_density_deposition(x, dx, x_particles, particle_charge):
     """Calculates the charge density on a 1D grid given an array of charged particle positions.
@@ -32,7 +25,6 @@ def charge_density_deposition(x, dx, x_particles, particle_charge):
         charge_density[(index+1)%(NG)] += particle_charge * (xp - x[index])/dx
     return charge_density
 
-charge_density=charge_density_deposition(x, dx, x_particles, particle_charge)
 
 def interpolateField(x_particles, electric_field, x):
     #TODO: test this function, see how it behaves at boundaries
@@ -48,8 +40,6 @@ def field_quantities(x, charge_density):
     potential, electric_field, fourier_field_energy = FourierSolver.PoissonSolver(charge_density, x)
     electric_field_function = lambda x_particles: interpolateField(x_particles, electric_field, x)
     return potential, electric_field, electric_field_function, fourier_field_energy
-
-potential, electric_field, electric_field_function, fourier_field_energy = field_quantities(x, charge_density)
 
 def leapfrog_particle_push(x, v, dt, electric_force):
     #TODO: make sure energies are given at proper times (at same time for position, velocity)
@@ -94,24 +84,37 @@ def all_the_plots(i):
     plt.clf()
     plt.close()
 
-x_dummy, v_particles = leapfrog_particle_push(x_particles, v_particles, -dt/2., electric_field_function(x_particles)*particle_charge/particle_mass)
-kinetic, field, total = 0, 0, 0
+if __name__=="__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("filename", help="hdf5 file name for storing data")
+    args = parser.parse_args()
+    if(args.filename[-5:] != ".hdf5"):
+        args.filename = args.filename + ".hdf5"
 
-start_time = time.time()
-for i in range(NT):
-    S.update_grid(i, charge_density, electric_field)
-    S.update_particles(i, x_particles, v_particles)
+        S = Simulation.Simulation(NT, NG, N, T, particle_charge, particle_mass, L, epsilon_0)
+    charge_density=charge_density_deposition(x, dx, x_particles, particle_charge)
 
-    kinetic, field, total =diagnostics.energies(x_particles,v_particles,particle_mass,dx, potential, charge_density)
-    print("i{:4d} T{:12.3e} V{:12.3e} E{:12.3e}".format(i, kinetic, field, total))
-
-    x_particles, v_particles = leapfrog_particle_push(x_particles,v_particles,dt,electric_field_function(x_particles)*particle_charge/particle_mass)
-    charge_density = charge_density_deposition(x, dx, x_particles, particle_charge)
     potential, electric_field, electric_field_function, fourier_field_energy = field_quantities(x, charge_density)
 
-    diag = kinetic, fourier_field_energy, kinetic + fourier_field_energy
-    S.update_diagnostics(i, diag)
 
-runtime = time.time()-start_time
-print("Runtime: {}".format(runtime))
-S.save_data(filename=args.filename)
+    x_dummy, v_particles = leapfrog_particle_push(x_particles, v_particles, -dt/2., electric_field_function(x_particles)*particle_charge/particle_mass)
+    kinetic, field, total = 0, 0, 0
+
+    start_time = time.time()
+    for i in range(NT):
+        S.update_grid(i, charge_density, electric_field)
+        S.update_particles(i, x_particles, v_particles)
+
+        kinetic, field, total =diagnostics.energies(x_particles,v_particles,particle_mass,dx, potential, charge_density)
+        print("i{:4d} T{:12.3e} V{:12.3e} E{:12.3e}".format(i, kinetic, field, total))
+
+        x_particles, v_particles = leapfrog_particle_push(x_particles,v_particles,dt,electric_field_function(x_particles)*particle_charge/particle_mass)
+        charge_density = charge_density_deposition(x, dx, x_particles, particle_charge)
+        potential, electric_field, electric_field_function, fourier_field_energy = field_quantities(x, charge_density)
+
+        diag = kinetic, fourier_field_energy, kinetic + fourier_field_energy
+        S.update_diagnostics(i, diag)
+
+    runtime = time.time()-start_time
+    print("Runtime: {}".format(runtime))
+    S.save_data(filename=args.filename)
