@@ -1,6 +1,8 @@
 from FourierSolver import *
 
-def test_PoissonSolver(debug=True):
+DEBUG = False
+
+def test_PoissonSolver(debug=DEBUG):
     from diagnostics import L2norm
     NG = 128
     L = 1
@@ -32,7 +34,7 @@ def test_PoissonSolver(debug=True):
     assert np.logical_and(np.isclose(FSfield, field).all(), np.isclose(FSpotential, potential).all())
 
 
-def test_PoissonSolver_complex(debug=True):
+def test_PoissonSolver_complex(debug=DEBUG):
     L=1
     N=1000
     epsilon_0 = 1
@@ -59,7 +61,7 @@ def test_PoissonSolver_complex(debug=True):
     print(potential-anal_potential)
     assert np.logical_and(np.isclose(field, anal_field).all(), np.isclose(potential, anal_potential).all())
 
-def test_PoissonSolver_sheets(debug=True):
+def test_PoissonSolver_sheets(debug=DEBUG, test_charge_density=1):
     from diagnostics import L2norm
     NG = 128
     L = 1
@@ -68,8 +70,8 @@ def test_PoissonSolver_sheets(debug=True):
     charge_density = np.zeros_like(x)
     region1 = (-L*1/4 < x) * (x < -L*1/8)
     region2 = (L*1/8 < x) * (x < L*1/4)
-    charge_density[region1] = 1
-    charge_density[region2] = -1
+    charge_density[region1] = test_charge_density
+    charge_density[region2] = -test_charge_density
 
     FSfield, FSpotential, FSenergy = PoissonSolver(charge_density, x)
 
@@ -88,5 +90,54 @@ def test_PoissonSolver_sheets(debug=True):
             ax.grid()
             ax.legend()
         plt.show()
-    # assert np.logical_and(np.isclose(FSfield, field).all(), np.isclose(FSpotential, potential).all())
-    assert False
+    
+    polynomial_coefficients = np.polyfit(x[region1], FSfield[region1], 1)
+    # print(polynomial_coefficients[0], -test_charge_density)
+    assert np.isclose(polynomial_coefficients[0], test_charge_density, rtol=1e-2)
+    
+    polynomial_coefficients = np.polyfit(x[region2], FSfield[region2], 1)
+    # print(polynomial_coefficients[0])
+    assert np.isclose(polynomial_coefficients[0], -test_charge_density, rtol=1e-2)
+    
+def test_PoissonSolver_ramp(debug=DEBUG):
+    """ For a charge density rho = Ax + B
+    d2phi/dx2 = -rho/epsilon_0
+    set epsilon_0 to 1
+	d2phi/dx2 = Ax
+	phi must be of form
+	phi = -Ax^3/6 + Bx^2 + Cx + D"""
+
+	
+    from diagnostics import L2norm
+    NG = 128
+    L = 1
+
+    a = 1
+
+    x, dx = np.linspace(-L/2,L/2,NG, retstep=True,endpoint=False)
+    charge_density = a*x
+
+    FSfield, FSpotential, FSenergy = PoissonSolver(charge_density, x)
+    potential = -a*x**3/6
+    if debug:
+        fig, axes = plt.subplots(3)
+        ax0, ax1, ax2 = axes
+        ax0.plot(x, charge_density)
+        ax0.set_title("Charge density")
+        ax1.set_title("Field")
+        ax1.plot(x, FSfield, "r-")
+        # ax1.plot(x, field, "g-", label="Anal")
+        ax2.set_title("Potential")
+        ax2.plot(x, FSpotential, "r-")
+        ax2.plot(x, potential, "g-", label="Anal")
+        for ax in axes:
+            ax.grid()
+            ax.legend()
+        plt.show()
+
+    polynomial_coefficients = np.polyfit(x, FSpotential, 3)
+    # print(polynomial_coefficients[0], -a/6)
+    assert np.isclose(polynomial_coefficients[0], -a/6,)
+
+if __name__=="__main__":
+	test_PoissonSolver_sheets()
