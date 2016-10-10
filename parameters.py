@@ -5,7 +5,7 @@ NG = 32
 NT = 150
 L = 2*np.pi
 dt = 0.2
-particle_charge = 1
+particle_charge = -1
 particle_mass = 1
 epsilon_0 = constants.epsilon_0
 

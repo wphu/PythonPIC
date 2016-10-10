@@ -1,6 +1,6 @@
 from FourierSolver import *
 
-DEBUG = False
+DEBUG = True
 
 def test_PoissonSolver(debug=DEBUG):
     from diagnostics import L2norm
@@ -90,15 +90,15 @@ def test_PoissonSolver_sheets(debug=DEBUG, test_charge_density=1):
             ax.grid()
             ax.legend()
         plt.show()
-    
+
     polynomial_coefficients = np.polyfit(x[region1], FSfield[region1], 1)
     # print(polynomial_coefficients[0], -test_charge_density)
     assert np.isclose(polynomial_coefficients[0], test_charge_density, rtol=1e-2)
-    
+
     polynomial_coefficients = np.polyfit(x[region2], FSfield[region2], 1)
     # print(polynomial_coefficients[0])
     assert np.isclose(polynomial_coefficients[0], -test_charge_density, rtol=1e-2)
-    
+
 def test_PoissonSolver_ramp(debug=DEBUG):
     """ For a charge density rho = Ax + B
     d2phi/dx2 = -rho/epsilon_0
@@ -107,7 +107,7 @@ def test_PoissonSolver_ramp(debug=DEBUG):
 	phi must be of form
 	phi = -Ax^3/6 + Bx^2 + Cx + D"""
 
-	
+
     from diagnostics import L2norm
     NG = 128
     L = 1

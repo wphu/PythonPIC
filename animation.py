@@ -19,7 +19,7 @@ fig2, energy_axes = plt.subplots()
 charge_axes, field_axes, phase_axes = subplots
 iteration = charge_axes.text(0.1, 0.9, 'i=x',horizontalalignment='center',
 verticalalignment='center',transform=charge_axes.transAxes)
-phase_plot, = phase_axes.plot([], [], "b,")
+phase_plot, = phase_axes.plot([], [], "b.")
 phase_axes.set_xlim(0, S.L)
 maxv =5* np.mean(np.abs(S.particle_velocities))
 phase_axes.set_ylim(-maxv, maxv)
@@ -30,13 +30,13 @@ charge_plot, = charge_axes.plot([],[])
 
 
 
-energy_axes.plot(np.arange(S.NT),np.log(S.kinetic_energy), label="Kinetic energy")
-energy_axes.plot(np.arange(S.NT),np.log(S.field_energy), label="Field energy")
-energy_axes.plot(np.arange(S.NT),np.log(S.total_energy), label="Total energy")
+energy_axes.semilogy(np.arange(S.NT),(S.kinetic_energy), label="Kinetic energy")
+energy_axes.semilogy(np.arange(S.NT),(S.field_energy), label="Field energy")
+energy_axes.semilogy(np.arange(S.NT),(S.total_energy), label="Total energy")
 energy_axes.grid()
 energy_axes.set_xlabel("Time")
 energy_axes.set_ylabel("Energy")
-energy_axes.legend()
+energy_axes.legend(loc='best')
 # fig.subplots_adjust(hspace=0)
 # potential_plot, = charge_axes.plot(S.x, S.potential, "g-")
 
