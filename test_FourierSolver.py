@@ -58,3 +58,35 @@ def test_PoissonSolver_complex(debug=True):
     print(field-anal_field)
     print(potential-anal_potential)
     assert np.logical_and(np.isclose(field, anal_field).all(), np.isclose(potential, anal_potential).all())
+
+def test_PoissonSolver_sheets(debug=True):
+    from diagnostics import L2norm
+    NG = 128
+    L = 1
+
+    x, dx = np.linspace(-L/2,L/2,NG, retstep=True,endpoint=False)
+    charge_density = np.zeros_like(x)
+    region1 = (-L*1/4 < x) * (x < -L*1/8)
+    region2 = (L*1/8 < x) * (x < L*1/4)
+    charge_density[region1] = 1
+    charge_density[region2] = -1
+
+    FSfield, FSpotential, FSenergy = PoissonSolver(charge_density, x)
+
+    if debug:
+        fig, axes = plt.subplots(3)
+        ax0, ax1, ax2 = axes
+        ax0.plot(x, charge_density)
+        ax0.set_title("Charge density")
+        ax1.set_title("Field")
+        ax1.plot(x, FSfield, "r-")
+        # ax1.plot(x, field, "g-", label="Anal")
+        ax2.set_title("Potential")
+        ax2.plot(x, FSpotential, "r-")
+        # ax2.plot(x, potential, "g-", label="Anal")
+        for ax in axes:
+            ax.grid()
+            ax.legend()
+        plt.show()
+    # assert np.logical_and(np.isclose(FSfield, field).all(), np.isclose(FSpotential, potential).all())
+    assert False
