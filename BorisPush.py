@@ -25,19 +25,19 @@ def BorisPush(x_particles, v_particles, E, B, dt, qslashm):
 
     return x_final, v_final
 
-Bz = np.ones(5)
-A = np.array([[1, 1],
-            [2,2],
-            [3,3],
-            [4,4],
-            [5,5]])
+# Bz = np.ones(5)
+# A = np.array([[1, 1],
+#             [2,2],
+#             [3,3],
+#             [4,4],
+#             [5,5]])
 
 def Cross2D(A,Bz):
     result = np.empty_like(A)
     result[:,0] = A[:,1]*Bz
     result[:,1] = -A[:,0]*Bz
     return result
-print(Cross2D(A,Bz))
+# print(Cross2D(A,Bz))
 
 def BorisPush1d2v(x_particles, v_particles, E, B, dt, qslashm):
     """Implements the Boris particle pusher given:
@@ -82,6 +82,12 @@ if __name__=="__main__":
         x_particles, v_particles = BorisPush1d2v(x_particles,v_particles, E, B, dt, 1)
     fig, (position_axes, phase_axes, energy_axes) = plt.subplots(3, 1)
     position_axes.plot(t, x_history[:,0,0])
+    position_axes.set_xlabel("t")
+    position_axes.set_ylabel("x")
     phase_axes.plot(x_history[:,0,0], v_history[:, 0, 0])
+    phase_axes.set_xlabel("x")
+    phase_axes.set_ylabel("y")
     energy_axes.plot(t, np.sum(v_history**2, axis=2)[:,0])
+    energy_axes.set_xlabel("t")
+    energy_axes.set_ylabel("v2")
     plt.show()
