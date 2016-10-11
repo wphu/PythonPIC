@@ -1,6 +1,6 @@
 from FourierSolver import *
 
-DEBUG = True
+DEBUG = False
 
 def test_PoissonSolver(debug=DEBUG):
     from diagnostics import L2norm
@@ -16,7 +16,7 @@ def test_PoissonSolver(debug=DEBUG):
 
     FSfield, FSpotential, FSenergy = PoissonSolver(charge_density, x)
 
-    if debug:
+    def plots():
         fig, axes = plt.subplots(3)
         ax0, ax1, ax2 = axes
         ax0.plot(x, charge_density)
@@ -31,7 +31,11 @@ def test_PoissonSolver(debug=DEBUG):
             ax.grid()
             ax.legend()
         plt.show()
-    assert np.logical_and(np.isclose(FSfield, field).all(), np.isclose(FSpotential, potential).all())
+        return "test_PoissonSolver failed!"
+
+    field_correct = np.isclose(FSfield, field).all()
+    potential_correct = np.isclose(FSpotential, potential).all()
+    assert field_correct and potential_correct, plots()
 
 
 def test_PoissonSolver_complex(debug=DEBUG):
@@ -45,7 +49,7 @@ def test_PoissonSolver_complex(debug=DEBUG):
 
     field, potential, energy = PoissonSolver(charge_density, x)
 
-    if debug:
+    def plots():
         fig, xspace = plt.subplots()
         xspace.set_title(r"Solving the Poisson equation $\Delta \psi = \rho / \epsilon_0$ via Fourier transform")
         rhoplot, = xspace.plot(x, charge_density, "r-", label=r"\rho")
@@ -57,9 +61,13 @@ def test_PoissonSolver_complex(debug=DEBUG):
         xspace.grid()
         xspace.legend((rhoplot, Vplot, Eplot, EplotNoScale), (r"$\rho$", r"$V$", r"$E$ (scaled)", "$E$ (not scaled)"))
         plt.show()
+        return "test_PoissonSolver_complex failed!"
     print(field-anal_field)
     print(potential-anal_potential)
-    assert np.logical_and(np.isclose(field, anal_field).all(), np.isclose(potential, anal_potential).all())
+
+    field_correct = np.isclose(field, anal_field).all()
+    potential_correct = np.isclose(potential, anal_potential).all()
+    assert field_correct and potential_correct, plots()
 
 def test_PoissonSolver_sheets(debug=DEBUG, test_charge_density=1):
     from diagnostics import L2norm
@@ -75,7 +83,7 @@ def test_PoissonSolver_sheets(debug=DEBUG, test_charge_density=1):
 
     FSfield, FSpotential, FSenergy = PoissonSolver(charge_density, x)
 
-    if debug:
+    def plots():
         fig, axes = plt.subplots(3)
         ax0, ax1, ax2 = axes
         ax0.plot(x, charge_density)
@@ -90,14 +98,13 @@ def test_PoissonSolver_sheets(debug=DEBUG, test_charge_density=1):
             ax.grid()
             ax.legend()
         plt.show()
+        return "test_PoissonSolver_sheets failed!"
 
     polynomial_coefficients = np.polyfit(x[region1], FSfield[region1], 1)
-    # print(polynomial_coefficients[0], -test_charge_density)
-    assert np.isclose(polynomial_coefficients[0], test_charge_density, rtol=1e-2)
-
+    first_bump_right = np.isclose(polynomial_coefficients[0], test_charge_density, rtol=1e-2)
     polynomial_coefficients = np.polyfit(x[region2], FSfield[region2], 1)
-    # print(polynomial_coefficients[0])
-    assert np.isclose(polynomial_coefficients[0], -test_charge_density, rtol=1e-2)
+    second_bump_right = np.isclose(polynomial_coefficients[0], -test_charge_density, rtol=1e-2)
+    assert first_bump_right and second_bump_right, plots()
 
 def test_PoissonSolver_ramp(debug=DEBUG):
     """ For a charge density rho = Ax + B
@@ -119,7 +126,7 @@ def test_PoissonSolver_ramp(debug=DEBUG):
 
     FSfield, FSpotential, FSenergy = PoissonSolver(charge_density, x)
     potential = -a*x**3/6
-    if debug:
+    def plots():
         fig, axes = plt.subplots(3)
         ax0, ax1, ax2 = axes
         ax0.plot(x, charge_density)
@@ -134,10 +141,11 @@ def test_PoissonSolver_ramp(debug=DEBUG):
             ax.grid()
             ax.legend()
         plt.show()
+        return "test_PoissonSolver_ramp failed!"
 
     polynomial_coefficients = np.polyfit(x, FSpotential, 3)
     # print(polynomial_coefficients[0], -a/6)
-    assert np.isclose(polynomial_coefficients[0], -a/6,)
+    assert np.isclose(polynomial_coefficients[0], -a/6,), plots()
 
 if __name__=="__main__":
 	test_PoissonSolver_sheets()
