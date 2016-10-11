@@ -16,7 +16,7 @@ def charge_density_deposition(x, dx, x_particles, particle_charge):
     x_particles: array of particle positions on the grid.
         make sure this is 0 < x_particles < L
     """
-    assert ((x_particles<L).all() and (0<x_particles).all()), (x_particles, x_particles[x_particles>L])
+    assert ((x_particles<L).all() and (0<=x_particles).all()), (x_particles, x_particles[x_particles>L])
     indices_on_grid = (x_particles/dx).astype(int)
 
     charge_density=np.zeros_like(x)

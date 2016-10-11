@@ -7,7 +7,7 @@ def test_PoissonSolver(debug=DEBUG):
     NG = 128
     L = 1
 
-    x, dx = np.linspace(-L/2,L/2,NG, retstep=True,endpoint=False)
+    x, dx = np.linspace(0,L,NG, retstep=True,endpoint=False)
     charge_density = np.zeros_like(x)
 
     charge_density = (2*np.pi)**2*np.sin(2*x*np.pi)
@@ -74,10 +74,10 @@ def test_PoissonSolver_sheets(debug=DEBUG, test_charge_density=1):
     NG = 128
     L = 1
 
-    x, dx = np.linspace(-L/2,L/2,NG, retstep=True,endpoint=False)
+    x, dx = np.linspace(0,L,NG, retstep=True,endpoint=False)
     charge_density = np.zeros_like(x)
-    region1 = (-L*1/4 < x) * (x < -L*1/8)
-    region2 = (L*1/8 < x) * (x < L*1/4)
+    region1 = (L*1/8 < x) * (x < L*2/8)
+    region2 = (L*5/8 < x) * (x < L*6/8)
     charge_density[region1] = test_charge_density
     charge_density[region2] = -test_charge_density
 
@@ -121,7 +121,7 @@ def test_PoissonSolver_ramp(debug=DEBUG):
 
     a = 1
 
-    x, dx = np.linspace(-L/2,L/2,NG, retstep=True,endpoint=False)
+    x, dx = np.linspace(0,L,NG, retstep=True,endpoint=False)
     charge_density = a*x
 
     FSfield, FSpotential, FSenergy = PoissonSolver(charge_density, x)
