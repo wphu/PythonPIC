@@ -1,7 +1,16 @@
 from pic3 import *
 
+def l2_norm(reference, test):
+    return np.sum((reference-test)**2)/np.sum(reference**2)
+
+def l2_test(reference, test, rtol = 1e-3):
+    norm = l2_norm(reference, test)
+    print("L2 norm: ", norm)
+    return norm < rtol
+
 def test_poly():
         NG = 16
+        NG_plot = 500
         L = 1
 
         x, dx = np.linspace(0,L,NG, retstep=True,endpoint=False)
@@ -11,7 +20,7 @@ def test_poly():
         x_particles = np.linspace(0, L, N, endpoint=False)
         particle_charge = 1
 
-        for power in range(3):
+        for power in range(6):
             electric_field_function = lambda x: x**power
             electric_field = electric_field_function(x)
 
@@ -19,24 +28,25 @@ def test_poly():
             analytical = electric_field_function(x_particles)
 
             region_before_last_point = x_particles < x.max()
-            grid_coeffs = np.polyfit(x, electric_field, 3)
-            part_coeffs = np.polyfit(x_particles[region_before_last_point],
-                                     interpolated[region_before_last_point], 3)
+
             def plot():
-                plt.plot(x, electric_field, lw=5)
+                x_plot = np.linspace(0, L, NG_plot, endpoint=False)
+                electric_field_plot = electric_field_function(x_plot)
+                plt.plot(x_plot, electric_field_plot, lw=5)
+                plt.plot(x, electric_field)
                 plt.plot(x_particles, interpolated, "go-")
                 plt.vlines(x, electric_field.min(), electric_field.max())
                 plt.show()
-                return """grid: {:.3e}x^3 + {:.3e}x^2 + {:.3e}x^1 + {:.3e}
-                          particles: {:.3e}x^3 + {:.3e}x^2 + {:.3e}x^1 + {:.3e}""".format(*grid_coeffs, *part_coeffs)
+                return "poly test failed for power = {}".format(power)
 
 
-            assert np.isclose(analytical[region_before_last_point], interpolated[region_before_last_point]).all(), plot()
+            assert l2_test(analytical[region_before_last_point], interpolated[region_before_last_point]), plot()
         # charge_density = charge_density_deposition(x, dx, x_particles, particle_charge)
 
 
 def test_periodic():
         NG = 16
+        NG_plot = 500
         L = 1
 
         x, dx = np.linspace(0,L,NG, retstep=True,endpoint=False)
@@ -46,22 +56,22 @@ def test_periodic():
         x_particles = np.linspace(0, L, N, endpoint=False)
         particle_charge = 1
 
-        indices = (x_particles/dx).astype(int)
-        print(indices)
-
-        for electric_field in np.sin(2*np.pi*x), np.cos(2*np.pi*x):
+        for func in lambda x: np.sin(2*np.pi*x), lambda x: np.cos(2*np.pi*x):
+            electric_field = func(x)
             interpolated = interpolateField(x_particles, electric_field, x, dx)
-            
-            grid_coeffs = np.polyfit(x, electric_field, 3)
-            part_coeffs = np.polyfit(x_particles, interpolated, 3)
+            analytical = func(x_particles)
+
             def plot():
-                plt.plot(x, electric_field, lw=5)
+                x_plot = np.linspace(0, L, NG_plot, endpoint=False)
+                electric_field_plot = func(x_plot)
+                plt.plot(x_plot, electric_field_plot, lw=5)
+                plt.plot(x, electric_field)
                 plt.plot(x_particles, interpolated, "go-")
                 plt.vlines(x, electric_field.min(), electric_field.max())
                 plt.show()
-                return grid_coeffs, part_coeffs
+                return "periodic test failure"
 
-            assert np.isclose(grid_coeffs, part_coeffs).all(), plot()
+            assert l2_test(interpolated, analytical), plot()
         # charge_density = charge_density_deposition(x, dx, x_particles, particle_charge)
 
 if __name__=="__main__":
