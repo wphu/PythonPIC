@@ -28,11 +28,14 @@ phase_axes.set_ylabel("v_x")
 
 charge_plot, = charge_axes.plot([],[])
 
-
+charge_axes.vlines(S.x, -1, 1)
+field_axes.vlines(S.x, -1, 1)
+phase_axes.vlines(S.x, -1, 1)
 
 energy_axes.semilogy(np.arange(S.NT),(S.kinetic_energy), label="Kinetic energy")
 energy_axes.semilogy(np.arange(S.NT),(S.field_energy), label="Field energy")
 energy_axes.semilogy(np.arange(S.NT),(S.total_energy), label="Total energy")
+
 energy_axes.grid()
 energy_axes.set_xlabel("Time")
 energy_axes.set_ylabel("Energy")

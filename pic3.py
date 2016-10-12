@@ -31,6 +31,7 @@ def interpolateField(x_particles, electric_field, x, dx):
     #TODO: see birdsall 40
     #TODO: implement cubic spline interpolation
     indices_on_grid = (x_particles/dx).astype(int)
+    NG = electric_field.size
     field = (x[indices_on_grid] + dx - x_particles) * electric_field[indices_on_grid] +\
         (x_particles - x[indices_on_grid]) * electric_field[(indices_on_grid+1)%NG]
     return field / dx
