@@ -11,7 +11,7 @@ def test_poly():
         particle_charge = 1
 
         for electric_field in np.ones_like(x), x, x**2:
-            interpolated = interpolateField(x_particles, electric_field, x)
+            interpolated = interpolateField(x_particles, electric_field, x, dx)
             def plot():
                 plt.plot(x, electric_field)
                 plt.plot(x_particles, interpolated, "go-")
