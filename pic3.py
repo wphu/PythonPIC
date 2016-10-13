@@ -9,21 +9,21 @@ import argparse
 import time
 
 
-def charge_density_deposition(x, dx, x_particles, particle_charge):
-    """Calculates the charge density on a 1D grid given an array of charged particle positions.
-    x: array of grid positions
-    dx: grid positions step
-    x_particles: array of particle positions on the grid.
-        make sure this is 0 < x_particles < L
-    """
-    assert ((x_particles<L).all() and (0<=x_particles).all()), (x_particles, x_particles[x_particles>L])
-    indices_on_grid = (x_particles/dx).astype(int)
+# def charge_density_deposition(x, dx, x_particles, particle_charge):
+#     """Calculates the charge density on a 1D grid given an array of charged particle positions.
+#     x: array of grid positions
+#     dx: grid positions step
+#     x_particles: array of particle positions on the grid.
+#         make sure this is 0 < x_particles < L
+#     """
+#     assert ((x_particles<L).all() and (0<=x_particles).all()), (x_particles, x_particles[x_particles>L])
+#     indices_on_grid = (x_particles/dx).astype(int)
 
-    charge_density=np.zeros_like(x)
-    for (i, index), xp in zip(enumerate(indices_on_grid), x_particles):
-        charge_density[index]+=particle_charge * (dx+x[index]-xp)/dx
-        charge_density[(index+1)%(NG)] += particle_charge * (xp - x[index])/dx
-    return charge_density
+#     charge_density=np.zeros_like(x)
+#     for (i, index), xp in zip(enumerate(indices_on_grid), x_particles):
+#         charge_density[index]+=particle_charge * (dx+x[index]-xp)/dx
+#         charge_density[(index+1)%(NG)] += particle_charge * (xp - x[index])/dx
+#     return charge_density
 
 def charge_density_deposition(x, dx, x_particles, particle_charge):
     # charge_density = np.zeros_like(x)
@@ -38,7 +38,6 @@ def charge_density_deposition(x, dx, x_particles, particle_charge):
     charge_hist_to_left = np.bincount(logical_coordinates, charge_to_left, minlength = x.size)
     # print(charge_hist_to_left)
     # print(charge_hist_to_right)
-
     return particle_charge*(charge_hist_to_right + charge_hist_to_left)
 
 def interpolateField(x_particles, electric_field, x, dx):
