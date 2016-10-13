@@ -25,6 +25,21 @@ def charge_density_deposition(x, dx, x_particles, particle_charge):
         charge_density[(index+1)%(NG)] += particle_charge * (xp - x[index])/dx
     return charge_density
 
+def charge_density_deposition(x, dx, x_particles, particle_charge):
+    # charge_density = np.zeros_like(x)
+    logical_coordinates = (x_particles/dx).astype(int)
+    right_fractions = x_particles/dx -  logical_coordinates
+    left_fractions = 1 - right_fractions
+    charge_to_right = particle_charge * right_fractions
+    charge_to_left = particle_charge * left_fractions
+    # print(x[logical_coordinates])
+    # charge_density[logical_coordinates] += 1
+    charge_hist_to_right = np.roll(np.bincount(logical_coordinates, charge_to_right, minlength = x.size), +1)
+    charge_hist_to_left = np.bincount(logical_coordinates, charge_to_left, minlength = x.size)
+    # print(charge_hist_to_left)
+    # print(charge_hist_to_right)
+
+    return particle_charge*(charge_hist_to_right + charge_hist_to_left)
 
 def interpolateField(x_particles, electric_field, x, dx):
     #TODO: test this function, see how it behaves at boundaries
