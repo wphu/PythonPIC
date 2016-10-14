@@ -7,44 +7,41 @@ from constants import epsilon_0
 from parameters import NT, NG, N, T, dt, particle_mass, particle_charge, L,x, dx, x_particles, v_particles
 import argparse
 import time
-
 import ipdb
 
-# def charge_density_deposition(x, dx, x_particles, particle_charge):
-#     """Calculates the charge density on a 1D grid given an array of charged particle positions.
-#     x: array of grid positions
-#     dx: grid positions step
-#     x_particles: array of particle positions on the grid.
-#         make sure this is 0 < x_particles < L
-#     """
-#     assert ((x_particles<L).all() and (0<=x_particles).all()), (x_particles, x_particles[x_particles>L])
-#     indices_on_grid = (x_particles/dx).astype(int)
-
-#     charge_density=np.zeros_like(x)
-#     for (i, index), xp in zip(enumerate(indices_on_grid), x_particles):
-#         charge_density[index]+=particle_charge * (dx+x[index]-xp)/dx
-#         charge_density[(index+1)%(NG)] += particle_charge * (xp - x[index])/dx
-#     return charge_density
-
 def charge_density_deposition(x, dx, x_particles, particle_charge):
-    # charge_density = np.zeros_like(x)
+    """scatters charge from particles to grid
+    uses linear interpolation
+    x_i | __________p___| x_i+1
+    for a particle $p$ in cell $i$ of width $dx$ the location in cell is defined as
+    $$X_p = x_p - x_i$$
+    then, $F_r = X_p/dx$ is the fraction of charge going to the right side of the cell
+    (as $X_p \to dx$, the particle is closer to the right cell)
+    while $F_l = 1-F_r$ is the fraction of charge going to the left
+
+    numpy.bincount is used to count particles in cells
+    the weights are the fractions for each cell
+
+    to change the index for the right going  (keeping periodic boundary conditions)
+    numpy.roll is used
+    """
     logical_coordinates = (x_particles/dx).astype(int)
     right_fractions = x_particles/dx -  logical_coordinates
     left_fractions = 1 - right_fractions
     charge_to_right = particle_charge * right_fractions
     charge_to_left = particle_charge * left_fractions
-    # print(x[logical_coordinates])
-    # charge_density[logical_coordinates] += 1
     charge_hist_to_right = np.roll(np.bincount(logical_coordinates, charge_to_right, minlength = x.size), +1)
     charge_hist_to_left = np.bincount(logical_coordinates, charge_to_left, minlength = x.size)
-    # print(charge_hist_to_left)
-    # print(charge_hist_to_right)
     return particle_charge*(charge_hist_to_right + charge_hist_to_left)
 
 def interpolateField(x_particles, electric_field, x, dx):
-    #TODO: test this function, see how it behaves at boundaries
-    #TODO: see birdsall 40
-    #TODO: implement cubic spline interpolation
+    """gathers field from grid to particles
+
+    the reverse of the algorithm from charge_density_deposition
+
+    there is no need to use numpy.bincount as the map is 
+    not N (number of particles) to M (grid), but M to N, N >> M
+    """
     indices_on_grid = (x_particles/dx).astype(int)
     NG = electric_field.size
     field = (x[indices_on_grid] + dx - x_particles) * electric_field[indices_on_grid] +\
@@ -52,6 +49,7 @@ def interpolateField(x_particles, electric_field, x, dx):
     return field / dx
 
 def field_quantities(x, charge_density):
+    """ calculates field quantities"""
     #TODO: this is neither elegant nor efficient :( can probably be rewritten)
     dx = x[1] - x[0]
     potential, electric_field, fourier_field_energy = FourierSolver.PoissonSolver(charge_density, x)
@@ -59,6 +57,7 @@ def field_quantities(x, charge_density):
     return potential, electric_field, electric_field_function, fourier_field_energy
 
 def leapfrog_particle_push(x, v, dt, electric_force):
+    """the most basic of particle pushers"""
     #TODO: make sure energies are given at proper times (at same time for position, velocity)
     #TODO: make sure omega_zero * dt <= 2 to remove errors
     v_new = v + electric_force*dt
