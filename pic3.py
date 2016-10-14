@@ -112,9 +112,14 @@ if __name__=="__main__":
 
     potential, electric_field, electric_field_function, fourier_field_energy = field_quantities(x, charge_density)
 
-
     x_dummy, v_particles = leapfrog_particle_push(x_particles, v_particles, -dt/2., electric_field_function(x_particles)*particle_charge/particle_mass)
     kinetic, field, total = 0, 0, 0
+
+
+    #push particles a bit!
+    push_amplitude = 0.1
+    push_mode = 1
+    x_particles += push_amplitude*np.cos(push_mode*np.pi*x_particles/L)
 
     start_time = time.time()
     for i in range(NT):
@@ -127,7 +132,6 @@ if __name__=="__main__":
         x_particles, v_particles = leapfrog_particle_push(x_particles,v_particles,dt,electric_field_function(x_particles)*particle_charge/particle_mass)
         charge_density = charge_density_deposition(x, dx, x_particles, particle_charge)
         potential, electric_field, electric_field_function, fourier_field_energy = field_quantities(x, charge_density)
-
         diag = kinetic, fourier_field_energy, kinetic + fourier_field_energy
         S.update_diagnostics(i, diag)
 
