@@ -74,5 +74,36 @@ def test_periodic():
             assert l2_test(interpolated, analytical), plot()
         # charge_density = charge_density_deposition(x, dx, x_particles, particle_charge)
 
+def test_single_particle():
+        """tests interpolation of field to particles:
+            at cell boundary
+            at hall cell
+            at 3/4 cell
+            at end of simulation region (PBC)
+        """
+        NG = 16
+        L = 1
+
+        x, dx = np.linspace(0,L,NG, retstep=True,endpoint=False)
+        x_particles = np.array([x[3], x[6] + dx/2, x[9]+0.75*dx, x[-1] + dx/2])
+        particle_charge = 1
+
+        for power in range(6):
+            electric_field_function = lambda x: x**power
+            electric_field = electric_field_function(x)
+
+            interpolated = interpolateField(x_particles, electric_field, x, dx)
+            analytical = electric_field_function(x_particles)
+            analytical[-1] = (electric_field[0] + electric_field[-1])/2
+
+            def plot():
+                plt.plot(x, electric_field)
+                plt.plot(x_particles, interpolated, "go-")
+                plt.vlines(x, electric_field.min(), electric_field.max())
+                plt.show()
+                return "poly test failed for power = {}".format(power)
+
+            assert l2_test(analytical, interpolated), plot()
+
 if __name__=="__main__":
-    test_poly()
+    test_single_particle()
