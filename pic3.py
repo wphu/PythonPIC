@@ -4,7 +4,7 @@ import FourierSolver
 import Simulation
 import diagnostics
 from constants import epsilon_0
-from parameters import NT, NG, N, T, dt, particle_mass, particle_charge, L,x, dx, x_particles, v_particles
+from parameters import NT, NG, N, T, dt, particle_mass, particle_charge, L,x, dx, x_particles, v_particles, push_amplitude, push_mode
 import argparse
 import time
 import ipdb
