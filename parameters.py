@@ -24,7 +24,12 @@ charge_density = np.zeros_like(x)
 
 position_shift = L/N/10
 x_particles = np.linspace(0,L,N, endpoint=False) + L/N/10
-print("position shift: {}".format(position_shift))
+
+# for initial particle position displacement
+push_amplitude = 0.1
+push_mode = 2
+
+# print("position shift: {}".format(position_shift))
 
 # wave initialization: for two stream instability
 # x_particles += 0.001*np.sin(x_particles*2*np.pi/L)

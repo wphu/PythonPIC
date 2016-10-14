@@ -8,6 +8,7 @@ from parameters import NT, NG, N, T, dt, particle_mass, particle_charge, L,x, dx
 import argparse
 import time
 
+import ipdb
 
 # def charge_density_deposition(x, dx, x_particles, particle_charge):
 #     """Calculates the charge density on a 1D grid given an array of charged particle positions.
@@ -117,10 +118,9 @@ if __name__=="__main__":
 
 
     #push particles a bit!
-    push_amplitude = 0.1
-    push_mode = 1
     x_particles += push_amplitude*np.cos(push_mode*np.pi*x_particles/L)
 
+    x_particles %= L
     start_time = time.time()
     for i in range(NT):
         S.update_grid(i, charge_density, electric_field)
@@ -128,7 +128,6 @@ if __name__=="__main__":
 
         kinetic, field, total =diagnostics.energies(x_particles,v_particles,particle_mass,dx, potential, charge_density)
         print("i{:4d} T{:12.3e} V{:12.3e} E{:12.3e}".format(i, kinetic, field, total))
-
         x_particles, v_particles = leapfrog_particle_push(x_particles,v_particles,dt,electric_field_function(x_particles)*particle_charge/particle_mass)
         charge_density = charge_density_deposition(x, dx, x_particles, particle_charge)
         potential, electric_field, electric_field_function, fourier_field_energy = field_quantities(x, charge_density)
