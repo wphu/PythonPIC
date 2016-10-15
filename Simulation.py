@@ -86,6 +86,7 @@ class Simulation(object):
             f.attrs['NGrid'] = S.NGrid
             f.attrs['NParticle'] = S.NParticle
             f.attrs['T'] = S.T
+            f.attrs['L'] = S.L
         print("Saved file to {}".format(filename))
         return filename
 
@@ -101,10 +102,11 @@ def load_data(filename):
         total_energy = f['Total energy'][...]
         NT = f.attrs['NT']
         T = f.attrs['T']
+        L = f.attrs['L']
         NGrid = f.attrs['NGrid']
         NParticle = f.attrs['NParticle']
     S = Simulation(NT, NGrid, NParticle, T, charge_density=charge_density, electric_field=field, particle_positions=positions, particle_velocities=velocities, kinetic_energy=kinetic_energy,
-    field_energy = field_energy, total_energy = total_energy)
+    field_energy = field_energy, total_energy = total_energy, L=L)
     S.fill_grid(charge_density, field)
     S.fill_particles(positions, velocities)
     S.fill_diagnostics((kinetic_energy, field_energy, total_energy))
