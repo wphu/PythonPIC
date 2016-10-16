@@ -4,51 +4,13 @@ import FourierSolver
 import Simulation
 import diagnostics
 from constants import epsilon_0
+from particle_pusher import leapfrog_particle_push
+from gather import interpolateField
+from scatter import charge_density_deposition
 from parameters import NT, NG, N, T, dt, particle_mass, particle_charge, L, x, dx, x_particles, v_particles, push_amplitude, push_mode
 import argparse
 import time
 import ipdb
-
-
-def charge_density_deposition(x, dx, x_particles, particle_charge):
-    """scatters charge from particles to grid
-    uses linear interpolation
-    x_i | __________p___| x_i+1
-    for a particle $p$ in cell $i$ of width $dx$ the location in cell is defined as
-    $$X_p = x_p - x_i$$
-    then, $F_r = X_p/dx$ is the fraction of charge going to the right side of the cell
-    (as $X_p \to dx$, the particle is closer to the right cell)
-    while $F_l = 1-F_r$ is the fraction of charge going to the left
-
-    numpy.bincount is used to count particles in cells
-    the weights are the fractions for each cell
-
-    to change the index for the right going  (keeping periodic boundary conditions)
-    numpy.roll is used
-    """
-    logical_coordinates = (x_particles / dx).astype(int)
-    right_fractions = x_particles / dx - logical_coordinates
-    left_fractions = 1 - right_fractions
-    charge_to_right = particle_charge * right_fractions
-    charge_to_left = particle_charge * left_fractions
-    charge_hist_to_right = np.roll(np.bincount(logical_coordinates, charge_to_right, minlength=x.size), +1)
-    charge_hist_to_left = np.bincount(logical_coordinates, charge_to_left, minlength=x.size)
-    return particle_charge * (charge_hist_to_right + charge_hist_to_left)
-
-
-def interpolateField(x_particles, electric_field, x, dx):
-    """gathers field from grid to particles
-
-    the reverse of the algorithm from charge_density_deposition
-
-    there is no need to use numpy.bincount as the map is
-    not N (number of particles) to M (grid), but M to N, N >> M
-    """
-    indices_on_grid = (x_particles / dx).astype(int)
-    NG = electric_field.size
-    field = (x[indices_on_grid] + dx - x_particles) * electric_field[indices_on_grid] +\
-        (x_particles - x[indices_on_grid]) * electric_field[(indices_on_grid + 1) % NG]
-    return field / dx
 
 
 def field_quantities(x, charge_density):
@@ -58,14 +20,6 @@ def field_quantities(x, charge_density):
     potential, electric_field, fourier_field_energy = FourierSolver.PoissonSolver(charge_density, x)
     electric_field_function = lambda x_particles: interpolateField(x_particles, electric_field, x, dx)
     return potential, electric_field, electric_field_function, fourier_field_energy
-
-
-def leapfrog_particle_push(x, v, dt, electric_force):
-    """the most basic of particle pushers"""
-    # TODO: make sure energies are given at proper times (at same time for position, velocity)
-    # TODO: make sure omega_zero * dt <= 2 to remove errors
-    v_new = v + electric_force * dt
-    return (x + v_new * dt) % L, v_new
 
 
 def all_the_plots(i):
@@ -115,7 +69,7 @@ if __name__ == "__main__":
 
     potential, electric_field, electric_field_function, fourier_field_energy = field_quantities(x, charge_density)
 
-    x_dummy, v_particles = leapfrog_particle_push(x_particles, v_particles, -dt / 2., electric_field_function(x_particles) * particle_charge / particle_mass)
+    x_dummy, v_particles = leapfrog_particle_push(x_particles, v_particles, -dt / 2., electric_field_function(x_particles) * particle_charge / particle_mass, L)
     kinetic, field, total = 0, 0, 0
 
     # push particles a bit!
@@ -129,7 +83,7 @@ if __name__ == "__main__":
 
         kinetic, field, total = diagnostics.energies(x_particles, v_particles, particle_mass, dx, potential, charge_density)
         print("i{:4d} T{:12.3e} V{:12.3e} E{:12.3e}".format(i, kinetic, field, total))
-        x_particles, v_particles = leapfrog_particle_push(x_particles, v_particles, dt, electric_field_function(x_particles) * particle_charge / particle_mass)
+        x_particles, v_particles = leapfrog_particle_push(x_particles, v_particles, dt, electric_field_function(x_particles) * particle_charge / particle_mass, L)
         charge_density = charge_density_deposition(x, dx, x_particles, particle_charge)
         potential, electric_field, electric_field_function, fourier_field_energy = field_quantities(x, charge_density)
         diag = kinetic, fourier_field_energy, kinetic + fourier_field_energy
