@@ -1,6 +1,5 @@
 import numpy as np
 import scipy.fftpack as fft
-import matplotlib.pyplot as plt
 
 
 def PoissonSolver(rho, x, epsilon_0=1):

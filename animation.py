@@ -1,17 +1,13 @@
 import matplotlib.pyplot as plt
-import numpy as np
-import Simulation
 import matplotlib.animation as anim
-import argparse
-import static_plots
+import numpy as np
 
 
 def animation(S):
     # fig, subplots = plt.subplots(3,2, squeeze=True, figsize=(20,20))
     # (charge_axes, phase_axes), (field_axes, d3), (position_hist_axes, velocity_hist_axes) = subplots
-    fig, subplots = plt.subplots(3, squeeze=True, figsize=(10, 5))
+    fig, (charge_axes, field_axes, phase_axes) = plt.subplots(3, squeeze=True, figsize=(10, 5))
 
-    charge_axes, field_axes, phase_axes = subplots
     iteration = charge_axes.text(0.1, 0.9, 'i=x', horizontalalignment='center',
                                  verticalalignment='center', transform=charge_axes.transAxes)
     phase_plot, = phase_axes.plot([], [], "b.")
@@ -78,7 +74,7 @@ def animation(S):
         # iteration.set_text(i)
         iteration.set_text("Iteration: {}".format(i))
         return charge_plot, field_plot, phase_plot, iteration
-    animation = anim.FuncAnimation(fig, animate, interval=100, frames=S.NT, blit=True)
+    animation_object = anim.FuncAnimation(fig, animate, interval=100, frames=S.NT, blit=True)
     # animation.save("video.mp4", fps=30, extra_args=['-vcodec', 'libx264'])
     plt.show()
-    return animation
+    # return animation_object

@@ -1,5 +1,6 @@
+import time
+import argparse
 import numpy as np
-import matplotlib.pyplot as plt
 import FourierSolver
 import Simulation
 import diagnostics
@@ -8,9 +9,6 @@ from particle_pusher import leapfrog_particle_push
 from gather import interpolateField
 from scatter import charge_density_deposition
 from parameters import NT, NG, N, T, dt, particle_mass, particle_charge, L, x, dx, x_particles, v_particles, push_amplitude, push_mode
-import argparse
-import time
-import ipdb
 
 
 def field_quantities(x, charge_density):
@@ -26,7 +24,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("filename", help="hdf5 file name for storing data")
     args = parser.parse_args()
-    if(args.filename[-5:] != ".hdf5"):
+    if args.filename[-5:] != ".hdf5":
         args.filename = args.filename + ".hdf5"
 
     S = Simulation.Simulation(NT, NG, N, T, particle_charge, particle_mass, L, epsilon_0)
