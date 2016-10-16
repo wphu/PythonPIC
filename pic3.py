@@ -39,7 +39,7 @@ def interpolateField(x_particles, electric_field, x, dx):
 
     the reverse of the algorithm from charge_density_deposition
 
-    there is no need to use numpy.bincount as the map is 
+    there is no need to use numpy.bincount as the map is
     not N (number of particles) to M (grid), but M to N, N >> M
     """
     indices_on_grid = (x_particles/dx).astype(int)
@@ -107,7 +107,7 @@ if __name__=="__main__":
     if(args.filename[-5:] != ".hdf5"):
         args.filename = args.filename + ".hdf5"
 
-        S = Simulation.Simulation(NT, NG, N, T, particle_charge, particle_mass, L, epsilon_0)
+    S = Simulation.Simulation(NT, NG, N, T, particle_charge, particle_mass, L, epsilon_0)
     charge_density=charge_density_deposition(x, dx, x_particles, particle_charge)
 
     potential, electric_field, electric_field_function, fourier_field_energy = field_quantities(x, charge_density)
