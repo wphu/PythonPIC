@@ -18,12 +18,12 @@ print("Plasma frequency: {} rad/s".format(plasma_frequency))
 
 T = NT*dt
 
-#TODO: could use an init.py
-x, dx = np.linspace(0,L,NG, retstep=True,endpoint=False)
+# TODO: could use an init.py
+x, dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
 charge_density = np.zeros_like(x)
 
 position_shift = L/N/10
-x_particles = np.linspace(0,L,N, endpoint=False) + L/N/10
+x_particles = np.linspace(0, L, N, endpoint=False) + L/N/10
 
 # for initial particle position displacement
 push_amplitude = 0.1

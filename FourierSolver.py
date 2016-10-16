@@ -2,7 +2,8 @@ import numpy as np
 import scipy.fftpack as fft
 import matplotlib.pyplot as plt
 
-def PoissonSolver(rho, x, epsilon_0 = 1):
+
+def PoissonSolver(rho, x, epsilon_0=1):
     """solves the Poisson equation spectrally, via FFT
 
     the Poisson equation can be written either as
@@ -11,7 +12,7 @@ def PoissonSolver(rho, x, epsilon_0 = 1):
     $$\nabla^2 V = -\rho/\epsilon_0$$
 
     Assuming that all functions in fourier space can be represented as
-    $$\exp{i(kx - \omega t)}$$   
+    $$\exp{i(kx - \omega t)}$$
     It is easy to see that upon Fourier transformation $\nabla \to ik$, so
 
     (in fourier space)
@@ -28,7 +29,7 @@ def PoissonSolver(rho, x, epsilon_0 = 1):
     dx = x[1]-x[0]
     rho_F = fft.fft(rho)
     rho_F[0] = 0
-    k = NG*dx*fft.fftfreq(NG,dx)
+    k = NG*dx*fft.fftfreq(NG, dx)
     k[0] = 0.0001
     field_F = rho_F/(np.pi*2j*k * epsilon_0)
     potential_F = field_F/(-2j*np.pi*k * epsilon_0)
