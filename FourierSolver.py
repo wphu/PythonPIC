@@ -38,10 +38,9 @@ def PoissonSolver(rho, x, epsilon_0=1, debug=False):
     potential_F = field_F / (-2j * np.pi * k * epsilon_0)
     field = fft.ifft(field_F).real
     potential = fft.ifft(potential_F).real
-    energy_presum = np.abs(rho_F * potential_F.conjugate())[:NG / 2] / L
-    energy_via_field = field_F * field_F.conjugate() / L
+    energy_presum = np.abs(rho_F * potential_F.conjugate())[:NG / 2] / NG
     energy = energy_presum.sum()
     if debug:
-        return field, potential, energy_presum, k[:NG / 2], energy_via_field[:NG / 2]
+        return field, potential, energy_presum, k[:NG / 2]
     else:
         return field, potential, energy

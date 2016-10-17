@@ -58,24 +58,21 @@ def test_PoissonSolver_complex(debug=DEBUG):
     N = 32 * 2**5
     epsilon_0 = 1
     x, dx = np.linspace(0, L, N, retstep=True, endpoint=False)
-    # anal_potential = np.sin(x * 2 * np.pi) + 0.5 * \
-    #     np.sin(x * 6 * np.pi) + 0.1 * np.sin(x * 20 * np.pi)
-    # anal_field = -(2 * np.pi * np.cos(x * 2 * np.pi) + 3 * np.pi *
-    #                np.cos(x * 6 * np.pi) + 20 * np.pi * 0.1 * np.cos(x * 20 * np.pi))
-    # charge_density_anal = ((2 * np.pi)**2 * np.sin(x * 2 * np.pi) + 18 * np.pi**2 * np.sin(
-    #     x * 6 * np.pi) + (20 * np.pi)**2 * 0.1 * np.sin(x * 20 * np.pi)) * epsilon_0
+    anal_potential = np.sin(x * 2 * np.pi) + 0.5 * \
+        np.sin(x * 6 * np.pi) + 0.1 * np.sin(x * 20 * np.pi)
+    anal_field = -(2 * np.pi * np.cos(x * 2 * np.pi) + 3 * np.pi *
+                   np.cos(x * 6 * np.pi) + 20 * np.pi * 0.1 * np.cos(x * 20 * np.pi))
+    charge_density_anal = ((2 * np.pi)**2 * np.sin(x * 2 * np.pi) + 18 * np.pi**2 * np.sin(
+        x * 6 * np.pi) + (20 * np.pi)**2 * 0.1 * np.sin(x * 20 * np.pi)) * epsilon_0
 
-    anal_potential = np.sin(x * 2 * np.pi)
-    anal_field = -2 * np.pi * np.cos(2 * np.pi * x)
-    charge_density_anal = (2 * np.pi)**2 * np.sin(2 * np.pi * x)
     NG = 32
     x_grid, dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
-    charge_density = (2 * np.pi)**2 * np.sin(x_grid * 2 * np.pi)
-    field, potential, energy_presum, k, energy_via_field = PoissonSolver(charge_density, x_grid, debug=True)
-    energy_fourier = energy_presum.sum()*dx #zgadza się gdy tak pomnożę. DLACZEGO?!
-    energy_direct = 0.5*(field**2).sum()
-    print("dx", dx, "fourier", energy_fourier, "direct", energy_direct)
     indices_in_denser_grid = np.searchsorted(x, x_grid)
+    charge_density = charge_density_anal[indices_in_denser_grid]
+    field, potential, energy_presum, k = PoissonSolver(charge_density, x_grid, debug=True)
+    energy_fourier = energy_presum.sum()
+    energy_direct = 0.5 * (field**2).sum()
+    print("dx", dx, "fourier", energy_fourier, "direct", energy_direct, energy_fourier / energy_direct)
 
     def plots():
         fig, xspace = plt.subplots()
@@ -93,8 +90,8 @@ def test_PoissonSolver_complex(debug=DEBUG):
         xspace.legend(loc='best')
 
         fig2, fspace = plt.subplots()
-        fspace.plot(k, energy_presum, "bo--", label="energy. what energy?")
-        fspace.plot(k, energy_via_field, "go--", label="energy via field?")
+        fspace.plot(k, energy_presum, "bo--", label=r"electric energy $\rho_F V_F^\dagger$")
+        # fspace.plot(k, energy_via_field, "go--", label="energy via field?")
         fspace.set_xlabel("k")
         fspace.set_ylabel("mode energy")
         fspace.set_title("Fourier space")
@@ -105,10 +102,11 @@ def test_PoissonSolver_complex(debug=DEBUG):
     print(field - anal_field[indices_in_denser_grid])
     print(potential - anal_potential[indices_in_denser_grid])
 
+    energy_correct = np.isclose(energy_fourier, energy_direct)
     field_correct = np.isclose(field, anal_field[indices_in_denser_grid]).all()
     potential_correct = np.isclose(potential, anal_potential[indices_in_denser_grid]).all()
-    # assert field_correct and potential_correct, plots()
-    assert False, plots()
+    assert field_correct and potential_correct and energy_correct, plots()
+    # assert False, plots()
 
 
 def test_PoissonSolver_sheets(debug=DEBUG, test_charge_density=1):
