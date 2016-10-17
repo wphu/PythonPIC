@@ -72,7 +72,9 @@ def test_PoissonSolver_complex(debug=DEBUG):
     x_grid, dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
     charge_density = (2 * np.pi)**2 * np.sin(x_grid * 2 * np.pi)
     field, potential, energy_presum, k, energy_via_field = PoissonSolver(charge_density, x_grid, debug=True)
-
+    energy_fourier = energy_presum.sum()*dx #zgadza się gdy tak pomnożę. DLACZEGO?!
+    energy_direct = 0.5*(field**2).sum()
+    print("dx", dx, "fourier", energy_fourier, "direct", energy_direct)
     indices_in_denser_grid = np.searchsorted(x, x_grid)
 
     def plots():

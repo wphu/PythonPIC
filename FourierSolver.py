@@ -31,8 +31,8 @@ def PoissonSolver(rho, x, epsilon_0=1, debug=False):
     rho_F[0] = 0
     k = NG * dx * fft.fftfreq(NG, dx)
     dk = k[1] - k[0]
-    print(k)
-    print("L", L)
+    # print(k)
+    # print("L", L)
     k[0] = 0.0001
     field_F = rho_F / (np.pi * 2j * k * epsilon_0)
     potential_F = field_F / (-2j * np.pi * k * epsilon_0)
