@@ -58,18 +58,20 @@ def test_PoissonSolver_complex(debug=DEBUG):
     N = 32 * 2**5
     epsilon_0 = 1
     x, dx = np.linspace(0, L, N, retstep=True, endpoint=False)
-    anal_potential = np.sin(x * 2 * np.pi) + 0.5 * \
-        np.sin(x * 6 * np.pi) + 0.1 * np.sin(x * 20 * np.pi)
-    anal_field = -(2 * np.pi * np.cos(x * 2 * np.pi) + 3 * np.pi *
-                   np.cos(x * 6 * np.pi) + 20 * np.pi * 0.1 * np.cos(x * 20 * np.pi))
-    charge_density_anal = ((2 * np.pi)**2 * np.sin(x * 2 * np.pi) + 18 * np.pi**2 * np.sin(
-        x * 6 * np.pi) + (20 * np.pi)**2 * 0.1 * np.sin(x * 20 * np.pi)) * epsilon_0
+    # anal_potential = np.sin(x * 2 * np.pi) + 0.5 * \
+    #     np.sin(x * 6 * np.pi) + 0.1 * np.sin(x * 20 * np.pi)
+    # anal_field = -(2 * np.pi * np.cos(x * 2 * np.pi) + 3 * np.pi *
+    #                np.cos(x * 6 * np.pi) + 20 * np.pi * 0.1 * np.cos(x * 20 * np.pi))
+    # charge_density_anal = ((2 * np.pi)**2 * np.sin(x * 2 * np.pi) + 18 * np.pi**2 * np.sin(
+    #     x * 6 * np.pi) + (20 * np.pi)**2 * 0.1 * np.sin(x * 20 * np.pi)) * epsilon_0
 
+    anal_potential = np.sin(x * 2 * np.pi)
+    anal_field = -2 * np.pi * np.cos(2 * np.pi * x)
+    charge_density_anal = (2 * np.pi)**2 * np.sin(2 * np.pi * x)
     NG = 32
     x_grid, dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
-    charge_density = ((2 * np.pi)**2 * np.sin(x_grid * 2 * np.pi) + 18 * np.pi**2 * np.sin(
-        x_grid * 6 * np.pi) + (20 * np.pi)**2 * 0.1 * np.sin(x_grid * 20 * np.pi)) * epsilon_0
-    field, potential, energy_presum, k = PoissonSolver(charge_density, x_grid, debug=True)
+    charge_density = (2 * np.pi)**2 * np.sin(x_grid * 2 * np.pi)
+    field, potential, energy_presum, k, energy_via_field = PoissonSolver(charge_density, x_grid, debug=True)
 
     indices_in_denser_grid = np.searchsorted(x, x_grid)
 
@@ -78,11 +80,11 @@ def test_PoissonSolver_complex(debug=DEBUG):
         xspace.set_title(
             r"Solving the Poisson equation $\Delta \psi = \rho / \epsilon_0$ via Fourier transform")
         rhoplot, = xspace.plot(x_grid, charge_density, "ro--", label=r"$\rho$")
-        rhoplotAnal, = xspace.plot(x, charge_density_anal, "r-", lw=1, alpha=0.5, label=r"$\rho_a$")
-        Vplot, = xspace.plot(x_grid, potential, "g-", label=r"$V$")
-        VplotAnal, = xspace.plot(x, anal_potential, "go--", lw=1, alpha=0.5, label=r"$V_a$")
+        rhoplotAnal, = xspace.plot(x, charge_density_anal, "r-", lw=6, alpha=0.5, label=r"$\rho_a$")
+        Vplot, = xspace.plot(x_grid, potential, "go--", label=r"$V$")
+        VplotAnal, = xspace.plot(x, anal_potential, "g-", lw=6, alpha=0.5, label=r"$V_a$")
         Eplot, = xspace.plot(x_grid, field, "bo--", alpha=0.5, label=r"$E$")
-        EplotAnal, = xspace.plot(x, anal_field, "b-", lw=1, alpha=0.5, label=r"$E_a$")
+        EplotAnal, = xspace.plot(x, anal_field, "b-", lw=6, alpha=0.5, label=r"$E_a$")
         xspace.set_xlim(0, L)
         xspace.set_xlabel("$x$")
         xspace.grid()
@@ -90,8 +92,10 @@ def test_PoissonSolver_complex(debug=DEBUG):
 
         fig2, fspace = plt.subplots()
         fspace.plot(k, energy_presum, "bo--", label="energy. what energy?")
+        fspace.plot(k, energy_via_field, "go--", label="energy via field?")
         fspace.set_xlabel("k")
         fspace.set_ylabel("mode energy")
+        fspace.set_title("Fourier space")
         fspace.grid()
         fspace.legend(loc='best')
         plt.show()

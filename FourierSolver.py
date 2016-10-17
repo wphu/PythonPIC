@@ -26,18 +26,22 @@ def PoissonSolver(rho, x, epsilon_0=1, debug=False):
     """
     NG = len(x)
     dx = x[1] - x[0]
+    L = NG * dx
     rho_F = fft.fft(rho)
     rho_F[0] = 0
     k = NG * dx * fft.fftfreq(NG, dx)
+    dk = k[1] - k[0]
+    print(k)
+    print("L", L)
     k[0] = 0.0001
     field_F = rho_F / (np.pi * 2j * k * epsilon_0)
     potential_F = field_F / (-2j * np.pi * k * epsilon_0)
     field = fft.ifft(field_F).real
     potential = fft.ifft(potential_F).real
-    energy_presum = np.abs(0.5 * rho_F * potential_F.conjugate())[:NG / 2]
-
+    energy_presum = np.abs(rho_F * potential_F.conjugate())[:NG / 2] / L
+    energy_via_field = field_F * field_F.conjugate() / L
     energy = energy_presum.sum()
     if debug:
-        return field, potential, energy_presum, k[:NG / 2]
+        return field, potential, energy_presum, k[:NG / 2], energy_via_field[:NG / 2]
     else:
         return field, potential, energy

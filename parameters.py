@@ -2,7 +2,7 @@ import numpy as np
 import constants
 N = int(128)
 NG = 32
-NT = 150
+NT = 1500
 L = 2 * np.pi
 dt = 0.2
 particle_charge = -1
