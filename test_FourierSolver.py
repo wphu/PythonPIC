@@ -10,7 +10,6 @@ def test_PoissonSolver(debug=DEBUG):
     L = 1
 
     x, dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
-    charge_density = np.zeros_like(x)
 
     charge_density = (2 * np.pi)**2 * np.sin(2 * x * np.pi)
     field = -2 * np.pi * np.cos(2 * np.pi * x)
@@ -56,40 +55,54 @@ def test_PoissonSolver(debug=DEBUG):
 
 def test_PoissonSolver_complex(debug=DEBUG):
     L = 1
-    N = 1000
+    N = 32 * 2**5
     epsilon_0 = 1
     x, dx = np.linspace(0, L, N, retstep=True, endpoint=False)
     anal_potential = np.sin(x * 2 * np.pi) + 0.5 * \
         np.sin(x * 6 * np.pi) + 0.1 * np.sin(x * 20 * np.pi)
     anal_field = -(2 * np.pi * np.cos(x * 2 * np.pi) + 3 * np.pi *
                    np.cos(x * 6 * np.pi) + 20 * np.pi * 0.1 * np.cos(x * 20 * np.pi))
-    charge_density = ((2 * np.pi)**2 * np.sin(x * 2 * np.pi) + 18 * np.pi**2 * np.sin(
+    charge_density_anal = ((2 * np.pi)**2 * np.sin(x * 2 * np.pi) + 18 * np.pi**2 * np.sin(
         x * 6 * np.pi) + (20 * np.pi)**2 * 0.1 * np.sin(x * 20 * np.pi)) * epsilon_0
 
-    field, potential, energy = PoissonSolver(charge_density, x)
+    NG = 32
+    x_grid, dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
+    charge_density = ((2 * np.pi)**2 * np.sin(x_grid * 2 * np.pi) + 18 * np.pi**2 * np.sin(
+        x_grid * 6 * np.pi) + (20 * np.pi)**2 * 0.1 * np.sin(x_grid * 20 * np.pi)) * epsilon_0
+    field, potential, energy_presum, k = PoissonSolver(charge_density, x_grid, debug=True)
+
+    indices_in_denser_grid = np.searchsorted(x, x_grid)
 
     def plots():
         fig, xspace = plt.subplots()
         xspace.set_title(
             r"Solving the Poisson equation $\Delta \psi = \rho / \epsilon_0$ via Fourier transform")
-        rhoplot, = xspace.plot(x, charge_density, "r-", label=r"\rho")
-        Vplot, = xspace.plot(x, potential, "g-", label=r"$V$")
-        Eplot, = xspace.plot(x, field /
-                             np.max(np.abs(field)), "b-", label=r"$E$ (scaled)")
-        EplotNoScale, = xspace.plot(x, field, "b--", label=r"$E$ (not scaled)")
+        rhoplot, = xspace.plot(x_grid, charge_density, "ro--", label=r"$\rho$")
+        rhoplotAnal, = xspace.plot(x, charge_density_anal, "r-", lw=1, alpha=0.5, label=r"$\rho_a$")
+        Vplot, = xspace.plot(x_grid, potential, "g-", label=r"$V$")
+        VplotAnal, = xspace.plot(x, anal_potential, "go--", lw=1, alpha=0.5, label=r"$V_a$")
+        Eplot, = xspace.plot(x_grid, field, "bo--", alpha=0.5, label=r"$E$")
+        EplotAnal, = xspace.plot(x, anal_field, "b-", lw=1, alpha=0.5, label=r"$E_a$")
         xspace.set_xlim(0, L)
         xspace.set_xlabel("$x$")
         xspace.grid()
-        xspace.legend((rhoplot, Vplot, Eplot, EplotNoScale),
-                      (r"$\rho$", r"$V$", r"$E$ (scaled)", "$E$ (not scaled)"))
+        xspace.legend(loc='best')
+
+        fig2, fspace = plt.subplots()
+        fspace.plot(k, energy_presum, "bo--", label="energy. what energy?")
+        fspace.set_xlabel("k")
+        fspace.set_ylabel("mode energy")
+        fspace.grid()
+        fspace.legend(loc='best')
         plt.show()
         return "test_PoissonSolver_complex failed!"
-    print(field - anal_field)
-    print(potential - anal_potential)
+    print(field - anal_field[indices_in_denser_grid])
+    print(potential - anal_potential[indices_in_denser_grid])
 
-    field_correct = np.isclose(field, anal_field).all()
-    potential_correct = np.isclose(potential, anal_potential).all()
-    assert field_correct and potential_correct, plots()
+    field_correct = np.isclose(field, anal_field[indices_in_denser_grid]).all()
+    potential_correct = np.isclose(potential, anal_potential[indices_in_denser_grid]).all()
+    # assert field_correct and potential_correct, plots()
+    assert False, plots()
 
 
 def test_PoissonSolver_sheets(debug=DEBUG, test_charge_density=1):
