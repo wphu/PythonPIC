@@ -5,12 +5,11 @@ import FourierSolver
 import Simulation
 import diagnostics
 from constants import epsilon_0
-from particle_pusher import leapfrog_particle_push
 from gather import interpolateField
 from scatter import charge_density_deposition
 from parameters import NT, NG, N, T, dt, particle_mass, particle_charge, L, x_particles, v_particles, push_amplitude, push_mode
 from Grid import Grid
-
+from Species import Species
 
 def field_quantities(x, charge_density):
     """ calculates field quantities"""
@@ -30,28 +29,29 @@ if __name__ == "__main__":
 
     g = Grid(L=2 * np.pi, NG=32)
 
-    S = Simulation.Simulation(NT, g.NG, N, T, particle_charge, particle_mass, g.L, epsilon_0)
+    electrons = Species(particle_charge, particle_mass, N)
+    electrons.distribute_uniformly(g.L)
+    electrons.sinusoidal_position_perturbation(push_amplitude, push_mode, g.L)
 
-    g.gather_charge(x_particles, particle_charge)
+    S = Simulation.Simulation(NT, g.NG, electrons.N, T, electrons.q, electrons.m, g.L, epsilon_0)
+
+    g.gather_charge(electrons.x, electrons.q)
+    fourier_field_energy = g.solve_poisson()
 
     # potential, electric_field, electric_field_function, fourier_field_energy = field_quantities(x, charge_density)
-    x_dummy, v_particles = leapfrog_particle_push(x_particles, v_particles, -dt / 2., g.electric_field_function(x_particles) * particle_charge / particle_mass, L)
-    kinetic, field, total = 0, 0, 0
+    kinetic_energy = electrons.leapfrog_init(g.electric_field_function, dt)
 
-    # push particles a bit!
-    x_particles += push_amplitude * np.cos(push_mode * np.pi * x_particles / L)
-
-    x_particles %= L
     start_time = time.time()
     for i in range(NT):
         S.update_grid(i, g.charge_density, g.electric_field)
-        S.update_particles(i, x_particles, v_particles)
+        S.update_particles(i, electrons.x, electrons.v)
 
         kinetic, field, total = diagnostics.energies(x_particles, v_particles, particle_mass, g.dx, g.potential, g.charge_density)
         print("i{:4d} T{:12.3e} V{:12.3e} E{:12.3e}".format(i, kinetic, field, total))
-        x_particles, v_particles = leapfrog_particle_push(x_particles, v_particles, dt, g.electric_field_function(x_particles) * particle_charge / particle_mass, L)
-        g.gather_charge(x_particles, particle_charge)
+        kinetic_energy = electrons.push_particles(g.electric_field_function, dt, g.L)
+        g.gather_charge(electrons.x, electrons.q)
         fourier_field_energy = g.solve_poisson()
+        kinetic = kinetic_energy.sum()
         diag = kinetic, fourier_field_energy, kinetic + fourier_field_energy
         S.update_diagnostics(i, diag)
 

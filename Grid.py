@@ -12,7 +12,7 @@ class Grid(object):
         self.electric_field = np.zeros_like(self.x)
         self.potential = np.zeros_like(self.x)
         self.L = L
-        self.NG = NG
+        self.NG = int(NG)
 
     def solve_poisson(self):
         self.electric_field, self.potential, field_energy = PoissonSolver(self.charge_density, self.x, epsilon_0=epsilon_0)
