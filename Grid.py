@@ -18,8 +18,8 @@ class Grid(object):
         self.electric_field, self.potential, field_energy = PoissonSolver(self.charge_density, self.x, epsilon_0=epsilon_0)
         return field_energy
 
-    def gather_charge(self, x_particles, particle_charge):
-        self.charge_density = charge_density_deposition(self.x, self.dx, x_particles, particle_charge)
+    def gather_charge(self, species):
+        self.charge_density = charge_density_deposition(self.x, self.dx, species.x, species.q)
 
     def electric_field_function(self, xp):
         return interpolateField(xp, self.electric_field, self.x, self.dx)

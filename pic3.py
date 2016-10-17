@@ -35,7 +35,7 @@ if __name__ == "__main__":
 
     S = Simulation.Simulation(NT, g.NG, electrons.N, T, electrons.q, electrons.m, g.L, epsilon_0)
 
-    g.gather_charge(electrons.x, electrons.q)
+    g.gather_charge(electrons)
     fourier_field_energy = g.solve_poisson()
 
     # potential, electric_field, electric_field_function, fourier_field_energy = field_quantities(x, charge_density)
@@ -49,7 +49,7 @@ if __name__ == "__main__":
         kinetic, field, total = diagnostics.energies(x_particles, v_particles, particle_mass, g.dx, g.potential, g.charge_density)
         print("i{:4d} T{:12.3e} V{:12.3e} E{:12.3e}".format(i, kinetic, field, total))
         kinetic_energy = electrons.push_particles(g.electric_field_function, dt, g.L)
-        g.gather_charge(electrons.x, electrons.q)
+        g.gather_charge(electrons)
         fourier_field_energy = g.solve_poisson()
         kinetic = kinetic_energy.sum()
         diag = kinetic, fourier_field_energy, kinetic + fourier_field_energy

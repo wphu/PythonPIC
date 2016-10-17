@@ -1,5 +1,6 @@
 from pic3 import *
 from helper_functions import l2_norm, l2_test
+import matplotlib.pyplot as plt
 
 # def test_constant_charge_density():
 #         NG = 16
