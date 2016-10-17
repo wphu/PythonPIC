@@ -1,4 +1,6 @@
 import numpy as np
+from constants import epsilon_0
+
 
 def energies(r, v, m, dx, rho, phi):
     particle_kinetic_energy = 0.5 * m * np.sum(v * v)
