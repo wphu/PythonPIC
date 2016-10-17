@@ -8,7 +8,8 @@ from constants import epsilon_0
 from particle_pusher import leapfrog_particle_push
 from gather import interpolateField
 from scatter import charge_density_deposition
-from parameters import NT, NG, N, T, dt, particle_mass, particle_charge, L, x, dx, x_particles, v_particles, push_amplitude, push_mode
+from parameters import NT, NG, N, T, dt, particle_mass, particle_charge, L, x_particles, v_particles, push_amplitude, push_mode
+from Grid import Grid
 
 
 def field_quantities(x, charge_density):
@@ -27,12 +28,14 @@ if __name__ == "__main__":
     if args.filename[-5:] != ".hdf5":
         args.filename = args.filename + ".hdf5"
 
-    S = Simulation.Simulation(NT, NG, N, T, particle_charge, particle_mass, L, epsilon_0)
-    charge_density = charge_density_deposition(x, dx, x_particles, particle_charge)
+    g = Grid(L=2 * np.pi, NG=32)
 
-    potential, electric_field, electric_field_function, fourier_field_energy = field_quantities(x, charge_density)
+    S = Simulation.Simulation(NT, g.NG, N, T, particle_charge, particle_mass, g.L, epsilon_0)
 
-    x_dummy, v_particles = leapfrog_particle_push(x_particles, v_particles, -dt / 2., electric_field_function(x_particles) * particle_charge / particle_mass, L)
+    g.gather_charge(x_particles, particle_charge)
+
+    # potential, electric_field, electric_field_function, fourier_field_energy = field_quantities(x, charge_density)
+    x_dummy, v_particles = leapfrog_particle_push(x_particles, v_particles, -dt / 2., g.electric_field_function(x_particles) * particle_charge / particle_mass, L)
     kinetic, field, total = 0, 0, 0
 
     # push particles a bit!
@@ -41,14 +44,14 @@ if __name__ == "__main__":
     x_particles %= L
     start_time = time.time()
     for i in range(NT):
-        S.update_grid(i, charge_density, electric_field)
+        S.update_grid(i, g.charge_density, g.electric_field)
         S.update_particles(i, x_particles, v_particles)
 
-        kinetic, field, total = diagnostics.energies(x_particles, v_particles, particle_mass, dx, potential, charge_density)
+        kinetic, field, total = diagnostics.energies(x_particles, v_particles, particle_mass, g.dx, g.potential, g.charge_density)
         print("i{:4d} T{:12.3e} V{:12.3e} E{:12.3e}".format(i, kinetic, field, total))
-        x_particles, v_particles = leapfrog_particle_push(x_particles, v_particles, dt, electric_field_function(x_particles) * particle_charge / particle_mass, L)
-        charge_density = charge_density_deposition(x, dx, x_particles, particle_charge)
-        potential, electric_field, electric_field_function, fourier_field_energy = field_quantities(x, charge_density)
+        x_particles, v_particles = leapfrog_particle_push(x_particles, v_particles, dt, g.electric_field_function(x_particles) * particle_charge / particle_mass, L)
+        g.gather_charge(x_particles, particle_charge)
+        fourier_field_energy = g.solve_poisson()
         diag = kinetic, fourier_field_energy, kinetic + fourier_field_energy
         S.update_diagnostics(i, diag)
 
