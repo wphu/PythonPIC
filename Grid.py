@@ -23,3 +23,6 @@ class Grid(object):
 
     def electric_field_function(self, xp):
         return interpolateField(xp, self.electric_field, self.x, self.dx)
+
+    # def plot(self, show=True):
+    #     plt.plot(self.x, self.charge_density

@@ -2,28 +2,16 @@ from pic3 import *
 from helper_functions import l2_norm, l2_test
 import matplotlib.pyplot as plt
 
-# def test_constant_charge_density():
-#         NG = 16
-#         L = 1
-#         x, dx = np.linspace(0,L,NG, retstep=True,endpoint=False)
+def new_test_single_particle():
+    g = Grid(L=1, NG=8)
+    particles = Species(1, 1, 2)
+    particles.x = np.array([g.x[1] + g.dx / 2, g.x[5] + 0.75 * g.dx])
+    # g.plot(show=False)
 
-#         q = 1
-#         N = 128
-#         analytical_charge_density = N * q / L
-
-#         x_particles = np.linspace(0, L, N, endpoint=False)
-#         particle_charge = 1
-
-#         charge_density = charge_density_deposition(x, dx, x_particles, q)
-#         def plot():
-#             plt.plot(x, charge_density)
-#             plt.plot(x, np.ones_like(x)*analytical_charge_density)
-#             plt.vlines(x, -2*analytical_charge_density, 2*analytical_charge_density)
-#             plt.show()
-#             return False
-#             return "poly test failed for power = {}".format(power)
-#         assert l2_test(analytical[region_before_last_point], interpolated[region_before_last_point]), plot()
-
+    g.gather_charge(particles)
+    plt.plot(g.x, g.charge_density, "bo-", label="scattered")
+    plt.show()
+    # particles.plot()
 
 def test_single_particle():
     NG = 8
@@ -100,4 +88,4 @@ def test_boundaries():
     assert np.isclose(charge_density, analytical_charge_density).all(), plot()
 
 if __name__ == "__main__":
-    test_boundaries()
+    new_test_single_particle()

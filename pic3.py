@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
     g = Grid(L=2 * np.pi, NG=32)
 
-    electrons = Species(particle_charge, particle_mass, N)
+    electrons = Species(-1.0, 1.0, N)
     electrons.distribute_uniformly(g.L)
     electrons.sinusoidal_position_perturbation(push_amplitude, push_mode, g.L)
 

@@ -28,7 +28,6 @@ class Species(object):
         self.x %= L
         energy = self.v * v_new / (2 * self.m)
         self.v = v_new
-
         return energy
 
     def distribute_uniformly(self, Lx, shift=False):
