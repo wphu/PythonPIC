@@ -13,6 +13,8 @@ if(args.filename[-5:] != ".hdf5"):
 
 S = Simulation.load_data(args.filename)
 
-static_plots.energy_time_plots(S)
-animation.animation(S)
+directory = "data_analysis/"
+
+static_plots.energy_time_plots(S, directory + args.filename.replace(".hdf5",".png"))
+animation.animation(S, directory + args.filename.replace(".hdf5",".mp4"))
 plt.show()

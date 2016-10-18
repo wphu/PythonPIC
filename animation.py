@@ -3,7 +3,7 @@ import matplotlib.animation as anim
 import numpy as np
 
 
-def animation(S):
+def animation(S, videofile_name):
     fig, (charge_axes, field_axes, phase_axes) = plt.subplots(3, squeeze=True, figsize=(10, 5))
 
     iteration = charge_axes.text(0.1, 0.9, 'i=x', horizontalalignment='center',
@@ -46,7 +46,6 @@ def animation(S):
     # velocity_hist_axes.set_ylabel("$N$ at $v$")
     # phase_axes_scatter = phase_axes.scatter([], [])
 
-
     def init():
         iteration.set_text("Iteration: ")
         charge_plot.set_data([], [])
@@ -67,6 +66,6 @@ def animation(S):
         return [charge_plot, field_plot, phase_plot, iteration]
 
     animation_object = anim.FuncAnimation(fig, animate, interval=100, frames=int(S.NT), blit=True, init_func=init)
-    animation_object.save("video.mp4", fps=15, extra_args=['-vcodec', 'libx264'])
+    animation_object.save(videofile_name, fps=15, writer='ffmpeg', extra_args=['-vcodec', 'libx264'])  # remove codecs to share video via IM
     plt.show()
     # return animation_object

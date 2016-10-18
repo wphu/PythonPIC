@@ -38,7 +38,7 @@ def all_the_plots(i):
     plt.close()
 
 
-def energy_time_plots(S):
+def energy_time_plots(S, videofile_name):
     fig2, energy_axes = plt.subplots()
     energy_axes.plot(np.arange(S.NT), (S.kinetic_energy), "o-", label="Kinetic energy")
     energy_axes.plot(np.arange(S.NT), (S.field_energy), "o-", label="Field energy")
@@ -48,4 +48,5 @@ def energy_time_plots(S):
     energy_axes.set_xlabel("Time")
     energy_axes.set_ylabel("Energy")
     energy_axes.legend(loc='best')
+    fig2.savefig(videofile_name)
     return fig2
