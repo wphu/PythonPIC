@@ -24,4 +24,4 @@ def charge_density_deposition(x, dx, x_particles, particle_charge):
     charge_to_left = particle_charge * left_fractions
     charge_hist_to_right = np.roll(np.bincount(logical_coordinates, charge_to_right, minlength=x.size), +1)
     charge_hist_to_left = np.bincount(logical_coordinates, charge_to_left, minlength=x.size)
-    return particle_charge * (charge_hist_to_right + charge_hist_to_left)
+    return (charge_hist_to_right + charge_hist_to_left)
