@@ -1,6 +1,7 @@
 import h5py
 import numpy as np
 import time
+from helper_functions import date_version_string
 
 
 class Simulation(object):
@@ -21,7 +22,8 @@ class Simulation(object):
                  particle_velocities="empty",
                  kinetic_energy="empty",
                  field_energy="empty",
-                 total_energy="empty"):
+                 total_energy="empty",
+                 date_ver_str="no date set"):
         self.x, self.dx = np.linspace(0, L, NGrid, retstep=True, endpoint=False)
 
         self.NT, self.NGrid, self.NParticle = NT, NGrid, NParticle
@@ -41,6 +43,7 @@ class Simulation(object):
         self.total_energy = fill_array(total_energy, NT)
         self.L, self.epsilon_0, self.T = L, epsilon_0, T
         self.q, self.m = q, m
+        self.date_ver_str = date_ver_str
 
     def update_grid(self, i, charge_density, electric_field):
         """Update the i-th set of field values"""
@@ -93,6 +96,7 @@ class Simulation(object):
             f.attrs['NParticle'] = S.NParticle
             f.attrs['T'] = S.T
             f.attrs['L'] = S.L
+            f.attrs['date_ver_str'] = date_version_string()
         print("Saved file to {}".format(filename))
         return filename
 
@@ -112,8 +116,9 @@ def load_data(filename):
         L = f.attrs['L']
         NGrid = f.attrs['NGrid']
         NParticle = f.attrs['NParticle']
+        date_ver_str = f.attrs['date_ver_str']
     S = Simulation(NT, NGrid, NParticle, T, charge_density=charge_density, electric_field=field, particle_positions=positions, particle_velocities=velocities, kinetic_energy=kinetic_energy,
-                   field_energy=field_energy, total_energy=total_energy, L=L)
+                   field_energy=field_energy, total_energy=total_energy, L=L, date_ver_str=date_ver_str)
     S.fill_grid(charge_density, field)
     S.fill_particles(positions, velocities)
     S.fill_diagnostics((kinetic_energy, field_energy, total_energy))

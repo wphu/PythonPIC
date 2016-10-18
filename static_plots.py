@@ -44,7 +44,7 @@ def energy_time_plots(S, videofile_name):
     energy_axes.plot(np.arange(S.NT), (S.field_energy), "o-", label="Field energy")
     energy_axes.plot(np.arange(S.NT), (S.total_energy), "o-", label="Total energy")
 
-    energy_axes.set_title(date_version_string())
+    energy_axes.set_title(S.date_ver_str)
     energy_axes.grid()
     energy_axes.set_xlabel("Time")
     energy_axes.set_ylabel("Energy")

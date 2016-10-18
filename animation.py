@@ -16,7 +16,7 @@ def animation(S, videofile_name):
     phase_axes.set_xlabel("x")
     phase_axes.set_ylabel("v_x")
     phase_axes.vlines(S.x, -1, 1)
-    charge_axes.set_title(date_version_string())
+    charge_axes.set_title(S.date_ver_str)
     charge_plot, = charge_axes.plot([], [])
     charge_axes.vlines(S.x, -1, 1)
     field_axes.vlines(S.x, -1, 1)
