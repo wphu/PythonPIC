@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-
+from helper_functions import date_version_string
 
 def all_the_plots(i):
     # x_particles = np.random.random(100)
@@ -44,6 +44,7 @@ def energy_time_plots(S, videofile_name):
     energy_axes.plot(np.arange(S.NT), (S.field_energy), "o-", label="Field energy")
     energy_axes.plot(np.arange(S.NT), (S.total_energy), "o-", label="Total energy")
 
+    energy_axes.set_title(date_version_string())
     energy_axes.grid()
     energy_axes.set_xlabel("Time")
     energy_axes.set_ylabel("Energy")

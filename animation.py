@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.animation as anim
 import numpy as np
-
+from helper_functions import date_version_string
 
 def animation(S, videofile_name):
     fig, (charge_axes, field_axes, phase_axes) = plt.subplots(3, squeeze=True, figsize=(10, 5))
@@ -16,7 +16,7 @@ def animation(S, videofile_name):
     phase_axes.set_xlabel("x")
     phase_axes.set_ylabel("v_x")
     phase_axes.vlines(S.x, -1, 1)
-
+    charge_axes.set_title(date_version_string())
     charge_plot, = charge_axes.plot([], [])
     charge_axes.vlines(S.x, -1, 1)
     field_axes.vlines(S.x, -1, 1)

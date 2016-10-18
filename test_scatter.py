@@ -6,12 +6,10 @@ def new_test_single_particle():
     g = Grid(L=1, NG=8)
     particles = Species(1, 1, 2)
     particles.x = np.array([g.x[1] + g.dx / 2, g.x[5] + 0.75 * g.dx])
-    # g.plot(show=False)
 
     g.gather_charge(particles)
     plt.plot(g.x, g.charge_density, "bo-", label="scattered")
     plt.show()
-    # particles.plot()
 
 def test_single_particle():
     NG = 8
