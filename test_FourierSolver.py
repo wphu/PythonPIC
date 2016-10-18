@@ -1,11 +1,11 @@
 from FourierSolver import *
 import matplotlib.pyplot as plt
+from helper_functions import l2_norm
 
 DEBUG = False
 
 
 def test_PoissonSolver(debug=DEBUG):
-    from diagnostics import L2norm
     NG = 128
     L = 1
 
@@ -28,7 +28,7 @@ def test_PoissonSolver(debug=DEBUG):
             FSfield,
             "r-",
             label="Fourier {:4.2f}".format(
-                L2norm(
+                l2_norm(
                     field,
                     FSfield)))
         ax1.plot(x, field, "g-", label="Anal")
@@ -38,7 +38,7 @@ def test_PoissonSolver(debug=DEBUG):
             FSpotential,
             "r-",
             label="Fourier {:4.2f}".format(
-                L2norm(
+                l2_norm(
                     potential,
                     FSpotential)))
         ax2.plot(x, potential, "g-", label="Anal")
@@ -110,7 +110,6 @@ def test_PoissonSolver_complex(debug=DEBUG):
 
 
 def test_PoissonSolver_sheets(debug=DEBUG, test_charge_density=1):
-    from diagnostics import L2norm
     NG = 128
     L = 1
 
@@ -159,7 +158,6 @@ def test_PoissonSolver_ramp(debug=DEBUG):
     phi must be of form
     phi = -Ax^3/6 + Bx^2 + Cx + D"""
 
-    from diagnostics import L2norm
     NG = 128
     L = 1
 

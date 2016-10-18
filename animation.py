@@ -66,6 +66,8 @@ def animation(S, videofile_name):
         return [charge_plot, field_plot, phase_plot, iteration]
 
     animation_object = anim.FuncAnimation(fig, animate, interval=100, frames=int(S.NT), blit=True, init_func=init)
-    animation_object.save(videofile_name, fps=15, writer='ffmpeg', extra_args=['-vcodec', 'libx264'])  # remove codecs to share video via IM
+    if videofile_name:
+        print("Saving animation to {}".format(videofile_name))
+        animation_object.save(videofile_name, fps=15, writer='ffmpeg', extra_args=['-vcodec', 'libx264'])  # remove codecs to share video via IM
     plt.show()
     # return animation_object

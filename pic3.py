@@ -3,21 +3,12 @@ import argparse
 import numpy as np
 import FourierSolver
 import Simulation
-import diagnostics
 from constants import epsilon_0
 from gather import interpolateField
 from scatter import charge_density_deposition
 from parameters import NT, NG, N, T, dt, particle_mass, particle_charge, L, x_particles, v_particles, push_amplitude, push_mode
 from Grid import Grid
 from Species import Species
-
-def field_quantities(x, charge_density):
-    """ calculates field quantities"""
-    # TODO: this is neither elegant nor efficient :( can probably be rewritten)
-    dx = x[1] - x[0]
-    potential, electric_field, fourier_field_energy = FourierSolver.PoissonSolver(charge_density, x)
-    electric_field_function = lambda x_particles: interpolateField(x_particles, electric_field, x, dx)
-    return potential, electric_field, electric_field_function, fourier_field_energy
 
 
 if __name__ == "__main__":
@@ -46,14 +37,13 @@ if __name__ == "__main__":
         S.update_grid(i, g.charge_density, g.electric_field)
         S.update_particles(i, electrons.x, electrons.v)
 
-        kinetic, field, total = diagnostics.energies(x_particles, v_particles, particle_mass, g.dx, g.potential, g.charge_density)
-        print("i{:4d} T{:12.3e} V{:12.3e} E{:12.3e}".format(i, kinetic, field, total))
         kinetic_energy = electrons.push_particles(g.electric_field_function, dt, g.L)
         g.gather_charge(electrons)
         fourier_field_energy = g.solve_poisson()
-        kinetic = kinetic_energy.sum()
-        diag = kinetic, fourier_field_energy, kinetic + fourier_field_energy
+        total_kinetic_energy = kinetic_energy.sum()
+        diag = total_kinetic_energy, fourier_field_energy, total_kinetic_energy + fourier_field_energy
         S.update_diagnostics(i, diag)
+        print("i{:4d} T{:12.3e} V{:12.3e} E{:12.3e}".format(i, *diag))
 
     runtime = time.time() - start_time
     print("Runtime: {}".format(runtime))
