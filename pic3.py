@@ -6,7 +6,7 @@ import Simulation
 from constants import epsilon_0
 from gather import interpolateField
 from scatter import charge_density_deposition
-from parameters import NT, NG, N, T, dt, particle_mass, particle_charge, L, x_particles, v_particles, push_amplitude, push_mode
+from parameters import NT, NG, N, T, dt, push_amplitude, push_mode
 from Grid import Grid
 from Species import Species
 
