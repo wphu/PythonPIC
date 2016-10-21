@@ -10,6 +10,7 @@ def animation(S, videofile_name):
                                  verticalalignment='center', transform=charge_axes.transAxes)
 
     phase_plot, = phase_axes.plot([], [], "b.")
+    phase_line, = phase_axes.plot([], [], "b-", alpha=1, lw=0.7)
     phase_axes.set_xlim(0, S.L)
     maxv = 5 * np.mean(np.abs(S.particle_velocities))
     phase_axes.set_ylim(-maxv, maxv)
@@ -51,19 +52,21 @@ def animation(S, videofile_name):
         charge_plot.set_data([], [])
         field_plot.set_data([], [])
         phase_plot.set_data([], [])
+        phase_line.set_data([], [])
         # phase_axes_scatter.set_array([], [])
         # phase_axes.set_xlim(0,S.L)
-        return [charge_plot, field_plot, phase_plot, iteration]  # phase_axes,
+        return [charge_plot, field_plot, phase_plot, phase_line, iteration]  # phase_axes,
 
     def animate(i):
         charge_plot.set_data(S.x, S.charge_density[i])
         phase_plot.set_data(S.particle_positions[i], S.particle_velocities[i])
         field_plot.set_data(S.x, S.electric_field[i])
+        phase_line.set_data(S.particle_positions[:i+1].T, S.particle_velocities[:i+1].T)
         # position_histogram.set_data(S.x_particles, NG)
         # phase_axes_scatter.set_array(S.particle_positions[i], S.particle_velocities[i])
         # iteration.set_text(i)
         iteration.set_text("Iteration: {}".format(i))
-        return [charge_plot, field_plot, phase_plot, iteration]
+        return [charge_plot, field_plot, phase_plot, phase_line, iteration]
 
     animation_object = anim.FuncAnimation(fig, animate, interval=100, frames=int(S.NT), blit=True, init_func=init)
     if videofile_name:
