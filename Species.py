@@ -34,5 +34,5 @@ class Species(object):
         self.x = (np.linspace(0, Lx, self.N, endpoint=False) + shift * self.N/Lx/10) % Lx
 
     def sinusoidal_position_perturbation(self, amplitude, mode, L):
-        self.x += amplitude * np.cos(mode * np.pi * self.x / L)
+        self.x += amplitude * np.cos(2 * mode * np.pi * self.x / L)
         self.x %= L

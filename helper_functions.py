@@ -2,6 +2,7 @@ import numpy as np
 import time
 import subprocess
 
+epsilon_0 = 1
 
 def l2_norm(reference, test):
     return np.sum((reference - test)**2) / np.sum(reference**2)

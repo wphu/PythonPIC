@@ -3,10 +3,9 @@ import argparse
 import numpy as np
 import FourierSolver
 import Simulation
-from constants import epsilon_0
 from gather import interpolateField
 from scatter import charge_density_deposition
-from parameters import NT, NG, N, T, dt, push_amplitude, push_mode
+from parameters import NT, NG, N, T, dt, push_amplitude, push_mode, epsilon_0
 from Grid import Grid
 from Species import Species
 

@@ -10,7 +10,7 @@ def animation(S, videofile_name):
                                  verticalalignment='center', transform=charge_axes.transAxes)
 
     phase_plot, = phase_axes.plot([], [], "b.")
-    phase_line, = phase_axes.plot([], [], "b-", alpha=1, lw=0.7)
+    phase_line, = phase_axes.plot([], [], "b-", alpha=0.7, lw=0.7)
     phase_axes.set_xlim(0, S.L)
     maxv = 5 * np.mean(np.abs(S.particle_velocities))
     phase_axes.set_ylim(-maxv, maxv)
