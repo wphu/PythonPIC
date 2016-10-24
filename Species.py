@@ -35,7 +35,7 @@ class Species(object):
         return energy
 
     def distribute_uniformly(self, Lx, shift=False):
-        self.x = (np.linspace(0, Lx, self.N, endpoint=False) + shift * self.N/Lx/10) % Lx
+        self.x = (np.linspace(0, Lx, self.N, endpoint=False) + shift * self.N / Lx / 10) % Lx
 
     def sinusoidal_position_perturbation(self, amplitude, mode, L):
         self.x += amplitude * np.cos(2 * mode * np.pi * self.x / L)

@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.animation as anim
 import numpy as np
-from helper_functions import date_version_string
+
 
 def animation(S, videofile_name):
     fig, (charge_axes, field_axes, phase_axes) = plt.subplots(3, squeeze=True, figsize=(10, 5))
@@ -64,7 +64,7 @@ def animation(S, videofile_name):
         charge_plot.set_data(S.grid.x, S.charge_density_history[i])
         field_plot.set_data(S.grid.x, S.electric_field_history[i])
         phase_plot.set_data(S.position_history[i], S.velocity_history[i])
-        phase_line.set_data(S.position_history[:i+1].T, S.velocity_history[:i+1].T)
+        phase_line.set_data(S.position_history[:i + 1].T, S.velocity_history[:i + 1].T)
         # position_histogram.set_data(S.x_particles, NG)
         # phase_axes_scatter.set_array(S.particle_positions[i], S.particle_velocities[i])
         # iteration.set_text(i)

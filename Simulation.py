@@ -175,6 +175,7 @@ def load_data(filename):
         S.position_history, S.velocity_history = particle_histories[species.name]
     return S
 
+
 def test_simulation_equality():
     g = Grid(L=2 * np.pi, NG=32)
     N = 128
@@ -191,6 +192,8 @@ def test_simulation_equality():
 
     S_loaded = load_data(filename)
     assert S == S_loaded, "Simulations not equal!"
+
+#TODO: def test_simulation_two_particles()
 
 if __name__=="__main__":
     test_simulation_equality()

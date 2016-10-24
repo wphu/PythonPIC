@@ -3,6 +3,7 @@ from FourierSolver import PoissonSolver
 from scatter import charge_density_deposition
 from gather import interpolateField
 
+
 class Grid(object):
     def __init__(self, L=2 * np.pi, NG=32, epsilon_0=1):
         self.x, self.dx = np.linspace(0, L, NG, retstep=True, endpoint=False)

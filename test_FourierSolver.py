@@ -45,7 +45,7 @@ def test_PoissonSolver(debug=DEBUG):
         for ax in axes:
             ax.grid()
             ax.legend()
-        plt.show()
+        fig.show()
         return "test_PoissonSolver failed!"
 
     field_correct = np.isclose(FSfield, field).all()
@@ -78,11 +78,11 @@ def test_PoissonSolver_complex(debug=DEBUG):
         fig, xspace = plt.subplots()
         xspace.set_title(
             r"Solving the Poisson equation $\Delta \psi = \rho / \epsilon_0$ via Fourier transform")
-        rhoplot, = xspace.plot(x_grid, charge_density, "ro--", label=r"$\rho$")
-        rhoplotAnal, = xspace.plot(x, charge_density_anal, "r-", lw=6, alpha=0.5, label=r"$\rho_a$")
-        Vplot, = xspace.plot(x_grid, potential, "go--", label=r"$V$")
-        VplotAnal, = xspace.plot(x, anal_potential, "g-", lw=6, alpha=0.5, label=r"$V_a$")
-        Eplot, = xspace.plot(x_grid, field, "bo--", alpha=0.5, label=r"$E$")
+        xspace.plot(x_grid, charge_density, "ro--", label=r"$\rho$")
+        xspace.plot(x, charge_density_anal, "r-", lw=6, alpha=0.5, label=r"$\rho_a$")
+        xspace.plot(x_grid, potential, "go--", label=r"$V$")
+        xspace.plot(x, anal_potential, "g-", lw=6, alpha=0.5, label=r"$V_a$")
+        xspace.plot(x_grid, field, "bo--", alpha=0.5, label=r"$E$")
         EplotAnal, = xspace.plot(x, anal_field, "b-", lw=6, alpha=0.5, label=r"$E_a$")
         xspace.set_xlim(0, L)
         xspace.set_xlabel("$x$")
@@ -97,7 +97,7 @@ def test_PoissonSolver_complex(debug=DEBUG):
         fspace.set_title("Fourier space")
         fspace.grid()
         fspace.legend(loc='best')
-        plt.show()
+        fig.show()
         return "test_PoissonSolver_complex failed!"
     print(field - anal_field[indices_in_denser_grid])
     print(potential - anal_potential[indices_in_denser_grid])
@@ -136,7 +136,7 @@ def test_PoissonSolver_sheets(debug=DEBUG, test_charge_density=1):
         for ax in axes:
             ax.grid()
             ax.legend()
-        plt.show()
+        fig.show()
         return "test_PoissonSolver_sheets failed!"
 
     polynomial_coefficients = np.polyfit(x[region1], FSfield[region1], 1)
@@ -182,7 +182,7 @@ def test_PoissonSolver_ramp(debug=DEBUG):
         for ax in axes:
             ax.grid()
             ax.legend()
-        plt.show()
+        fig.show()
         return "test_PoissonSolver_ramp failed!"
 
     polynomial_coefficients = np.polyfit(x, FSpotential, 3)

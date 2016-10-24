@@ -26,11 +26,11 @@ def PoissonSolver(rho, x, epsilon_0=1, debug=False):
     """
     NG = len(x)
     dx = x[1] - x[0]
-    L = NG * dx
+    # L = NG * dx
     rho_F = fft.fft(rho)
     rho_F[0] = 0
     k = NG * dx * fft.fftfreq(NG, dx)
-    dk = k[1] - k[0]
+    # dk = k[1] - k[0]
     # print(k)
     # print("L", L)
     k[0] = 0.0001
