@@ -1,6 +1,6 @@
 from FourierSolver import *
 import matplotlib.pyplot as plt
-from helper_functions import l2_norm
+from helper_functions import l2_test
 
 DEBUG = False
 
@@ -71,7 +71,7 @@ def test_PoissonSolver_complex(debug=DEBUG):
     charge_density = charge_density_anal[indices_in_denser_grid]
     field, potential, energy_presum, k = PoissonSolver(charge_density, x_grid, debug=True)
     energy_fourier = energy_presum.sum()
-    energy_direct = 0.5 * (field**2).sum()
+    energy_direct = 0.5 * (field**2).sum() * (2 * np.pi)
     print("dx", dx, "fourier", energy_fourier, "direct", energy_direct, energy_fourier / energy_direct)
 
     def plots():
@@ -107,6 +107,60 @@ def test_PoissonSolver_complex(debug=DEBUG):
     potential_correct = np.isclose(potential, anal_potential[indices_in_denser_grid]).all()
     assert field_correct and potential_correct and energy_correct, plots()
     # assert False, plots()
+
+
+def test_PoissonSolver_energy_sine(debug=DEBUG):
+    L = 1
+    N = 32 * 2**5
+    epsilon_0 = 1
+    x, dx = np.linspace(0, L, N, retstep=True, endpoint=False)
+    anal_potential = np.sin(x * 2 * np.pi)
+    anal_field = -(2 * np.pi * np.cos(x * 2 * np.pi))
+    charge_density_anal = ((2 * np.pi)**2 * np.sin(x * 2 * np.pi))
+
+    NG = 32
+    x_grid, dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
+    indices_in_denser_grid = np.searchsorted(x, x_grid)
+    charge_density = charge_density_anal[indices_in_denser_grid]
+    field, potential, energy_presum, k = PoissonSolver(charge_density, x_grid, debug=True)
+    energy_fourier = energy_presum.sum()
+    energy_direct = 0.5 * epsilon_0 * (field**2).sum() * (2 * np.pi)
+    print("dx", dx, "fourier", energy_fourier, "direct", energy_direct, energy_fourier / energy_direct)
+
+    def plots():
+        fig, xspace = plt.subplots()
+        xspace.set_title(
+            r"Solving the Poisson equation $\Delta \psi = \rho / \epsilon_0$ via Fourier transform")
+        xspace.plot(x_grid, charge_density, "ro--", label=r"$\rho$")
+        xspace.plot(x, charge_density_anal, "r-", lw=6, alpha=0.5, label=r"$\rho_a$")
+        xspace.plot(x_grid, potential, "go--", label=r"$V$")
+        xspace.plot(x, anal_potential, "g-", lw=6, alpha=0.5, label=r"$V_a$")
+        xspace.plot(x_grid, field, "bo--", alpha=0.5, label=r"$E$")
+        EplotAnal, = xspace.plot(x, anal_field, "b-", lw=6, alpha=0.5, label=r"$E_a$")
+        xspace.set_xlim(0, L)
+        xspace.set_xlabel("$x$")
+        xspace.grid()
+        xspace.legend(loc='best')
+
+        fig2, fspace = plt.subplots()
+        fspace.plot(k, energy_presum, "bo--", label=r"electric energy $\rho_F V_F^\dagger$")
+        # fspace.plot(k, energy_via_field, "go--", label="energy via field?")
+        fspace.set_xlabel("k")
+        fspace.set_ylabel("mode energy")
+        fspace.set_title("Fourier space")
+        fspace.grid()
+        fspace.legend(loc='best')
+        plt.show()
+        return "test_PoissonSolver_complex failed!"
+    print(field - anal_field[indices_in_denser_grid])
+    print(potential - anal_potential[indices_in_denser_grid])
+
+    energy_correct = l2_test(energy_fourier, energy_direct)
+    field_correct = l2_test(field, anal_field[indices_in_denser_grid])
+    potential_correct = l2_test(potential, anal_potential[indices_in_denser_grid])
+    assert field_correct, plots()
+    assert potential_correct, plots()
+    assert field_correct, plots()
 
 
 def test_PoissonSolver_sheets(debug=DEBUG, test_charge_density=1):
