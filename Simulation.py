@@ -5,6 +5,7 @@ from helper_functions import date_version_string
 from Grid import Grid
 from Species import Species
 
+
 class Simulation(object):
     """Contains data from one run of the simulation:
     NT: number of iterations
@@ -27,8 +28,8 @@ class Simulation(object):
         self.velocity_history = {}
         for species in list_species:
             self.all_species.append(species)
-            self.position_history[species] = np.empty((NT, species.N))
-            self.velocity_history[species] = np.empty((NT, species.N))
+            self.position_history[species.name] = np.empty((NT, species.N))
+            self.velocity_history[species.name] = np.empty((NT, species.N))
 
         self.kinetic_energy = np.empty(NT)
         self.field_energy = np.empty(NT)
@@ -95,10 +96,10 @@ class Simulation(object):
                 species_data.attrs['q'] = species.q
                 species_data.attrs['m'] = species.m
 
-                species_data.create_dataset(name="x", dtype=float, data=S.position_history[species])
-                species_data.create_dataset(name="v", dtype=float, data=S.velocity_history[species])
+                species_data.create_dataset(name="x", dtype=float, data=S.position_history[species.name])
+                species_data.create_dataset(name="v", dtype=float, data=S.velocity_history[species.name])
 
-            f.create_dataset(name="Kinetic energy", dtype=float, data=S.kinetic_energy) #TODO: move to species
+            f.create_dataset(name="Kinetic energy", dtype=float, data=S.kinetic_energy)  # TODO: move to species
             f.create_dataset(name="Field energy", dtype=float, data=S.field_energy)
             f.create_dataset(name="Total energy", dtype=float, data=S.total_energy)
 
@@ -109,12 +110,14 @@ class Simulation(object):
         return filename
 
     def __eq__(self, other):
-        # return "boo"
         result = True
         result *= self.date_ver_str == other.date_ver_str
         result *= self.epsilon_0 == other.epsilon_0
         result *= self.NT == other.NT
         result *= self.dt == other.dt
+        for this_species, other_species in zip(self.all_species, other.all_species):
+            result *= this_species == other_species
+        result *= self.grid == other.grid
         return result
 
 
@@ -147,7 +150,7 @@ def load_data(filename):
 
             position_history = species_group['x'][...]
             velocity_history = species_group['v'][...]
-            name = species_group.name
+            name = species_group_name
             particle_histories[name] = ((position_history, velocity_history))
             N = species_group.attrs['N']
             q = species_group.attrs['q']
@@ -174,26 +177,3 @@ def load_data(filename):
     for species in all_species:
         S.position_history, S.velocity_history = particle_histories[species.name]
     return S
-
-
-def test_simulation_equality():
-    g = Grid(L=2 * np.pi, NG=32)
-    N = 128
-    electrons = Species(-1.0, 1.0, N, "electrons")
-    positrons = Species(1.0, 1.0, N, "positrons")
-    NT = 100
-    dt = 0.1
-    epsilon_0 = 1
-    date_ver_str = date_version_string()
-
-    filename = "simulation_data_format.hdf5"
-    S = Simulation(NT, dt, epsilon_0, g, [electrons, positrons], date_ver_str)
-    S.save_data(filename)
-
-    S_loaded = load_data(filename)
-    assert S == S_loaded, "Simulations not equal!"
-
-#TODO: def test_simulation_two_particles()
-
-if __name__=="__main__":
-    test_simulation_equality()

@@ -40,3 +40,13 @@ class Species(object):
     def sinusoidal_position_perturbation(self, amplitude, mode, L):
         self.x += amplitude * np.cos(2 * mode * np.pi * self.x / L)
         self.x %= L
+
+    def __eq__(self, other):
+        result = True
+        result *= self.q == other.q
+        result *= self.m == other.m
+        result *= self.N == other.N
+        result *= np.isclose(self.x, other.x).all()
+        result *= np.isclose(self.v, other.v).all()
+        result *= self.name == other.name
+        return result

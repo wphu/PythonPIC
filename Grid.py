@@ -24,5 +24,16 @@ class Grid(object):
     def electric_field_function(self, xp):
         return interpolateField(xp, self.electric_field, self.x, self.dx)
 
+    def __eq__(self, other):
+        result = True
+        result *= np.isclose(self.x, other.x).all()
+        result *= np.isclose(self.charge_density, other.charge_density).all()
+        result *= np.isclose(self.electric_field, other.electric_field).all()
+        result *= np.isclose(self.potential, other.potential).all()
+        result *= self.dx == other.dx
+        result *= self.L == other.L
+        result *= self.NG == other.NG
+        result *= self.epsilon_0 == other.epsilon_0
+        return result
     # def plot(self, show=True):
     #     plt.plot(self.x, self.charge_density
