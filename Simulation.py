@@ -47,30 +47,13 @@ class Simulation(object):
     def update_particles(self, i, list_species):
         """Update the i-th set of particle values"""
         for species in list_species:
-            self.position_history[species][i] = species.x
-            self.velocity_history[species][i] = species.v
+            self.position_history[species.name][i] = species.x
+            self.velocity_history[species.name][i] = species.v
 
     def update_diagnostics(self, i, kinetic_energy, field_energy, total_energy):
         self.kinetic_energy[i] = kinetic_energy
         self.field_energy[i] = field_energy
         self.total_energy[i] = total_energy
-    #
-    # def fill_grid(self, charge_density, electric_field):
-    #     self.charge_density, self.electric_field = charge_density, electric_field
-    #
-    # def fill_particles(self, particle_positions, particle_velocities):
-    #     self.particle_positions = particle_positions
-    #     self.particle_velocities = particle_velocities
-    #
-    # def fill_diagnostics(self, diagnostics):
-    #     kinetic_energy, field_energy, total_energy = diagnostics
-    #     self.kinetic_energy = kinetic_energy
-    #     self.field_energy = field_energy
-    #     self.total_energy = total_energy
-
-    ######
-    # data access
-    ######
 
     def save_data(self, filename=time.strftime("%Y-%m-%d_%H-%M-%S.hdf5")):
         """Save simulation data to hdf5.
