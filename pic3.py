@@ -38,6 +38,17 @@ def run(g, list_species, params, filename):
     print("Runtime: {}".format(runtime))
     S.save_data(filename=args.filename)
 
+
+def cold_plasma_oscillations(filename, dt, electron_charge, electron_mass, NT=150, NG=32, N_electrons=128, L=2 * np.pi, epsilon_0=1):
+    g = Grid(L=L, NG=NG)
+    electrons = Species(electron_charge, electron_mass, N_electrons, "electrons")
+    list_species = [electrons]
+    for species in list_species:
+        species.distribute_uniformly(g.L)
+        species.sinusoidal_position_perturbation(push_amplitude, push_mode, g.L)
+    params = NT, dt, epsilon_0
+    run(g, list_species, params, args.filename)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("filename", help="hdf5 file name for storing data")
@@ -45,12 +56,4 @@ if __name__ == "__main__":
     if args.filename[-5:] != ".hdf5":
         args.filename = args.filename + ".hdf5"
 
-    g = Grid(L=2 * np.pi, NG=32)
-    electrons = Species(-1.0, 1.0, N, "electrons")
-    list_species = [electrons]
-    for species in list_species:
-        species.distribute_uniformly(g.L)
-        species.sinusoidal_position_perturbation(push_amplitude, push_mode, g.L)
-    params = NT, dt, epsilon_0
-
-    run(g, list_species, params, args.filename)
+    cold_plasma_oscillations(args.filename, dt, -1, 1)
