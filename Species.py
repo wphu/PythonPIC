@@ -2,12 +2,16 @@ import numpy as np
 
 
 class Species(object):
-    def __init__(self, q, m, N):
+    def __init__(self, q, m, N, name=None):
         self.q = q
         self.m = m
         self.N = int(N)
         self.x = np.zeros(N, dtype=float)
         self.v = np.zeros(N, dtype=float)
+        if name:
+            self.name = name
+        else:
+            self.name = "q{}m{}N{}".format(q, m, N)
 
     def leapfrog_init(self, electric_field_function, dt):
         """Leapfrog pusher initialization
