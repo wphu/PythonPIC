@@ -1,13 +1,11 @@
 import time
 import argparse
 import numpy as np
-import FourierSolver
 import Simulation
-from gather import interpolateField
-from scatter import charge_density_deposition
-from parameters import NT, NG, N, T, dt, push_amplitude, push_mode, epsilon_0
+from parameters import NT, N, dt, push_amplitude, push_mode, epsilon_0
 from Grid import Grid
 from Species import Species
+from helper_functions import date_version_string
 
 
 if __name__ == "__main__":
@@ -23,7 +21,7 @@ if __name__ == "__main__":
     electrons.distribute_uniformly(g.L)
     electrons.sinusoidal_position_perturbation(push_amplitude, push_mode, g.L)
 
-    S = Simulation.Simulation(NT, g.NG, electrons.N, T, electrons.q, electrons.m, g.L, epsilon_0)
+    S = Simulation.Simulation(NT, dt, epsilon_0, g, [electrons], date_version_string())
 
     g.gather_charge(electrons)
     fourier_field_energy = g.solve_poisson()
@@ -33,15 +31,15 @@ if __name__ == "__main__":
 
     start_time = time.time()
     for i in range(NT):
-        S.update_grid(i, g.charge_density, g.electric_field)
-        S.update_particles(i, electrons.x, electrons.v)
+        S.update_grid(i, g)
+        S.update_particles(i, [electrons])
 
         kinetic_energy = electrons.push_particles(g.electric_field_function, dt, g.L)
         g.gather_charge(electrons)
         fourier_field_energy = g.solve_poisson()
         total_kinetic_energy = kinetic_energy.sum()
         diag = total_kinetic_energy, fourier_field_energy, total_kinetic_energy + fourier_field_energy
-        S.update_diagnostics(i, diag)
+        S.update_diagnostics(i, *diag)
         print("i{:4d} T{:12.3e} V{:12.3e} E{:12.3e}".format(i, *diag))
 
     runtime = time.time() - start_time

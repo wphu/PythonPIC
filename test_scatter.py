@@ -1,6 +1,7 @@
 from pic3 import *
 from helper_functions import l2_norm, l2_test
 import matplotlib.pyplot as plt
+from scatter import charge_density_deposition
 
 def new_test_single_particle():
     g = Grid(L=1, NG=8)

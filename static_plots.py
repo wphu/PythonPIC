@@ -40,9 +40,9 @@ def all_the_plots(i):
 
 def energy_time_plots(S, videofile_name):
     fig2, energy_axes = plt.subplots()
-    energy_axes.plot(np.arange(S.NT), (S.kinetic_energy), "o-", label="Kinetic energy")
-    energy_axes.plot(np.arange(S.NT), (S.field_energy), "o-", label="Field energy")
-    energy_axes.plot(np.arange(S.NT), (S.total_energy), "o-", label="Total energy")
+    energy_axes.plot(np.arange(S.NT)*S.dt, (S.kinetic_energy), "o-", label="Kinetic energy")
+    energy_axes.plot(np.arange(S.NT)*S.dt, (S.field_energy), "o-", label="Field energy")
+    energy_axes.plot(np.arange(S.NT)*S.dt, (S.total_energy), "o-", label="Total energy")
 
     energy_axes.set_title(S.date_ver_str)
     energy_axes.grid()

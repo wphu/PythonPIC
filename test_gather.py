@@ -1,6 +1,6 @@
 from pic3 import *
 from helper_functions import l2_norm, l2_test
-
+from gather import interpolateField
 
 def test_poly():
         NG = 16

@@ -49,10 +49,10 @@ class Simulation(object):
             self.position_history[species][i] = species.x
             self.velocity_history[species][i] = species.v
 
-    # def update_diagnostics(self, i, kinetic_energy, field_energy, total_energy):
-    #     self.kinetic_energy[i] = kinetic_energy
-    #     self.field_energy[i] = field_energy
-    #     self.total_energy[i] = total_energy
+    def update_diagnostics(self, i, kinetic_energy, field_energy, total_energy):
+        self.kinetic_energy[i] = kinetic_energy
+        self.field_energy[i] = field_energy
+        self.total_energy[i] = total_energy
     #
     # def fill_grid(self, charge_density, electric_field):
     #     self.charge_density, self.electric_field = charge_density, electric_field
@@ -98,7 +98,7 @@ class Simulation(object):
                 species_data.create_dataset(name="x", dtype=float, data=S.position_history[species])
                 species_data.create_dataset(name="v", dtype=float, data=S.velocity_history[species])
 
-            f.create_dataset(name="Kinetic energy", dtype=float, data=S.kinetic_energy)
+            f.create_dataset(name="Kinetic energy", dtype=float, data=S.kinetic_energy) #TODO: move to species
             f.create_dataset(name="Field energy", dtype=float, data=S.field_energy)
             f.create_dataset(name="Total energy", dtype=float, data=S.total_energy)
 
@@ -131,9 +131,6 @@ def load_data(filename):
     with h5py.File(filename, "r") as f:
         grid_data = f['grid']
 
-        # read_hdf5_group(grid_data)
-
-
         L = grid_data.attrs['L']
         NGrid = grid_data.attrs['NGrid']
         charge_density = grid_data['rho'][...]
@@ -147,7 +144,6 @@ def load_data(filename):
         particle_histories = {}
         for species_group_name in f['species']:
             species_group = f['species'][species_group_name]
-            read_hdf5_group(species_group)
 
             position_history = species_group['x'][...]
             velocity_history = species_group['v'][...]
@@ -172,8 +168,11 @@ def load_data(filename):
     S.charge_density_history = charge_density
     S.electric_field_history = field
     S.potential_history = potential
+    S.kinetic_energy = kinetic_energy
+    S.field_energy = field_energy
+    S.total_energy = total_energy
     for species in all_species:
-        S.position_history, S.velocity_history = particle_histories
+        S.position_history, S.velocity_history = particle_histories[species.name]
     return S
 
 def test_simulation_equality():
