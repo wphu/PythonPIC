@@ -80,50 +80,103 @@ class Simulation(object):
             grid_data = f.create_group('grid')
             grid_data.attrs['NGrid'] = S.grid.NG
             grid_data.attrs['L'] = S.grid.L
+            grid_data.attrs['epsilon_0'] = S.epsilon_0
+            grid_data.create_dataset(name="x", dtype=float, data=S.grid.x)
+
             grid_data.create_dataset(name="rho", dtype=float, data=S.charge_density_history)
             grid_data.create_dataset(name="Efield", dtype=float, data=S.electric_field_history)
-            grid_data.create_dataset(name="x", dtype=float, data=S.grid.x)
+            grid_data.create_dataset(name="potential", dtype=float, data=S.potential_history)
+
+            all_species = f.create_group('species')
             for species in S.all_species:
-                species_data = f.create_group(species.name)
+                species_data = all_species.create_group(species.name)
                 species_data.attrs['name'] = species.name
                 species_data.attrs['N'] = species.N
+                species_data.attrs['q'] = species.q
+                species_data.attrs['m'] = species.m
+
                 species_data.create_dataset(name="x", dtype=float, data=S.position_history[species])
                 species_data.create_dataset(name="v", dtype=float, data=S.velocity_history[species])
+
             f.create_dataset(name="Kinetic energy", dtype=float, data=S.kinetic_energy)
             f.create_dataset(name="Field energy", dtype=float, data=S.field_energy)
             f.create_dataset(name="Total energy", dtype=float, data=S.total_energy)
+
             f.attrs['dt'] = S.dt
             f.attrs['NT'] = S.NT
-            f.attrs['epsilon_0'] = S.epsilon_0
             f.attrs['date_ver_str'] = date_version_string()
         print("Saved file to {}".format(filename))
         return filename
 
+    def __eq__(self, other):
+        # return "boo"
+        result = True
+        result *= self.date_ver_str == other.date_ver_str
+        result *= self.epsilon_0 == other.epsilon_0
+        result *= self.NT == other.NT
+        result *= self.dt == other.dt
+        return result
 
-# def load_data(filename):
-#     """Create a Simulation object from a hdf5 file"""
-#     with h5py.File(filename, "r") as f:
-#         charge_density = f['Charge density'][...]
-#         field = f['Electric field'][...]
-#         positions = f['Particle positions'][...]
-#         velocities = f['Particle velocities'][...]
-#         kinetic_energy = f['Kinetic energy'][...]
-#         field_energy = f['Field energy'][...]
-#         total_energy = f['Total energy'][...]
-#         NT = f.attrs['NT']
-#         T = f.attrs['T']
-#         L = f.attrs['L']
-#         NGrid = f.attrs['NGrid']
-#         NParticle = f.attrs['NParticle']
-#         date_ver_str = f.attrs['date_ver_str']
-#     S = Simulation(NT, NGrid, NParticle, T, charge_density=charge_density, electric_field=field, particle_positions=positions, particle_velocities=velocities, kinetic_energy=kinetic_energy,
-#                    field_energy=field_energy, total_energy=total_energy, L=L, date_ver_str=date_ver_str)
-#     S.fill_grid(charge_density, field)
-#     S.fill_particles(positions, velocities)
-#     S.fill_diagnostics((kinetic_energy, field_energy, total_energy))
-#     return S
 
-if __name__ == "__main__":
+def read_hdf5_group(group):
+    print("Group:", group)
+    for i in group:
+        print(i, group[i])
+    for attr in group.attrs:
+        print(attr, group.attrs[attr])
+
+
+def load_data(filename):
+    """Create a Simulation object from a hdf5 file"""
+    with h5py.File(filename, "r") as f:
+        grid_data = f['grid']
+
+        # read_hdf5_group(grid_data)
+
+
+        L = grid_data.attrs['L']
+        NGrid = grid_data.attrs['NGrid']
+        charge_density = grid_data['rho'][...]
+        field = grid_data['Efield'][...]
+        potential = grid_data['potential'][...]
+        epsilon_0 = grid_data.attrs['epsilon_0']
+
+        grid = Grid(L, NGrid, epsilon_0)
+
+        all_species = []
+        particle_histories = {}
+        for species_group_name in f['species']:
+            species_group = f['species'][species_group_name]
+            read_hdf5_group(species_group)
+
+            position_history = species_group['x'][...]
+            velocity_history = species_group['v'][...]
+            name = species_group.name
+            particle_histories[name] = ((position_history, velocity_history))
+            N = species_group.attrs['N']
+            q = species_group.attrs['q']
+            m = species_group.attrs['m']
+            species = Species(q, m, N, name)
+            all_species.append(species)
+
+        kinetic_energy = f['Kinetic energy'][...]
+        field_energy = f['Field energy'][...]
+        total_energy = f['Total energy'][...]
+
+        NT = f.attrs['NT']
+        dt = f.attrs['dt']
+
+        date_ver_str = f.attrs['date_ver_str']
+
+    S = Simulation(NT, dt, epsilon_0, grid, all_species, date_ver_str)
+    S.charge_density_history = charge_density
+    S.electric_field_history = field
+    S.potential_history = potential
+    for species in all_species:
+        S.position_history, S.velocity_history = particle_histories
+    return S
+
+def test_simulation_equality():
     g = Grid(L=2 * np.pi, NG=32)
     N = 128
     electrons = Species(-1.0, 1.0, N, "electrons")
@@ -133,5 +186,12 @@ if __name__ == "__main__":
     epsilon_0 = 1
     date_ver_str = date_version_string()
 
+    filename = "simulation_data_format.hdf5"
     S = Simulation(NT, dt, epsilon_0, g, [electrons, positrons], date_ver_str)
-    S.save_data("simulation_data_format.hdf5")
+    S.save_data(filename)
+
+    S_loaded = load_data(filename)
+    assert S == S_loaded, "Simulations not equal!"
+
+if __name__=="__main__":
+    test_simulation_equality()
