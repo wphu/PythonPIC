@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 parser = argparse.ArgumentParser()
 parser.add_argument("filename", help="hdf5 file name for storing data")
 parser.add_argument('-dev', action='store_true')
+parser.add_argument('-lines', action='store_true')
 args = parser.parse_args()
 
 if(args.filename[-5:] != ".hdf5"):
@@ -22,5 +23,5 @@ if args.dev:
     videofile_name = None
 else:
     videofile_name = directory + args.filename.replace(".hdf5", ".mp4")
-animation.animation(S, videofile_name)
+animation.animation(S, videofile_name, args.lines)
 plt.show()

@@ -26,12 +26,13 @@ class Simulation(object):
         self.all_species = []
         self.position_history = {}
         self.velocity_history = {}
+        self.kinetic_energy_history = {}
         for species in list_species:
             self.all_species.append(species)
             self.position_history[species.name] = np.empty((NT, species.N))
             self.velocity_history[species.name] = np.empty((NT, species.N))
+            self.kinetic_energy_history[species.name] = np.empty(NT)
 
-        self.kinetic_energy = np.empty(NT)
         self.field_energy = np.empty(NT)
         self.total_energy = np.empty(NT)
         self.epsilon_0, self.NT, self.dt = epsilon_0, NT, dt
@@ -81,8 +82,8 @@ class Simulation(object):
 
                 species_data.create_dataset(name="x", dtype=float, data=S.position_history[species.name])
                 species_data.create_dataset(name="v", dtype=float, data=S.velocity_history[species.name])
+                species_data.create_dataset(name="Kinetic energy", dtype=float, data=S.kinetic_energy_history[species.name])
 
-            f.create_dataset(name="Kinetic energy", dtype=float, data=S.kinetic_energy)  # TODO: move to species
             f.create_dataset(name="Field energy", dtype=float, data=S.field_energy)
             f.create_dataset(name="Total energy", dtype=float, data=S.total_energy)
 
@@ -133,15 +134,15 @@ def load_data(filename):
 
             position_history = species_group['x'][...]
             velocity_history = species_group['v'][...]
+            kinetic_energy_history = species_group['Kinetic energy'][...]
             name = species_group_name
-            particle_histories[name] = ((position_history, velocity_history))
+            particle_histories[name] = ((position_history, velocity_history, kinetic_energy_history))
             N = species_group.attrs['N']
             q = species_group.attrs['q']
             m = species_group.attrs['m']
             species = Species(q, m, N, name)
             all_species.append(species)
 
-        kinetic_energy = f['Kinetic energy'][...]
         field_energy = f['Field energy'][...]
         total_energy = f['Total energy'][...]
 
@@ -154,9 +155,8 @@ def load_data(filename):
     S.charge_density_history = charge_density
     S.electric_field_history = field
     S.potential_history = potential
-    S.kinetic_energy = kinetic_energy
     S.field_energy = field_energy
     S.total_energy = total_energy
     for species in all_species:
-        S.position_history, S.velocity_history = particle_histories[species.name]
+        S.position_history[species.name], S.velocity_history[species.name], S.kinetic_energy_history[species.name] = particle_histories[species.name]
     return S

@@ -38,9 +38,10 @@ def all_the_plots(i):
     fig.close()
 
 
-def energy_time_plots(S, videofile_name):
+def energy_time_plots(S, file_name):
     fig2, energy_axes = plt.subplots()
-    energy_axes.plot(np.arange(S.NT) * S.dt, (S.kinetic_energy), "o-", label="Kinetic energy")
+    for species in S.all_species:
+        energy_axes.plot(np.arange(S.NT) * S.dt, (S.kinetic_energy_history[species.name]), "o-", label="Kinetic energy: {}".format(species.name))
     energy_axes.plot(np.arange(S.NT) * S.dt, (S.field_energy), "o-", label="Field energy")
     energy_axes.plot(np.arange(S.NT) * S.dt, (S.total_energy), "o-", label="Total energy")
 
@@ -49,5 +50,5 @@ def energy_time_plots(S, videofile_name):
     energy_axes.set_xlabel("Time")
     energy_axes.set_ylabel("Energy")
     energy_axes.legend(loc='best')
-    fig2.savefig(videofile_name)
+    fig2.savefig(file_name)
     return fig2
