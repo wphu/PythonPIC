@@ -45,7 +45,7 @@ def test_PoissonSolver(debug=DEBUG):
         for ax in axes:
             ax.grid()
             ax.legend()
-        fig.show()
+        plt.show()
         return "test_PoissonSolver failed!"
 
     field_correct = np.isclose(FSfield, field).all()
@@ -97,7 +97,7 @@ def test_PoissonSolver_complex(debug=DEBUG):
         fspace.set_title("Fourier space")
         fspace.grid()
         fspace.legend(loc='best')
-        fig.show()
+        plt.show()
         return "test_PoissonSolver_complex failed!"
     print(field - anal_field[indices_in_denser_grid])
     print(potential - anal_potential[indices_in_denser_grid])
@@ -136,7 +136,7 @@ def test_PoissonSolver_sheets(debug=DEBUG, test_charge_density=1):
         for ax in axes:
             ax.grid()
             ax.legend()
-        fig.show()
+        plt.show()
         return "test_PoissonSolver_sheets failed!"
 
     polynomial_coefficients = np.polyfit(x[region1], FSfield[region1], 1)
@@ -182,7 +182,7 @@ def test_PoissonSolver_ramp(debug=DEBUG):
         for ax in axes:
             ax.grid()
             ax.legend()
-        fig.show()
+        plt.show()
         return "test_PoissonSolver_ramp failed!"
 
     polynomial_coefficients = np.polyfit(x, FSpotential, 3)

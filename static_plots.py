@@ -33,7 +33,7 @@ def all_the_plots(i):
     plt.savefig("{:03d}.png".format(i))
     figManager = plt.get_current_fig_manager()
     figManager.window.showMaximized()
-    # fig.show()
+    # plt.show()
     fig.clf()
     fig.close()
 
