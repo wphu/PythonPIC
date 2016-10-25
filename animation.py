@@ -5,7 +5,12 @@ import numpy as np
 colors = "brgyk"
 
 def animation(S, videofile_name, lines=False):
-    fig, (charge_axes, field_axes, phase_axes) = plt.subplots(3, squeeze=True, figsize=(10, 5))
+    fig = plt.figure(figsize=(10,15))
+    charge_axes = fig.add_subplot(321)
+    field_axes = fig.add_subplot(323)
+    phase_axes = fig.add_subplot(325)
+    freq_axes = fig.add_subplot(322)
+    # fig, (charge_axes, field_axes, phase_axes, freq_axes) = plt.subplots(4, squeeze=True, figsize=(10, 5))
 
     iteration = charge_axes.text(0.1, 0.9, 'i=x', horizontalalignment='center',
                                  verticalalignment='center', transform=charge_axes.transAxes)
@@ -44,10 +49,18 @@ def animation(S, videofile_name, lines=False):
     phase_axes.set_ylabel("v_x")
     phase_axes.vlines(S.grid.x, -maxv, maxv)
 
+    freq_plot, = freq_axes.plot([], [], "bo-", label="energy per mode")
+    freq_axes.set_xlabel("k")
+    freq_axes.set_ylabel("E")
+    freq_axes.set_xlim(0, S.grid.NG/2)
+    freq_axes.set_ylim(S.energy_per_mode.min(), S.energy_per_mode.max())
+
+    plt.tight_layout()
     def init():
         iteration.set_text("Iteration: ")
         charge_plot.set_data([], [])
         field_plot.set_data([], [])
+        freq_plot.set_data([], [])
         for species in S.all_species:
             phase_dots[species.name].set_data([], [])
             if lines:
@@ -55,11 +68,12 @@ def animation(S, videofile_name, lines=False):
         if lines:
             return [charge_plot, field_plot, *phase_dots.values(),  iteration, *phase_lines.values()]
         else:
-            return [charge_plot, field_plot, *phase_dots.values(),  iteration]
+            return [charge_plot, field_plot, freq_plot, *phase_dots.values(),  iteration]
 
     def animate(i):
         charge_plot.set_data(S.grid.x, S.charge_density_history[i])
         field_plot.set_data(S.grid.x, S.electric_field_history[i])
+        freq_plot.set_data(S.grid.k_plot, S.energy_per_mode[i])
         for species in S.all_species:
             phase_dots[species.name].set_data(S.position_history[species.name][i], S.velocity_history[species.name][i])
             if lines:
@@ -67,9 +81,9 @@ def animation(S, videofile_name, lines=False):
         iteration.set_text("Iteration: {}".format(i))
 
         if lines:
-            return [charge_plot, field_plot, *phase_dots.values(),  iteration, *phase_lines.values()]
+            return [charge_plot, field_plot, freq_plot, *phase_dots.values(),  iteration, *phase_lines.values()]
         else:
-            return [charge_plot, field_plot, *phase_dots.values(),  iteration]
+            return [charge_plot, field_plot, freq_plot, *phase_dots.values(),  iteration]
 
     animation_object = anim.FuncAnimation(fig, animate, interval=100, frames=int(S.NT), blit=True, init_func=init)
     if videofile_name:

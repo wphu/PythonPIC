@@ -160,6 +160,7 @@ def load_data(filename):
     S.potential_history = potential
     S.field_energy = field_energy
     S.total_energy = total_energy
+    S.energy_per_mode = energy_per_mode
     for species in all_species:
         S.position_history[species.name], S.velocity_history[species.name], S.kinetic_energy_history[species.name] = particle_histories[species.name]
     return S
