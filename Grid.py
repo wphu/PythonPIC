@@ -21,7 +21,7 @@ class Grid(object):
 
     def solve_poisson(self):
         self.electric_field, self.potential, self.energy_per_mode = PoissonSolver(self.charge_density, self.k, self.NG, epsilon_0=self.epsilon_0)
-        return self.energy_per_mode.sum()# * 8 * np.pi * self.k[1]**2
+        return self.energy_per_mode.sum() / (self.NG/2)# * 8 * np.pi * self.k[1]**2
 
     def gather_charge(self, list_species):
         self.charge_density[:] = 0.0
