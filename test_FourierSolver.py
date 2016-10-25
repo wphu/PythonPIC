@@ -105,7 +105,7 @@ def test_PoissonSolver_energy_sine(debug=DEBUG):
     indices_in_denser_grid = np.searchsorted(x, g.x)
     g.charge_density = charge_density_anal[indices_in_denser_grid]
     energy_fourier = g.solve_poisson()
-    energy_direct = 0.5 * (g.electric_field**2).sum() * g.dx
+    energy_direct = 0.5 * (g.charge_density * g.potential).sum() * g.dx
     print("dx", dx, "fourier", energy_fourier, "direct", energy_direct, energy_fourier / energy_direct)
 
     def plots():

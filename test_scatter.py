@@ -3,15 +3,20 @@ import matplotlib.pyplot as plt
 from scatter import charge_density_deposition
 
 
-def new_test_single_particle():
-    g = Grid(L=1, NG=8)
-    particles = Species(1, 1, 2)
-    particles.x = np.array([g.x[1] + g.dx / 2, g.x[5] + 0.75 * g.dx])
+def test_sine_perturbation_effect(amplitude=0.001):
+    g = Grid(L=1, NG=32)
+    particles = Species(1, 1, 128)
+    particles.distribute_uniformly(g.L)
+    particles.sinusoidal_position_perturbation(amplitude, 1, g.L)
 
-    g.gather_charge(particles)
-    plt.plot(g.x, g.charge_density, "bo-", label="scattered")
-    plt.show()
-
+    g.gather_charge([particles])
+    def plots():
+        plt.hist(particles.x, bins=g.x)
+        plt.plot(g.x, g.charge_density, "bo-", label="scattered")
+        plt.vlines(g.x, 3, 5)
+        plt.plot(particles.x, np.ones(128)*4, "ro")
+        plt.show()
+    assert True, plots()
 
 def test_single_particle():
     NG = 8
@@ -88,4 +93,4 @@ def test_boundaries():
     assert np.isclose(charge_density, analytical_charge_density).all(), plot()
 
 if __name__ == "__main__":
-    new_test_single_particle()
+    test_sine_perturbation_effect()

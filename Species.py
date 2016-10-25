@@ -19,7 +19,7 @@ class Species(object):
 
         electric_force = electric_field_function(self.x) * self.q / self.m
         v_new = self.v - electric_force * 0.5 * dt
-        energy = self.v * v_new / (2 * self.m)
+        energy = self.v * v_new * (0.5 * self.m)
         self.v = v_new
         return energy
 
@@ -30,7 +30,7 @@ class Species(object):
 
         self.x += v_new * dt
         self.x %= L
-        energy = self.v * v_new / (2 * self.m)
+        energy = self.v * v_new * (0.5 * self.m)
         self.v = v_new
         return energy
 
