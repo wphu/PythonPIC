@@ -2,6 +2,7 @@ import numpy as np
 from FourierSolver import PoissonSolver
 from scatter import charge_density_deposition
 from gather import interpolateField
+import scipy.fftpack as fft
 
 
 class Grid(object):
@@ -13,10 +14,14 @@ class Grid(object):
         self.L = L
         self.NG = int(NG)
         self.epsilon_0 = epsilon_0
+        self.k = NG * self.dx * fft.fftfreq(NG, self.dx)
+        self.k[0] = 0.0001
+        self.k_plot = self.k[:int(NG / 2)]
+        self.energy_per_mode = np.zeros(int(NG / 2))
 
     def solve_poisson(self):
-        self.electric_field, self.potential, field_energy = PoissonSolver(self.charge_density, self.x, epsilon_0=self.epsilon_0)
-        return field_energy
+        self.electric_field, self.potential, self.energy_per_mode = PoissonSolver(self.charge_density, self.k, self.NG, epsilon_0=self.epsilon_0)
+        return self.energy_per_mode.sum()
 
     def gather_charge(self, list_species):
         self.charge_density[:] = 0.0

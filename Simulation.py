@@ -35,6 +35,7 @@ class Simulation(object):
 
         self.field_energy = np.empty(NT)
         self.total_energy = np.empty(NT)
+        self.energy_per_mode = np.empty((NT, int(grid.NG / 2)))
         self.epsilon_0, self.NT, self.dt = epsilon_0, NT, dt
 
         self.date_ver_str = date_ver_str
@@ -71,6 +72,7 @@ class Simulation(object):
             grid_data.create_dataset(name="rho", dtype=float, data=S.charge_density_history)
             grid_data.create_dataset(name="Efield", dtype=float, data=S.electric_field_history)
             grid_data.create_dataset(name="potential", dtype=float, data=S.potential_history)
+            grid_data.create_dataset(name="energy per mode", dtype=float, data=S.energy_per_mode)
 
             all_species = f.create_group('species')
             for species in S.all_species:
@@ -124,6 +126,7 @@ def load_data(filename):
         field = grid_data['Efield'][...]
         potential = grid_data['potential'][...]
         epsilon_0 = grid_data.attrs['epsilon_0']
+        energy_per_mode = grid_data['energy per mode'][...]
 
         grid = Grid(L, NGrid, epsilon_0)
 

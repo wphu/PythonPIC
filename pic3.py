@@ -14,7 +14,7 @@ def run(g, list_species, params, filename):
     g.gather_charge(list_species)
     fourier_field_energy = g.solve_poisson()
     for species in list_species:
-        kinetic_energy = species.leapfrog_init(g.electric_field_function, dt)
+        species.leapfrog_init(g.electric_field_function, dt)
 
     start_time = time.time()
     for i in range(NT):
@@ -32,6 +32,7 @@ def run(g, list_species, params, filename):
         S.field_energy[i] = fourier_field_energy
         total_energy = fourier_field_energy + total_kinetic_energy
         S.total_energy[i] = total_energy
+        S.energy_per_mode[i] = g.energy_per_mode
         print("i{:4d} T{:12.3e} V{:12.3e} E{:12.3e}".format(i, total_kinetic_energy, fourier_field_energy, total_energy))
 
     runtime = time.time() - start_time
