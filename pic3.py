@@ -2,7 +2,6 @@ import time
 import argparse
 import numpy as np
 import Simulation
-from parameters import NT, N, dt, push_amplitude, push_mode, epsilon_0
 from Grid import Grid
 from Species import Species
 from helper_functions import date_version_string
@@ -40,9 +39,15 @@ def run(g, list_species, params, filename):
     S.save_data(filename=args.filename)
 
 
-def cold_plasma_oscillations(filename, dt, electron_charge, electron_mass, NT=150, NG=32, N_electrons=128, L=2 * np.pi, epsilon_0=1):
+def cold_plasma_oscillations(filename, plasma_frequency=1, qmratio=-1, dt=0.2, NT=150,
+                             NG=32, N_electrons=128, L=2 * np.pi, epsilon_0=1,
+                             push_amplitude=0.001, push_mode=1):
+
+    particle_charge = plasma_frequency**2 * L / float(N_electrons * epsilon_0 * qmratio)
+    particle_mass = particle_charge / qmratio
+    
     g = Grid(L=L, NG=NG)
-    electrons = Species(electron_charge, electron_mass, N_electrons, "electrons")
+    electrons = Species(particle_charge, particle_mass, N_electrons, "electrons")
     list_species = [electrons]
     for species in list_species:
         species.distribute_uniformly(g.L)
@@ -57,4 +62,4 @@ if __name__ == "__main__":
     if args.filename[-5:] != ".hdf5":
         args.filename = args.filename + ".hdf5"
 
-    cold_plasma_oscillations(args.filename, dt, -1, 1)
+    cold_plasma_oscillations(args.filename)
