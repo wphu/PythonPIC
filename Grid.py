@@ -14,14 +14,14 @@ class Grid(object):
         self.L = L
         self.NG = int(NG)
         self.epsilon_0 = epsilon_0
-        self.k = NG * self.dx * fft.fftfreq(NG, self.dx)
+        self.k = 2 * np.pi * fft.fftfreq(NG, self.dx)
         self.k[0] = 0.0001
         self.k_plot = self.k[:int(NG / 2)]
         self.energy_per_mode = np.zeros(int(NG / 2))
 
     def solve_poisson(self):
         self.electric_field, self.potential, self.energy_per_mode = PoissonSolver(self.charge_density, self.k, self.NG, epsilon_0=self.epsilon_0)
-        return self.energy_per_mode.sum()
+        return self.energy_per_mode.sum() * 4 * np.pi * self.k[1]**2
 
     def gather_charge(self, list_species):
         self.charge_density[:] = 0.0

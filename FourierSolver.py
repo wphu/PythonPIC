@@ -2,7 +2,7 @@ import numpy as np
 import scipy.fftpack as fft
 
 
-def PoissonSolver(rho, k, NG, epsilon_0=1):
+def PoissonSolver(rho, k, NG, epsilon_0=1, neutralize=True):
     """solves the Poisson equation spectrally, via FFT
 
     the Poisson equation can be written either as
@@ -26,10 +26,11 @@ def PoissonSolver(rho, k, NG, epsilon_0=1):
     """
 
     rho_F = fft.fft(rho)
-    rho_F[0] = 0
-    field_F = rho_F / (np.pi * 2j * k * epsilon_0)
-    potential_F = field_F / (-2j * np.pi * k * epsilon_0)
+    if neutralize:
+        rho_F[0] = 0
+    field_F = rho_F / (1j * k * epsilon_0)
+    potential_F = field_F / (-1j * k * epsilon_0)
     field = fft.ifft(field_F).real
     potential = fft.ifft(potential_F).real
-    energy_presum = np.abs(rho_F * potential_F.conjugate())[:NG / 2] / NG * 2 * np.pi
+    energy_presum = np.abs(rho_F * potential_F.conjugate())[:int(NG / 2)] # / NG**2
     return field, potential, energy_presum
