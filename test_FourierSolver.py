@@ -32,7 +32,8 @@ def test_PoissonSolver(debug=DEBUG):
                 ax.legend()
             plt.show()
             return "test_PoissonSolver failed! calc/theory field ratio at 0: {}".format(g.electric_field[0]/field[0])
-
+        if debug:
+            plots()
         field_correct = np.isclose(g.electric_field, field).all()
         potential_correct = np.isclose(g.potential, potential).all()
         assert field_correct and potential_correct, plots()
@@ -132,6 +133,8 @@ def test_PoissonSolver_energy_sine(debug=DEBUG):
         fspace.legend(loc='best')
         plt.show()
         return "test_PoissonSolver_complex failed!"
+    if debug:
+        plots()
     print(g.electric_field - anal_field[indices_in_denser_grid])
     print(g.potential - anal_potential[indices_in_denser_grid])
 
@@ -174,6 +177,8 @@ def test_PoissonSolver_sheets(debug=DEBUG, test_charge_density=1):
             ax.legend()
         plt.show()
         return "test_PoissonSolver_sheets failed!"
+    if debug:
+        plots()
 
     polynomial_coefficients = np.polyfit(x[region1], g.electric_field[region1], 1)
     first_bump_right = np.isclose(
@@ -216,6 +221,8 @@ def test_PoissonSolver_ramp(debug=DEBUG):
             ax.legend()
         plt.show()
         return "test_PoissonSolver_ramp failed!"
+    if debug:
+        plots()
 
     polynomial_coefficients = np.polyfit(g.x, g.potential, 3)
     assert np.isclose(polynomial_coefficients[0], -a / 6,), plots()

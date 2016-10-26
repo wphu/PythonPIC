@@ -6,10 +6,10 @@ colors = "brgyk"
 
 def animation(S, videofile_name, lines=False):
     fig = plt.figure(figsize=(10,15))
-    charge_axes = fig.add_subplot(321)
-    field_axes = fig.add_subplot(323)
-    phase_axes = fig.add_subplot(325)
-    freq_axes = fig.add_subplot(322)
+    charge_axes = fig.add_subplot(221)
+    field_axes = fig.add_subplot(222)
+    phase_axes = fig.add_subplot(223)
+    freq_axes = fig.add_subplot(224)
     # fig, (charge_axes, field_axes, phase_axes, freq_axes) = plt.subplots(4, squeeze=True, figsize=(10, 5))
 
     iteration = charge_axes.text(0.1, 0.9, 'i=x', horizontalalignment='center',

@@ -1,7 +1,6 @@
-from pic3 import *
 import matplotlib.pyplot as plt
 from scatter import charge_density_deposition
-
+import numpy as np
 
 def test_sine_perturbation_effect(amplitude=0.001):
     g = Grid(L=1, NG=32)
@@ -18,7 +17,7 @@ def test_sine_perturbation_effect(amplitude=0.001):
         plt.show()
     assert True, plots()
 
-def test_single_particle():
+def test_single_particle(plotting=False):
     NG = 8
     L = 1
     x, dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
@@ -42,10 +41,12 @@ def test_single_particle():
         plt.legend()
         plt.show()
         return "single particle interpolation is off!"
+    if plotting:
+        plot()
     assert np.isclose(charge_density, analytical_charge_density).all(), plot()
 
 
-def test_constant_density():
+def test_constant_density(plotting=False):
     NG = 8
     L = 1
     x, dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
@@ -66,10 +67,12 @@ def test_constant_density():
         plt.legend()
         plt.show()
         return False
+    if plotting:
+        plot()
     assert np.isclose(charge_density, analytical_charge_density).all(), plot()
 
 
-def test_boundaries():
+def test_boundaries(plotting=False):
     NG = 8
     L = 1
     x, dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
@@ -90,6 +93,8 @@ def test_boundaries():
         plt.legend(loc='best')
         plt.show()
         return "single particle interpolation is off!"
+    if plotting:
+        plot()
     assert np.isclose(charge_density, analytical_charge_density).all(), plot()
 
 if __name__ == "__main__":

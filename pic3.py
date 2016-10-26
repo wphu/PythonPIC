@@ -89,17 +89,18 @@ if __name__ == "__main__":
     if args.filename[-5:] != ".hdf5":
         args.filename = args.filename + ".hdf5"
 
-    cold_plasma_oscillations("1default.hdf5")
-    cold_plasma_oscillations("2dense.hdf5", N_electrons=2**9+1)
-    cold_plasma_oscillations("3leapfrog_instability_pre.hdf5", dt = 0.2, NT=150, N_electrons=128, NG=32)
-    cold_plasma_oscillations("4leapfrog_instability_post.hdf5", dt = 3, NT=150, N_electrons=2**9+1, NG=32)
-    cold_plasma_oscillations("5wavebreaking.hdf5", dt = 0.2, NT=150, N_electrons=2**11+1, NG=32, push_amplitude=2)
-    cold_plasma_oscillations("6aliasing.hdf5", dt = 0.2, NT=150, N_electrons=2**9+1, NG=32, push_mode=18)
-
-    two_stream_instability("ts1default.hdf5")
-    two_stream_instability("ts2long.hdf5", NT=600)
-    two_stream_instability("ts3growth.hdf5", N_electrons=4096, NT=600, v1=1, v2=-1, push_amplitude=0.01)
-    two_stream_instability("ts4growth.hdf5", N_electrons=4096, NT=600, v1=2, v2=-2, push_amplitude=0.01)
+    cold_plasma_oscillations(args.filename)
+    # cold_plasma_oscillations("1default.hdf5")
+    # cold_plasma_oscillations("2dense.hdf5", N_electrons=2**9+1)
+    # cold_plasma_oscillations("3leapfrog_instability_pre.hdf5", dt = 0.2, NT=150, N_electrons=128, NG=32)
+    # cold_plasma_oscillations("4leapfrog_instability_post.hdf5", dt = 3, NT=150, N_electrons=2**9+1, NG=32)
+    # cold_plasma_oscillations("5wavebreaking.hdf5", dt = 0.2, NT=150, N_electrons=2**11+1, NG=32, push_amplitude=2)
+    # cold_plasma_oscillations("6aliasing.hdf5", dt = 0.2, NT=150, N_electrons=2**9+1, NG=32, push_mode=18)
+    #
+    # two_stream_instability("ts1default.hdf5")
+    # two_stream_instability("ts2long.hdf5", NT=600)
+    # two_stream_instability("ts3growth.hdf5", N_electrons=4096, NT=600, v1=1, v2=-1, push_amplitude=0.01)
+    # two_stream_instability("ts4growth.hdf5", N_electrons=4096, NT=600, v1=2, v2=-2, push_amplitude=0.01)
     # import matplotlib.pyplot as plt
     # plt.figure()
     # plt.plot(*res)

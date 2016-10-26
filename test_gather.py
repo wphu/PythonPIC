@@ -1,9 +1,9 @@
 from pic3 import *
 from helper_functions import l2_test
 from gather import interpolateField
+import matplotlib.pyplot as plt
 
-
-def test_poly():
+def test_poly(plotting=True):
     NG = 16
     NG_plot = 500
     L = 1
@@ -32,12 +32,14 @@ def test_poly():
             plt.vlines(x, electric_field.min(), electric_field.max())
             plt.show()
             return "poly test failed for power = {}".format(power)
+        if plotting:
+            plot()
 
         assert l2_test(analytical[region_before_last_point], interpolated[region_before_last_point]), plot()
     # charge_density = charge_density_deposition(x, dx, x_particles, particle_charge)
 
 
-def test_periodic():
+def test_periodic(plotting=True):
     NG = 16
     NG_plot = 500
     L = 1
@@ -63,12 +65,14 @@ def test_periodic():
             plt.vlines(x, electric_field.min(), electric_field.max())
             plt.show()
             return "periodic test failure"
+        if plotting:
+            plot()
 
         assert l2_test(interpolated, analytical), plot()
     # charge_density = charge_density_deposition(x, dx, x_particles, particle_charge)
 
 
-def test_single_particle():
+def test_single_particle(plotting=True):
     """tests interpolation of field to particles:
         at cell boundary
         at hall cell
@@ -82,7 +86,7 @@ def test_single_particle():
     x_particles = np.array([x[3], x[6] + dx / 2, x[9] + 0.75 * dx, x[-1] + dx / 2])
     particle_charge = 1
 
-    for power in range(6):
+    for power in range(2,3):
         electric_field_function = lambda x: x**power
         electric_field = electric_field_function(x)
 
@@ -96,6 +100,8 @@ def test_single_particle():
             plt.vlines(x, electric_field.min(), electric_field.max())
             plt.show()
             return "poly test failed for power = {}".format(power)
+        if plotting:
+            plot()
 
         assert l2_test(analytical, interpolated), plot()
 

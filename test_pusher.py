@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from helper_functions import l2_test
 
 
-def test_constant_field():
+def test_constant_field(plotting=True):
     s = Species(1, 1, 1)
     s.x = np.array([0], dtype=float)
     print(s.x)
@@ -32,6 +32,8 @@ def test_constant_field():
         ax2.set_ylabel("delta x")
         plt.show()
         return None
+    if plotting:
+        plot()
 
     assert l2_test(x_analytical, x_data), plot()
 
