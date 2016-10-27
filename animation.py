@@ -5,7 +5,7 @@ import numpy as np
 colors = "brgyk"
 
 def animation(S, videofile_name, lines=False):
-    fig = plt.figure(figsize=(10,15))
+    fig = plt.figure()#(figsize=(10,15))
     charge_axes = fig.add_subplot(221)
     field_axes = fig.add_subplot(222)
     phase_axes = fig.add_subplot(223)
