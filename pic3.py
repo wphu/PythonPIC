@@ -1,3 +1,4 @@
+""" A particle in cell code implemented in Python, with a focus on efficiency and optimization """
 import time
 import argparse
 import numpy as np
@@ -8,6 +9,7 @@ from helper_functions import date_version_string
 
 
 def run(g, list_species, params, filename):
+    """Full simulation run, with data gathering and saving to hdf5 file"""
     NT, dt, epsilon_0 = params
     S = Simulation.Simulation(NT, dt, epsilon_0, g, list_species, date_version_string())
     g.gather_charge(list_species)
@@ -48,6 +50,9 @@ def cold_plasma_oscillations(filename, plasma_frequency=1, qmratio=-1, dt=0.2, N
                              NG=32, N_electrons=128, L=2 * np.pi, epsilon_0=1,
                              push_amplitude=0.001, push_mode=1):
 
+    """Implements cold plasma oscillations from Birdsall and Langdon
+
+    (plasma excited by a single cosinusoidal mode via position displacements)"""
     particle_charge = plasma_frequency**2 * L / float(N_electrons * epsilon_0 * qmratio)
     particle_mass = particle_charge / qmratio
 
@@ -63,7 +68,7 @@ def cold_plasma_oscillations(filename, plasma_frequency=1, qmratio=-1, dt=0.2, N
 def two_stream_instability(filename, plasma_frequency=1, qmratio=-1, dt=0.2, NT=300,
                              NG=32, N_electrons=128, L=2 * np.pi, epsilon_0=1,
                              push_amplitude=0.001, push_mode=1, v1=1., v2=-1.):
-
+    """Implements two stream instability from Birdsall and Langdon"""
     particle_charge = plasma_frequency**2 * L / float(2*N_electrons * epsilon_0 * qmratio)
     particle_mass = particle_charge / qmratio
 
