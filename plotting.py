@@ -8,7 +8,9 @@ directory = "data_analysis/"
 
 def plotting(filename, save_directory = directory, show = True, dev = True, lines=False):
     S = Simulation.load_data(filename)
-    static_plots.energy_time_plots(S, save_directory + filename.replace(".hdf5", ".png"))
+    static_plots.energy_time_plots(S, save_directory + filename.replace(".hdf5", "_energy.png"))
+    static_plots.ESE_time_plots(S, save_directory + filename.replace(".hdf5", "_mode_energy.png"))
+    static_plots.temperature_time_plot(S, save_directory + filename.replace(".hdf5", "_temperature.png"))
     if dev:
         videofile_name = None
     else:

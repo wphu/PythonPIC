@@ -50,8 +50,24 @@ def ESE_time_plots(S, file_name):
     axis.set_ylabel("Energy")
     axis.set_title("Energy per mode versus time")
     fig.savefig(file_name)
-    plt.show()
+    return fig
 
+def temperature_time_plot(S, file_name):
+    fig, axis = plt.subplots()
+    t = np.arange(S.NT) * S.dt
+    for species in S.all_species:
+        velocity_vals = S.velocity_history[species.name]
+        meanv = velocity_vals.mean(axis=1)
+        meanv2 = (velocity_vals**2).mean(axis=1)
+        # axis.plot(t, meanv**2, label=species.name + r"$<v>^2$")
+        # axis.plot(t, meanv2, label=species.name + r" $<v^2>$")
+        axis.plot(t, meanv2-meanv**2, label=species.name + r" $<v^2> - <v>^2$")
+    axis.legend(loc='best')
+    axis.grid()
+    axis.set_xlabel("Time")
+    axis.set_ylabel("Temperature")
+    fig.savefig(file_name)
+    return fig
 
 def energy_time_plots(S, file_name):
     fig2, energy_axes = plt.subplots()
@@ -72,4 +88,4 @@ if __name__=="__main__":
     import Simulation
     S = Simulation.load_data("1default.hdf5")
     # print(S.energy_per_mode)
-    ESE_time_plots(S, "none")
+    temperature_time_plot(S, "none.png")
