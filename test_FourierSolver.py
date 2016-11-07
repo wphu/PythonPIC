@@ -2,6 +2,7 @@ from FourierSolver import *
 import matplotlib.pyplot as plt
 from helper_functions import l2_norm, l2_test
 from Grid import Grid
+from Species import Species
 DEBUG = False
 
 

@@ -12,8 +12,8 @@ def animation(S, videofile_name, lines=False):
     freq_axes = fig.add_subplot(224)
     # fig, (charge_axes, field_axes, phase_axes, freq_axes) = plt.subplots(4, squeeze=True, figsize=(10, 5))
 
-    iteration = charge_axes.text(0.1, 0.9, 'i=x', horizontalalignment='center',
-                                 verticalalignment='center', transform=charge_axes.transAxes)
+    iteration = freq_axes.text(0.1, 0.9, 'i=x', horizontalalignment='left',
+                                 verticalalignment='center', transform=freq_axes.transAxes)
 
     charge_axes.set_title(S.date_ver_str)
     charge_plot, = charge_axes.plot([], [])

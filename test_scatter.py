@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 from scatter import charge_density_deposition
 import numpy as np
+from Grid import Grid
+from Species import Species
 
 def test_sine_perturbation_effect(amplitude=0.001):
     g = Grid(L=1, NG=32)
