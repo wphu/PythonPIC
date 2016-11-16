@@ -7,7 +7,7 @@ class Species(object):
         self.m = m
         self.N = int(N)
         self.x = np.zeros(N, dtype=float)
-        self.v = np.zeros(N, dtype=float)
+        self.v = np.zeros((N, 3), dtype=float)
         if name:
             self.name = name
         else:
@@ -18,7 +18,8 @@ class Species(object):
         dt: usual timestep, minus halving is done automatically"""
 
         electric_force = electric_field_function(self.x) * self.q / self.m
-        v_new = self.v - electric_force * 0.5 * dt
+        v_new = self.v.copy()
+        v_new[:,0] -= electric_force * 0.5 * dt
         energy = self.v * v_new * (0.5 * self.m)
         self.v = v_new
         return energy
@@ -26,9 +27,10 @@ class Species(object):
     def push_particles(self, electric_field_function, dt, L):
         """Leapfrog pusher"""
         electric_force = electric_field_function(self.x) * self.q / self.m
-        v_new = self.v + electric_force * dt
+        v_new = self.v.copy()
+        v_new[:,0] += electric_force * dt
 
-        self.x += v_new * dt
+        self.x += v_new[:,0] * dt
         self.x %= L
         energy = self.v * v_new * (0.5 * self.m)
         self.v = v_new
@@ -55,7 +57,7 @@ class Species(object):
         self.v = v_new
         return energy
 
-    def boris_push_particles(self, electric_field_function, magnetic_field_function,  dt, L):
+    def boris_push_particles(self, electric_field_function, magnetic_field_function, dt, L):
         """Boris pusher, unrelativistic"""
         # add half electric impulse to v(t-dt/2)
         efield = np.zeros((self.N, 3))
@@ -100,7 +102,7 @@ if __name__=="__main__":
     import matplotlib.pyplot as plt
     particles = Species(1, 1, 4, "particle")
     particles.x = np.array([5, 5, 5, 5], dtype=float)
-    # particles.v = np.array([[1,0,0],[0,2,0],[0,0,1],[1,1,1]], dtype=float)
+    # particles.v =  np.array([[1,0,0],[0,2,0],[0,0,1],[1,1,1]], dtype=float)
     particles.v = np.zeros((particles.N,3),dtype=float)
     NT = 1000
     x_history = np.empty((NT, particles.N))

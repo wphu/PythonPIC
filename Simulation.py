@@ -30,7 +30,7 @@ class Simulation(object):
         for species in list_species:
             self.all_species.append(species)
             self.position_history[species.name] = np.empty((NT, species.N))
-            self.velocity_history[species.name] = np.empty((NT, species.N))
+            self.velocity_history[species.name] = np.empty((NT, species.N, 3))
             self.kinetic_energy_history[species.name] = np.empty(NT)
 
         self.field_energy = np.empty(NT)

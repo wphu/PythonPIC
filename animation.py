@@ -75,9 +75,9 @@ def animation(S, videofile_name, lines=False):
         field_plot.set_data(S.grid.x, S.electric_field_history[i])
         freq_plot.set_data(S.grid.k_plot, S.energy_per_mode[i])
         for species in S.all_species:
-            phase_dots[species.name].set_data(S.position_history[species.name][i], S.velocity_history[species.name][i])
+            phase_dots[species.name].set_data(S.position_history[species.name][i], S.velocity_history[species.name][i,:,0])
             if lines:
-                phase_lines[species.name].set_data(S.position_history[species.name][:i + 1].T, S.velocity_history[species.name][:i + 1].T)
+                phase_lines[species.name].set_data(S.position_history[species.name][:i + 1].T, S.velocity_history[species.name][:i + 1, :, 0].T)
         iteration.set_text("Iteration: {}".format(i))
 
         if lines:

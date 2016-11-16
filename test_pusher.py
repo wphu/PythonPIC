@@ -4,11 +4,12 @@ import matplotlib.pyplot as plt
 from helper_functions import l2_test
 
 
-def test_constant_field(plotting=True):
+def test_constant_field(plotting=False):
     s = Species(1, 1, 1)
-    s.x = np.array([0], dtype=float)
+    # s.x = np.array([0], dtype=float)
     print(s.x)
-    uniform_field = lambda x: np.ones_like(x)
+    def uniform_field(x):
+        return np.ones_like(x)
     t, dt = np.linspace(0, 10, 200, retstep=True, endpoint=False)
     x_analytical = 0.5 * t**2 + 0
     x_data = []
