@@ -3,7 +3,7 @@ from helper_functions import l2_test
 from gather import interpolateField
 import matplotlib.pyplot as plt
 
-def test_poly(plotting=True):
+def test_poly(plotting=False):
     NG = 16
     NG_plot = 500
     L = 1
@@ -39,7 +39,7 @@ def test_poly(plotting=True):
     # charge_density = charge_density_deposition(x, dx, x_particles, particle_charge)
 
 
-def test_periodic(plotting=True):
+def test_periodic(plotting=False):
     NG = 16
     NG_plot = 500
     L = 1
@@ -72,7 +72,7 @@ def test_periodic(plotting=True):
     # charge_density = charge_density_deposition(x, dx, x_particles, particle_charge)
 
 
-def test_single_particle(plotting=True):
+def test_single_particle(plotting=False):
     """tests interpolation of field to particles:
         at cell boundary
         at hall cell
