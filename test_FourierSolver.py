@@ -95,19 +95,21 @@ def test_PoissonSolver(debug=DEBUG):
 
 def test_PoissonSolver_energy_sine(debug=DEBUG):
     L = 1
-    N = 32 * 2**5
+    NG = 32
+    resolution_increase = 32
+    N = NG * resolution_increase
     epsilon_0 = 1
     x, dx = np.linspace(0, L, N, retstep=True, endpoint=False)
     anal_potential = np.sin(x * 2 * np.pi)
     anal_field = -(2 * np.pi * np.cos(x * 2 * np.pi))
     charge_density_anal = ((2 * np.pi)**2 * np.sin(x * 2 * np.pi))
 
-    NG = 32
     g = Grid(L, NG, epsilon_0)
     indices_in_denser_grid = np.searchsorted(x, g.x)
-    g.charge_density = charge_density_anal[indices_in_denser_grid]
+    g.charge_density = charge_density_anal[indices_in_denser_grid]# / resolution_increase
+
     energy_fourier = g.solve_poisson()
-    energy_direct = 0.5 * (g.charge_density * g.potential).sum() * g.dx
+    energy_direct = 0.5 * (g.charge_density * g.potential).sum() * g.dx * resolution_increase
     print("dx", dx, "fourier", energy_fourier, "direct", energy_direct, energy_fourier / energy_direct)
 
     def plots():
