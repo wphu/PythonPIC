@@ -97,12 +97,22 @@ class Simulation(object):
 
     def __eq__(self, other):
         result = True
+        assert self.date_ver_str == other.date_ver_str, "date not equal!"
         result *= self.date_ver_str == other.date_ver_str
+
+        assert self.epsilon_0 == other.epsilon_0, "epsilon 0 not equal!"
         result *= self.epsilon_0 == other.epsilon_0
+
+        assert self.NT == other.NT, "NT not equal!"
         result *= self.NT == other.NT
+
+        assert self.dt == other.dt, "NT not equal!"
         result *= self.dt == other.dt
+
         for this_species, other_species in zip(self.all_species, other.all_species):
+            assert this_species == other_species, "{} and {} not equal!".format(this_species.name, other_species.name)
             result *= this_species == other_species
+        assert self.grid == other.grid, "grid not equal!"
         result *= self.grid == other.grid
         return result
 
