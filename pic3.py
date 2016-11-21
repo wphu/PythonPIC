@@ -37,6 +37,9 @@ def run(g, list_species, params, filename):
 
     runtime = time.time() - start_time
     print("Runtime: {}".format(runtime))
+
+    if filename[-5:] != ".hdf5":
+        filename = args.filename + ".hdf5"
     S.save_data(filename=filename)
 
 def cold_plasma_oscillations(filename, plasma_frequency=1, qmratio=-1, dt=0.2, NT=150,
@@ -89,4 +92,4 @@ if __name__ == "__main__":
     if args.filename[-5:] != ".hdf5":
         args.filename = args.filename + ".hdf5"
 
-    two_stream_instability(args.filename)
+    two_stream_instability("data_analysis/" + args.filename)

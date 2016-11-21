@@ -6,15 +6,16 @@ import matplotlib.pyplot as plt
 
 directory = "data_analysis/"
 
-def plotting(filename, save_directory = directory, show = True, dev = True, lines=False):
+def plotting(filename, show = True, save = False, lines=False):
     S = Simulation.load_data(filename)
-    static_plots.energy_time_plots(S, save_directory + filename.replace(".hdf5", "_energy.png"))
-    static_plots.ESE_time_plots(S, save_directory + filename.replace(".hdf5", "_mode_energy.png"))
-    static_plots.temperature_time_plot(S, save_directory + filename.replace(".hdf5", "_temperature.png"))
-    if dev:
-        videofile_name = None
+    static_plots.energy_time_plots(S, filename.replace(".hdf5", "_energy.png"))
+    static_plots.ESE_time_plots(S, filename.replace(".hdf5", "_mode_energy.png"))
+    static_plots.temperature_time_plot(S, filename.replace(".hdf5", "_temperature.png"))
+    print("save", save)
+    if save:
+        videofile_name = filename.replace(".hdf5", ".mp4")
     else:
-        videofile_name = save_directory + filename.replace(".hdf5", ".mp4")
+        videofile_name = None
     animation.animation(S, videofile_name, lines)
     if show:
         plt.show()
@@ -22,10 +23,10 @@ def plotting(filename, save_directory = directory, show = True, dev = True, line
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("filename", help="hdf5 file name for storing data")
-    parser.add_argument('-dev', action='store_true')
+    parser.add_argument('-save', action='store_false')
     parser.add_argument('-lines', action='store_true')
     args = parser.parse_args()
     if(args.filename[-5:] != ".hdf5"):
         args.filename = args.filename + ".hdf5"
 
-    plotting(args.filename, directory, show = True, dev = args.dev, lines = args.lines)
+    plotting(args.filename, show = True, save = args.save, lines = args.lines)
