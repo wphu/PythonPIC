@@ -59,9 +59,10 @@ def temperature_time_plot(S, file_name):
         velocity_vals = S.velocity_history[species.name]
         meanv = velocity_vals.mean(axis=1)
         meanv2 = (velocity_vals**2).mean(axis=1)
-        # axis.plot(t, meanv**2, label=species.name + r"$<v>^2$")
-        # axis.plot(t, meanv2, label=species.name + r" $<v^2>$")
-        axis.plot(t, meanv2-meanv**2, label=species.name + r" $<v^2> - <v>^2$")
+        temperature = meanv2 - meanv**2
+        temperature_parallel = temperature[:,0]
+        temperature_transverse = temperature[:,1:].sum(axis=1)
+        axis.plot(t, temperature_parallel, label=species.name + r" $T_{||}$")
     axis.legend(loc='best')
     axis.grid()
     axis.set_xlabel("Time")
