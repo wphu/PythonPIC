@@ -1,5 +1,8 @@
+"""first attempts at electromagnetic field solver (local!)"""
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import animation
+
 c = 1
 NX = 400
 X, dx = np.linspace(0, 1, NX, retstep=True)
@@ -11,14 +14,21 @@ Jyplus = np.zeros_like(X)
 Jyminus = np.zeros_like(X)
 Fplus = np.zeros_like(X)
 Fminus = np.zeros_like(X)
-# Fplus[0] = Fminus[0] = 1
+
 def iterate(Fplus, Fminus, Jyplus, Jyminus):
+    """
+    calculate Fplus, Fminus in next iteration based on their previous
+    values
+
+    assumes fixed left ([0]) boundary condition
+    """
+    #TODO: test if correct expression for currents
     Fplus[1:] = Fplus[:-1] -0.25*dt * (Jyplus[:-1] + Jyminus[1:])
     Fminus[1:] = Fminus[:-1] -0.25*dt * (Jyplus[:-1] - Jyminus[1:])
 
 Ey_history = np.empty((NT, NX))
 Bz_history = np.empty((NT, NX))
-LASER_PERIOD = 20*dt
+LASER_PERIOD = 50*dt
 for i in I:
     t = i * dt
     # drive boundary condition
@@ -45,6 +55,5 @@ def animate(i):
     Eline.set_ydata(Ey_history[i])
     return [Bline, Eline]
 
-from matplotlib import animation
-anim = animation.FuncAnimation(fig, animate, I)
+anim = animation.FuncAnimation(fig, animate, I, interval = 0.1)
 plt.show()
