@@ -11,7 +11,6 @@ def plotting(filename, show = True, save = False, lines=False):
     static_plots.energy_time_plots(S, filename.replace(".hdf5", "_energy.png"))
     static_plots.ESE_time_plots(S, filename.replace(".hdf5", "_mode_energy.png"))
     static_plots.temperature_time_plot(S, filename.replace(".hdf5", "_temperature.png"))
-    print("save", save)
     if save:
         videofile_name = filename.replace(".hdf5", ".mp4")
     else:
