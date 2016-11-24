@@ -99,5 +99,32 @@ def test_boundaries(plotting=False):
         plot()
     assert np.isclose(charge_density, analytical_charge_density).all(), plot()
 
+def test_current_deposition(plotting=False):
+    """
+     N particles
+     charge q
+     velocity v
+    """
+
+
+    g = Grid()
+    p = Species(1, 1, 128, "p")
+    p.v[:, 0] = 0
+    p.v[:, 1] = -1
+    p.v[:, 2] = 1
+    p.distribute_uniformly(g.L, g.dx/1000*np.pi)
+    g.current_density = g.gather_current([p])
+    # import ipdb; ipdb.set_trace()
+    if plotting:
+        plt.plot(g.x, g.current_density)
+        plt.show()
+
+    predicted_values = p.q*p.v.sum(axis=0)/g.L*g.dx
+    for dim, val in zip(range(3), predicted_values):
+        assert np.isclose(g.current_density[:,dim], val).all(), (g.current_density[0,:], predicted_values)
+
+
+
+
 if __name__ == "__main__":
-    test_sine_perturbation_effect()
+    test_current_deposition(True)

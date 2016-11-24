@@ -68,6 +68,11 @@ Bline, = ax.plot(X, np.zeros_like(X), Bz)
 Eline, = ax.plot(X, Ey, np.zeros_like(X))
 axis_line, = ax.plot(X, np.zeros_like(X), np.zeros_like(X), "k--")
 ax.grid()
+ax.set_ylim(Ey_history.min(), Ey_history.max())
+ax.set_zlim(Bz_history.min(), Bz_history.max())
+ax.set_xlabel("x")
+ax.set_ylabel("Ey")
+ax.set_zlabel("Bz")
 
 def animate(i):
     Bline.set_xdata(X)

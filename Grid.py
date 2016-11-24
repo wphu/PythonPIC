@@ -1,6 +1,6 @@
 import numpy as np
 from FourierSolver import PoissonSolver
-from scatter import charge_density_deposition
+import scatter
 from gather import interpolateField
 import scipy.fftpack as fft
 
@@ -9,6 +9,7 @@ class Grid(object):
     def __init__(self, L=2 * np.pi, NG=32, epsilon_0=1):
         self.x, self.dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
         self.charge_density = np.zeros_like(self.x)
+        self.current_density = np.zeros((NG, 3))
         self.electric_field = np.zeros_like(self.x)
         self.potential = np.zeros_like(self.x)
         self.L = L
@@ -26,7 +27,13 @@ class Grid(object):
     def gather_charge(self, list_species):
         self.charge_density[:] = 0.0
         for species in list_species:
-            self.charge_density += charge_density_deposition(self.x, self.dx, species.x, species.q)
+            self.charge_density += scatter.charge_density_deposition(self.x, self.dx, species.x, species.q)
+
+    def gather_current(self, list_species):
+        current_density = np.zeros((self.NG, 3))
+        for species in list_species:
+            current_density += scatter.current_density_deposition(self.x, self.dx, species.x, species.q, species.v)
+        return current_density
 
     def electric_field_function(self, xp):
         return interpolateField(xp, self.electric_field, self.x, self.dx)
