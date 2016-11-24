@@ -4,10 +4,10 @@ import matplotlib.pyplot as plt
 from matplotlib import animation
 
 c = 1
-NX = 400
+NX = 100
 X, dx = np.linspace(0, 1, NX, retstep=True)
 dt = dx/c
-NT = 200
+NT = 400
 I = range(NT)
 
 Jyplus = np.zeros_like(X)
@@ -21,13 +21,26 @@ def iterate(Fplus, Fminus, Jyplus, Jyminus):
     values
 
     assumes fixed left ([0]) boundary condition
+
+    F_plus(n+1, j) = F_plus(n, j) - 0.25 * dt * (Jyminus(n, j-1) + Jplus(n, j))
+    F_minus(n+1, j) = F_minus(n, j) - 0.25 * dt * (Jyminus(n, j+1) - Jplus(n, j))
+
+    TODO: check viability of laser BC
+    take average of last term instead at last point instead
+
     """
-    #TODO: test if correct expression for currents
     Fplus[1:] = Fplus[:-1] -0.25*dt * (Jyplus[:-1] + Jyminus[1:])
-    Fminus[1:] = Fminus[:-1] -0.25*dt * (Jyplus[:-1] - Jyminus[1:])
+    Fminus[1:-1] = Fminus[0:-2] -0.25*dt * (Jyplus[2:] - Jyminus[1:-1])
+
+    # boundary condition
+    Fminus[-1] = Fminus[-2] -0.25*dt * (Jyplus[-1] - Jyminus[-1])
 
 Ey_history = np.empty((NT, NX))
 Bz_history = np.empty((NT, NX))
+
+# Jyplus = np.exp(-(X-0.5)**2/16)
+# Jyminus = -Jyplus
+
 LASER_PERIOD = 50*dt
 for i in I:
     t = i * dt
