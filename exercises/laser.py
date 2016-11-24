@@ -1,6 +1,7 @@
 """first attempts at electromagnetic field solver (local!)"""
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import animation
 
 c = 1
@@ -33,7 +34,7 @@ def iterate(Fplus, Fminus, Jyplus, Jyminus):
     Fminus[1:-1] = Fminus[0:-2] -0.25*dt * (Jyplus[2:] - Jyminus[1:-1])
 
     # boundary condition
-    Fminus[-1] = Fminus[-2] -0.25*dt * (Jyplus[-1] - Jyminus[-1])
+    Fminus[-1] = Fminus[-2] -0.25*dt * (Jyplus[0] - Jyminus[-1])
 
 Ey_history = np.empty((NT, NX))
 Bz_history = np.empty((NT, NX))
@@ -60,13 +61,26 @@ for i in I:
 
     iterate(Fplus, Fminus, Jyplus, Jyminus)
 
-fig, ax = plt.subplots()
-Bline, Eline = ax.plot(X,Ey,X,Bz)
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+field_line, = ax.plot(X,Ey,Bz)
+Bline, = ax.plot(X, np.zeros_like(X), Bz)
+Eline, = ax.plot(X, Ey, np.zeros_like(X))
+axis_line, = ax.plot(X, np.zeros_like(X), np.zeros_like(X), "k--")
+ax.grid()
 
 def animate(i):
-    Bline.set_ydata(Bz_history[i])
+    Bline.set_xdata(X)
+    Eline.set_xdata(X)
+    field_line.set_xdata(X)
+
     Eline.set_ydata(Ey_history[i])
-    return [Bline, Eline]
+    field_line.set_ydata(Ey_history[i])
+
+    Eline.set_3d_properties(np.zeros_like(X))
+    Bline.set_3d_properties(Bz_history[i])
+    field_line.set_3d_properties(Bz_history[i])
+    return [Bline, field_line]
 
 anim = animation.FuncAnimation(fig, animate, I, interval = 0.1)
 plt.show()
