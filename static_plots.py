@@ -2,41 +2,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-# def all_the_plots(i):
-#     # x_particles = np.random.random(100)
-#     field_particles = electric_field_function(x_particles)
-#     fig, subplots = plt.subplots(3, 2, squeeze=True)
-#     (charge_axes, d1), (field_axes, d3), (position_hist_axes, velocity_hist_axes) = subplots
-#     fig.subplots_adjust(hspace=0)
-#
-#     charge_axes.plot(x, charge_density, label="charge density")
-#     charge_axes.plot(x, potential, "g-")
-#     charge_axes.scatter(x, np.zeros_like(x))
-#     charge_axes.set_xlim(0, L)
-#     charge_axes.set_ylabel(r"Charge density $\rho$, potential $V$")
-#
-#     position_hist_axes.hist(x_particles, NG, alpha=0.1)
-#     position_hist_axes.set_ylabel("$N$ at $x$")
-#     position_hist_axes.set_xlim(0, L)
-#
-#     field_axes.set_ylabel(r"Field $E$")
-#     field_axes.scatter(x_particles, field_particles, label="interpolated field")
-#     field_axes.plot(x, electric_field, label="electric field")
-#     field_axes.set_xlim(0, L)
-#
-#     velocity_hist_axes.set_xlabel("$x$")
-#     velocity_hist_axes.hist(np.abs(v_particles), 100)
-#     velocity_hist_axes.set_xlabel("$v$")
-#     velocity_hist_axes.set_ylabel("$N$ at $v$")
-#     d1.scatter(x_particles, v_particles)
-#     d1.set_xlim(0, L)
-#     plt.savefig("{:03d}.png".format(i))
-#     figManager = plt.get_current_fig_manager()
-#     figManager.window.showMaximized()
-#     # plt.show()
-#     fig.clf()
-#     fig.close()
-
 def ESE_time_plots(S, file_name):
     fig, axis = plt.subplots()
     data = S.energy_per_mode.T
@@ -63,6 +28,8 @@ def temperature_time_plot(S, file_name):
         temperature_parallel = temperature[:,0]
         temperature_transverse = temperature[:,1:].sum(axis=1)
         axis.plot(t, temperature_parallel, label=species.name + r" $T_{||}$")
+        axis.plot(t, meanv2[:,0], label=species.name + r" $<v^2>$")
+        axis.plot(t, meanv[:,0]**2, label=species.name + r" $<v>^2$")
     axis.legend(loc='best')
     axis.grid()
     axis.set_xlabel("Time")
@@ -85,8 +52,22 @@ def energy_time_plots(S, file_name):
     fig2.savefig(file_name)
     return fig2
 
+def velocity_distribution_plots(S, file_name, i=0):
+    fig, axis = plt.subplots()
+    for species in S.all_species:
+        axis.hist(S.velocity_history[species.name][i,:,0], bins=50, alpha=0.5)
+    axis.set_title("Velocity distribution at iteration %d" % i)
+    axis.grid()
+    axis.set_xlabel("v")
+    axis.set_ylabel("N")
+    return fig
+
+
 if __name__=="__main__":
     import Simulation
-    S = Simulation.load_data("1default.hdf5")
+    S = Simulation.load_data("data_analysis/TS1.hdf5")
+    for i in np.linspace(0, S.NT, 10, endpoint=False, dtype=int):
+        velocity_distribution_plots(S, "none.png", i)
     # print(S.energy_per_mode)
-    temperature_time_plot(S, "none.png")
+    # temperature_time_plot(S, "none.png")
+    plt.show()

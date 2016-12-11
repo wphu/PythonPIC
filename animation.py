@@ -5,6 +5,14 @@ import numpy as np
 colors = "brgyk"
 
 def animation(S, videofile_name, lines=False):
+    # import ipdb; ipdb.set_trace()
+    total_N = sum([species.N for species in S.all_species])
+    if total_N > 1e4:
+        every_n_dot = int(total_N/1e4)
+        print("Only plotting every %d particle!"%every_n_dot)
+    else:
+        every_n_dot = 1
+
     fig = plt.figure()#(figsize=(10,15))
     charge_axes = fig.add_subplot(221)
     field_axes = fig.add_subplot(222)
@@ -75,9 +83,9 @@ def animation(S, videofile_name, lines=False):
         field_plot.set_data(S.grid.x, S.electric_field_history[i])
         freq_plot.set_data(S.grid.k_plot, S.energy_per_mode[i])
         for species in S.all_species:
-            phase_dots[species.name].set_data(S.position_history[species.name][i], S.velocity_history[species.name][i,:,0])
+            phase_dots[species.name].set_data(S.position_history[species.name][i,::every_n_dot], S.velocity_history[species.name][i,::every_n_dot,0])
             if lines:
-                phase_lines[species.name].set_data(S.position_history[species.name][:i + 1].T, S.velocity_history[species.name][:i + 1, :, 0].T)
+                phase_lines[species.name].set_data(S.position_history[species.name][:i + 1, ::every_n_dot].T, S.velocity_history[species.name][:i + 1, ::every_n_dot, 0].T)
         iteration.set_text("Iteration: {}".format(i))
 
         if lines:
@@ -91,3 +99,10 @@ def animation(S, videofile_name, lines=False):
         animation_object.save(videofile_name, fps=15, writer='ffmpeg', extra_args=['-vcodec', 'libx264'])  # remove codecs to share video via IM
     plt.show()
     # return animation_object
+
+if __name__=="__main__":
+    import Simulation
+    S = Simulation.load_data("data_analysis/TS3.hdf5")
+    animation(S, None, False)
+    if show:
+        plt.show()

@@ -73,7 +73,7 @@ def two_stream_instability(filename, plasma_frequency=1, qmratio=-1, dt=0.2, NT=
     g = Grid(L=L, NG=NG)
     k0 = 2*np.pi/g.L
     w0 = plasma_frequency
-    print("k0*v0/w0 is", k0*v0/w0, "which means the regime is", "stable" if k0*v0/w0 < 2**0.5 else "unstable")
+    print("k0*v0/w0 is", k0*v0/w0, "which means the regime is", "stable" if k0*v0/w0 > 2**0.5 else "unstable")
     electrons1 = Species(particle_charge, particle_mass, N_electrons, "beam1")
     electrons2 = Species(particle_charge, particle_mass, N_electrons, "beam2")
     electrons1.v[:] = v0
