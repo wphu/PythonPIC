@@ -4,15 +4,7 @@ import numpy as np
 
 colors = "brgyk"
 
-def animation(S, videofile_name, lines=False):
-    # import ipdb; ipdb.set_trace()
-    total_N = sum([species.N for species in S.all_species])
-    if total_N > 1e4:
-        every_n_dot = int(total_N/1e4)
-        print("Only plotting every %d particle!"%every_n_dot)
-    else:
-        every_n_dot = 1
-
+def animation(S, videofile_name, lines=False, alpha=1):
     fig = plt.figure()#(figsize=(10,15))
     charge_axes = fig.add_subplot(221)
     field_axes = fig.add_subplot(222)
@@ -27,8 +19,8 @@ def animation(S, videofile_name, lines=False):
     charge_plot, = charge_axes.plot([], [])
     charge_axes.set_xlim(0, S.grid.L)
     charge_axes.set_ylabel(r"Charge density $\rho$")
-    mincharge = np.min(S.charge_density_history)
-    maxcharge = np.max(S.charge_density_history)
+    mincharge = np.min(S.grid.charge_density_history)
+    maxcharge = np.max(S.grid.charge_density_history)
     charge_axes.set_ylim(mincharge, maxcharge)
     charge_axes.set_xlim(0, S.grid.L)
     charge_axes.set_ylabel(r"Charge density $\rho$")
@@ -38,7 +30,7 @@ def animation(S, videofile_name, lines=False):
     field_plot, = field_axes.plot([], [])
     field_axes.set_ylabel(r"Field $E$")
     field_axes.set_xlim(0, S.grid.L)
-    maxfield = np.max(np.abs(S.electric_field_history))
+    maxfield = np.max(np.abs(S.grid.electric_field_history))
     field_axes.set_ylim(-maxfield, maxfield)
     field_axes.set_ylabel(r"Field $E$")
     field_axes.set_xlim(0, S.grid.L)
@@ -47,10 +39,10 @@ def animation(S, videofile_name, lines=False):
     if lines:
         phase_lines = {}
     for i, species in enumerate(S.all_species):
-        phase_dots[species.name], = phase_axes.plot([], [], colors[i]+".", alpha=1)
+        phase_dots[species.name], = phase_axes.plot([], [], colors[i]+".", alpha=alpha)
         if lines:
-            phase_lines[species.name], = phase_axes.plot([], [], colors[i]+"-", alpha=0.7, lw=0.7)
-    maxv = max([5 * np.mean(np.abs(S.velocity_history[species.name])) for species in S.all_species])
+            phase_lines[species.name], = phase_axes.plot([], [], colors[i]+"-", alpha=alpha/2, lw=0.7)
+    maxv = max([5 * np.mean(np.abs(species.velocity_history)) for species in S.all_species])
     phase_axes.set_xlim(0, S.grid.L)
     phase_axes.set_ylim(-maxv, maxv)
     phase_axes.set_xlabel("x")
@@ -61,7 +53,7 @@ def animation(S, videofile_name, lines=False):
     freq_axes.set_xlabel("k")
     freq_axes.set_ylabel("E")
     freq_axes.set_xlim(0, S.grid.NG/2)
-    freq_axes.set_ylim(S.energy_per_mode.min(), S.energy_per_mode.max())
+    freq_axes.set_ylim(S.grid.energy_per_mode_history.min(), S.grid.energy_per_mode_history.max())
 
     plt.tight_layout()
     def init():
@@ -78,14 +70,15 @@ def animation(S, videofile_name, lines=False):
         else:
             return [charge_plot, field_plot, freq_plot, *phase_dots.values(),  iteration]
 
+    #TODO: set_ydata
     def animate(i):
-        charge_plot.set_data(S.grid.x, S.charge_density_history[i])
-        field_plot.set_data(S.grid.x, S.electric_field_history[i])
-        freq_plot.set_data(S.grid.k_plot, S.energy_per_mode[i])
+        charge_plot.set_data(S.grid.x, S.grid.charge_density_history[i])
+        field_plot.set_data(S.grid.x, S.grid.electric_field_history[i])
+        freq_plot.set_data(S.grid.k_plot, S.grid.energy_per_mode_history[i])
         for species in S.all_species:
-            phase_dots[species.name].set_data(S.position_history[species.name][i,::every_n_dot], S.velocity_history[species.name][i,::every_n_dot,0])
+            phase_dots[species.name].set_data(species.position_history[i,:], species.velocity_history[i,:,0])
             if lines:
-                phase_lines[species.name].set_data(S.position_history[species.name][:i + 1, ::every_n_dot].T, S.velocity_history[species.name][:i + 1, ::every_n_dot, 0].T)
+                phase_lines[species.name].set_data(species.position_history[:i + 1, :].T, species.velocity_history[:i + 1, :, 0].T)
         iteration.set_text("Iteration: {}".format(i))
 
         if lines:
@@ -96,7 +89,8 @@ def animation(S, videofile_name, lines=False):
     animation_object = anim.FuncAnimation(fig, animate, interval=100, frames=int(S.NT), blit=True, init_func=init)
     if videofile_name:
         print("Saving animation to {}".format(videofile_name))
-        animation_object.save(videofile_name, fps=15, writer='ffmpeg', extra_args=['-vcodec', 'libx264'])  # remove codecs to share video via IM
+        animation_object.save(videofile_name, fps=15, writer='ffmpeg', extra_args=['-vcodec', 'libx264'])
+        #TODO: remove codecs to share video via IM
     plt.show()
     # return animation_object
 

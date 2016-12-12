@@ -19,21 +19,25 @@ def run(g, list_species, params, filename):
 
     start_time = time.time()
     for i in range(NT):
-        S.update_grid(i, g)
-        S.update_particles(i, list_species)
+        # S.update_grid(i, g)
+        g.save_field_values(i)
+        # S.update_particles(i, list_species)
 
         total_kinetic_energy = 0
         for species in list_species:
+            species.save_particle_values(i)
             kinetic_energy = species.push_particles(g.electric_field_function, dt, g.L).sum()
-            S.kinetic_energy_history[species.name][i] = kinetic_energy
+            species.kinetic_energy_history[i] = kinetic_energy
             total_kinetic_energy += kinetic_energy
 
         g.gather_charge(list_species)
         fourier_field_energy = g.solve_poisson()
-        S.field_energy[i] = fourier_field_energy
+        g.grid_energy_history[i] = fourier_field_energy
+        # g.grid_energy_history[i] = fourier_field_energy
         total_energy = fourier_field_energy + total_kinetic_energy
         S.total_energy[i] = total_energy
-        S.energy_per_mode[i] = g.energy_per_mode
+        # import ipdb; ipdb.set_trace()
+        # S.grid.energy_per_mode_history[i] = g.energy_per_mode
 
     runtime = time.time() - start_time
     print("Runtime: {}".format(runtime))
@@ -53,8 +57,8 @@ def cold_plasma_oscillations(filename, plasma_frequency=1, qmratio=-1, dt=0.2, N
     particle_charge = plasma_frequency**2 * L / float(N_electrons * epsilon_0 * qmratio)
     particle_mass = particle_charge / qmratio
 
-    g = Grid(L=L, NG=NG)
-    electrons = Species(particle_charge, particle_mass, N_electrons, "electrons")
+    g = Grid(L=L, NG=NG, NT=NT)
+    electrons = Species(particle_charge, particle_mass, N_electrons, "electrons", NT=NT)
     list_species = [electrons]
     for species in list_species:
         species.distribute_uniformly(g.L)
@@ -70,12 +74,12 @@ def two_stream_instability(filename, plasma_frequency=1, qmratio=-1, dt=0.2, NT=
     particle_charge = plasma_frequency**2 * L / float(2*N_electrons * epsilon_0 * qmratio)
     particle_mass = particle_charge / qmratio
 
-    g = Grid(L=L, NG=NG)
+    g = Grid(L=L, NG=NG, NT=NT)
     k0 = 2*np.pi/g.L
     w0 = plasma_frequency
     print("k0*v0/w0 is", k0*v0/w0, "which means the regime is", "stable" if k0*v0/w0 > 2**0.5 else "unstable")
-    electrons1 = Species(particle_charge, particle_mass, N_electrons, "beam1")
-    electrons2 = Species(particle_charge, particle_mass, N_electrons, "beam2")
+    electrons1 = Species(particle_charge, particle_mass, N_electrons, "beam1", NT=NT)
+    electrons2 = Species(particle_charge, particle_mass, N_electrons, "beam2", NT=NT)
     electrons1.v[:] = v0
     electrons2.v[:] = -v0
     list_species = [electrons1, electrons2]
@@ -93,8 +97,8 @@ def hybrid_oscillations(filename, plasma_frequency=1, qmratio=-1, dt=0.2, NT=300
     particle_charge = plasma_frequency**2 * L / float(2*N_electrons * epsilon_0 * qmratio)
     particle_mass = particle_charge / qmratio
 
-    g = Grid(L=L, NG=NG)
-    electrons1 = Species(particle_charge, particle_mass, N_electrons, "electrons")
+    g = Grid(L=L, NG=NG, NT=NT)
+    electrons1 = Species(particle_charge, particle_mass, N_electrons, "electrons", NT=NT)
     electrons1.v[:] = v0
     list_species = [electrons1]
     for i, species in enumerate(list_species):

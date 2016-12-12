@@ -4,7 +4,7 @@ import numpy as np
 
 def ESE_time_plots(S, file_name):
     fig, axis = plt.subplots()
-    data = S.energy_per_mode.T
+    data = S.grid.energy_per_mode_history.T
     energies = [y for y in data]
     t = np.arange(S.NT) * S.dt
     for i, y in enumerate(energies):
@@ -21,9 +21,8 @@ def temperature_time_plot(S, file_name):
     fig, axis = plt.subplots()
     t = np.arange(S.NT) * S.dt
     for species in S.all_species:
-        velocity_vals = S.velocity_history[species.name]
-        meanv = velocity_vals.mean(axis=1)
-        meanv2 = (velocity_vals**2).mean(axis=1)
+        meanv = species.velocity_history.mean(axis=1)
+        meanv2 = (species.velocity_history**2).mean(axis=1)
         temperature = meanv2 - meanv**2
         temperature_parallel = temperature[:,0]
         temperature_transverse = temperature[:,1:].sum(axis=1)
@@ -40,9 +39,9 @@ def temperature_time_plot(S, file_name):
 def energy_time_plots(S, file_name):
     fig2, energy_axes = plt.subplots()
     for species in S.all_species:
-        energy_axes.plot(np.arange(S.NT) * S.dt, (S.kinetic_energy_history[species.name]), "o-", label="Kinetic energy: {}".format(species.name))
-    energy_axes.plot(np.arange(S.NT) * S.dt, (S.field_energy), "o-", label="Field energy")
-    energy_axes.plot(np.arange(S.NT) * S.dt, (S.total_energy), "o-", label="Total energy")
+        energy_axes.plot(np.arange(S.NT) * S.dt, (species.kinetic_energy_history), ".-", label="Kinetic energy: {}".format(species.name))
+    energy_axes.plot(np.arange(S.NT) * S.dt, (S.grid.grid_energy_history), ".-", label="Field energy")
+    energy_axes.plot(np.arange(S.NT) * S.dt, (S.total_energy), ".-", label="Total energy")
 
     energy_axes.set_title(S.date_ver_str)
     energy_axes.grid()

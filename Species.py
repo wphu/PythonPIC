@@ -1,10 +1,21 @@
 import numpy as np
+
 MAX_SAVED_PARTICLES = int(1e4)
 class Species(object):
-    def __init__(self, q, m, N, name=None):
+    def __init__(self, q, m, N, name=None, NT=None):
+        """Object representing a species of particles: ions, electrons, or simply
+        a group of particles with a particular (heh) initial velocity distribution.
+
+        q: float, particle charge
+        m: float, particle mass
+        N: int, total number of particles in species
+        name: string, ID of particles
+        NT: int, number of timesteps (for diagnostics)
+        """
         self.q = q
         self.m = m
         self.N = int(N)
+        self.NT = NT
         self.x = np.zeros(N, dtype=float)
         self.v = np.zeros((N, 3), dtype=float)
         if name:
@@ -12,15 +23,16 @@ class Species(object):
         else:
             self.name = "q{}m{}N{}".format(q, m, N)
         if self.N >= MAX_SAVED_PARTICLES:
-            saved_particles = MAX_SAVED_PARTICLES
-            self.save_every_n_particles = self.N // MAX_SAVED_PARTICLES
+            self.saved_particles = MAX_SAVED_PARTICLES
+            self.save_every_n_particle = self.N // MAX_SAVED_PARTICLES
         else:
-            saved_particles = self.N
-            self.save_every_n_particles = 1
-        # self.save_every_n_particles = save_every_n_particles
-        # self.position_history[species.name] = np.empty((NT, saved_particles))
-        # self.velocity_history[species.name] = np.empty((NT, saved_particles, 3))
-        # self.kinetic_energy_history[species.name] = np.empty(NT)
+            self.saved_particles = self.N
+            self.save_every_n_particle = 1
+
+        if NT:
+            self.position_history = np.zeros((NT, self.saved_particles))
+            self.velocity_history = np.zeros((NT, self.saved_particles, 3))
+            self.kinetic_energy_history = np.zeros(NT)
 
 
     def leapfrog_init(self, electric_field_function, dt):
@@ -98,6 +110,39 @@ class Species(object):
         self.x += amplitude * np.cos(2 * mode * np.pi * self.x / L)
         self.x %= L
 
+    def save_particle_values(self, i):
+        """Update the i-th set of particle values"""
+        self.position_history[i] = self.x[::self.save_every_n_particle]
+        self.velocity_history[i] = self.v[::self.save_every_n_particle]
+
+    def save_to_h5py(self, species_data):
+        """
+        Saves all species data to h5py file
+        species_data: h5py group for this species in premade hdf5 file
+        """
+        species_data.attrs['name'] = self.name
+        species_data.attrs['N'] = self.N
+        species_data.attrs['q'] = self.q
+        species_data.attrs['m'] = self.m
+
+        species_data.create_dataset(name="x", dtype=float, data=self.position_history)
+        species_data.create_dataset(name="v", dtype=float, data=self.velocity_history)
+        species_data.create_dataset(name="Kinetic energy", dtype=float, data=self.kinetic_energy_history)
+
+    def load_from_h5py(self, species_data):
+        """
+        Loads species data from h5py file
+        species_data: h5py group for this species in premade hdf5 file
+        """
+        self.name = species_data.attrs['name']
+        self.N = species_data.attrs['N']
+        self.q = species_data.attrs['q']
+        self.m = species_data.attrs['m']
+
+        self.position_history = species_data["x"][...]
+        self.velocity_history = species_data["v"][...]
+        self.kinetic_energy_history = species_data["Kinetic energy"][...]
+
     def __eq__(self, other):
         result = True
         result *= self.q == other.q
@@ -109,14 +154,15 @@ class Species(object):
         return result
 
 if __name__=="__main__":
+    #TODO: move this boris pusher test to test_pusher
     import matplotlib.pyplot as plt
     particles = Species(1, 1, 4, "particle")
     particles.x = np.array([5, 5, 5, 5], dtype=float)
     # particles.v =  np.array([[1,0,0],[0,2,0],[0,0,1],[1,1,1]], dtype=float)
     particles.v = np.zeros((particles.N,3),dtype=float)
     NT = 1000
-    x_history = np.empty((NT, particles.N))
-    v_history = np.empty((NT, particles.N))
+    x_history = np.zeros((NT, particles.N))
+    v_history = np.zeros((NT, particles.N))
     T, dt = np.linspace(0, 2*np.pi*10, NT, retstep=True)
     particles.boris_init(lambda x: np.arange(particles.N), lambda x: np.array(len(x)*[[0,0,1]]), dt, np.inf)
     for i, t in enumerate(T):

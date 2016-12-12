@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 directory = "data_analysis/"
 
 def plotting(filename, show = True, save = False, lines=False):
+    print("Plotting for %s" %filename)
     S = Simulation.load_data(filename)
     static_plots.energy_time_plots(S, filename.replace(".hdf5", "_energy.png"))
     static_plots.ESE_time_plots(S, filename.replace(".hdf5", "_mode_energy.png"))
