@@ -1,6 +1,5 @@
 import numpy as np
-
-
+MAX_SAVED_PARTICLES = int(1e4)
 class Species(object):
     def __init__(self, q, m, N, name=None):
         self.q = q
@@ -12,6 +11,17 @@ class Species(object):
             self.name = name
         else:
             self.name = "q{}m{}N{}".format(q, m, N)
+        if self.N >= MAX_SAVED_PARTICLES:
+            saved_particles = MAX_SAVED_PARTICLES
+            self.save_every_n_particles = self.N // MAX_SAVED_PARTICLES
+        else:
+            saved_particles = self.N
+            self.save_every_n_particles = 1
+        # self.save_every_n_particles = save_every_n_particles
+        # self.position_history[species.name] = np.empty((NT, saved_particles))
+        # self.velocity_history[species.name] = np.empty((NT, saved_particles, 3))
+        # self.kinetic_energy_history[species.name] = np.empty(NT)
+
 
     def leapfrog_init(self, electric_field_function, dt):
         """Leapfrog pusher initialization

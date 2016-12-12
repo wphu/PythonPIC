@@ -41,7 +41,7 @@ class Simulation(object):
             self.position_history[species.name] = np.empty((NT, saved_particles))
             self.velocity_history[species.name] = np.empty((NT, saved_particles, 3))
             self.kinetic_energy_history[species.name] = np.empty(NT)
-            
+
         self.field_energy = np.empty(NT)
         self.total_energy = np.empty(NT)
         self.energy_per_mode = np.empty((NT, int(grid.NG / 2)))
