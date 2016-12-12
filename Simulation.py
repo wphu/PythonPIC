@@ -5,6 +5,7 @@ from helper_functions import date_version_string
 from Grid import Grid
 from Species import Species
 
+MAX_SAVED_PARTICLES = int(1e4)
 
 class Simulation(object):
     """Contains data from one run of the simulation:
@@ -27,12 +28,20 @@ class Simulation(object):
         self.position_history = {}
         self.velocity_history = {}
         self.kinetic_energy_history = {}
+        self.save_every_n_particles = {}
         for species in list_species:
             self.all_species.append(species)
-            self.position_history[species.name] = np.empty((NT, species.N))
-            self.velocity_history[species.name] = np.empty((NT, species.N, 3))
+            if species.N >= MAX_SAVED_PARTICLES:
+                saved_particles = MAX_SAVED_PARTICLES
+                save_every_n_particles = species.N // MAX_SAVED_PARTICLES
+            else:
+                saved_particles = species.N
+                save_every_n_particles = 1
+            self.save_every_n_particles[species.name] = save_every_n_particles
+            self.position_history[species.name] = np.empty((NT, saved_particles))
+            self.velocity_history[species.name] = np.empty((NT, saved_particles, 3))
             self.kinetic_energy_history[species.name] = np.empty(NT)
-
+            
         self.field_energy = np.empty(NT)
         self.total_energy = np.empty(NT)
         self.energy_per_mode = np.empty((NT, int(grid.NG / 2)))
@@ -49,8 +58,9 @@ class Simulation(object):
     def update_particles(self, i, list_species):
         """Update the i-th set of particle values"""
         for species in list_species:
-            self.position_history[species.name][i] = species.x
-            self.velocity_history[species.name][i] = species.v
+            save_every_n_particle = self.save_every_n_particles[species.name]
+            self.position_history[species.name][i] = species.x[::save_every_n_particle]
+            self.velocity_history[species.name][i] = species.v[::save_every_n_particle]
 
     def update_diagnostics(self, i, kinetic_energy, field_energy, total_energy):
         self.kinetic_energy[i] = kinetic_energy
