@@ -48,6 +48,7 @@ def current_density_deposition(x, dx, x_particles, particle_charge, velocity):
     left_fractions = 1 - right_fractions
     current_to_right = particle_charge * velocity * right_fractions
     current_to_left = particle_charge * velocity * left_fractions
+    # TODO: vectorise this instead of looping over dimensions
     for dim in range(3):
         current_hist[:,dim] += np.bincount(logical_coordinates, current_to_left[:,dim], minlength=x.size)
         current_hist[:,dim] += np.roll(np.bincount(logical_coordinates, current_to_right[:,dim], minlength=x.size), +1)
