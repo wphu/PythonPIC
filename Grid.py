@@ -7,7 +7,7 @@ import scipy.fftpack as fft
 
 
 class Grid(object):
-    def __init__(self, L=2 * np.pi, NG=32, epsilon_0=1, c =1, NT=None):
+    def __init__(self, L=2 * np.pi, NG=32, epsilon_0=1, c =1, NT=None, relativistic=False):
         self.x, self.dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
         self.charge_density = np.zeros_like(self.x)
         self.current_density = np.zeros((NG, 3))
@@ -17,17 +17,18 @@ class Grid(object):
         self.L = L
         self.NG = int(NG)
         self.NT = NT
-        self.c = c
-        self.dt = self.dx/c
         self.epsilon_0 = epsilon_0
         self.k = 2 * np.pi * fft.fftfreq(NG, self.dx)
         self.k[0] = 0.0001
         self.k_plot = self.k[:int(NG / 2)]
 
-        self.Jyplus = np.zeros_like(self.x)
-        self.Jyminus = np.zeros_like(self.x)
-        self.Fplus = np.zeros_like(self.x)
-        self.Fminus = np.zeros_like(self.x)
+        if relativistic:
+            self.c = c
+            self.dt = self.dx/c
+            self.Jyplus = np.zeros_like(self.x)
+            self.Jyminus = np.zeros_like(self.x)
+            self.Fplus = np.zeros_like(self.x)
+            self.Fminus = np.zeros_like(self.x)
 
         if NT:
             self.charge_density_history = np.zeros((NT, self.NG))
@@ -36,6 +37,11 @@ class Grid(object):
             self.mode_energy_history = np.zeros((NT, self.NG))
             self.energy_per_mode_history = np.zeros((NT, int(self.NG / 2)))
             self.grid_energy_history = np.zeros(NT)
+            if relativistic:
+                self.Ey_history = np.zeros((NT, self.NG))
+                self.Bz_history = np.zeros((NT, self.NG))
+                self.current_density_history = np.zeros((NT, self.NG, 3))
+
 
     def solve_poisson(self):
         self.electric_field, self.potential, self.energy_per_mode = PoissonSolver(self.charge_density, self.k, self.NG, epsilon_0=self.epsilon_0)
