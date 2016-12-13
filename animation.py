@@ -58,9 +58,9 @@ def animation(S, videofile_name, lines=False, alpha=1):
     plt.tight_layout()
     def init():
         iteration.set_text("Iteration: ")
-        charge_plot.set_data([], [])
-        field_plot.set_data([], [])
-        freq_plot.set_data([], [])
+        charge_plot.set_data(S.grid.x, np.zeros_like(S.grid.x))
+        field_plot.set_data(S.grid.x, np.zeros_like(S.grid.x))
+        freq_plot.set_data(S.grid.k_plot, np.zeros_like(S.grid.k_plot))
         for species in S.all_species:
             phase_dots[species.name].set_data([], [])
             if lines:
@@ -70,11 +70,10 @@ def animation(S, videofile_name, lines=False, alpha=1):
         else:
             return [charge_plot, field_plot, freq_plot, *phase_dots.values(),  iteration]
 
-    #TODO: set_ydata
     def animate(i):
-        charge_plot.set_data(S.grid.x, S.grid.charge_density_history[i])
-        field_plot.set_data(S.grid.x, S.grid.electric_field_history[i])
-        freq_plot.set_data(S.grid.k_plot, S.grid.energy_per_mode_history[i])
+        charge_plot.set_ydata(S.grid.charge_density_history[i])
+        field_plot.set_ydata(S.grid.electric_field_history[i])
+        freq_plot.set_ydata(S.grid.energy_per_mode_history[i])
         for species in S.all_species:
             phase_dots[species.name].set_data(species.position_history[i,:], species.velocity_history[i,:,0])
             if lines:
@@ -90,9 +89,7 @@ def animation(S, videofile_name, lines=False, alpha=1):
     if videofile_name:
         print("Saving animation to {}".format(videofile_name))
         animation_object.save(videofile_name, fps=15, writer='ffmpeg', extra_args=['-vcodec', 'libx264'])
-        #TODO: remove codecs to share video via IM
     plt.show()
-    # return animation_object
 
 if __name__=="__main__":
     import Simulation
