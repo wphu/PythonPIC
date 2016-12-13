@@ -38,6 +38,48 @@ def test_constant_field(plotting=False):
 
     assert l2_test(x_analytical, x_data), plot()
 
+def test_boris_pusher():
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D
+    particles = Species(1, 1, 4, "particle")
+    particles.x = np.array([5, 5, 5, 5], dtype=float)
+    particles.v = np.zeros((particles.N,3),dtype=float)
+    NT = 1000
+    x_history = np.zeros((NT, particles.N))
+    v_history = np.zeros((NT, particles.N, 3))
+    T, dt = np.linspace(0, 2*np.pi*10, NT, retstep=True)
+    electric_field = lambda x: 1+np.arange(particles.N)
+    magnetic_field = lambda x: np.array(particles.N*[[0,0,1]])
+    particles.boris_init(electric_field, magnetic_field, dt, np.inf)
+    for i, t in enumerate(T):
+        x_history[i] = particles.x
+        v_history[i] = particles.v[:,:]
+        particles.boris_push_particles(electric_field, magnetic_field, dt, np.inf)
+
+    def get_frequency(x_history):
+        x_fft = (np.abs(np.fft.rfft(x_history, axis=0)))**2
+        x_fft[0,:] = 0
+        fft_freq = np.fft.rfftfreq(NT) * NT / 10
+        #TODO: how to renormalize this to take just one period
+        indices = np.argmax(x_fft, axis=0) #this here thing
+        # plt.plot(fft_freq, x_fft, ".-")
+        # for a in [fft_freq[indices], ]:
+        #     print(indices, a.shape, a)
+        # plt.scatter(fft_freq[indices], x_fft[indices, np.arange(4)])
+        # plt.show()
+        return fft_freq[indices]
+
+    cyclotron_frequency = particles.q/particles.m * 1
+    print(cyclotron_frequency)
+    print(get_frequency(x_history))
+    def plot():
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        for i in range(4):
+            ax.plot(T, x_history[:,i], v_history[:,i,0], "-")
+        plt.show()
+    assert np.isclose(cyclotron_frequency, get_frequency(x_history)).all(), plot()
+
 
 # def test_ramp_field():
 #     s = Species(1, 1, 1)

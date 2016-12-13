@@ -154,20 +154,4 @@ class Species(object):
         return result
 
 if __name__=="__main__":
-    #TODO: move this boris pusher test to test_pusher
-    import matplotlib.pyplot as plt
-    particles = Species(1, 1, 4, "particle")
-    particles.x = np.array([5, 5, 5, 5], dtype=float)
-    # particles.v =  np.array([[1,0,0],[0,2,0],[0,0,1],[1,1,1]], dtype=float)
-    particles.v = np.zeros((particles.N,3),dtype=float)
-    NT = 1000
-    x_history = np.zeros((NT, particles.N))
-    v_history = np.zeros((NT, particles.N))
-    T, dt = np.linspace(0, 2*np.pi*10, NT, retstep=True)
-    particles.boris_init(lambda x: np.arange(particles.N), lambda x: np.array(len(x)*[[0,0,1]]), dt, np.inf)
-    for i, t in enumerate(T):
-        x_history[i] = particles.x
-        v_history[i] = particles.v[:,0]
-        particles.boris_push_particles(lambda x: np.arange(particles.N), lambda x: np.array(len(x)*[[0,0,1]]), dt, np.inf)
-    plt.plot(x_history[:,:], v_history[:,:], ".-")
-    plt.show()
+    pass
