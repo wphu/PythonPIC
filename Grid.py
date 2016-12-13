@@ -7,7 +7,7 @@ import scipy.fftpack as fft
 
 
 class Grid(object):
-    def __init__(self, L=2 * np.pi, NG=32, epsilon_0=1, NT=None):
+    def __init__(self, L=2 * np.pi, NG=32, epsilon_0=1, c =1, NT=None):
         self.x, self.dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
         self.charge_density = np.zeros_like(self.x)
         self.current_density = np.zeros((NG, 3))
@@ -17,10 +17,17 @@ class Grid(object):
         self.L = L
         self.NG = int(NG)
         self.NT = NT
+        self.c = c
+        self.dt = self.dx/c
         self.epsilon_0 = epsilon_0
         self.k = 2 * np.pi * fft.fftfreq(NG, self.dx)
         self.k[0] = 0.0001
         self.k_plot = self.k[:int(NG / 2)]
+
+        self.Jyplus = np.zeros_like(self.x)
+        self.Jyminus = np.zeros_like(self.x)
+        self.Fplus = np.zeros_like(self.x)
+        self.Fminus = np.zeros_like(self.x)
 
         if NT:
             self.charge_density_history = np.zeros((NT, self.NG))
@@ -33,6 +40,32 @@ class Grid(object):
     def solve_poisson(self):
         self.electric_field, self.potential, self.energy_per_mode = PoissonSolver(self.charge_density, self.k, self.NG, epsilon_0=self.epsilon_0)
         return self.energy_per_mode.sum() / (self.NG/2)# * 8 * np.pi * self.k[1]**2
+
+    def iterate_EM_field(self):
+        """
+        calculate Fplus, Fminus in next iteration based on their previous
+        values
+
+        assumes fixed left ([0]) boundary condition
+
+        F_plus(n+1, j) = F_plus(n, j) - 0.25 * dt * (Jyminus(n, j-1) + Jplus(n, j))
+        F_minus(n+1, j) = F_minus(n, j) - 0.25 * dt * (Jyminus(n, j+1) - Jplus(n, j))
+
+        TODO: check viability of laser BC
+        take average of last term instead at last point instead
+
+        """
+        self.Fplus[1:] = self.Fplus[:-1] -0.25*self.dt * (self.Jyplus[:-1] + self.Jyminus[1:])
+        self.Fminus[1:-1] = self.Fminus[0:-2] -0.25*self.dt * (self.Jyplus[2:] - self.Jyminus[1:-1])
+
+        #TODO: get laser boundary condition from Birdsall
+        self.Fminus[-1] = self.Fminus[-2] -0.25*self.dt * (self.Jyplus[0] - self.Jyminus[-1])
+
+    def unroll_EyBz(self):
+        return self.Fplus + self.Fminus, self.Fplus - self.Fminus
+    def apply_laser_BC(self, B0, E0):
+        self.Fplus[0] = (E0 + B0)/2
+        self.Fminus[0] = (E0 - B0)/2
 
     def gather_charge(self, list_species):
         self.charge_density[:] = 0.0
