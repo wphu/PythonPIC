@@ -25,7 +25,6 @@ class Grid(object):
             self.charge_density_history = np.zeros((NT, self.NG))
             self.electric_field_history = np.zeros((NT, self.NG))
             self.potential_history = np.zeros((NT, self.NG))
-            self.mode_energy_history = np.zeros((NT, self.NG))
             self.energy_per_mode_history = np.zeros((NT, int(self.NG / 2)))
             self.grid_energy_history = np.zeros(NT)
 

@@ -71,6 +71,7 @@ def animation(S, videofile_name, lines=False, alpha=1):
             return [charge_plot, field_plot, freq_plot, *phase_dots.values(),  iteration]
 
     def animate(i):
+        # import ipdb; ipdb.set_trace()
         charge_plot.set_ydata(S.grid.charge_density_history[i])
         field_plot.set_ydata(S.grid.electric_field_history[i])
         freq_plot.set_ydata(S.grid.energy_per_mode_history[i])

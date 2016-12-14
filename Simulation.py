@@ -102,12 +102,13 @@ def load_data(filename):
         dt = f.attrs['dt']
 
         grid_data = f['grid']
-
-        grid = Grid(NT=NT)
+        NG = grid_data.attrs['NGrid']
+        grid = Grid(NT=NT, NG=NG)
         grid.load_from_h5py(grid_data)
 
         all_species = []
         for species_group_name in f['species']:
+            # import ipdb; ipdb.set_trace()
             species_group = f['species'][species_group_name]
             species = Species(1,1,1, NT=NT)
             species.load_from_h5py(species_group)
