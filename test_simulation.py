@@ -2,10 +2,10 @@ from Simulation import *
 import os
 
 def test_simulation_equality():
-    g = Grid(L=2 * np.pi, NG=32)
+    g = Grid(L=2 * np.pi, NG=32, NT=1)
     N = 128
-    electrons = Species(-1.0, 1.0, N, "electrons")
-    positrons = Species(1.0, 1.0, N, "positrons")
+    electrons = Species(-1.0, 1.0, N, "electrons", NT=1)
+    positrons = Species(1.0, 1.0, N, "positrons", NT=1)
     NT = 100
     dt = 0.1
     epsilon_0 = 1
