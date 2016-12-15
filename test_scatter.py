@@ -99,5 +99,58 @@ def test_boundaries(plotting=False):
         plot()
     assert np.isclose(charge_density, analytical_charge_density).all(), plot()
 
+def test_uniform_current_deposition(plotting=False):
+    """
+     N particles
+     charge q
+     velocity v
+    """
+
+
+    g = Grid()
+    p = Species(1, 1, 128, "p")
+    p.v[:, 0] = 0
+    p.v[:, 1] = -1
+    p.v[:, 2] = 1
+    p.distribute_uniformly(g.L, g.dx/1000*np.pi)
+    g.current_density = g.gather_current([p])
+    if plotting:
+        plt.plot(g.x, g.current_density)
+        plt.show()
+
+    predicted_values = p.q*p.v.sum(axis=0)/g.L*g.dx
+    for dim, val in zip(range(3), predicted_values):
+        assert np.isclose(g.current_density[:,dim], val).all(), (g.current_density[0,:], predicted_values)
+
+def test_nonuniform_current_deposition(plotting=False):
+    """
+     N particles
+     charge q
+     velocity v
+    """
+
+    g = Grid()
+    p = Species(1, 1, 128, "p")
+    dims = np.arange(3)
+    p.v[:, dims] = np.arange(p.N)[:,np.newaxis]**dims[np.newaxis,:]
+    p.distribute_uniformly(g.L, g.dx/1000*np.pi)
+    g.current_density = g.gather_current([p])
+    if plotting:
+        plt.plot(g.x, g.current_density)
+        plt.show()
+
+    predicted_values = p.q*p.v.sum(axis=0)/g.L*g.dx
+    for dim, val in zip(dims, predicted_values):
+        indices = np.arange(1, g.NG)
+        fit = np.polyfit(g.x[indices], g.current_density[indices,dim], 2)
+        fit /= np.linalg.norm(fit)
+        print(fit)
+        if plotting:
+            plt.plot(g.x, np.polyval(fit, g.x))
+            plt.plot(g.x, g.current_density[:,dim])
+            plt.show()
+        assert np.isclose(fit[2-dim], 1, rtol=1e-4), (fit[dim])
+
+
 if __name__ == "__main__":
-    test_sine_perturbation_effect()
+    test_nonuniform_current_deposition(True)
