@@ -90,7 +90,7 @@ def animation(S, videofile_name, lines=False, alpha=1):
         print("Saving animation to {}".format(videofile_name))
         animation_object.save(videofile_name, fps=15, writer='ffmpeg', extra_args=['-vcodec', 'libx264'])
         print("Saved animation to {}".format(videofile_name))
-    plt.show()
+    return animation_object
 
 if __name__=="__main__":
     import Simulation

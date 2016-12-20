@@ -49,13 +49,15 @@ pic3.two_stream_instability("data_analysis/TS10.hdf5",
                             N_electrons=int(1e5),
                             NG=512,
                             )
-plotting.plotting("data_analysis/TS1.hdf5")
-plotting.plotting("data_analysis/TS2.hdf5")
-plotting.plotting("data_analysis/TS3.hdf5")
-plotting.plotting("data_analysis/TS4.hdf5")
-plotting.plotting("data_analysis/TS5.hdf5")
-plotting.plotting("data_analysis/TS6.hdf5")
-plotting.plotting("data_analysis/TS7.hdf5")
-plotting.plotting("data_analysis/TS8.hdf5")
-plotting.plotting("data_analysis/TS9.hdf5")
-plotting.plotting("data_analysis/TS10.hdf5")
+
+show = False
+plotting.plotting("data_analysis/TS1.hdf5", show=show)
+plotting.plotting("data_analysis/TS2.hdf5", show=show)
+plotting.plotting("data_analysis/TS3.hdf5", show=show)
+plotting.plotting("data_analysis/TS4.hdf5", show=show)
+plotting.plotting("data_analysis/TS5.hdf5", show=show)
+plotting.plotting("data_analysis/TS6.hdf5", show=show)
+plotting.plotting("data_analysis/TS7.hdf5", show=show)
+plotting.plotting("data_analysis/TS8.hdf5", show=show)
+plotting.plotting("data_analysis/TS9.hdf5", show=show)
+plotting.plotting("data_analysis/TS10.hdf5", show=show)
