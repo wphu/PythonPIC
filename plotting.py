@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 directory = "data_analysis/"
 
-def plotting(filename, show = True, save = False, lines=False):
+def plotting(filename, show = True, save = False, lines=False, alpha=1):
     print("Plotting for %s" %filename)
     S = Simulation.load_data(filename)
     static_plots.energy_time_plots(S, filename.replace(".hdf5", "_energy.png"))
@@ -16,7 +16,7 @@ def plotting(filename, show = True, save = False, lines=False):
         videofile_name = filename.replace(".hdf5", ".mp4")
     else:
         videofile_name = None
-    animation.animation(S, videofile_name, lines)
+    animation.animation(S, videofile_name, lines, alpha=alpha)
     if show:
         plt.show()
 
