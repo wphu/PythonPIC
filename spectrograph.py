@@ -9,7 +9,6 @@ for i in range(1,11):
     k = np.arange(S.grid.NG)
     charge_density = S.grid.charge_density_history
     K, OMEGA = np.meshgrid(k, omega)
-    charge_density.shape, K.shape, OMEGA.shape
     fft = np.log(np.abs(np.fft.fftn(charge_density))**2)
     plt.imshow(fft[:,1:], aspect='auto', origin='lower', vmin=-30, vmax=30, cmap='viridis')
     # , vmin=-100, vmax=30,

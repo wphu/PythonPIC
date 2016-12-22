@@ -16,9 +16,12 @@ def plotting(filename, show = True, save = False, lines=False, alpha=1):
         videofile_name = filename.replace(".hdf5", ".mp4")
     else:
         videofile_name = None
-    animation.animation(S, videofile_name, lines, alpha=alpha)
+    anim = animation.animation(S, videofile_name, lines, alpha=alpha)
     if show:
         plt.show()
+    else:
+        plt.clf()
+        plt.close("all")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
