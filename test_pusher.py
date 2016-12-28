@@ -15,7 +15,7 @@ def test_constant_field(plotting=False):
     x_data = []
     for i in range(t.size):
         x_data.append(s.x[0])
-        s.push_particles(uniform_field, dt, np.inf)
+        s.leapfrog_push(uniform_field, dt, np.inf)
     x_data = np.array(x_data)
     print(x_analytical - x_data)
 
@@ -91,7 +91,7 @@ def test_boris_pusher():
 #     x_data = []
 #     for i in range(t.size):
 #         x_data.append(s.x[0])
-#         s.push_particles(ramp_field, dt, np.inf)
+#         s.leapfrog_push(ramp_field, dt, np.inf)
 #     x_data = np.array(x_data)
 #     print(x_analytical - x_data)
 #

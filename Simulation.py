@@ -41,7 +41,7 @@ class Simulation(object):
         self.field_energy[i] = field_energy
         self.total_energy[i] = total_energy
 
-    def save_data(self, filename=time.strftime("%Y-%m-%d_%H-%M-%S.hdf5")):
+    def save_data(self, filename=time.strftime("%Y-%m-%d_%H-%M-%S.hdf5"), runtime=None):
         """Save simulation data to hdf5.
         filename by default is the timestamp for the simulation."""
 
@@ -60,6 +60,8 @@ class Simulation(object):
             f.attrs['dt'] = S.dt
             f.attrs['NT'] = S.NT
             f.attrs['date_ver_str'] = date_version_string()
+            if runtime:
+                f.attrs['runtime'] = runtime
         print("Saved file to {}".format(filename))
         return filename
 
