@@ -1,12 +1,8 @@
 """ A particle in cell code implemented in Python, with a focus on efficiency and optimization """
 import time
 import argparse
-import numpy as np
 import Simulation
-from Grid import Grid
-from Species import Species
 from helper_functions import date_version_string
-
 
 def run(g, list_species, params, filename):
     """Full simulation run, with data gathering and saving to hdf5 file"""
@@ -46,68 +42,8 @@ def run(g, list_species, params, filename):
         filename = args.filename + ".hdf5"
     S.save_data(filename=filename)
 
-def cold_plasma_oscillations(filename, plasma_frequency=1, qmratio=-1, dt=0.2, NT=150,
-                             NG=32, N_electrons=128, L=2 * np.pi, epsilon_0=1,
-                             push_amplitude=0.001, push_mode=1):
-
-    """Implements cold plasma oscillations from Birdsall and Langdon
-
-    (plasma excited by a single cosinusoidal mode via position displacements)"""
-    print("Running cold plasma oscillations")
-    particle_charge = plasma_frequency**2 * L / float(N_electrons * epsilon_0 * qmratio)
-    particle_mass = particle_charge / qmratio
-
-    g = Grid(L=L, NG=NG, NT=NT)
-    electrons = Species(particle_charge, particle_mass, N_electrons, "electrons", NT=NT)
-    list_species = [electrons]
-    for species in list_species:
-        species.distribute_uniformly(g.L)
-        species.sinusoidal_position_perturbation(push_amplitude, push_mode, g.L)
-    params = NT, dt, epsilon_0
-    return run(g, list_species, params, filename)
-
-def two_stream_instability(filename, plasma_frequency=1, qmratio=-1, dt=0.2, NT=300,
-                             NG=32, N_electrons=128, L=2 * np.pi, epsilon_0=1,
-                             push_amplitude=0.001, push_mode=1, v0=1.0):
-    """Implements two stream instability from Birdsall and Langdon"""
-    print("Running two stream instability")
-    particle_charge = plasma_frequency**2 * L / float(2*N_electrons * epsilon_0 * qmratio)
-    particle_mass = particle_charge / qmratio
-
-    g = Grid(L=L, NG=NG, NT=NT)
-    k0 = 2*np.pi/g.L
-    w0 = plasma_frequency
-    print("k0*v0/w0 is", k0*v0/w0, "which means the regime is", "stable" if k0*v0/w0 > 2**0.5 else "unstable")
-    electrons1 = Species(particle_charge, particle_mass, N_electrons, "beam1", NT=NT)
-    electrons2 = Species(particle_charge, particle_mass, N_electrons, "beam2", NT=NT)
-    electrons1.v[:] = v0
-    electrons2.v[:] = -v0
-    list_species = [electrons1, electrons2]
-    for i, species in enumerate(list_species):
-        species.distribute_uniformly(g.L, 0.5*g.dx*i)
-        species.sinusoidal_position_perturbation(push_amplitude, push_mode, g.L)
-    params = NT, dt, epsilon_0
-    return run(g, list_species, params, filename)
-
-def hybrid_oscillations(filename, plasma_frequency=1, qmratio=-1, dt=0.2, NT=300,
-                             NG=32, N_electrons=128, L=2 * np.pi, epsilon_0=1,
-                             push_amplitude=0.001, push_mode=1, v0=1.0):
-    """Implements hybrid oscillations from Birdsall and Langdon"""
-    print("Running hybrid oscillations")
-    particle_charge = plasma_frequency**2 * L / float(2*N_electrons * epsilon_0 * qmratio)
-    particle_mass = particle_charge / qmratio
-
-    g = Grid(L=L, NG=NG, NT=NT)
-    electrons1 = Species(particle_charge, particle_mass, N_electrons, "electrons", NT=NT)
-    electrons1.v[:] = v0
-    list_species = [electrons1]
-    for i, species in enumerate(list_species):
-        species.distribute_uniformly(g.L, 0.5*g.dx*i)
-        species.sinusoidal_position_perturbation(push_amplitude, push_mode, g.L)
-    params = NT, dt, epsilon_0
-    return run(g, list_species, params, filename)
-
 if __name__ == "__main__":
+    from run_twostream import two_stream_instability
     parser = argparse.ArgumentParser()
     parser.add_argument("filename", help="hdf5 file name for storing data")
     args = parser.parse_args()
