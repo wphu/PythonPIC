@@ -1,7 +1,7 @@
 import numpy as np
 from Grid import Grid
 from Species import Species
-from pic3 import run
+from pic3 import run_electrostatic
 import plotting
 
 def cold_plasma_oscillations(filename, plasma_frequency=1, qmratio=-1, dt=0.2, NT=150,
@@ -22,8 +22,8 @@ def cold_plasma_oscillations(filename, plasma_frequency=1, qmratio=-1, dt=0.2, N
         species.distribute_uniformly(g.L)
         species.sinusoidal_position_perturbation(push_amplitude, push_mode, g.L)
     params = NT, dt, epsilon_0
-    return run(g, list_species, params, filename)
+    return run_electrostatic(g, list_species, params, filename)
 
 if __name__ == '__main__':
     cold_plasma_oscillations("data_analysis/CO1.hdf5")
-    plotting.plotting("data_analysis/CO1.hdf5")
+    plotting.plotting("data_analysis/CO1.hdf5", lines=True)

@@ -1,7 +1,7 @@
 import numpy as np
 from Grid import Grid
 from Species import Species
-from pic3 import run
+from pic3 import run_electrostatic
 import plotting
 
 def two_stream_instability(filename, plasma_frequency=1, qmratio=-1, dt=0.2, NT=300,
@@ -25,7 +25,7 @@ def two_stream_instability(filename, plasma_frequency=1, qmratio=-1, dt=0.2, NT=
         species.distribute_uniformly(g.L, 0.5*g.dx*i)
         species.sinusoidal_position_perturbation(push_amplitude, push_mode, g.L)
     params = NT, dt, epsilon_0
-    return run(g, list_species, params, filename)
+    return run_electrostatic(g, list_species, params, filename)
 
 if __name__ == '__main__':
     two_stream_instability("data_analysis/TS1.hdf5",

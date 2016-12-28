@@ -111,7 +111,7 @@ class Species(object):
         self.x %= L
 
     def sinusoidal_velocity_perturbation(self, axis, amplitude, mode, L):
-        self.v[axis] += amplitude * np.cos(2 * mode * np.pi * self.x / L)
+        self.v[:,axis] += amplitude * np.cos(2 * mode * np.pi * self.x / L)
 
     def save_particle_values(self, i):
         """Update the i-th set of particle values"""
