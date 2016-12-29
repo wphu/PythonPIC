@@ -15,16 +15,22 @@ def dispersion_relation(t, x, z, plot_spectro=False):
     omega_vector = (np.fft.rfftfreq(t.size, dt)) * phase_resolution
 
     space_time_fft = np.fft.rfft(np.fft.rfft(z, axis=1), axis=0)
-    plottable_space_time_fft = np.log(np.abs(space_time_fft))
-    OMEGA, K = np.meshgrid(omega_vector, k, indexing='ij')
+    plottable_space_time_fft = np.log(np.abs(space_time_fft).real)
 
-    index = np.argmax(plottable_space_time_fft, axis=0)
-    maximal_omega = np.zeros_like(omega_vector)
-    signal_indices = plottable_space_time_fft > 0
-    omega_indices, k_indices = np.where(signal_indices)
-    maximal_omega[k_indices] = omega_vector[omega_indices]
+
+    """
+    signals are:
+    in rows numbered by k_indices
+    IF
+    """
+    noise_indices = plottable_space_time_fft < 0
+    analysis_space_time_fft = plottable_space_time_fft.copy()
+    analysis_space_time_fft[noise_indices] = 0
+    maximal_omega_index = np.argmax(analysis_space_time_fft, axis=0)
+    maximal_omega = omega_vector[maximal_omega_index]
 
     if plot_spectro:
+        OMEGA, K = np.meshgrid(omega_vector, k, indexing='ij')
         plt.contourf(OMEGA, K, plottable_space_time_fft, 500)
         plt.colorbar()
         plt.plot(maximal_omega, k, "ro-")
@@ -34,6 +40,8 @@ def dispersion_relation(t, x, z, plot_spectro=False):
 
     # import ipdb; ipdb.set_trace()
     plt.plot(k, maximal_omega)
+    plt.xlabel("k")
+    plt.ylabel("omega")
     plt.show()
     return k, maximal_omega
 
@@ -48,6 +56,8 @@ if __name__ == '__main__':
     T, X = np.meshgrid(t, x, indexing='ij')
     wavevector = 6 * np.pi
     omega = 10 * np.pi
-    z = np.cos(wavevector*X-omega*T)
+    z = 5*np.cos(wavevector*X-omega*T) +\
+        np.sin(wavevector*X + 40*np.pi * T) +\
+        10*np.sin(8*np.pi * X - omega*T)
 
     dispersion_relation(t,x,z,plot_spectro=True)
