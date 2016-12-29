@@ -28,11 +28,11 @@ x = np.linspace(0,xmax,128, endpoint=False)
 dx = x[1] - x[0]
 
 k_resolution = np.pi * 2
-k = np.fft.fftshift(np.fft.fftfreq(x.size, dx)) * k_resolution
+k = (np.fft.rfftfreq(x.size, dx)) * k_resolution
 wavevector = 3 * k_resolution
 
 omega_resolution = 2 * np.pi
-omega_vector = np.fft.fftshift(np.fft.fftfreq(t.size, dt)) * omega_resolution
+omega_vector = (np.fft.rfftfreq(t.size, dt)) * omega_resolution
 omega = 5 * omega_resolution
 print("omega", omega, "k", wavevector)
 
@@ -47,7 +47,7 @@ plt.ylabel("x")
 plt.show()
 
 
-space_fft = np.fft.fftshift(np.fft.fft(z, axis=1), axes=1)
+space_fft = (np.fft.rfft(z, axis=1))
 T_SPACE, K = np.meshgrid(t, k, indexing='ij')
 plottable_space_fft = (np.abs(space_fft))
 plt.contourf(T_SPACE, K, plottable_space_fft, 50)
@@ -60,7 +60,7 @@ plt.ylabel("k")
 plt.show()
 
 
-time_fft = np.fft.fftshift(np.fft.fft(z, axis=0), axes=0)
+time_fft = (np.fft.rfft(z, axis=0))
 OMEGA, X_TIME = np.meshgrid(omega_vector, x, indexing='ij')
 plottable_time_fft = (np.abs(time_fft))
 plt.contourf(OMEGA, X_TIME, plottable_time_fft, 50)
@@ -70,7 +70,7 @@ plt.xlabel("omega")
 plt.ylabel("x")
 plt.show()
 
-space_time_fft = np.fft.fftshift(np.fft.fft2(z))
+space_time_fft = np.fft.rfft(np.fft.rfft(z, axis=1), axis=0)
 plottable_space_time_fft = (np.abs(space_time_fft))
 OMEGA, K = np.meshgrid(omega_vector, k, indexing='ij')
 plt.contourf(OMEGA, K, plottable_space_time_fft, 50)
@@ -79,3 +79,5 @@ plt.plot([omega], [wavevector], "wo")
 plt.xlabel("omega")
 plt.ylabel("k")
 plt.show()
+
+# omega od k
