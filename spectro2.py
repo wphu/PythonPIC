@@ -40,44 +40,63 @@ T, X = np.meshgrid(t, x, indexing='ij')
 z = np.sin(wavevector*X+omega*T)
 
 
-plt.contourf(T, X, z, 50)
-plt.colorbar()
-plt.xlabel("t")
-plt.ylabel("x")
-plt.show()
+# plt.contourf(T, X, z, 50)
+# plt.colorbar()
+# plt.xlabel("t")
+# plt.ylabel("x")
+# plt.show()
 
 
 space_fft = (np.fft.rfft(z, axis=1))
 T_SPACE, K = np.meshgrid(t, k, indexing='ij')
 plottable_space_fft = (np.abs(space_fft))
-plt.contourf(T_SPACE, K, plottable_space_fft, 50)
-plt.ylim(k.min(), k.max())
-# import ipdb; ipdb.set_trace()
-plt.hlines(wavevector, t.min(), t.max(), colors='w', linestyles="--")
-plt.colorbar()
-plt.xlabel("t")
-plt.ylabel("k")
-plt.show()
+# plt.contourf(T_SPACE, K, plottable_space_fft, 50)
+# plt.ylim(k.min(), k.max())
+# # import ipdb; ipdb.set_trace()
+# plt.hlines(wavevector, t.min(), t.max(), colors='w', linestyles="--")
+# plt.colorbar()
+# plt.xlabel("t")
+# plt.ylabel("k")
+# plt.show()
 
 
 time_fft = (np.fft.rfft(z, axis=0))
 OMEGA, X_TIME = np.meshgrid(omega_vector, x, indexing='ij')
 plottable_time_fft = (np.abs(time_fft))
-plt.contourf(OMEGA, X_TIME, plottable_time_fft, 50)
-plt.vlines(omega, x.min(), x.max(), colors='w', linestyles="--")
-plt.colorbar()
-plt.xlabel("omega")
-plt.ylabel("x")
-plt.show()
+# plt.contourf(OMEGA, X_TIME, plottable_time_fft, 50)
+# plt.vlines(omega, x.min(), x.max(), colors='w', linestyles="--")
+# plt.colorbar()
+# plt.xlabel("omega")
+# plt.ylabel("x")
+# plt.show()
 
 space_time_fft = np.fft.rfft(np.fft.rfft(z, axis=1), axis=0)
-plottable_space_time_fft = (np.abs(space_time_fft))
+plottable_space_time_fft = np.log(np.abs(space_time_fft))
 OMEGA, K = np.meshgrid(omega_vector, k, indexing='ij')
-plt.contourf(OMEGA, K, plottable_space_time_fft, 50)
+
+
+# omega od k
+# dla każdego k
+# przejrzeć wszystkie omegi na osi 0
+# wybrać taką która ma maksymalną składową
+# plotnąć ją dla tego k
+index = np.argmax(plottable_space_time_fft, axis=0)
+maximal_omega = np.zeros_like(omega_vector)
+signal_indices = plottable_space_time_fft > 0
+omega_indices, k_indices = np.where(signal_indices)
+maximal_omega[k_indices] = omega_vector[omega_indices]
+print(np.where(signal_indices), OMEGA[signal_indices])
+# maximal_omega = omega_vector[index]
+# import ipdb; ipdb.set_trace()
+
+
+plt.contourf(OMEGA, K, plottable_space_time_fft, 500)
 plt.colorbar()
+plt.plot(maximal_omega, k, "ro-")
 plt.plot([omega], [wavevector], "wo")
 plt.xlabel("omega")
 plt.ylabel("k")
 plt.show()
 
-# omega od k
+plt.plot(k, maximal_omega)
+plt.show()
