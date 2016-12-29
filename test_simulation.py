@@ -1,4 +1,8 @@
-from Simulation import *
+from Simulation import Simulation, load_data
+from Grid import Grid
+from Species import Species
+from helper_functions import date_version_string
+import numpy as np
 import os
 
 def test_simulation_equality():
@@ -19,6 +23,6 @@ def test_simulation_equality():
     S.save_data(filename)
 
     S_loaded = load_data(filename)
-    S_loaded.NT = 3
+    assert S == S_loaded
 if __name__ == "__main__":
     test_simulation_equality()

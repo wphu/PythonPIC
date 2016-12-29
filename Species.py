@@ -46,7 +46,7 @@ class Species(object):
         self.v = v_new
         return energy
 
-    def push_particles(self, electric_field_function, dt, L):
+    def leapfrog_push(self, electric_field_function, dt, L):
         """Leapfrog pusher"""
         electric_force = electric_field_function(self.x) * self.q / self.m
         v_new = self.v.copy()
@@ -109,6 +109,9 @@ class Species(object):
     def sinusoidal_position_perturbation(self, amplitude, mode, L):
         self.x += amplitude * np.cos(2 * mode * np.pi * self.x / L)
         self.x %= L
+
+    def sinusoidal_velocity_perturbation(self, axis, amplitude, mode, L):
+        self.v[:,axis] += amplitude * np.cos(2 * mode * np.pi * self.x / L)
 
     def save_particle_values(self, i):
         """Update the i-th set of particle values"""

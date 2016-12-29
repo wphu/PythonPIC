@@ -77,7 +77,7 @@ def animation(S, videofile_name, lines=False, alpha=1):
         for species in S.all_species:
             phase_dots[species.name].set_data(species.position_history[i,:], species.velocity_history[i,:,0])
             if lines:
-                phase_lines[species.name].set_data(species.position_history[:i + 1, :].T, species.velocity_history[:i + 1, :, 0].T)
+                phase_lines[species.name].set_data(species.position_history[:i + 1, ::10].T, species.velocity_history[:i + 1, ::10, 0].T)
         iteration.set_text("Iteration: {}".format(i))
 
         if lines:

@@ -1,4 +1,4 @@
-from pic3 import *
+import numpy as np
 from helper_functions import l2_test
 from gather import interpolateField
 import matplotlib.pyplot as plt
@@ -84,7 +84,6 @@ def test_single_particle(plotting=False):
 
     x, dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
     x_particles = np.array([x[3], x[6] + dx / 2, x[9] + 0.75 * dx, x[-1] + dx / 2])
-    particle_charge = 1
 
     for power in range(2,3):
         electric_field_function = lambda x: x**power
