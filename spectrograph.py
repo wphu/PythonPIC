@@ -1,8 +1,31 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import Simulation
 
-def dispersion_relation(t, x, z, plot_spectro=False, plot_dispersion=False):
+def plot_spectrograph(omega_vector, k, plottable_space_time_fft, maximal_omega, title=None):
+    fig, ax = plt.subplots()
+    OMEGA, K = np.meshgrid(omega_vector, k, indexing='ij')
+    CF = ax.contourf(OMEGA, K, plottable_space_time_fft, 500)
+    plt.colorbar(CF)
+    ax.plot(maximal_omega, k, "ro-")
+    ax.set_xlabel("omega")
+    ax.set_ylabel("k")
+    ax.grid()
+    if title:
+        ax.set_title(title)
+    return fig
+
+def plot_dispersion_relation(k, maximal_omega, title=None):
+    fig, ax = plt.subplots()
+
+    ax.plot(k, maximal_omega)
+    ax.set_xlabel("k")
+    ax.set_ylabel("omega")
+    ax.grid()
+    if title:
+        ax.set_title(title)
+    return fig
+
+def dispersion_relation(t, x, z, plot_spectro=False, plot_dispersion=False, title=None):
     # omega od k
     # dla każdego k
     # przejrzeć wszystkie omegi na osi 0
@@ -29,24 +52,13 @@ def dispersion_relation(t, x, z, plot_spectro=False, plot_dispersion=False):
     maximal_omega_index = np.argmax(analysis_space_time_fft, axis=0)
     maximal_omega = omega_vector[maximal_omega_index]
 
-    if plot_spectro:
-        def plot_spectrograph(omega_vector, k, plottable_space_time_fft):
-            OMEGA, K = np.meshgrid(omega_vector, k, indexing='ij')
-            plt.contourf(OMEGA, K, plottable_space_time_fft, 500)
-            plt.colorbar()
-            plt.plot(maximal_omega, k, "ro-")
-            plt.xlabel("omega")
-            plt.ylabel("k")
-            plt.show()
-        plot_spectrograph(omega_vector, k, plottable_space_time_fft)
+    if plot_spectro and plot_dispersion:
+        return plot_spectrograph(omega_vector, k, plottable_space_time_fft, maximal_omega, title), plot_dispersion_relation(k, maximal_omega, title)
 
     if plot_dispersion:
-        def plot_dispersion_relation(k, maximal_omega):
-            plt.plot(k, maximal_omega)
-            plt.xlabel("k")
-            plt.ylabel("omega")
-            plt.show()
-        plot_dispersion_relation(k, maximal_omega)
+        return plot_dispersion_relation(k, maximal_omega, title)
+    if plot_spectro:
+        return plot_spectrograph(omega_vector, k, plottable_space_time_fft, maximal_omega, title)
     return k, maximal_omega
 
 def test_spectrograph():
@@ -65,13 +77,14 @@ def test_spectrograph():
     assert (np.logical_or(np.isclose(result_omega, omega, rtol=1e-3),
             np.isclose(result_omega, 0))).all(), (result_omega, omega)
 
-def spectral_analysis(filename):
-    S = Simulation.load_data(filename)
+def spectral_analysis(S, filename):
     t = np.arange(S.NT+1)*S.dt
-    dispersion_relation(t, S.grid.x, S.grid.charge_density_history, plot_spectro=True, plot_dispersion=True)
-    dispersion_relation(t, S.grid.x, S.grid.electric_field_history, plot_spectro=True, plot_dispersion=True)
+    dispersion_relation(t, S.grid.x, S.grid.charge_density_history, plot_spectro=True, plot_dispersion=False, title=filename+"\nCharge density")
+    dispersion_relation(t, S.grid.x, S.grid.electric_field_history, plot_spectro=True, plot_dispersion=False, title=filename+"\nElectric field")
 
 if __name__ == '__main__':
+    import Simulation
     for i in range(1,11):
         filename = "data_analysis/TS{}.hdf5".format(i)
-        spectral_analysis(filename)
+        spectral_analysis(Simulation.load_data(filename), filename)
+        plt.show()

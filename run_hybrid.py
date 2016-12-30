@@ -6,7 +6,7 @@ import plotting
 
 def hybrid_oscillations(filename, plasma_frequency=1, qmratio=-1, dt=0.2, NT=300,
                              NG=32, N_electrons=128, L=2 * np.pi, epsilon_0=1,
-                             push_amplitude=0.001, push_mode=1, v0=0.0,
+                             push_amplitude=0.001, push_mode=1, v0=1.0,
                              cyclotron_frequency=1):
     """Implements hybrid oscillations from Birdsall and Langdon"""
     print("Running hybrid oscillations")
@@ -28,5 +28,10 @@ def hybrid_oscillations(filename, plasma_frequency=1, qmratio=-1, dt=0.2, NT=300
     return run_electromagnetic(g, list_species, params, filename)
 
 if __name__ == '__main__':
-    hybrid_oscillations("data_analysis/HO1.hdf5")
-    plotting.plotting("data_analysis/HO1.hdf5", lines=True)
+    settings = [["HO1",{"pf":1, "cf":1}],
+                ["HO5",{"pf":3, "cf":3}],
+                ["HO6",{"pf":6, "cf":6}],
+                ]
+    for key, setting in settings:
+        hybrid_oscillations("data_analysis/{}.hdf5".format(key), plasma_frequency=setting['pf'], cyclotron_frequency=setting['cf'])
+        plotting.plotting("data_analysis/{}.hdf5".format(key))
