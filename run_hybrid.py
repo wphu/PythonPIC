@@ -3,6 +3,19 @@ from Grid import Grid
 from Species import Species
 from pic3 import run_electromagnetic
 import plotting
+import Simulation
+import matplotlib.pyplot as plt
+
+def predicted_plot(S, plasma_frequency, cyclotron_frequency):
+    fig, ax = plt.subplots()
+    phase_resolution = np.pi * 2
+    k = (np.fft.rfftfreq(S.grid.x.size, S.grid.dx)) * 2 * phase_resolution
+    omega = ((plasma_frequency * np.cos(k*S.grid.dx/2))**2 + cyclotron_frequency**2)**0.5
+    ax.plot(k, omega)
+    ax.set_xlabel("k")
+    ax.set_ylabel("omega")
+    ax.grid()
+    return fig
 
 def hybrid_oscillations(filename, plasma_frequency=1, qmratio=-1, dt=0.2, NT=300,
                              NG=32, N_electrons=128, L=2 * np.pi, epsilon_0=1,
@@ -33,5 +46,9 @@ if __name__ == '__main__':
                 ["HO6",{"pf":6, "cf":6}],
                 ]
     for key, setting in settings:
-        hybrid_oscillations("data_analysis/{}.hdf5".format(key), plasma_frequency=setting['pf'], cyclotron_frequency=setting['cf'])
-        plotting.plotting("data_analysis/{}.hdf5".format(key))
+        filename = "data_analysis/{}.hdf5".format(key)
+        hybrid_oscillations(filename, plasma_frequency=setting['pf'], cyclotron_frequency=setting['cf'])
+        S = Simulation.load_data(filename)
+        predicted_plot(S, plasma_frequency=setting['pf'], cyclotron_frequency=setting['cf'])
+        plotting.plotting(filename)
+        plt.show()

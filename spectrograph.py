@@ -46,9 +46,9 @@ def dispersion_relation(t, x, z, plot_spectro=False, plot_dispersion=False, titl
     in rows numbered by k_indices
     IF
     """
-    noise_indices = plottable_space_time_fft < 0
+    noise_indices = plottable_space_time_fft < -3
     analysis_space_time_fft = plottable_space_time_fft.copy()
-    analysis_space_time_fft[noise_indices] = 0
+    analysis_space_time_fft[noise_indices] = -3
     maximal_omega_index = np.argmax(analysis_space_time_fft, axis=0)
     maximal_omega = omega_vector[maximal_omega_index]
 
