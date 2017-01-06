@@ -6,7 +6,7 @@ import plotting
 
 def two_stream_instability(filename, plasma_frequency=1, qmratio=-1, dt=0.2, NT=300,
                              NG=32, N_electrons=128, L=2 * np.pi, epsilon_0=1,
-                             push_amplitude=0.001, push_mode=1, v0=1.0):
+                             push_amplitude=0.001, push_mode=1, v0=1.0, vrandom = 0):
     """Implements two stream instability from Birdsall and Langdon"""
     print("Running two stream instability")
     particle_charge = plasma_frequency**2 * L / float(2*N_electrons * epsilon_0 * qmratio)
@@ -24,6 +24,7 @@ def two_stream_instability(filename, plasma_frequency=1, qmratio=-1, dt=0.2, NT=
     for i, species in enumerate(list_species):
         species.distribute_uniformly(g.L, 0.5*g.dx*i)
         species.sinusoidal_position_perturbation(push_amplitude, push_mode, g.L)
+        species.random_velocity_perturbation(0, vrandom)
     params = NT, dt, epsilon_0
     return run_electrostatic(g, list_species, params, filename)
 
@@ -75,6 +76,14 @@ if __name__ == '__main__':
                                 N_electrons=int(1e5),
                                 NG=512,
                                 )
+    two_stream_instability("data_analysis/TSRANDOM1.hdf5",
+                                NT=1000,
+                                plasma_frequency=10,
+                                N_electrons=int(1e4),
+                                NG=64,
+                                vrandom = 1e-1,
+                                )
+
 
     show = False
     plotting.plotting("data_analysis/TS1.hdf5", show=show)
@@ -87,3 +96,4 @@ if __name__ == '__main__':
     plotting.plotting("data_analysis/TS8.hdf5", show=show)
     plotting.plotting("data_analysis/TS9.hdf5", show=show)
     plotting.plotting("data_analysis/TS10.hdf5", show=show)
+    plotting.plotting("data_analysis/TSRANDOM1.hdf5", show= show, alpha=0.5)
