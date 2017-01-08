@@ -1,0 +1,229 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Template of thesis													 %
+%																		 %
+% Warsaw University of Technology										 %
+% Faculty of physics													 %
+% 																		 %
+% Author: Patryk Bojarski, pbojarski94@gmail.com						 %
+% Version: 2.0															 %
+% Last modified: 26.12.2016												 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{Source/preamble.tex}
+\graphicspath{{Images/}}
+\begin{document}
+\includepdf[pages={-}]{Source/begining.pdf}
+\tableofcontents
+\thispagestyle{empty}
+\thesisstyle
+\newpage
+
+\section[Wstęp]{Wstęp}
+\lipsum[1-5]
+
+\section[Część analityczna]{Część analityczna/Problematyka pracy}
+\subsection{Przegląd literatury}
+\lipsum[1-3]
+\subsection{Jak się robi cośtam}
+\lipsum[1-3]
+\subsection{Jak się robi cośtam jeszcze innego}
+\lipsum[1-2]
+
+\newpage
+\section[Część syntetyczna]{Część syntetyczna/Wybór metod}
+\subsection{Dlaczego wybrałem/am tą metodę}
+\lipsum[1-3]
+\subsection{Dlaczego wybrałem/am tamtą metodę}
+\lipsum[1-3]
+
+\newpage
+\section[Część weryfikacyjna]{Część weryfikacyjna/Wyniki eksperymentów/Wyniki symulacji}
+\subsection{Badanie jednej rzeczy}
+\lipsum[1-3]
+\subsection{Badanie tej samej rzeczy, ale inaczej}
+\lipsum[1-3]
+\subsection{Badanie tego, ale jeszcze inaczej}
+\lipsum[1-3]
+
+\section[Zakończenie]{Zakończenie/Wnioski/Podsumowanie}
+\lipsum[1-8]
+
+\newpage
+\section[Przykłady]{Przykłady rysunków, tabel itp.}
+\subsection{Listowanie}
+Listuje się w sposób następujący:
+\begin{itemize}
+	\itemi pierwszy poziom listy - element pierwszy,
+	\itemi pierwszy poziom listy - element drugi,
+	\begin{itemize}
+		\itemii drugi poziom listy - element pierwszy,
+		\itemii drugi poziom listy - element drugi,
+		\itemii drugi poziom listy - element trzeci,
+		\begin{itemize}
+			\itemiii trzeci (ostatni) poziom listy - element pierwszy,
+			\itemiii trzeci (ostatni) poziom listy - element drugi,
+			\itemiii trzeci (ostatni) poziom listy - element trzeci,
+		\end{itemize}
+		\itemii drugi poziom listy - element czwarty,
+		\end{itemize}
+	\itemi pierwszy poziom listy - element trzeci,
+	\itemi pierwszy poziom listy - element czwarty.
+\end{itemize}
+
+\subsection{Cytowania i przypisy}
+This document is an example of BibTeX using in bibliography management. Three items
+are cited: \textit{The \LaTeX\ Companion} book \cite{latexcompanion}, the Einstein
+journal paper \cite{einstein}, and the Donald Knuth's website \cite{knuthwebsite}.
+The \LaTeX\ related items are \cite{latexcompanion,knuthwebsite}.\footnotemark[1]
+
+\fancyfootnotetextss{1}{Źródło: \url{https://www.sharelatex.com/learn/Bibliography_management_with_bibtex}}{2}{Niestety nie ma automatycznej numeracji przypisów.}{3}{Ich liczba na stronie ograniczona jest do trzech (jednak można to rozszerzyć)}
+
+\subsection{Wzory}
+Równania reakcji-dyfuzji
+\begin{align}
+	\begin{cases}
+		\frac{\partial}{\partial t} u(\bm{x},t) = f(u,v) + D_{act}\nabla^{2} u(\bm{x},t) \\
+		\frac{\partial}{\partial t} v(\bm{x},t) = g(u,v) + D_{inh}\nabla^{2} v(\bm{x},t)
+	\end{cases}
+\end{align}
+gdzie: \\
+\indent $u(\bm{x},t)$ -- koncentracja aktywatora, \\
+\indent $v(\bm{x},t)$ -- koncentracja inhibitora, \\
+\indent $D_{act}$ -- stała dyfuzji aktywatora, \\
+\indent $D_{inh}$ -- stała dyfuzji inhibitora. \\
+
+\newpage
+\subsection{Obrazki}
+
+Przykładowe, niezwiązane ze sobą, obrazki:
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.65\textwidth]{pole_ananasowe.jpg}
+    \captionsetup{justification=raggedleft, font={it, footnotesize}}
+    \caption*{\url{http://vader.joemonster.org/upload/qpm/l_13484426e12385bananasplantage.jpg}}
+    \captionsetup{justification=justified, font={up, footnotesize}}
+    \caption{Tak wygląda ananasowe pole. Przykład wklejania grafiki rastrowej.}
+    \label{rys1}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.65\textwidth]{krok_czasowy}
+    \captionsetup{justification=justified}
+    \caption{Test algorytmu -- średnia energia w funkcji kroku czasowego. Przykład wklejania grafiki wektorowej. Brak źródła świadczy o własnoręcznym wykonaniu obrazka.}
+    \label{rys2}
+\end{figure}
+
+\newpage
+Czy są osoby, które nie wiedzą co to są szachy? Zapewne nie, jednak mimo wszystko, krótkie przypomnienie:
+\begin{figure}[H]
+	\begin{subfigure}{0.40\textwidth}
+		\centering
+ 		\includegraphics[width=\textwidth]{szachownica.jpg}
+ 		\captionsetup{font={up, footnotesize}}
+    	\caption{Początkowe położenie figur.}
+ 		\label{rys3}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.40\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figury_szachowe.jpg}
+		\captionsetup{font={up, footnotesize}}
+    	\caption{Figury występujące w grze.}
+		\label{rys4}
+	\end{subfigure}
+	\vskip\baselineskip
+	\begin{subfigure}{0.40\textwidth}
+		\centering
+ 		\includegraphics[width=\textwidth]{wieza.jpg}
+ 		\captionsetup{font={up, footnotesize}}
+    	\caption{Jedna z figur - wieża.}
+ 		\label{rys5}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}{0.40\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{szklane_szachy.jpg}
+		\captionsetup{font={up, footnotesize}}
+    	\caption{Szklane szachy.}
+		\label{rys6}
+	\end{subfigure}
+	\captionsetup{justification=raggedleft, font={it, footnotesize}}
+	\caption*{\url{http://www.google.pl}}
+    \captionsetup{justification=justified, font={up, footnotesize}}
+    \caption{Szachy i wszystko co z nimi związane. Takie ułożenie najbardziej pasuje do przedstawiania wykresów, bądź obrazków pochodzących z jednego źródła.}
+    \label{rys7}
+\end{figure}
+
+\subsection{Tabele}
+
+\begin{table}[H]
+\caption{Przykład tabeli. Niestety szerokość kolumn należy ustawiać ręcznie.}
+\centering
+\footnotesize
+\label{tab1}
+\begin{tabular}{!{\color{plum}\vrule width 1pt}m{0.22\textwidth}!{\color{black}\vrule width 1pt}m{0.22\textwidth}!{\color{black}\vrule width 1pt}m{0.22\textwidth}!{\color{black}\vrule width 1pt}m{0.22\textwidth}!{\color{plum}\vrule width 1pt}}
+	\arrayrulecolor{plum}\hline
+	\Centering\bfseries Nazwa pierwiastka &
+	\Centering\bfseries Symbol na tablicy Mendelejewa &
+	\Centering\bfseries Liczba atomowa &
+	\Centering\bfseries Nazwa pierwiastka pisana od tyłu \\
+	\hline
+	Hel &
+	\Centering He &
+	\raggedleft 2 &
+	Leh \\
+	\arrayrulecolor{black}
+	\hline
+	Tlen &
+	\Centering O &
+	\raggedleft 8 &
+	Nelt \\
+	\hline
+	Ołów &
+	\Centering Pb &
+	\raggedleft 82 &
+	Wóło \\
+	\arrayrulecolor{plum}\hline
+\end{tabular}
+\captionsetup{justification=raggedleft, font={it, footnotesize}}
+\caption*{\url{http://mm.pwn.pl/ency/jpg/583/1p/d93i6911.jpg}}
+\end{table}
+
+\subsection{Kod źródłowy programu}
+
+\begin{table}[H]
+\caption{Kod źródłowy programu. Procedura czegośtam.}
+\label{tab2}
+\begin{lstlisting}[frame=single]  % Start your code-block
+
+Actions(int nObjects, int radius, int width, int height)
+{
+	objects = new Ball[nObjects];
+	connections = new int[nObjects][2];
+	this.width = width;
+	this.height = height;
+
+	for(int i=0; i<objects.length; i++)
+	{
+		objects[i] = new Ball();
+		objects[i].setX(randomWithRange(radius);
+		objects[i].setY(randomWithRange(radius);
+		objects[i].setRadius(radius);
+		objects[i].setV(randomWithRange(1.0, 4.5));
+		//objects[i].setV(4);
+
+		connections[i][0] = -1;
+		connections[i][1] = -1;
+	}
+
+	connectionsAssigned();
+}
+\end{lstlisting}
+\end{table}
+
+\newpage
+\bibliographystyle{plain} % bibliography style
+\bibliography{bibliography} % add bibliography
+
+\end{document}

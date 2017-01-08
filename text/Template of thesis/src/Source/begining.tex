@@ -1,0 +1,163 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Template of thesis													 %
+%																		 %
+% Warsaw University of Technology										 %
+% Faculty of physics													 %
+% 																		 %
+% Author: Patryk Bojarski, pbojarski94@gmail.com						 %
+% Version: 2.0															 %
+% Last modified: 26.12.2016												 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{preamble.tex}
+\graphicspath{{LogosPW/}}
+\begin{document}
+
+\thispagestyle{empty}
+\center
+\includegraphics[scale=1]{logo.jpg}
+\center
+\includegraphics[scale=1]{praca_dyplomowa.jpg}
+
+\vspace{17mm}
+
+\normalsize
+na kierunku Fizyka Techniczna \\ % <<<<<<<<<< name of faculty
+w specjalności Fizyka komputerowa \\ % <<<<<<<<<< name of speciality
+
+\vspace{15mm}
+
+\Large
+Zoptymalizowana symulacja Particle in Cell w języku Python  \\ % <<<<<<<<<< title of thesis in polish
+
+\vspace{17mm}
+
+\huge
+Dominik Stańczak  \\ % <<<<<<<<<< name and surname
+\normalsize
+261604 \\ % <<<<<<<<<< number of index
+
+\vspace{17mm}
+
+promotor \\
+dr Sławomir Jabłoński \\ % <<<<<<<<<< name and surname your superviser
+
+\vspace{15mm}
+
+WARSZAWA 2017 % <<<<<<<<<< year
+
+% empty page
+\newpage
+\thispagestyle{empty}
+\phantom{Nothing here}
+\newpage
+\clearpage
+\phantom{Here neither}
+
+% abstract in polish
+\setcounter{page}{3}
+\infostyle{Streszczenie}
+\vspace{-1.5cm}
+\begin{flushleft}
+	Tytuł pracy: Zoptymalizowana symulacja Particle in Cell w języku Python % <<<<<<<<<< title of thesis in polish
+\end{flushleft}
+\vspace{0.5cm}
+\lipsum[1-4] % <<<<<<<<<< here write your abstract
+\vspace{0.5cm}
+\noindent \textit{Słowa kluczowe: \\ python, plazma, particle in cell, symulacja, optymalizacja, elektrodynamika} % <<<<<<<<<< key words
+\vfill
+(podpis opiekuna naukowego) \hfill (podpis dyplomanta)
+
+% empty page
+\newpage
+\thispagestyle{empty}
+\phantom{Nothing here}
+\newpage
+\clearpage
+\phantom{Here neither}
+
+% abstract in english
+\setcounter{page}{5}
+\infostyle{Abstract}
+\vspace{-1.5cm}
+\begin{flushleft}
+	Title of the thesis: Optimised Particle in Cell simulation in Python % <<<<<<<<<< title of your thesis in english
+\end{flushleft}
+\vspace{0.5cm}
+\lipsum[1-4] % <<<<<<<<<< here write your abstract
+\vspace{0.5cm}
+\noindent \textit{Słowa kluczowe: \\ <python, plasma, particle in cell, simulation, optimization, electrodynamics>} % <<<<<<<<<< key words
+\vfill
+(podpis opiekuna naukowego) \hfill (podpis dyplomanta)
+
+% empty page
+\newpage
+\thispagestyle{empty}
+\phantom{Nothing here}
+\newpage
+\clearpage
+\phantom{Here neither}
+
+\setcounter{page}{7}
+\infostyle{Oświadczenie o samodzielności wykonania pracy}
+\vspace{-1.5cm}
+\begin{flushleft}
+	Politechnika Warszawska \\
+	Wydział Fizyki \\
+	\vspace{0.5cm}
+	Ja niżej podpisany/a:
+\end{flushleft}
+\center \textit{\textbf{Dominik Stańczak, 261604}} % <<<<<<<<<< name, surname and number of index
+\justify student/ka Wydziału Fizyki Politechniki Warszawskiej, świadomy/a odpowiedzialności prawnej przedłożoną do obrony pracę dyplomową inżynierską pt.:
+\center \textit{\textbf{Zoptymalizowana symulacja Particle in Cell w języku Python}} % <<<<<<<<<< title of your thesis
+\justify wykonałem/am samodzielnie pod kierunkiem
+\center \textit{dr Sławomira Jabłońskiego} % <<<<<<<<<< name and surname your superviser
+\justify Jednocześnie oświadczam, że: \\
+\begin{itemize}
+	\itemi praca nie narusza praw autorskich w rozumieniu ustawy z dnia 4 lutego 1994 o prawie autorskim i prawach pokrewnych, oraz dóbr osobistych chronionych prawem cywilnym,
+	\itemi praca nie zawiera danych i informacji uzyskanych w sposób niezgodny z obowiązującymi przepisami,
+	\itemi praca nie była wcześniej przedmiotem procedur związanych z uzyskaniem dyplomu lub tytułu zawodowego w wyższej uczelni,
+	\itemi promotor pracy jest jej współtwórcą w rozumieniu ustawy z dnia 4 lutego 1994 o prawie autorskim i prawach pokrewnych.
+\end{itemize}
+\justify Oświadczam także, że treść pracy zapisanej na przekazanym nośniku elektronicznym jest zgodna z treścią zawartą w wydrukowanej wersji niniejszej pracy dyplomowej.
+\vfill
+Warszawa, dnia 2017 \hfill (podpis dyplomanta) % <<<<<<<<<< date
+
+% empty page
+\newpage
+\thispagestyle{empty}
+\phantom{Nothing here}
+\newpage
+\clearpage
+\phantom{Here neither}
+
+\setcounter{page}{9}
+\infostyle{Oświadczenie o udzieleniu Uczelni licencji do pracy}
+\vspace{-1.5cm}
+\begin{flushleft}
+	Politechnika Warszawska \\
+	Wydział Fizyki \\
+	\vspace{0.5cm}
+	Ja niżej podpisany/a:
+\end{flushleft}
+\center \textit{\textbf{Dominik Stańczak, 261604}} % <<<<<<<<<< name, surname and number of index
+\justify student/ka Wydziału Fizyki Politechniki Warszawskiej, niniejszym oświadczam, że zachowując moje prawa autorskie udzielam Politechnice Warszawskiej nieograniczonej w czasie, nieodpłatnej licencji wyłącznej do korzystania z przedstawionej dokumentacji pracy dyplomowej pt.:
+\center \textit{\textbf{Zoptymalizowana symulacja Particle in Cell w języku Python}} % <<<<<<<<<< title of your thesis
+\justify w zakresie jej publicznego udostępniania i rozpowszechniania w wersji drukowanej i~elektronicznej*.
+\\~\\~\\~\\~\\~\\~\\~\\~\\~\\~\\~\\~\\~\\~\\~\\~\\~\\~\\~\\
+Warszawa, dnia 2017 \hfill (podpis dyplomanta) % <<<<<<<<<< date
+
+\begin{center}
+	\color{plum}
+	\line(1,0){460}
+\end{center}
+\setstretch{1}
+\footnotesize \noindent $^{*}$Na podstawie Ustawy z dnia 27 lipca 2005 r. Prawo o szkolnictwie wyższym (Dz.U. 2005 nr 164 poz. 1365) Art.~239. oraz Ustawy z dnia 4 lutego 1994 r. o prawie autorskim i prawach pokrewnych (Dz.U. z 2000 r. Nr 80, poz. 904, z późn. zm.) Art. 15a. "Uczelni w rozumieniu przepisów o szkolnictwie wyższym przysługuje pierwszeństwo w~opublikowaniu pracy dyplomowej studenta. Jeżeli uczelnia nie opublikowała pracy dyplomowej w ciągu 6 miesięcy od jej obrony, student, który ją przygotował, może ją opublikować, chyba że praca dyplomowa jest częścią utworu zbiorowego."
+\setstretch{1.15}
+
+% empty page
+\newpage
+\thispagestyle{empty}
+\phantom{Nothing here}
+
+\end{document}
