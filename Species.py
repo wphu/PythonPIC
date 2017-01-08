@@ -2,16 +2,16 @@ import numpy as np
 
 MAX_SAVED_PARTICLES = int(1e4)
 class Species(object):
-    def __init__(self, q, m, N, name=None, NT=None):
-        """Object representing a species of particles: ions, electrons, or simply
-        a group of particles with a particular (heh) initial velocity distribution.
+    """Object representing a species of particles: ions, electrons, or simply
+    a group of particles with a particular (heh) initial velocity distribution.
 
-        q: float, particle charge
-        m: float, particle mass
-        N: int, total number of particles in species
-        name: string, ID of particles
-        NT: int, number of timesteps (for diagnostics)
-        """
+    q: float, particle charge
+    m: float, particle mass
+    N: int, total number of particles in species
+    name: string, ID of particles
+    NT: int, number of timesteps (for diagnostics)
+    """
+    def __init__(self, q, m, N, name=None, NT=None):
         self.q = q
         self.m = m
         self.N = int(N)

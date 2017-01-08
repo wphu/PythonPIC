@@ -7,6 +7,8 @@ import scipy.fftpack as fft
 
 
 class Grid(object):
+    """Object representing the grid on which charges and fields are computed"""
+    # TODO: finish docs here 
     def __init__(self, L=2 * np.pi, NG=32, epsilon_0=1, c =1, NT=None, relativistic=False):
         self.x, self.dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
         self.charge_density = np.zeros_like(self.x)
