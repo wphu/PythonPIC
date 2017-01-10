@@ -62,11 +62,23 @@ def velocity_distribution_plots(S, file_name, i=0):
     return fig
 
 
+def phase_trajectories(S, file_name):
+    fig, axis = plt.subplots()
+    for species in S.all_species:
+        # for i in range(species.N):
+        i = int(species.N/2)
+        x = species.position_history[:,i]
+        y = species.velocity_history[:,i,0]
+        axis.plot(x, y)
+    axis.set_title("Phase space plot for particle {}".format(i))
+    axis.set_xlabel("x")
+    axis.set_ylabel("vx")
+    axis.grid()
+    return fig
+
 if __name__=="__main__":
     import Simulation
-    S = Simulation.load_data("data_analysis/TS1.hdf5")
-    for i in np.linspace(0, S.NT, 10, endpoint=False, dtype=int):
-        velocity_distribution_plots(S, "none.png", i)
-    # print(S.energy_per_mode)
-    # temperature_time_plot(S, "none.png")
+    S = Simulation.load_data("data_analysis/HO1.hdf5")
+    # for i in np.linspace(0, S.NT, 10, endpoint=False, dtype=int):
+    phase_trajectories(S, "none.png")
     plt.show()

@@ -2,16 +2,16 @@ import numpy as np
 
 MAX_SAVED_PARTICLES = int(1e4)
 class Species(object):
-    def __init__(self, q, m, N, name=None, NT=None):
-        """Object representing a species of particles: ions, electrons, or simply
-        a group of particles with a particular (heh) initial velocity distribution.
+    """Object representing a species of particles: ions, electrons, or simply
+    a group of particles with a particular (heh) initial velocity distribution.
 
-        q: float, particle charge
-        m: float, particle mass
-        N: int, total number of particles in species
-        name: string, ID of particles
-        NT: int, number of timesteps (for diagnostics)
-        """
+    q: float, particle charge
+    m: float, particle mass
+    N: int, total number of particles in species
+    name: string, ID of particles
+    NT: int, number of timesteps (for diagnostics)
+    """
+    def __init__(self, q, m, N, name=None, NT=None):
         self.q = q
         self.m = m
         self.N = int(N)
@@ -103,6 +103,10 @@ class Species(object):
         # add remaining half of electric impulse
 
 
+    """ INITIALIZATION
+    Initial conditions
+    """
+
     def distribute_uniformly(self, Lx, shift=False):
         self.x = (np.linspace(0, Lx, self.N, endpoint=False) + shift * self.N / Lx / 10) % Lx
 
@@ -112,6 +116,11 @@ class Species(object):
 
     def sinusoidal_velocity_perturbation(self, axis, amplitude, mode, L):
         self.v[:,axis] += amplitude * np.cos(2 * mode * np.pi * self.x / L)
+
+    def random_velocity_perturbation(self, axis, std):
+        self.v[:,axis] += np.random.normal(scale=std, size=self.N)
+
+    """ DATA ACCESS """
 
     def save_particle_values(self, i):
         """Update the i-th set of particle values"""
