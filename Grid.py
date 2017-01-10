@@ -28,7 +28,9 @@ class Grid(object):
             #TODO: make sure charge is deposited to correct places on grid!!!!!
             self.c = c
             self.dt = self.dx/self.c
-            self.j = np.zeros(self.NG, 3)
+            self.j = np.zeros(self.NG-1, 3)
+            self.electric_field = np.zeros(self.NG, 3)
+            self.magnetic_field = np.zeros(self.NG, 3)
             self.Fplus = np.zeros(self.NG)
             self.Fminus = np.zeros(self.NG)
             self.Gminus = np.zeros(self.NG)
@@ -67,16 +69,22 @@ class Grid(object):
         take average of last term instead at last point instead
 
         """
-        self.Fplus[1:] = self.Fplus[:-1] -0.25*self.dt * (self.Jyplus[:-1] + self.Jyminus[1:])
-        self.Fminus[1:-1] = self.Fminus[0:-2] -0.25*self.dt * (self.Jyplus[2:] - self.Jyminus[1:-1])
+        self.Fplus[1:] = self.Fplus[:-1] - 0.5*self.dt / self.epsilon_0 * self.j[:,1]
+        self.Fminus[:-1] = self.Fminus[1:] - 0.5*self.dt / self.epsilon_0 * self.j[:,1]
 
         #TODO: implement laser boundary condition
-        self.Fminus[-1] = self.Fminus[-2] -0.25*self.dt * (self.Jyplus[0] - self.Jyminus[-1])
+        self.Gplus[:-1] = self.Gplus[1:] - 0.5 * self.dt / self.epsilon_0 * self.j[:,2]
+        self.Gminus[1:] = self.Gminus[:-1] - 0.5 * self.dt / self.epsilon_0 * self.j[:,2]
 
-        Ey = self.Fplus + self.Fminus
-        Ez = self.Gplus + self.Gminus
-        Bz = (self.Fplus - self.Fminus)/self.c
-        By = (self.Gplus - self.Gminus)/self.c
+        self.electric_field[:,1] = self.Fplus + self.Fminus
+        self.electric_field[:,2] = self.Gplus + self.Gminus
+        self.magnetic_field[:,2] = (self.Fplus - self.Fminus)/self.c
+        self.magnetic_field[:,1] = (self.Gplus - self.Gminus)/self.c
+
+        # local solver for Ex
+        jx_averaged = self.j #TODO: AVERAGE THIS, PULL X COMPONENT
+        self.electric_field[:,0] -= self.dt / self.epsilon_0 * self.jx_averaged
+
 
     def apply_laser_BC(self, B0, E0):
         self.Fplus[0] = (E0 + B0)/2
