@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 q = 1
 m = 1
-dt = 0.1
+dt = 0.01
 c = 1
 def rotation_matrix(t, s):
     result = np.zeros((N, 3, 3))
@@ -29,9 +29,10 @@ def rotation_matrix(t, s):
     result[:,1,2] = sz*ty
     return result
 
-N = 10
+N = 1000
 x = np.ones(N)
 v = np.array(N*[[1., 0, 0]])
+v[:,0] = np.random.normal(size=N, scale=1e-2)
 # E = np.array([1., 2., 3.])
 E = np.array(N*[[0., 0., 0.1]])
 # B = np.array([1., 2., 3.])
@@ -54,20 +55,24 @@ for i in range(NT):
 
     rot = rotation_matrix(t, s)
 
-    # vplus = np.dot()
-    # for matrix, vector in zip(rot, vminus):
-    vplus = np.dot(rot, vminus)
-    import ipdb; ipdb.set_trace()
+    vplus = np.einsum('ijk,ik->ij',rot,vminus)
+    # import ipdb; ipdb.set_trace()
 
     v_new = vplus + q * E / m * dt * 0.5
-    gamma_new = np.sqrt(1+((vminus/c)**2).sum(axis=1, keepdims=True))
-    x_new = x + v_new[0] / gamma_new * dt
+    gamma_new = np.sqrt(1+((vminus/c)**2).sum(axis=1))
+    # import ipdb; ipdb.set_trace()
+
+    x_new = x + v_new[:,0] / gamma_new * dt
     x, v = x_new, v_new
 
 # print(x_history.shape)
+# import ipdb; ipdb.set_trace()
+
 plt.plot(time, x_history)
-plt.plot(time, v_history)
 plt.figure()
-plt.plot(x_history, v_history[:,0])
-plt.plot(v_history[:,0], v_history[:,1])
+plt.plot(time, v_history[:,:,0])
+plt.plot(time, v_history[:,:,1])
+plt.plot(time, v_history[:,:,2])
+# plt.plot(x_history, v_history[:,0])
+# plt.plot(v_history[:,0], v_history[:,1])
 plt.show()
