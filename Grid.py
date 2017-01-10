@@ -25,23 +25,28 @@ class Grid(object):
         self.k_plot = self.k[:int(NG / 2)]
 
         if relativistic:
+            #TODO: make sure charge is deposited to correct places on grid!!!!!
             self.c = c
-            self.dt = self.dx/c
-            self.Jyplus = np.zeros_like(self.x)
-            self.Jyminus = np.zeros_like(self.x)
-            self.Fplus = np.zeros_like(self.x)
-            self.Fminus = np.zeros_like(self.x)
+            self.dt = self.dx/self.c
+            self.j = np.zeros(self.NG, 3)
+            self.Fplus = np.zeros(self.NG)
+            self.Fminus = np.zeros(self.NG)
+            self.Gminus = np.zeros(self.NG)
+            self.Gplus = np.zeros(self.NG)
 
         if NT:
             self.charge_density_history = np.zeros((NT, self.NG))
-            self.electric_field_history = np.zeros((NT, self.NG))
             self.potential_history = np.zeros((NT, self.NG))
             self.energy_per_mode_history = np.zeros((NT, int(self.NG / 2)))
             self.grid_energy_history = np.zeros(NT)
             if relativistic:
-                self.Ey_history = np.zeros((NT, self.NG))
-                self.Bz_history = np.zeros((NT, self.NG))
+                self.electric_field_history = np.zeros((NT, self.NG, 3))
+                self.magnetic_field_history = np.zeros((NT, self.NG, 3))
+                # TODO: find out whether above shouldn't be 2D as in 1D, Bx must be 0 due to magnetic Gauss law
                 self.current_density_history = np.zeros((NT, self.NG, 3))
+            else:
+                self.electric_field_history = np.zeros((NT, self.NG))
+                self.current_density_history = np.zeros((NT, self.NG))
 
 
     def solve_poisson(self):
@@ -65,11 +70,14 @@ class Grid(object):
         self.Fplus[1:] = self.Fplus[:-1] -0.25*self.dt * (self.Jyplus[:-1] + self.Jyminus[1:])
         self.Fminus[1:-1] = self.Fminus[0:-2] -0.25*self.dt * (self.Jyplus[2:] - self.Jyminus[1:-1])
 
-        #TODO: get laser boundary condition from Birdsall
+        #TODO: implement laser boundary condition
         self.Fminus[-1] = self.Fminus[-2] -0.25*self.dt * (self.Jyplus[0] - self.Jyminus[-1])
 
-    def unroll_EyBz(self):
-        return self.Fplus + self.Fminus, self.Fplus - self.Fminus
+        Ey = self.Fplus + self.Fminus
+        Ez = self.Gplus + self.Gminus
+        Bz = (self.Fplus - self.Fminus)/self.c
+        By = (self.Gplus - self.Gminus)/self.c
+
     def apply_laser_BC(self, B0, E0):
         self.Fplus[0] = (E0 + B0)/2
         self.Fminus[0] = (E0 - B0)/2

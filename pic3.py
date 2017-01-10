@@ -59,20 +59,25 @@ def run_electromagnetic(g, list_species, params, filename):
     start_time = time.time()
     for i in range(NT):
         g.save_field_values(i)
-
         total_kinetic_energy = 0
+
         for species in list_species:
             species.save_particle_values(i)
+            # 1. GATHER FIELD TO PARTICLES
+            # 2. INTEGRATE EQUATIONS OF MOTION
             kinetic_energy = species.boris_push_particles(g.electric_field_function,
-                                                          magnetic_field_function,
-                                                          dt,
-                                                          g.L).sum()
-            #   TODO: remove sum from this place
+                    magnetic_field_function, dt, g.L).sum()
+            # TODO: remove sum from this place
             species.kinetic_energy_history[i] = kinetic_energy
             total_kinetic_energy += kinetic_energy
 
+        # 2. SCATTER CHARGE AND CURRENT TO GRID
         g.gather_charge(list_species)
+        g.gather_current(list_species)
+
         fourier_field_energy = g.solve_poisson()
+        g.iterate_EM_field()
+
         g.grid_energy_history[i] = fourier_field_energy
         total_energy = fourier_field_energy + total_kinetic_energy
         S.total_energy[i] = total_energy
