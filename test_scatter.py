@@ -107,13 +107,13 @@ def test_uniform_current_deposition(plotting=False):
     """
 
 
-    g = Grid()
+    g = Grid(relativistic=True)
     p = Species(1, 1, 128, "p")
     p.v[:, 0] = 0
     p.v[:, 1] = -1
     p.v[:, 2] = 1
     p.distribute_uniformly(g.L, g.dx/1000*np.pi)
-    g.current_density = g.gather_current([p])
+    g.gather_current([p])
     if plotting:
         plt.plot(g.x, g.current_density)
         plt.show()
@@ -129,12 +129,12 @@ def test_nonuniform_current_deposition(plotting=False):
      velocity v
     """
 
-    g = Grid()
+    g = Grid(relativistic=True)
     p = Species(1, 1, 128, "p")
     dims = np.arange(3)
     p.v[:, dims] = np.arange(p.N)[:,np.newaxis]**dims[np.newaxis,:]
     p.distribute_uniformly(g.L, g.dx/1000*np.pi)
-    g.current_density = g.gather_current([p])
+    g.gather_current([p])
     if plotting:
         plt.plot(g.x, g.current_density)
         plt.show()
@@ -150,6 +150,56 @@ def test_nonuniform_current_deposition(plotting=False):
             plt.plot(g.x, g.current_density[:,dim])
             plt.show()
         assert np.isclose(fit[2-dim], 1, rtol=1e-4), (fit[dim])
+
+
+# def test_current_backup():
+#     from Species import Species
+#     import matplotlib.pyplot as plt
+#     NT=100
+#     NG = 32
+#     NP = 20000
+#     print(NP/NG/NG)
+#     g = Grid(NT=NT, NG=NG,relativistic=True)
+#     normalization = NP * 1 / NG
+#     g.current_density = np.ones_like(g.current_density) * 0.5 * normalization
+#     g.current_density[:,1] = 1 * normalization
+#     g.current_density[:,2] = -1 * normalization
+#     print(g.current_density.shape)
+#
+#     g2 = Grid(NG = NG, NT=NT, relativistic=True)
+#     s = Species(1,1,NP, "particles", NT)
+#     s.distribute_uniformly(g2.L,g2.dx/2.5/g2.NG)
+#     s.v = np.ones_like(s.v)*0.5
+#     s.v[:,1] = 1
+#     s.v[:,2] = -1
+#     g2.gather_current([s])
+#
+#     def plot(g, gridname):
+#         fig = plt.figure()
+#         labels = [gridname + direction for direction in ["jx", "jy", "jz"]]
+#         lines = plt.plot(g.x, g.current_density, "o-")
+#         plt.legend(lines, labels)
+#         plt.grid()
+#
+#     plot(g, "g set")
+#     plot(g2, "g deposited")
+#
+#
+#     def plot_diff(g, g2, s):
+#         fig = plt.figure()
+#         diff = (g.current_density-g2.current_density)
+#         labels = ["difference in " + direction for direction in ["jx", "jy", "jz"]]
+#         lines = plt.plot(g.x, diff, "o-")
+#         plt.plot(s.x, np.zeros_like(s.x), "o")
+#         plt.legend(lines, labels)
+#         plt.grid()
+#         plt.vlines(g.x, diff.min()*1.5, diff.max()*1.5)
+#         return diff.max()
+#     print(plot_diff(g,g2,s))
+#     plt.ylim(-0.04, 0.04)
+#
+#     plt.show()
+#     # plt.show()
 
 
 if __name__ == "__main__":

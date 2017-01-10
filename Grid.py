@@ -8,7 +8,7 @@ import scipy.fftpack as fft
 
 class Grid(object):
     """Object representing the grid on which charges and fields are computed"""
-    # TODO: finish docs here 
+    # TODO: finish docs here
     def __init__(self, L=2 * np.pi, NG=32, epsilon_0=1, c =1, NT=None, relativistic=False):
         self.x, self.dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
         self.charge_density = np.zeros_like(self.x)
@@ -80,10 +80,9 @@ class Grid(object):
             self.charge_density += scatter.charge_density_deposition(self.x, self.dx, species.x, species.q)
 
     def gather_current(self, list_species):
-        current_density = np.zeros((self.NG, 3))
+        self.current_density = np.zeros((self.NG, 3))
         for species in list_species:
-            current_density += scatter.current_density_deposition(self.x, self.dx, species.x, species.q, species.v)
-        return current_density
+            self.current_density += scatter.current_density_deposition(self.x, self.dx, species.x, species.q, species.v)
 
     def electric_field_function(self, xp):
         return interpolateField(xp, self.electric_field, self.x, self.dx)
@@ -145,3 +144,6 @@ class Grid(object):
         return result
     # def plot(self, show=True):
     #     plt.plot(self.x, self.charge_density
+
+if __name__=="__main__":
+    pass
