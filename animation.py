@@ -4,13 +4,29 @@ import numpy as np
 
 colors = "brgyk"
 
-def animation(S, videofile_name, lines=False, alpha=1):
+def animation(S, videofile_name=None, lines=False, alpha=1):
+    """ animates the simulation, showing:
+    * grid charge vs grid position
+    * grid electric field vs grid position
+    * particle phase plot (velocity vs position)
+    * spatial energy modes
+
+    S - Simulation object with run's data
+    videofile_name - should be in format FILENAME.mp4;
+        if not None, saves to file
+    lines - boolean flag; draws particle trajectories on phase plot
+    # TODO: investigate lines flag in animation
+    alpha - float (0, 1) - controls opacity for phase plot
+
+    returns: matplotlib figure with animation
+    """
     fig = plt.figure()#(figsize=(10,15))
     charge_axes = fig.add_subplot(221)
     field_axes = fig.add_subplot(222)
+    # TODO: add magnetic field
     phase_axes = fig.add_subplot(223)
     freq_axes = fig.add_subplot(224)
-    # fig, (charge_axes, field_axes, phase_axes, freq_axes) = plt.subplots(4, squeeze=True, figsize=(10, 5))
+    # TODO: change this to show density and field excitations
 
     iteration = freq_axes.text(0.1, 0.9, 'i=x', horizontalalignment='left',
                                  verticalalignment='center', transform=freq_axes.transAxes)
@@ -57,6 +73,7 @@ def animation(S, videofile_name, lines=False, alpha=1):
 
     plt.tight_layout()
     def init():
+        """initializes animation window for faster drawing"""
         iteration.set_text("Iteration: ")
         charge_plot.set_data(S.grid.x, np.zeros_like(S.grid.x))
         field_plot.set_data(S.grid.x, np.zeros_like(S.grid.x))
@@ -71,6 +88,7 @@ def animation(S, videofile_name, lines=False, alpha=1):
             return [charge_plot, field_plot, freq_plot, *phase_dots.values(),  iteration]
 
     def animate(i):
+        """draws the i-th frame of the simulation"""
         charge_plot.set_ydata(S.grid.charge_density_history[i])
         field_plot.set_ydata(S.grid.electric_field_history[i])
         freq_plot.set_ydata(S.grid.energy_per_mode_history[i])
