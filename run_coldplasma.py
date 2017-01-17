@@ -24,6 +24,21 @@ def cold_plasma_oscillations(filename, plasma_frequency=1, qmratio=-1, dt=0.2, N
     params = NT, dt, epsilon_0
     return run_electrostatic(g, list_species, params, filename)
 
+
 if __name__ == '__main__':
-    cold_plasma_oscillations("data_analysis/CO1.hdf5")
-    plotting.plotting("data_analysis/CO1.hdf5", lines=True)
+    show = False
+    save = True
+
+    cold_plasma_oscillations("data_analysis/CO1/CO1.hdf5", NG=64, N_electrons=1024)
+    plotting.plotting("data_analysis/CO1/CO1.hdf5", show=show, save=save)
+
+    cold_plasma_oscillations("data_analysis/CO2/CO2.hdf5", NG=64, N_electrons=1024, push_amplitude=0.5)
+    plotting.plotting("data_analysis/CO2/CO2.hdf5", show=show, save=save)
+
+    cold_plasma_oscillations("data_analysis/CO3/CO3.hdf5", NG=64, N_electrons=1024, push_mode=4)
+    plotting.plotting("data_analysis/CO3/CO3.hdf5", show=show, save=save)
+
+    cold_plasma_oscillations("data_analysis/CO4/CO4.hdf5", NG=64, N_electrons=1024, push_mode=4, push_amplitude=0.5)
+    plotting.plotting("data_analysis/CO4/CO4.hdf5", show=show, save=save)
+
+

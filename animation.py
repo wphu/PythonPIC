@@ -20,18 +20,22 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
 
     returns: matplotlib figure with animation
     """
-    fig = plt.figure()#(figsize=(10,15))
+    fig = plt.figure(figsize=(10,10))
     charge_axes = fig.add_subplot(221)
     field_axes = fig.add_subplot(222)
     # TODO: add magnetic field
     phase_axes = fig.add_subplot(223)
     freq_axes = fig.add_subplot(224)
+
     # TODO: change this to show density and field excitations
 
     iteration = freq_axes.text(0.1, 0.9, 'i=x', horizontalalignment='left',
                                  verticalalignment='center', transform=freq_axes.transAxes)
 
-    charge_axes.set_title(S.date_ver_str)
+    title = plt.title(S.date_ver_str)
+    # title.set_y(0.95)
+    fig.subplots_adjust(top=0.85)
+
     charge_plot, = charge_axes.plot([], [])
     charge_axes.set_xlim(0, S.grid.L)
     charge_axes.set_ylabel(r"Charge density $\rho$")
@@ -40,13 +44,15 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
     charge_axes.set_ylim(mincharge, maxcharge)
     charge_axes.set_xlim(0, S.grid.L)
     charge_axes.set_ylabel(r"Charge density $\rho$")
-    charge_axes.vlines(S.grid.x, mincharge, maxcharge)
+    # charge_axes.vlines(S.grid.x, mincharge/10, maxcharge/10)
+    charge_axes.grid()
 
-    field_axes.vlines(S.grid.x, -1, 1)
     field_plot, = field_axes.plot([], [])
-    field_axes.set_ylabel(r"Field $E$")
+    field_axes.set_ylabel(r"Electric field $E$")
     field_axes.set_xlim(0, S.grid.L)
     maxfield = np.max(np.abs(S.grid.electric_field_history))
+    # field_axes.vlines(S.grid.x, -maxfield/10, maxfield/10)
+    field_axes.grid()
     field_axes.set_ylim(-maxfield, maxfield)
     field_axes.set_ylabel(r"Field $E$")
     field_axes.set_xlim(0, S.grid.L)
@@ -58,20 +64,23 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
         phase_dots[species.name], = phase_axes.plot([], [], colors[i]+".", alpha=alpha)
         if lines:
             phase_lines[species.name], = phase_axes.plot([], [], colors[i]+"-", alpha=alpha/2, lw=0.7)
-    maxv = max([5 * np.mean(np.abs(species.velocity_history)) for species in S.all_species])
+    maxv = max([10 * np.mean(np.abs(species.velocity_history)) for species in S.all_species])
     phase_axes.set_xlim(0, S.grid.L)
     phase_axes.set_ylim(-maxv, maxv)
-    phase_axes.set_xlabel("x")
-    phase_axes.set_ylabel("v_x")
-    phase_axes.vlines(S.grid.x, -maxv, maxv)
+    phase_axes.set_xlabel("$x$")
+    phase_axes.set_ylabel("$v_x$")
+    # phase_axes.vlines(S.grid.x, -maxv/10, maxv/10)
+    phase_axes.grid()
 
     freq_plot, = freq_axes.plot([], [], "bo-", label="energy per mode")
     freq_axes.set_xlabel("k")
     freq_axes.set_ylabel("E")
     freq_axes.set_xlim(0, S.grid.NG/2)
     freq_axes.set_ylim(S.grid.energy_per_mode_history.min(), S.grid.energy_per_mode_history.max())
+    freq_axes.grid()
 
-    plt.tight_layout()
+    fig.tight_layout()
+
     def init():
         """initializes animation window for faster drawing"""
         iteration.set_text("Iteration: ")
@@ -96,7 +105,7 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
             phase_dots[species.name].set_data(species.position_history[i,:], species.velocity_history[i,:,0])
             if lines:
                 phase_lines[species.name].set_data(species.position_history[:i + 1, ::10].T, species.velocity_history[:i + 1, ::10, 0].T)
-        iteration.set_text("Iteration: {}".format(i))
+        iteration.set_text(f"Iteration: {i}/{S.NT}")
 
         if lines:
             return [charge_plot, field_plot, freq_plot, *phase_dots.values(),  iteration, *phase_lines.values()]

@@ -24,76 +24,41 @@ def two_stream_instability(filename, plasma_frequency=1, qmratio=-1, dt=0.2, NT=
     for i, species in enumerate(list_species):
         species.distribute_uniformly(g.L, 0.5*g.dx*i)
         species.sinusoidal_position_perturbation(push_amplitude, push_mode, g.L)
-        species.random_velocity_perturbation(0, vrandom)
+        if vrandom > 0:
+            species.random_velocity_perturbation(0, vrandom)
     params = NT, dt, epsilon_0
     return run_electrostatic(g, list_species, params, filename)
 
 if __name__ == '__main__':
-    two_stream_instability("data_analysis/TS1.hdf5",
-                                NG = 32,
+    two_stream_instability("data_analysis/TS1/TS1.hdf5",
+                                NG = 64,
+                                N_electrons=1024,
                                 )
-    two_stream_instability("data_analysis/TS2.hdf5",
-                                 NG = 64,
-                                 )
-    two_stream_instability("data_analysis/TS3.hdf5",
-                                plasma_frequency=10,
-                                N_electrons=int(1e5),
+    two_stream_instability("data_analysis/TS2/TS2.hdf5",
+                                NG = 64,
+                                N_electrons=1024,
+                                plasma_frequency=5,
+                                dt=0.2/5,
+                                NT=300*5
                                 )
-    two_stream_instability("data_analysis/TS4.hdf5",
-                                NT=9000,
-                                )
-    two_stream_instability("data_analysis/TS5.hdf5",
-                                NT=1000,
-                                plasma_frequency=1.1*2**-0.5,
-                                N_electrons=int(1e5),
-                                )
-    two_stream_instability("data_analysis/TS6.hdf5",
-                                NT=1000,
-                                plasma_frequency=1.1*2**-0.5,
-                                N_electrons=int(1e5),
-                                NG=128,
-                                )
-    two_stream_instability("data_analysis/TS7.hdf5",
-                                NT=1000,
-                                plasma_frequency=10,
-                                N_electrons=int(1e5),
-                                )
-    two_stream_instability("data_analysis/TS8.hdf5",
-                                NT=1000,
-                                plasma_frequency=10,
-                                N_electrons=int(1e5),
-                                NG=128,
-                                )
-    two_stream_instability("data_analysis/TS9.hdf5",
-                                NT=1000,
-                                plasma_frequency=10,
-                                N_electrons=int(1e5),
-                                NG=256,
-                                )
-    two_stream_instability("data_analysis/TS10.hdf5",
-                                NT=1000,
-                                plasma_frequency=10,
-                                N_electrons=int(1e5),
-                                NG=512,
-                                )
-    two_stream_instability("data_analysis/TSRANDOM1.hdf5",
-                                NT=1000,
-                                plasma_frequency=10,
-                                N_electrons=int(1e4),
-                                NG=64,
+    two_stream_instability("data_analysis/TSRANDOM1/TSRANDOM1.hdf5",
+                            NG = 64,
+                            N_electrons=1024,
+                            vrandom = 1e-1,
+                            )
+
+    two_stream_instability("data_analysis/TSRANDOM2/TSRANDOM2.hdf5",
+                                NG = 64,
+                                N_electrons=1024,
+                                plasma_frequency=5,
+                                dt=0.2/5,
+                                NT=300*5,
                                 vrandom = 1e-1,
                                 )
 
-
     show = False
-    plotting.plotting("data_analysis/TS1.hdf5", show=show)
-    plotting.plotting("data_analysis/TS2.hdf5", show=show)
-    plotting.plotting("data_analysis/TS3.hdf5", show=show)
-    plotting.plotting("data_analysis/TS4.hdf5", show=show)
-    plotting.plotting("data_analysis/TS5.hdf5", show=show)
-    plotting.plotting("data_analysis/TS6.hdf5", show=show)
-    plotting.plotting("data_analysis/TS7.hdf5", show=show)
-    plotting.plotting("data_analysis/TS8.hdf5", show=show)
-    plotting.plotting("data_analysis/TS9.hdf5", show=show)
-    plotting.plotting("data_analysis/TS10.hdf5", show=show)
-    plotting.plotting("data_analysis/TSRANDOM1.hdf5", show= show, alpha=0.5)
+    save = True
+    plotting.plotting("data_analysis/TS1/TS1.hdf5", show=show, save=save, alpha=0.5)
+    plotting.plotting("data_analysis/TS2/TS2.hdf5", show=show, save=save, alpha=0.5)
+    plotting.plotting("data_analysis/TSRANDOM1/TSRANDOM1.hdf5", show=show, alpha=0.5, save=save)
+    plotting.plotting("data_analysis/TSRANDOM2/TSRANDOM2.hdf5", show=show, alpha=0.5, save=save)

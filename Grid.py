@@ -44,6 +44,9 @@ class Grid(object):
                 self.current_density_history = np.zeros((NT, self.NG, 3))
 
 
+    def direct_energy_calculation(self):
+        return (self.electric_field**2).sum() * 0.5 * self.dx
+
     def solve_poisson(self):
         self.electric_field, self.potential, self.energy_per_mode = PoissonSolver(self.charge_density, self.k, self.NG, epsilon_0=self.epsilon_0)
         return self.energy_per_mode.sum() / (self.NG/2)# * 8 * np.pi * self.k[1]**2
