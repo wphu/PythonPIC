@@ -2,9 +2,10 @@
 from Species import Species
 import numpy as np
 import matplotlib.pyplot as plt
-#TODO: import numba
+# import numba
+import time
 
-#TODO: @numba.njit()
+# @numba.njit() #TODO: add numba to this algorithm
 def rotation_matrix(t, s, N):
     result = np.zeros((N, 3, 3))
     result[:] = np.eye(3)
@@ -27,7 +28,7 @@ def rotation_matrix(t, s, N):
     result[:,1,2] = sz*ty
     return result
 
-#TODO: @numba.njit
+# @numba.njit()
 def rela_boris_push(x, v, E, B, q, m, dt, c=1):
     """
     relativistic Boris pusher
@@ -55,7 +56,7 @@ def rela_boris_push(x, v, E, B, q, m, dt, c=1):
 def test_rela_boris():
     q = 1
     m = 1
-    dt = 0.1
+    dt = 0.001
     c = 1
     N = 100
     x = np.zeros(N)
@@ -67,26 +68,32 @@ def test_rela_boris():
     # B = np.array([1., 2., 3.])
     B = np.array(N*[[0., 0., 1.]])
 
-    NT = 100
+    NT = 100000
     x_history = np.zeros((NT, N))
     v_history = np.zeros((NT, N, 3))
-    time = np.arange(NT) * dt
+    t = np.arange(NT) * dt
+    start_time = time.time()
     for i in range(NT):
         x_history[i] = x
         v_history[i] = v
         x, v = rela_boris_push(x, v, E, B, q, m, dt, c)
+    runtime = time.time() - start_time
+    print(f"Runtime was {runtime:.3f} s")
 
-    # print(x_history.shape)
-
-    plt.plot(time, x_history)
+    plt.plot(t, x_history)
+    plt.xlabel("t")
+    plt.ylabel("x")
     plt.figure()
-    plt.plot(time, v_history[:,:,0])
-    plt.plot(time, v_history[:,:,1])
-    plt.plot(time, v_history[:,:,2])
+    plt.plot(t, v_history[:,:,0], label="vx")
+    plt.plot(t, v_history[:,:,1], label="vy")
+    plt.plot(t, v_history[:,:,2], label="vz")
+    plt.xlabel("t")
+    plt.ylabel("v")
+    plt.legend()
     plt.figure()
     plt.plot(x_history, v_history[:,:,0])
-    # plt.plot(x_history, v_history[:,0])
-    # plt.plot(v_history[:,0], v_history[:,1])
+    plt.xlabel("x")
+    plt.ylabel("v")
     plt.show()
 
 if __name__=="__main__":
