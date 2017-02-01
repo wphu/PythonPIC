@@ -1,6 +1,6 @@
 import numpy as np
 from helper_functions import l2_test
-from gather import interpolateField
+from grid_algorithms import interpolateField
 import matplotlib.pyplot as plt
 
 def test_poly(plotting=False):

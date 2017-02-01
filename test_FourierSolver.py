@@ -1,4 +1,4 @@
-from FourierSolver import *
+from grid_algorithms import PoissonSolver
 import matplotlib.pyplot as plt
 from helper_functions import l2_norm, l2_test
 from Grid import Grid

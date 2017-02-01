@@ -1,15 +1,22 @@
 import numpy as np
 import h5py
-from FourierSolver import PoissonSolver
-import scatter
-from gather import interpolateField
+from grid_algorithms import PoissonSolver
+import grid_algorithms
+from grid_algorithms import interpolateField, PoissonSolver
 import scipy.fftpack as fft
 
-
-class Grid(object):
-    """Object representing the grid on which charges and fields are computed"""
-    # TODO: finish docs here
+class Grid():
+    """Object representing the grid on which charges and fields are computed
+    """
     def __init__(self, L=2 * np.pi, NG=32, epsilon_0=1, c =1, NT=None, relativistic=False):
+        """
+        :param float L: grid length, in nondimensional units
+        :param int NG: number of grid cells
+        :param float epsilon_0: the physical constant
+        :param float c: speed of light
+        :param int NT: number of timesteps for history tracking purposes
+        :param bool relativistic: flag to decide between EM (True) and ES (False) model
+        """
         self.x, self.dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
         self.charge_density = np.zeros_like(self.x)
         self.current_density = np.zeros((NG, 3))
@@ -45,10 +52,23 @@ class Grid(object):
 
 
     def direct_energy_calculation(self):
-        return (self.electric_field**2).sum() * 0.5 * self.dx
+        r"""
+        Direct energy calculation as
+
+        :math:`E = \frac{\epsilon_0}{2} \sum_{i=0}^{NG} E^2 \Delta x`
+
+        :return float E: calculated energy
+        """
+        return self.epsilon_0 * (self.electric_field**2).sum() * 0.5 * self.dx
 
     def solve_poisson(self):
-        self.electric_field, self.potential, self.energy_per_mode = PoissonSolver(self.charge_density, self.k, self.NG, epsilon_0=self.epsilon_0)
+        r"""
+        Solves
+        :return float energy:
+        """
+        self.electric_field, self.potential, self.energy_per_mode = PoissonSolver(
+            self.charge_density, self.k, self.NG, epsilon_0=self.epsilon_0
+        )
         return self.energy_per_mode.sum() / (self.NG/2)# * 8 * np.pi * self.k[1]**2
 
     def iterate_EM_field(self):
@@ -80,12 +100,12 @@ class Grid(object):
     def gather_charge(self, list_species):
         self.charge_density[:] = 0.0
         for species in list_species:
-            self.charge_density += scatter.charge_density_deposition(self.x, self.dx, species.x, species.q)
+            self.charge_density += grid_algorithms.charge_density_deposition(self.x, self.dx, species.x, species.q)
 
     def gather_current(self, list_species):
         self.current_density = np.zeros((self.NG, 3))
         for species in list_species:
-            self.current_density += scatter.current_density_deposition(self.x, self.dx, species.x, species.q, species.v)
+            self.current_density += grid_algorithms.current_density_deposition(self.x, self.dx, species.x, species.q, species.v)
 
     def electric_field_function(self, xp):
         return interpolateField(xp, self.electric_field, self.x, self.dx)

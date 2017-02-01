@@ -12,6 +12,13 @@ class Species(object):
     NT: int, number of timesteps (for diagnostics)
     """
     def __init__(self, q, m, N, name=None, NT=None):
+        r"""
+        :param float q: particle charge
+        :param float m: particle mass
+        :param int N: total number of species particles
+        :param str name: name of particle set
+        :param int NT: number of timesteps (for history saving)
+        """
         self.q = q
         self.m = m
         self.N = int(N)
@@ -35,7 +42,18 @@ class Species(object):
             self.kinetic_energy_history = np.zeros(NT)
 
 
+    # TODO:
     def leapfrog_init(self, electric_field_function, dt):
+        r"""
+        Initializes particles for Leapfrog pushing.
+        Same as `leapfrog_push`, except
+        a) doesn't move particles in space,
+        b) uses -dt/2
+
+        :param electric_field_function: E(x), interpolated from grid
+        :param float dt: original timestep
+        :return float energy: (N,) size array of particle kinetic energies calculated at half timestep
+        """
         """Leapfrog pusher initialization
         dt: usual timestep, minus halving is done automatically"""
 
@@ -47,13 +65,20 @@ class Species(object):
         return energy
 
     def leapfrog_push(self, electric_field_function, dt, L):
-        """Leapfrog pusher"""
+        r"""
+        Leapfrog pusher for particles.
+
+        :param electric_field_function: E(x), interpolated from grid
+        :param float dt: original timestep
+        :param float L: grid size, used to enforce boundary condition
+        :return float energy: (N,) size array of particle kinetic energies calculated at half timestep
+        """
         electric_force = electric_field_function(self.x) * self.q / self.m
         v_new = self.v.copy()
         v_new[:,0] += electric_force * dt
 
         self.x += v_new[:,0] * dt
-        self.x %= L
+        self.x %= L # enforce boundary condition
         energy = self.v * v_new * (0.5 * self.m)
         self.v = v_new
         return energy
