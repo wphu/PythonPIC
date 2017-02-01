@@ -1,7 +1,9 @@
 import numpy as np
 
 MAX_SAVED_PARTICLES = int(1e4)
-class Species(object):
+
+
+class Species():
     """Object representing a species of particles: ions, electrons, or simply
     a group of particles with a particular (heh) initial velocity distribution.
 

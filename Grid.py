@@ -5,10 +5,11 @@ import grid_algorithms
 from grid_algorithms import interpolateField, PoissonSolver
 import scipy.fftpack as fft
 
+
 class Grid():
     """Object representing the grid on which charges and fields are computed
     """
-    def __init__(self, L=2 * np.pi, NG=32, epsilon_0=1, c =1, NT=None, relativistic=False):
+    def __init__(self, L=2 * np.pi, NG=32, epsilon_0=1, c =1, NT=1, relativistic=False):
         """
         :param float L: grid length, in nondimensional units
         :param int NG: number of grid cells
@@ -18,9 +19,6 @@ class Grid():
         :param bool relativistic: flag to decide between EM (True) and ES (False) model
         """
         self.x, self.dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
-        self.charge_density = np.zeros_like(self.x)
-        self.current_density = np.zeros((NG, 3))
-        self.electric_field = np.zeros_like(self.x)
         self.potential = np.zeros_like(self.x)
         self.energy_per_mode = np.zeros(int(NG / 2))
         self.L = L
@@ -30,6 +28,11 @@ class Grid():
         self.k = 2 * np.pi * fft.fftfreq(NG, self.dx)
         self.k[0] = 0.0001
         self.k_plot = self.k[:int(NG / 2)]
+
+
+        self.charge_density = np.zeros_like(self.x)
+        self.current_density = np.zeros((NG, 3))
+        self.electric_field = np.zeros_like(self.x)
 
         if relativistic:
             self.c = c
@@ -167,6 +170,18 @@ class Grid():
         return result
     # def plot(self, show=True):
     #     plt.plot(self.x, self.charge_density
+
+class EMGrid(Grid):
+    def __init__(self, L : float=2 * np.pi, NG=32, epsilon_0=1, c =1, NT=1, relativistic=False):
+        super(EMGrid, self).__init__()
+        self.c = c
+        self.dt = self.dx/c
+        self.Jyplus = np.zeros_like(self.x)
+        self.Jyminus = np.zeros_like(self.x)
+        self.Fplus = np.zeros_like(self.x)
+        self.Fminus = np.zeros_like(self.x)
+        
+    
 
 if __name__=="__main__":
     pass
