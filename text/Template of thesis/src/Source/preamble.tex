@@ -1,0 +1,169 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Template of thesis													 %
+%																		 %
+% Warsaw University of Technology										 %
+% Faculty of physics													 %
+% 																		 %
+% Author of previous version: Michał Tarasiuk, tarasiuk.michal@gmail.com %
+% Author: Patryk Bojarski, pbojarski94@gmail.com						 %
+% Version: 2.0															 %
+% Last modified: 26.12.2016												 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[11pt,a4paper,twoside]{article}
+\usepackage[includeheadfoot, left=3cm, right=2cm, top=2.5cm, bottom=2.5cm, headheight=19.3pt]{geometry}
+
+\usepackage[polish]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[scaled]{helvet}
+\renewcommand\familydefault{\sfdefault}
+
+\let\lll=\relax
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{bm}
+
+\usepackage{url}
+\usepackage{pdfpages}
+\usepackage[bookmarks, pagebackref]{hyperref}
+\usepackage[none]{hyphenat}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{array}
+\usepackage{etoolbox, fancyhdr, xcolor}
+\usepackage[hang, flushmargin]{footmisc}
+\usepackage{setspace}
+\usepackage{ragged2e}
+\usepackage{MnSymbol}
+\usepackage[nottoc]{tocbibind}
+\usepackage{titlesec}
+\urlstyle{rm}
+\usepackage[ampersand]{easylist}
+\usepackage{enumitem}
+\setlist[itemize]{noitemsep, topsep=0pt, leftmargin=*, itemindent=-1cm}
+\usepackage{epsfig}
+\usepackage{float}
+\usepackage[font={up, footnotesize}, labelfont=bf, singlelinecheck=off, format=hang]{caption}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{listings}
+\lstset{language=Java, rulecolor=\color{plum}, framerule=1.5pt} % you can change language of your code
+\usepackage{colortbl}
+\usepackage{tabu}
+\usepackage{makecell}
+\usepackage{boldline}
+\setlength{\arrayrulewidth}{1pt}
+\captionsetup[table]{name=Tabela}
+
+\usepackage{lipsum} % for testing purposes
+
+% old color
+\definecolor{red}{RGB}{194,0,11}
+% new colors (since 2016)
+\definecolor{plum}{RGB}{150,95,119}
+\definecolor{grafit}{RGB}{60,60,60}
+
+% pdf output setup
+\hypersetup{
+	unicode,
+	pdftoolbar,
+	pdfmenubar,
+	pdffitwindow,
+	pdfstartview = {FitH},
+	pdftitle = {}, % <<<<<<<<<< title of pdf document
+	pdfauthor = {}, % <<<<<<<<<< author of pdf document
+	pdfnewwindow,
+	colorlinks,
+	linktoc = page,
+	% use color plum or grafit
+	linkcolor = plum,
+	citecolor = plum,
+	filecolor = plum,
+	urlcolor = black
+}
+
+% itemize
+\newcommand{\itemi}[1][plum]{\item[\color{#1} $\filledsquare$]}
+\newcommand{\itemii}[1][plum]{\item[\color{#1} $\square$]}
+\newcommand{\itemiii}[1][plum]{\item[\color{#1} $\bullet$]}
+
+\ListProperties(Hide=100, Progressive=1cm, Style=\color{plum}, Style**=\color{black}, Style*=$\square$ ,Style2*=$\bullet$)
+
+% vertical lines in header and footer
+\newcommand{\headrulecolor}[1]{\patchcmd{\headrule}{\hrule}{\color{#1}\hrule}{}{}}
+\newcommand{\footrulecolor}[1]{\patchcmd{\footrule}{\hrule}{\color{#1}\hrule}{}{}}
+
+% information style
+\newcommand{\infostyle}[1]
+{
+	\fancyhf{}
+	\fancyhead[LO]{\Large{\textbf{#1}}}
+
+	\renewcommand{\headrulewidth}{1.5pt}
+	\headrulecolor{plum}
+	\justify
+	\pagestyle{fancy}
+}
+
+% footers and headers
+\newcommand{\thesisstyle}
+{
+	\fancyhf{}
+	\fancyhead[RO,LE]{\Large{\textbf{\rightmark}}}
+	\fancyfoot[LE,RO]{\thepage}
+
+	\renewcommand{\headrulewidth}{1.5pt}
+	\renewcommand{\footrulewidth}{1.5pt}
+	\headrulecolor{plum}
+	\footrulecolor{plum}
+	\justify
+	\pagestyle{fancy}
+}
+
+% foot notes
+\newcommand{\fancyfootnotetext}[2]
+{
+	\fancypagestyle{footnotes}
+	{
+    	\fancyfoot[LO,RE]{\parbox{15cm}{\footnotemark[#1]\footnotesize #2}}
+	}
+	\thispagestyle{footnotes}
+}
+
+% foot notes (2 footenotes)
+\newcommand{\fancyfootnotetexts}[4]
+{
+	\fancypagestyle{footnotes}
+	{
+    	\fancyfoot[LO,RE]{\parbox{15cm}{\footnotemark[#1]\footnotesize #2 \\ \footnotemark[#3]\footnotesize #4}}
+	}
+	\thispagestyle{footnotes}
+}
+
+% foot notes (3 footenotes)
+\newcommand{\fancyfootnotetextss}[6]
+{
+	\fancypagestyle{footnotes}
+	{
+    	\fancyfoot[LO,RE]{\parbox{15cm}{\footnotemark[#1]\footnotesize #2 \\ \footnotemark[#3]\footnotesize #4 \\ \footnotemark[#5]\footnotesize #6 \\}}
+	}
+	\thispagestyle{footnotes}
+}
+
+%spacing
+\titlespacing\section{0pt}{15pt}{10pt} % spaces between section
+\titlespacing\subsection{0pt}{15pt}{10pt} % spaces between subsection
+\titlespacing\subsubsection{0pt}{15pt}{10pt} % spaces between subsubsection
+
+\setstretch{1.15} % spacing between lines
+\setlength{\parindent}{0.5cm} % indents
+\setlength{\parskip}{0cm} % spacing between parahraphs
+
+\frenchspacing
+\sloppy
+
+\author{Dominik Stańczak} % <<<<<<<<<< author of thesis
+\title{Zoptymalizowana symulacja Particle in Cell w języku Python} % <<<<<<<<<< title of thesis
+\date{2017} % <<<<<<<<<< year
