@@ -4,8 +4,9 @@ import time
 from helper_functions import date_version_string
 from Grid import Grid
 from Species import Species
+from Constants import Constants
 
-class Simulation(object):
+class Simulation():
     """Contains data from one run of the simulation:
     NT: number of iterations
     NGrid: Number of points on the grid
@@ -15,17 +16,15 @@ class Simulation(object):
     particle_positions, velocities: shape (NT, NParticle) numpy arrays of historical particle data
     charge_density, electric_field: shape (NT, NGrid) numpy arrays of historical grid data
     """
-    def __init__(self, NT, dt, epsilon_0, grid, list_species, date_ver_str):
+    def __init__(self, NT, dt, constants: Constants, grid: Grid, list_species):
         self.grid = grid
-
-
         self.all_species = list_species
-
         self.field_energy = np.zeros(NT)
         self.total_energy = np.zeros(NT)
+        self.constants = constants
         self.epsilon_0, self.NT, self.dt = epsilon_0, NT, dt
-
-        self.date_ver_str = date_ver_str
+        self.date_ver_str = date_version_string()
+        # TODO: add more information about run, maybe to plotting
 
     def update_grid(self, i, grid = NotImplemented):
         """Update the i-th set of field values"""

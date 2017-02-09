@@ -1,7 +1,9 @@
 import numpy as np
 
 MAX_SAVED_PARTICLES = int(1e4)
-class Species(object):
+
+
+class Species():
     """Object representing a species of particles: ions, electrons, or simply
     a group of particles with a particular (heh) initial velocity distribution.
 
@@ -11,7 +13,7 @@ class Species(object):
     name: string, ID of particles
     NT: int, number of timesteps (for diagnostics)
     """
-    def __init__(self, q, m, N, name=None, NT=None):
+    def __init__(self, q, m, N, name=None, NT=1):
         r"""
         :param float q: particle charge
         :param float m: particle mass
@@ -36,10 +38,9 @@ class Species(object):
             self.saved_particles = self.N
             self.save_every_n_particle = 1
 
-        if NT:
-            self.position_history = np.zeros((NT, self.saved_particles))
-            self.velocity_history = np.zeros((NT, self.saved_particles, 3))
-            self.kinetic_energy_history = np.zeros(NT)
+        self.position_history = np.zeros((NT, self.saved_particles))
+        self.velocity_history = np.zeros((NT, self.saved_particles, 3))
+        self.kinetic_energy_history = np.zeros(NT)
 
 
     # TODO:
@@ -83,49 +84,7 @@ class Species(object):
         self.v = v_new
         return energy
 
-    def boris_init(self, electric_field_function, magnetic_field_function,  dt, L):
-        """Boris pusher initialization, unrelativistic"""
 
-        dt = -dt/2
-        # add half electric impulse to v(t-dt/2)
-        efield = np.zeros((self.N, 3))
-        efield[:,0] = electric_field_function(self.x)
-        vminus = self.v + self.q * efield / self.m * dt * 0.5
-
-        # rotate to add magnetic field
-        t = -magnetic_field_function(self.x) * self.q / self.m * dt * 0.5
-        s = 2*t/(1+t*t)
-
-        vprime = vminus + np.cross(vminus, t) # TODO: axis?
-        vplus = vminus + np.cross(vprime, s)
-        v_new = vplus + self.q * efield / self.m * dt * 0.5
-
-        energy = self.v * v_new * (0.5 * self.m)
-        self.v = v_new
-        return energy
-
-    def boris_push_particles(self, electric_field_function, magnetic_field_function, dt, L):
-        """Boris pusher, unrelativistic"""
-        # add half electric impulse to v(t-dt/2)
-        efield = np.zeros((self.N, 3))
-        efield[:,0] = electric_field_function(self.x)
-        vminus = self.v + self.q * efield / self.m * dt * 0.5
-
-        # rotate to add magnetic field
-        t = -magnetic_field_function(self.x) * self.q / self.m * dt * 0.5
-        s = 2*t/(1+t*t)
-
-        vprime = vminus + np.cross(vminus, t) # TODO: axis?
-        vplus = vminus + np.cross(vprime, s)
-        v_new = vplus + self.q * efield / self.m * dt * 0.5
-
-        self.x += v_new[:,0] * dt
-
-        self.x %= L
-        energy = self.v * v_new * (0.5 * self.m)
-        self.v = v_new
-        return energy
-        # add remaining half of electric impulse
 
 
     """ INITIALIZATION
@@ -189,6 +148,52 @@ class Species(object):
         result *= np.isclose(self.v, other.v).all()
         result *= self.name == other.name
         return result
+
+
+class RelativisticSpecies(Species):
+    def boris_init(self, electric_field_function, magnetic_field_function,  dt, L):
+        """Boris pusher initialization, unrelativistic"""
+
+        dt = -dt/2
+        # add half electric impulse to v(t-dt/2)
+        efield = np.zeros((self.N, 3))
+        efield[:,0] = electric_field_function(self.x)
+        vminus = self.v + self.q * efield / self.m * dt * 0.5
+
+        # rotate to add magnetic field
+        t = -magnetic_field_function(self.x) * self.q / self.m * dt * 0.5
+        s = 2*t/(1+t*t)
+
+        vprime = vminus + np.cross(vminus, t) # TODO: axis?
+        vplus = vminus + np.cross(vprime, s)
+        v_new = vplus + self.q * efield / self.m * dt * 0.5
+
+        energy = self.v * v_new * (0.5 * self.m)
+        self.v = v_new
+        return energy
+
+    def boris_push_particles(self, electric_field_function, magnetic_field_function, dt, L):
+        """Boris pusher, unrelativistic"""
+        # add half electric impulse to v(t-dt/2)
+        efield = np.zeros((self.N, 3))
+        efield[:,0] = electric_field_function(self.x)
+        vminus = self.v + self.q * efield / self.m * dt * 0.5
+
+        # rotate to add magnetic field
+        t = -magnetic_field_function(self.x) * self.q / self.m * dt * 0.5
+        s = 2*t/(1+t*t)
+
+        vprime = vminus + np.cross(vminus, t) # TODO: axis?
+        vplus = vminus + np.cross(vprime, s)
+        v_new = vplus + self.q * efield / self.m * dt * 0.5
+
+        self.x += v_new[:,0] * dt
+
+        self.x %= L
+        energy = self.v * v_new * (0.5 * self.m)
+        self.v = v_new
+        return energy
+        # add remaining half of electric impulse
 
 if __name__=="__main__":
     pass
