@@ -1,0 +1,1062 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="cb779086-d932-4799-bca1-dd3436671ce0" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/tests/test_RelativisticSpecies.py" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/test_RelativisticSpecies.py" afterPath="" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/TODO.md" afterPath="$PROJECT_DIR$/docs/TODO.md" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/exercises/animation_attempt.py" afterPath="$PROJECT_DIR$/docs/exercises/animation_attempt.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/exercises/arsenous_fourier_solver.ipynb" afterPath="$PROJECT_DIR$/docs/exercises/arsenous_fourier_solver.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/exercises/assert_else.py" afterPath="$PROJECT_DIR$/docs/exercises/assert_else.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/exercises/fft_freq.py" afterPath="$PROJECT_DIR$/docs/exercises/fft_freq.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/exercises/ieap_fourier_solver.ipynb" afterPath="$PROJECT_DIR$/docs/exercises/ieap_fourier_solver.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/grid_algorithms.py" afterPath="$PROJECT_DIR$/algorithms_grid.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/laser.py" afterPath="$PROJECT_DIR$/docs/exercises/laser.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/prezentacja_sem_dyp/1default.hdf5" afterPath="$PROJECT_DIR$/docs/prezentacja_sem_dyp/1default.hdf5" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/prezentacja_sem_dyp/2dense.hdf5" afterPath="$PROJECT_DIR$/docs/prezentacja_sem_dyp/2dense.hdf5" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/prezentacja_sem_dyp/3leapfrog_instability_pre.hdf5" afterPath="$PROJECT_DIR$/docs/prezentacja_sem_dyp/3leapfrog_instability_pre.hdf5" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/prezentacja_sem_dyp/4leapfrog_instability_post.hdf5" afterPath="$PROJECT_DIR$/docs/prezentacja_sem_dyp/4leapfrog_instability_post.hdf5" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/prezentacja_sem_dyp/5wavebreaking.hdf5" afterPath="$PROJECT_DIR$/docs/prezentacja_sem_dyp/5wavebreaking.hdf5" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/prezentacja_sem_dyp/6aliasing.hdf5" afterPath="$PROJECT_DIR$/docs/prezentacja_sem_dyp/6aliasing.hdf5" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/prezentacja_sem_dyp/img/Sun_in_X-Ray.png" afterPath="$PROJECT_DIR$/docs/prezentacja_sem_dyp/img/Sun_in_X-Ray.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/prezentacja_sem_dyp/img/fusion_temperature_plot.png" afterPath="$PROJECT_DIR$/docs/prezentacja_sem_dyp/img/fusion_temperature_plot.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/prezentacja_sem_dyp/prezentacja1.ipynb" afterPath="$PROJECT_DIR$/docs/prezentacja_sem_dyp/prezentacja1.ipynb" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/rotation.py" afterPath="$PROJECT_DIR$/algorithms_pusher.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/run_coldplasma.py" afterPath="$PROJECT_DIR$/configs/run_coldplasma.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/run_hybrid.py" afterPath="$PROJECT_DIR$/configs/run_hybrid.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/run_twostream.py" afterPath="$PROJECT_DIR$/configs/run_twostream.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/test_FourierSolver.py" afterPath="$PROJECT_DIR$/tests/test_FourierSolver.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/test_gather.py" afterPath="$PROJECT_DIR$/tests/test_gather.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/test_pusher.py" afterPath="$PROJECT_DIR$/tests/test_pusher.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/test_scatter.py" afterPath="$PROJECT_DIR$/tests/test_scatter.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/test_simulation.py" afterPath="$PROJECT_DIR$/tests/test_simulation.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/.gitignore" afterPath="$PROJECT_DIR$/docs/text/.gitignore" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/Instrukcja.txt" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/Instrukcja.txt" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/src/Images/figury_szachowe.jpg" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/src/Images/figury_szachowe.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/src/Images/krok_czasowy.eps" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/src/Images/krok_czasowy.eps" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/src/Images/pole_ananasowe.jpg" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/src/Images/pole_ananasowe.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/src/Images/szachownica.jpg" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/src/Images/szachownica.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/src/Images/szklane_szachy.jpg" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/src/Images/szklane_szachy.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/src/Images/wieza.jpg" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/src/Images/wieza.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/src/Source/LogosPW/FK.PNG" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/src/Source/LogosPW/FK.PNG" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/src/Source/LogosPW/FM.PNG" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/src/Source/LogosPW/FM.PNG" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/src/Source/LogosPW/Figures old/fiztech_fk.png" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/src/Source/LogosPW/Figures old/fiztech_fk.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/src/Source/LogosPW/Figures old/fizyka.pw.png" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/src/Source/LogosPW/Figures old/fizyka.pw.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/src/Source/LogosPW/Figures old/fizyka.pw_adres.png" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/src/Source/LogosPW/Figures old/fizyka.pw_adres.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/src/Source/LogosPW/Figures old/fizyka.pw_pelny.png" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/src/Source/LogosPW/Figures old/fizyka.pw_pelny.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/src/Source/LogosPW/Figures old/fizyka_techniczna.png" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/src/Source/LogosPW/Figures old/fizyka_techniczna.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/src/Source/LogosPW/Figures old/logo2000.jpg" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/src/Source/LogosPW/Figures old/logo2000.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/src/Source/LogosPW/Figures old/logopw.jpg" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/src/Source/LogosPW/Figures old/logopw.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/src/Source/LogosPW/Figures old/logopw.png" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/src/Source/LogosPW/Figures old/logopw.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/src/Source/LogosPW/LOGO_WFPW.png" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/src/Source/LogosPW/LOGO_WFPW.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/src/Source/LogosPW/MiN.PNG" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/src/Source/LogosPW/MiN.PNG" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/src/Source/LogosPW/OPT.PNG" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/src/Source/LogosPW/OPT.PNG" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/src/Source/LogosPW/PW_sloneczny.png" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/src/Source/LogosPW/PW_sloneczny.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/src/Source/LogosPW/fizyka techn 1.png" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/src/Source/LogosPW/fizyka techn 1.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/src/Source/LogosPW/fotonika.png" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/src/Source/LogosPW/fotonika.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/src/Source/LogosPW/logo.jpg" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/src/Source/LogosPW/logo.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/src/Source/LogosPW/logo.png" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/src/Source/LogosPW/logo.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/src/Source/LogosPW/official_logo.jpg" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/src/Source/LogosPW/official_logo.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/src/Source/LogosPW/praca_dyplomowa.jpg" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/src/Source/LogosPW/praca_dyplomowa.jpg" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/src/Source/LogosPW/pw_sliwkowy.png" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/src/Source/LogosPW/pw_sliwkowy.png" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/src/Source/begining.tex" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/src/Source/begining.tex" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/src/Source/bibliography.bib" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/src/Source/bibliography.bib" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/src/Source/preamble.tex" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/src/Source/preamble.tex" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/src/bibliography.bib" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/src/bibliography.bib" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/Template of thesis/src/thesis.tex" afterPath="$PROJECT_DIR$/docs/text/Template of thesis/src/thesis.tex" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/abstract.tex" afterPath="$PROJECT_DIR$/docs/text/abstract.tex" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/text/plan.md" afterPath="$PROJECT_DIR$/docs/text/plan.md" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/time_fourier.py" afterPath="$PROJECT_DIR$/docs/unused/time_fourier.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/unused/BorisPush.py" afterPath="$PROJECT_DIR$/docs/unused/BorisPush.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/unused/hdf5bro.py" afterPath="$PROJECT_DIR$/docs/unused/hdf5bro.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/unused/helpers.py" afterPath="$PROJECT_DIR$/docs/unused/helpers.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/unused/langmuir_wave_analysis.py" afterPath="$PROJECT_DIR$/docs/unused/langmuir_wave_analysis.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Grid.py" afterPath="$PROJECT_DIR$/Grid.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Simulation.py" afterPath="$PROJECT_DIR$/Simulation.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pic3.py" afterPath="$PROJECT_DIR$/pic3.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static_plots.py" afterPath="$PROJECT_DIR$/static_plots.py" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="TRACKING_ENABLED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CreatePatchCommitExecutor">
+    <option name="PATCH_PATH" value="" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
+  <component name="FavoritesManager">
+    <favorites_list name="pic3" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="algorithms_pusher.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/algorithms_pusher.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="675">
+              <caret line="45" column="42" lean-forward="false" selection-start-line="45" selection-start-column="42" selection-end-line="45" selection-end-column="42" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="algorithms_grid.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/algorithms_grid.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="420">
+              <caret line="29" column="22" lean-forward="false" selection-start-line="29" selection-start-column="22" selection-end-line="29" selection-end-column="22" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Grid.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Grid.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="806">
+              <caret line="123" column="35" lean-forward="true" selection-start-line="123" selection-start-column="35" selection-end-line="123" selection-end-column="35" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+                <element signature="e#3185#3980#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>title</find>
+      <find>loc='best'</find>
+      <find>*.hdf</find>
+    </findStrings>
+    <replaceStrings>
+      <replace>loc='lower right'</replace>
+    </replaceStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/helper_functions.py" />
+        <option value="$PROJECT_DIR$/animation.py" />
+        <option value="$PROJECT_DIR$/run_coldplasma.py" />
+        <option value="$PROJECT_DIR$/run_twostream.py" />
+        <option value="$PROJECT_DIR$/quickscript.py" />
+        <option value="$PROJECT_DIR$/gather.py" />
+        <option value="$PROJECT_DIR$/FourierSolver.py" />
+        <option value="$PROJECT_DIR$/Units.py" />
+        <option value="$PROJECT_DIR$/Constants.py" />
+        <option value="$PROJECT_DIR$/pic3.py" />
+        <option value="$PROJECT_DIR$/Species.py" />
+        <option value="$PROJECT_DIR$/test_Species.py" />
+        <option value="$PROJECT_DIR$/test_FourierSolver.py" />
+        <option value="$PROJECT_DIR$/test_RelativisticSpecies.py" />
+        <option value="$PROJECT_DIR$/test_pusher.py" />
+        <option value="$PROJECT_DIR$/test_simulation.py" />
+        <option value="$PROJECT_DIR$/Simulation.py" />
+        <option value="$PROJECT_DIR$/test_scatter.py" />
+        <option value="$PROJECT_DIR$/rotation.py" />
+        <option value="$PROJECT_DIR$/static_plots.py" />
+        <option value="$PROJECT_DIR$/Grid.py" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds">
+    <option name="x" value="-4" />
+    <option name="y" value="30" />
+    <option name="width" value="1928" />
+    <option name="height" value="998" />
+  </component>
+  <component name="ProjectInspectionProfilesVisibleTreeState">
+    <entry key="Project Default">
+      <profile-state>
+        <expanded-state>
+          <State>
+            <id />
+          </State>
+          <State>
+            <id>Internationalization issues</id>
+          </State>
+          <State>
+            <id>Python</id>
+          </State>
+        </expanded-state>
+        <selected-state>
+          <State>
+            <id>PyClassHasNoInitInspection</id>
+          </State>
+        </selected-state>
+      </profile-state>
+    </entry>
+  </component>
+  <component name="ProjectLevelVcsManager">
+    <OptionsSetting value="false" id="Update" />
+  </component>
+  <component name="ProjectView">
+    <navigator currentView="ProjectPane" proportions="" version="1">
+      <flattenPackages />
+      <showMembers />
+      <showModules />
+      <showLibraryContents />
+      <hideEmptyPackages />
+      <abbreviatePackageNames />
+      <autoscrollToSource />
+      <autoscrollFromSource />
+      <sortByType />
+      <manualOrder />
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="Scratches" />
+      <pane id="Scope" />
+      <pane id="ProjectPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="pic3" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="pic3" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/Constants.py" />
+    <property name="settings.editor.selected.configurable" value="com.maddyhome.idea.vim.ui.VimEmulationConfigurable" />
+    <property name="ToolWindowDocumentation.ShowToolbar" value="false" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/docs/exercises" />
+      <recent name="$PROJECT_DIR$/docs/unused" />
+      <recent name="$PROJECT_DIR$/docs" />
+      <recent name="$PROJECT_DIR$/configs" />
+      <recent name="$PROJECT_DIR$/tests" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python tests.Test">
+    <configuration default="false" name="rotation" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="pic3" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/algorithms_pusher.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="quickscript" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="pic3" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/quickscript.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="Constants" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="pic3" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Constants.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="py.test in test_Species.py" type="tests" factoryName="py.test" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="pic3" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <option name="testToRun" value="$PROJECT_DIR$/test_Species.py" />
+      <option name="keywords" value="" />
+      <option name="params" value="" />
+      <option name="USE_PARAM" value="false" />
+      <option name="USE_KEYWORD" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="test_Species" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="pic3" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tests/test_RelativisticSpecies.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="pic3" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="Tox" factoryName="Tox">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="pic3" />
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Attests">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="pic3" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Doctests">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="pic3" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Nosetests">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="pic3" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <option name="PARAMS" value="" />
+      <option name="USE_PARAM" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Unittests">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="pic3" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <option name="PUREUNITTEST" value="true" />
+      <option name="PARAMS" value="" />
+      <option name="USE_PARAM" value="false" />
+      <method />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="py.test">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="pic3" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <option name="testToRun" value="" />
+      <option name="keywords" value="" />
+      <option name="params" value="" />
+      <option name="USE_PARAM" value="false" />
+      <option name="USE_KEYWORD" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="run_twostream" type="PythonConfigurationType" factoryName="Python">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="pic3" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/configs/run_twostream.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="Constants tests" type="tests" factoryName="py.test">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="$USER_HOME$/.anaconda3/envs/3point6/bin/python" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="pic3" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <option name="testToRun" value="$PROJECT_DIR$/Constants.py" />
+      <option name="keywords" value="" />
+      <option name="params" value="" />
+      <option name="USE_PARAM" value="false" />
+      <option name="USE_KEYWORD" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="Test" type="tests" factoryName="py.test">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs />
+      <option name="SDK_HOME" value="$USER_HOME$/.anaconda3/envs/3point6/bin/python" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="pic3" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="FOLDER_NAME" value="" />
+      <option name="TEST_TYPE" value="TEST_SCRIPT" />
+      <option name="PATTERN" value="" />
+      <option name="USE_PATTERN" value="false" />
+      <option name="testToRun" value="$PROJECT_DIR$" />
+      <option name="keywords" value="" />
+      <option name="params" value="" />
+      <option name="USE_PARAM" value="false" />
+      <option name="USE_KEYWORD" value="false" />
+      <method />
+    </configuration>
+    <list size="8">
+      <item index="0" class="java.lang.String" itemvalue="Python.run_twostream" />
+      <item index="1" class="java.lang.String" itemvalue="Python tests.Constants tests" />
+      <item index="2" class="java.lang.String" itemvalue="Python tests.Test" />
+      <item index="3" class="java.lang.String" itemvalue="Python.rotation" />
+      <item index="4" class="java.lang.String" itemvalue="Python.quickscript" />
+      <item index="5" class="java.lang.String" itemvalue="Python.Constants" />
+      <item index="6" class="java.lang.String" itemvalue="Python tests.py.test in test_Species.py" />
+      <item index="7" class="java.lang.String" itemvalue="Python.test_Species" />
+    </list>
+    <recent_temporary>
+      <list size="5">
+        <item index="0" class="java.lang.String" itemvalue="Python.test_Species" />
+        <item index="1" class="java.lang.String" itemvalue="Python tests.py.test in test_Species.py" />
+        <item index="2" class="java.lang.String" itemvalue="Python.rotation" />
+        <item index="3" class="java.lang.String" itemvalue="Python.Constants" />
+        <item index="4" class="java.lang.String" itemvalue="Python.quickscript" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="ShelveChangesManager" show_recycled="false">
+    <option name="remove_strategy" value="false" />
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="cb779086-d932-4799-bca1-dd3436671ce0" name="Default" comment="" />
+      <created>1484655689392</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1484655689392</updated>
+    </task>
+    <task id="LOCAL-00001" summary="plotting fixes&#10;direct energy calc (shifted for some reason">
+      <created>1484666403653</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1484666403653</updated>
+    </task>
+    <task id="LOCAL-00002" summary="plotting fixes&#10;direct energy calc (shifted for some reason&#10;">
+      <created>1484666696614</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1484666696615</updated>
+    </task>
+    <task id="LOCAL-00003" summary="first tests with numba">
+      <created>1485858175826</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1485858175826</updated>
+    </task>
+    <task id="LOCAL-00004" summary="documentation refactor">
+      <created>1485956342078</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1485956342078</updated>
+    </task>
+    <task id="LOCAL-00005" summary="documentation refactor">
+      <created>1485963180650</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1485963180650</updated>
+    </task>
+    <task id="LOCAL-00006" summary="separate out relativistic tests">
+      <created>1486663509194</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1486663509195</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
+    <servers />
+  </component>
+  <component name="TestHistory">
+    <history-entry file="Test - 2017.02.09 at 19h 07m 40s.xml">
+      <configuration name="Test" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Test - 2017.02.09 at 19h 08m 22s.xml">
+      <configuration name="Test" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Test - 2017.02.09 at 19h 08m 43s.xml">
+      <configuration name="Test" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Test - 2017.02.09 at 19h 09m 03s.xml">
+      <configuration name="Test" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Test - 2017.02.09 at 19h 09m 58s.xml">
+      <configuration name="Test" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Test - 2017.02.09 at 19h 11m 31s.xml">
+      <configuration name="Test" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Test - 2017.02.09 at 19h 12m 06s.xml">
+      <configuration name="Test" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Test - 2017.02.09 at 19h 12m 32s.xml">
+      <configuration name="Test" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Test - 2017.02.09 at 19h 13m 07s.xml">
+      <configuration name="Test" configurationId="tests" />
+    </history-entry>
+    <history-entry file="Test - 2017.02.09 at 19h 22m 24s.xml">
+      <configuration name="Test" configurationId="tests" />
+    </history-entry>
+  </component>
+  <component name="TodoView">
+    <todo-panel id="selected-file">
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+    <todo-panel id="all">
+      <are-packages-shown value="true" />
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="-4" y="30" width="1928" height="998" extended-state="6" />
+    <editor active="true" />
+    <layout>
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1433843" sideWeight="0.49373883" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.366782" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32871974" sideWeight="0.501845" order="11" side_tool="true" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32871974" sideWeight="0.49815497" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3298731" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3351469" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25250396" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.14496574" sideWeight="0.50626117" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39907727" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Documentation" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17769477" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" x="44" y="201" width="1720" height="792" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3283582" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+    </layout>
+    <layout-to-restore>
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.366782" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32871974" sideWeight="0.501845" order="8" side_tool="true" content_ui="tabs" />
+      <window_info id="Documentation" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17769477" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" x="44" y="201" width="1720" height="792" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32871974" sideWeight="0.49815497" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3298731" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32871974" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.14496574" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3283582" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24986821" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39907727" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+    </layout-to-restore>
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="RECENTLY_FILTERED_USER_GROUPS">
+                <collection />
+              </option>
+              <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+                <collection />
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CHECK_NEW_TODO" value="false" />
+    <MESSAGE value="plotting fixes&#10;direct energy calc (shifted for some reason" />
+    <MESSAGE value="plotting fixes&#10;direct energy calc (shifted for some reason)" />
+    <MESSAGE value="plotting fixes&#10;direct energy calc (shifted for some reason&#10;" />
+    <MESSAGE value="first tests with numba" />
+    <MESSAGE value="documentation refactor" />
+    <MESSAGE value="separate out relativistic tests" />
+    <option name="LAST_COMMIT_MESSAGE" value="separate out relativistic tests" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <option name="time" value="4" />
+    </breakpoint-manager>
+    <watches-manager />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/configs/run_coldplasma.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="405">
+          <caret line="31" column="51" lean-forward="false" selection-start-line="31" selection-start-column="51" selection-end-line="31" selection-end-column="51" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Grid.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="28" column="31" lean-forward="false" selection-start-line="28" selection-start-column="31" selection-end-line="28" selection-end-column="31" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+            <element signature="e#3185#3980#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/animation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1170">
+          <caret line="80" column="0" lean-forward="false" selection-start-line="80" selection-start-column="0" selection-end-line="80" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static_plots.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="675">
+          <caret line="46" column="53" lean-forward="false" selection-start-line="46" selection-start-column="53" selection-end-line="46" selection-end-column="53" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Species.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1680">
+          <caret line="112" column="8" lean-forward="false" selection-start-line="112" selection-start-column="8" selection-end-line="112" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/configs/run_twostream.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/configs/run_coldplasma.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="405">
+          <caret line="31" column="51" lean-forward="false" selection-start-line="31" selection-start-column="51" selection-end-line="31" selection-end-column="51" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Grid.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="28" column="31" lean-forward="false" selection-start-line="28" selection-start-column="31" selection-end-line="28" selection-end-column="31" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+            <element signature="e#3185#3980#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/animation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1170">
+          <caret line="80" column="0" lean-forward="false" selection-start-line="80" selection-start-column="0" selection-end-line="80" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static_plots.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="675">
+          <caret line="46" column="53" lean-forward="false" selection-start-line="46" selection-start-column="53" selection-end-line="46" selection-end-column="53" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Species.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1680">
+          <caret line="112" column="8" lean-forward="false" selection-start-line="112" selection-start-column="8" selection-end-line="112" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/lib/python3.6/site-packages/numpy/core/numeric.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="278">
+          <caret line="85" column="4" lean-forward="false" selection-start-line="85" selection-start-column="4" selection-end-line="85" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data_analysis/CO1_temperature.png" />
+    <entry file="file://$PROJECT_DIR$/data_analysis/CO1_spectro.png" />
+    <entry file="file://$PROJECT_DIR$/data_analysis/CO1_energy.png" />
+    <entry file="file://$PROJECT_DIR$/data_analysis/CO1_mode_energy.png" />
+    <entry file="file://$PROJECT_DIR$/data_analysis/CO2_energy.png" />
+    <entry file="file://$PROJECT_DIR$/data_analysis/CO2_mode_energy.png" />
+    <entry file="file://$PROJECT_DIR$/data_analysis/CO2_temperature.png" />
+    <entry file="file://$USER_HOME$/.PyCharmCE2016.3/system/python_stubs/521409333/time.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="229">
+          <caret line="260" column="4" lean-forward="false" selection-start-line="260" selection-start-column="4" selection-end-line="260" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/quickscript.py" />
+    <entry file="file://$PROJECT_DIR$/_build/html/index.html" />
+    <entry file="file://$PROJECT_DIR$/documentation/index.rst">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="17" column="15" lean-forward="false" selection-start-line="17" selection-start-column="15" selection-end-line="17" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/gather.py" />
+    <entry file="file://$PROJECT_DIR$/FourierSolver.py" />
+    <entry file="file://$USER_HOME$/.PyCharmCE2016.3/system/python_stubs/521409333/builtins.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="318">
+          <caret line="732" column="8" lean-forward="false" selection-start-line="732" selection-start-column="8" selection-end-line="732" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/unused/hdf5bro.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/unused/langmuir_wave_analysis.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/configs/run_coldplasma.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="375">
+          <caret line="29" column="0" lean-forward="false" selection-start-line="29" selection-start-column="0" selection-end-line="29" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/configs/run_twostream.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="645">
+          <caret line="47" column="29" lean-forward="true" selection-start-line="47" selection-start-column="29" selection-end-line="47" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/test_FourierSolver.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="90">
+          <caret line="6" column="18" lean-forward="false" selection-start-line="6" selection-start-column="18" selection-end-line="6" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/test_RelativisticSpecies.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="417">
+          <caret line="64" column="0" lean-forward="true" selection-start-line="64" selection-start-column="0" selection-end-line="64" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/test_simulation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="240">
+          <caret line="21" column="0" lean-forward="false" selection-start-line="21" selection-start-column="0" selection-end-line="21" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/test_scatter.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="274">
+          <caret line="131" column="25" lean-forward="false" selection-start-line="131" selection-start-column="25" selection-end-line="131" selection-end-column="25" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/test_gather.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="45">
+          <caret line="3" column="31" lean-forward="true" selection-start-line="3" selection-start-column="31" selection-end-line="3" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tests/test_pusher.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1248">
+          <caret line="2" column="31" lean-forward="true" selection-start-line="2" selection-start-column="31" selection-end-line="2" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/animation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="522">
+          <caret line="118" column="37" lean-forward="true" selection-start-line="118" selection-start-column="37" selection-end-line="118" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Constants.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="18" column="20" lean-forward="true" selection-start-line="18" selection-start-column="20" selection-end-line="18" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/spectrograph.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/unused/time_fourier.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="417">
+          <caret line="34" column="17" lean-forward="true" selection-start-line="34" selection-start-column="17" selection-end-line="34" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Simulation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="165">
+          <caret line="32" column="0" lean-forward="false" selection-start-line="32" selection-start-column="0" selection-end-line="32" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/plotting.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pic3.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="300">
+          <caret line="27" column="16" lean-forward="false" selection-start-line="27" selection-start-column="16" selection-end-line="27" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/unused/helpers.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="8" column="21" lean-forward="true" selection-start-line="8" selection-start-column="20" selection-end-line="8" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/exercises/laser.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/helper_functions.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="20" column="43" lean-forward="true" selection-start-line="20" selection-start-column="43" selection-end-line="20" selection-end-column="43" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static_plots.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="19" column="0" lean-forward="true" selection-start-line="19" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Species.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="15">
+          <caret line="45" column="11" lean-forward="false" selection-start-line="45" selection-start-column="11" selection-end-line="45" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/algorithms_pusher.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="675">
+          <caret line="45" column="42" lean-forward="false" selection-start-line="45" selection-start-column="42" selection-end-line="45" selection-end-column="42" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/algorithms_grid.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="420">
+          <caret line="29" column="22" lean-forward="false" selection-start-line="29" selection-start-column="22" selection-end-line="29" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Grid.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="806">
+          <caret line="123" column="35" lean-forward="true" selection-start-line="123" selection-start-column="35" selection-end-line="123" selection-end-column="35" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+            <element signature="e#3185#3980#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>

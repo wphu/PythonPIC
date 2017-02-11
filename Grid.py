@@ -1,8 +1,8 @@
 import numpy as np
 import h5py
-from grid_algorithms import PoissonSolver
-import grid_algorithms
-from grid_algorithms import interpolateField, PoissonSolver
+from algorithms_grid import PoissonSolver
+import algorithms_grid
+from algorithms_grid import interpolateField, PoissonSolver
 import scipy.fftpack as fft
 
 class Grid():
@@ -60,12 +60,12 @@ class Grid():
     def gather_charge(self, list_species):
         self.charge_density[:] = 0.0
         for species in list_species:
-            self.charge_density += grid_algorithms.charge_density_deposition(self.x, self.dx, species.x, species.q)
+            self.charge_density += algorithms_grid.charge_density_deposition(self.x, self.dx, species.x, species.q)
 
     def gather_current(self, list_species):
         self.current_density = np.zeros((self.NG, 3))
         for species in list_species:
-            self.current_density += grid_algorithms.current_density_deposition(self.x, self.dx, species.x, species.q, species.v)
+            self.current_density += algorithms_grid.current_density_deposition(self.x, self.dx, species.x, species.q, species.v)
 
     def electric_field_function(self, xp):
         return interpolateField(xp, self.electric_field, self.x, self.dx)
@@ -127,7 +127,7 @@ class Grid():
         return result
 
 class RelativisticGrid(Grid):
-    def __init__(self, L=2 * np.pi, NG=32, epsilon_0=1, c =1, NT=None):
+    def __init__(self, L=2 * np.pi, NG=32, epsilon_0=1, c =1, NT=1):
         super().__init__(L, NG, epsilon_0, c, NT)
         self.c = c
         self.dt = self.dx / c

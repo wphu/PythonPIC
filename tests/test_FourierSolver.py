@@ -1,10 +1,10 @@
-from grid_algorithms import PoissonSolver
+from algorithms_grid import PoissonSolver
 import matplotlib.pyplot as plt
 from helper_functions import l2_norm, l2_test
 from Grid import Grid
 from Species import Species
 DEBUG = False
-
+import numpy as np
 
 def test_PoissonSolver(debug=DEBUG):
     def helper(NG, L):

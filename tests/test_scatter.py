@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
-from grid_algorithms import charge_density_deposition
+from algorithms_grid import charge_density_deposition
 import numpy as np
-from Grid import Grid
+from Grid import Grid, RelativisticGrid
 from Species import Species
 
 def test_sine_perturbation_effect(amplitude=0.001):
@@ -107,7 +107,7 @@ def test_uniform_current_deposition(plotting=False):
     """
 
 
-    g = Grid(relativistic=True)
+    g = RelativisticGrid()
     p = Species(1, 1, 128, "p")
     p.v[:, 0] = 0
     p.v[:, 1] = -1
@@ -129,7 +129,7 @@ def test_nonuniform_current_deposition(plotting=False):
      velocity v
     """
 
-    g = Grid(relativistic=True)
+    g = RelativisticGrid()
     p = Species(1, 1, 128, "p")
     dims = np.arange(3)
     p.v[:, dims] = np.arange(p.N)[:,np.newaxis]**dims[np.newaxis,:]

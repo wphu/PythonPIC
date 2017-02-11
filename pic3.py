@@ -1,10 +1,13 @@
 """ A particle in cell code implemented in Python, with a focus on efficiency and optimization """
-import time
 import argparse
+import time
+
 import numpy as np
+
 import Simulation
 from Constants import Constants
 from helper_functions import date_version_string
+
 
 def run_electrostatic(g, list_species, params, filename):
     """Full simulation run, with data gathering and saving to hdf5 file"""
@@ -92,7 +95,7 @@ def run_electromagnetic(g, list_species, params, filename):
     S.save_data(filename=filename, runtime=runtime)
 
 if __name__ == "__main__":
-    from run_twostream import two_stream_instability
+    from configs.run_twostream import two_stream_instability
     parser = argparse.ArgumentParser()
     parser.add_argument("filename", help="hdf5 file name for storing data")
     args = parser.parse_args()

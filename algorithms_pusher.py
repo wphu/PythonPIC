@@ -47,4 +47,4 @@ def rela_boris_push(x, v, E, B, q, m, dt, c=1):
     # import ipdb; ipdb.set_trace()
 
     x_new = x + v_new[:,0] / gamma_new * dt
-    return  x_new, v_new
+    return x_new, v_new

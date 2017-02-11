@@ -22,7 +22,8 @@ class Simulation():
         self.field_energy = np.zeros(NT)
         self.total_energy = np.zeros(NT)
         self.constants = constants
-        self.epsilon_0, self.NT, self.dt = epsilon_0, NT, dt
+        self.dt = dt
+        self.epsilon_0, self.NT = constants
         self.date_ver_str = date_version_string()
         # TODO: add more information about run, maybe to plotting
 
