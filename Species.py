@@ -139,6 +139,9 @@ class Species():
         self.velocity_history = species_data["v"][...]
         self.kinetic_energy_history = species_data["Kinetic energy"][...]
 
+    def __repr__(self, *args, **kwargs):
+        return f"Species(q={self.q},m={self.m},N={self.N},name=\"{self.name}\",NT={self.NT})"
+
     def __eq__(self, other):
         result = True
         result *= self.q == other.q
@@ -196,4 +199,5 @@ class RelativisticSpecies(Species):
         # add remaining half of electric impulse
 
 if __name__=="__main__":
-    pass
+    s = Species(1, 1, 1)
+    print(s)

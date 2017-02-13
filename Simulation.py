@@ -1,10 +1,13 @@
+import time
+
 import h5py
 import numpy as np
-import time
-from helper_functions import date_version_string
+
+from Constants import Constants
 from Grid import Grid
 from Species import Species
-from Constants import Constants
+from helper_functions import date_version_string
+
 
 class Simulation():
     """Contains data from one run of the simulation:
@@ -17,6 +20,13 @@ class Simulation():
     charge_density, electric_field: shape (NT, NGrid) numpy arrays of historical grid data
     """
     def __init__(self, NT, dt, constants: Constants, grid: Grid, list_species):
+        """
+        :param NT:
+        :param dt:
+        :param constants:
+        :param grid:
+        :param list_species:
+        """
         self.grid = grid
         self.all_species = list_species
         self.field_energy = np.zeros(NT)
