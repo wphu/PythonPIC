@@ -60,8 +60,8 @@ class Grid():
     def gather_charge(self, list_species):
         self.charge_density[:] = 0.0
         for species in list_species:
-            self.charge_density += algorithms_grid.charge_density_deposition(self.x, self.dx, species.x, species.q)
-
+            gathered_density = algorithms_grid.charge_density_deposition(self.x, self.dx, species.x, species.q)
+            self.charge_density += gathered_density
     def gather_current(self, list_species):
         self.current_density = np.zeros((self.NG, 3))
         for species in list_species:
