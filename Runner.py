@@ -43,8 +43,9 @@ class Runner():
                 s = Species(arguments.q, arguments.m, arguments.N, arguments.name, arguments.NT)
                 if arguments.initial_position == initial_positions.uniform:
                     s.distribute_uniformly(self.grid.L)
-                    s.x %= self.grid.L
                 # TODO: if arguments.initial_position == initial_positions.sinusoidal
+                particles_in_grid = s.x.max() < self.grid.L and s.x.min() >= 0
+                assert particles_in_grid
                 self.list_species.append(s)
 
         self.simulation = Simulation(NT, dt, self.constants, self.grid, self.list_species)
@@ -123,6 +124,8 @@ class Runner():
 
 
 if __name__ == '__main__':
-    runner = Runner(species1=species_args(1000, 1, 1, 10, 'test particles', initial_positions.uniform))
+    runner = Runner(species1=species_args(1, 1, 1, 10, 'test particles', initial_positions.uniform))
     runner.grid_species_initialization()
     runner.run(save_data=False)
+    print(runner)
+    print("Run completed!")
