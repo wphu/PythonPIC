@@ -1,8 +1,10 @@
 import numpy as np
+
+import plotting
 from Grid import Grid
 from Species import Species
 from pic3 import run_electrostatic
-import plotting
+
 
 def cold_plasma_oscillations(filename, plasma_frequency=1, qmratio=-1, dt=0.2, NT=150,
                              NG=32, N_electrons=128, L=2 * np.pi, epsilon_0=1,
@@ -26,8 +28,8 @@ def cold_plasma_oscillations(filename, plasma_frequency=1, qmratio=-1, dt=0.2, N
 
 
 if __name__ == '__main__':
-    show = False
-    save = True
+    show = True
+    save = False
 
     cold_plasma_oscillations("data_analysis/CO1/CO1.hdf5", NG=64, N_electrons=1024)
     plotting.plotting("data_analysis/CO1/CO1.hdf5", show=show, save=save)

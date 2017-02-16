@@ -1,10 +1,12 @@
+import time
+
 import h5py
 import numpy as np
-import time
-from helper_functions import date_version_string
+
 from Grid import Grid
 from Species import Species
-from Constants import Constants
+from helper_functions import date_version_string
+
 
 class Simulation():
     """Contains data from one run of the simulation:
@@ -16,14 +18,15 @@ class Simulation():
     particle_positions, velocities: shape (NT, NParticle) numpy arrays of historical particle data
     charge_density, electric_field: shape (NT, NGrid) numpy arrays of historical grid data
     """
-    def __init__(self, NT, dt, constants: Constants, grid: Grid, list_species):
+
+    def __init__(self, NT, dt, epsilon_0, grid: Grid, list_species, date_ver_str=date_version_string()):
         self.grid = grid
         self.all_species = list_species
         self.field_energy = np.zeros(NT)
         self.total_energy = np.zeros(NT)
-        self.constants = constants
+        # self.constants = constants
         self.epsilon_0, self.NT, self.dt = epsilon_0, NT, dt
-        self.date_ver_str = date_version_string()
+        self.date_ver_str = date_ver_str
         # TODO: add more information about run, maybe to plotting
 
     def update_grid(self, i, grid = NotImplemented):

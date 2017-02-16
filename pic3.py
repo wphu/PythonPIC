@@ -1,15 +1,18 @@
 """ A particle in cell code implemented in Python, with a focus on efficiency and optimization """
-import time
 import argparse
+import time
+
 import numpy as np
+
 import Simulation
 from Constants import Constants
 from helper_functions import date_version_string
 
+
 def run_electrostatic(g, list_species, params, filename):
     """Full simulation run, with data gathering and saving to hdf5 file"""
     NT, dt, epsilon_0 = params
-    S = Simulation.Simulation(NT, dt, epsilon_0, g, list_species, date_version_string())
+    S = Simulation.Simulation(NT, dt, epsilon_0, g, list_species)
     g.gather_charge(list_species)
     fourier_field_energy = g.solve_poisson()
     for species in list_species:
