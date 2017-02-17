@@ -1,3 +1,4 @@
+# coding=utf-8
 from numpy import pi
 
 from Runner import Runner
@@ -24,6 +25,6 @@ if __name__ == '__main__':
     particle_charge = plasma_frequency ** 2 * L / float(N_electrons * epsilon_0 * qmratio)
     particle_mass = particle_charge / qmratio
 
-    cold_plasma_oscillations("data_analysis/CO/CO.hdf5", scaling_factor=1, q=particle_charge, m=particle_mass, NT=150,
-                             dt=0.2, NG=64, N_electrons=N_electrons)
+    cold_plasma_oscillations("data_analysis/CO/CO.hdf5", q=particle_charge, m=particle_mass, NG=64,
+                             N_electrons=N_electrons)
     plotting("data_analysis/CO/CO.hdf5", show=False, save=True, animate=False)

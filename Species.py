@@ -1,9 +1,10 @@
+# coding=utf-8
 import numpy as np
 
 MAX_SAVED_PARTICLES = int(1e4)
 
 
-class Species():
+class Species:
     """Object representing a species of particles: ions, electrons, or simply
     a group of particles with a particular (heh) initial velocity distribution.
 
@@ -13,6 +14,7 @@ class Species():
     name: string, ID of particles
     NT: int, number of timesteps (for diagnostics)
     """
+
     def __init__(self, q, m, N, name=None, NT=1):
         r"""
         :param float q: particle charge
@@ -42,7 +44,6 @@ class Species():
         self.velocity_history = np.zeros((NT, self.saved_particles, 3))
         self.kinetic_energy_history = np.zeros(NT)
 
-
     # TODO:
     def leapfrog_init(self, electric_field_function, dt):
         r"""
@@ -60,7 +61,7 @@ class Species():
 
         electric_force = electric_field_function(self.x) * self.q / self.m
         v_new = self.v.copy()
-        v_new[:,0] -= electric_force * 0.5 * dt
+        v_new[:, 0] -= electric_force * 0.5 * dt
         energy = self.v * v_new * (0.5 * self.m)
         self.v = v_new
         return energy
@@ -76,16 +77,13 @@ class Species():
         """
         electric_force = electric_field_function(self.x) * self.q / self.m
         v_new = self.v.copy()
-        v_new[:,0] += electric_force * dt
+        v_new[:, 0] += electric_force * dt
 
-        self.x += v_new[:,0] * dt
-        self.x %= L # enforce boundary condition
+        self.x += v_new[:, 0] * dt
+        self.x %= L  # enforce boundary condition
         energy = self.v * v_new * (0.5 * self.m)
         self.v = v_new
         return energy
-
-
-
 
     """ INITIALIZATION
     Initial conditions
@@ -99,10 +97,10 @@ class Species():
         self.x %= L
 
     def sinusoidal_velocity_perturbation(self, axis, amplitude, mode, L):
-        self.v[:,axis] += amplitude * np.cos(2 * mode * np.pi * self.x / L)
+        self.v[:, axis] += amplitude * np.cos(2 * mode * np.pi * self.x / L)
 
     def random_velocity_perturbation(self, axis, std):
-        self.v[:,axis] += np.random.normal(scale=std, size=self.N)
+        self.v[:, axis] += np.random.normal(scale=std, size=self.N)
 
     """ DATA ACCESS """
 
@@ -154,20 +152,20 @@ class Species():
 
 
 class RelativisticSpecies(Species):
-    def boris_init(self, electric_field_function, magnetic_field_function,  dt, L):
+    def boris_init(self, electric_field_function, magnetic_field_function, dt):
         """Boris pusher initialization, unrelativistic"""
 
-        dt = -dt/2
+        dt = -dt / 2
         # add half electric impulse to v(t-dt/2)
         efield = np.zeros((self.N, 3))
-        efield[:,0] = electric_field_function(self.x)
+        efield[:, 0] = electric_field_function(self.x)
         vminus = self.v + self.q * efield / self.m * dt * 0.5
 
         # rotate to add magnetic field
         t = -magnetic_field_function(self.x) * self.q / self.m * dt * 0.5
-        s = 2*t/(1+t*t)
+        s = 2 * t / (1 + t * t)
 
-        vprime = vminus + np.cross(vminus, t) # TODO: axis?
+        vprime = vminus + np.cross(vminus, t)  # TODO: axis?
         vplus = vminus + np.cross(vprime, s)
         v_new = vplus + self.q * efield / self.m * dt * 0.5
 
@@ -179,18 +177,18 @@ class RelativisticSpecies(Species):
         """Boris pusher, unrelativistic"""
         # add half electric impulse to v(t-dt/2)
         efield = np.zeros((self.N, 3))
-        efield[:,0] = electric_field_function(self.x)
+        efield[:, 0] = electric_field_function(self.x)
         vminus = self.v + self.q * efield / self.m * dt * 0.5
 
         # rotate to add magnetic field
         t = -magnetic_field_function(self.x) * self.q / self.m * dt * 0.5
-        s = 2*t/(1+t*t)
+        s = 2 * t / (1 + t * t)
 
-        vprime = vminus + np.cross(vminus, t) # TODO: axis?
+        vprime = vminus + np.cross(vminus, t)  # TODO: axis?
         vplus = vminus + np.cross(vprime, s)
         v_new = vplus + self.q * efield / self.m * dt * 0.5
 
-        self.x += v_new[:,0] * dt
+        self.x += v_new[:, 0] * dt
 
         self.x %= L
         energy = self.v * v_new * (0.5 * self.m)
@@ -198,6 +196,7 @@ class RelativisticSpecies(Species):
         return energy
         # add remaining half of electric impulse
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     s = Species(1, 1, 1)
     print(s)

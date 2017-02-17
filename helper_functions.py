@@ -1,6 +1,9 @@
-import numpy as np
-import time
+"""various helper functions"""
+# coding=utf-8
 import subprocess
+import time
+
+import numpy as np
 
 epsilon_0 = 1
 
@@ -17,7 +20,7 @@ def l2_test(reference, test, rtol=1e-3):
 
 def date_version_string():
     run_time = time.ctime()
-    git_version = subprocess.check_output(['git', 'describe', '--always']).decode('utf-8')[:-1]
+    git_version = subprocess.check_output(['git', 'describe', '--always']).decode()[:-1]
     dv_string = "{}\nPrevious git version: {}".format(run_time, git_version)
     return dv_string
 

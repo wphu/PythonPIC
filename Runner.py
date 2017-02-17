@@ -1,3 +1,4 @@
+# coding=utf-8
 import time
 from enum import Enum
 
@@ -11,14 +12,14 @@ from helper_functions import date_version_string
 
 initial_positions = Enum('initial positions', ['uniform', "position_perturbation"])
 
-class Runner():
+
+class Runner:
     """
     Represents a simulation run.
     """
-    def __init__(self, NT: int = 1, dt: float = 0.1, epsilon_0: float = 1, c: float = 1,
-                 NG: int = 32, L: float = 2 * pi,
-                 filename=time.strftime("%Y-%m-%d_%H-%M-%S.hdf5"),  # TODO: this is probably a default
-                 *args, **kwargs):
+
+    def __init__(self, NT: int = 1, dt: float = 0.1, epsilon_0: float = 1, c: float = 1, NG: int = 32,
+                 L: float = 2 * pi, filename=time.strftime("%Y-%m-%d_%H-%M-%S.hdf5"), **list_species):
         """
         Initial conditions and settings for the simulation
         :param int NT: number of iterations
@@ -29,14 +30,14 @@ class Runner():
         :param float L: grid length
         :param str filename: path to hdf5 file, should end in .hdf5. default is current date
         :param args: positional arguments, currently unused
-        :param species_args kwargs: settings for particle species
+        :param species_args list_species: settings for particle species
         """
         self.NT = NT
         self.dt = dt  # TODO: allow passing total simulation time
         self.constants = Constants(c, epsilon_0)
         self.grid = Grid(NG=NG, L=L, NT=NT)
         self.list_species = []
-        for name, arguments in kwargs.items():
+        for name, arguments in list_species.items():
             if type(arguments) is dict:
                 s = Species(arguments['q'], arguments['m'], arguments['N'], arguments['name'], arguments['NT'])
                 if arguments['initial_position'] == initial_positions.uniform.name:
@@ -97,10 +98,15 @@ class Runner():
 
     def run(self, n: int = -1, save_data=True):
         """
-        Run n iterations of the simulation, timing it.
-        :param int n: how many iterations to run (starting from 0!)
-                               (default is self.NT)
-        :return float runtime: runtime for this part of run, in seconds
+        Run n iterations of the simulation, saving data as it goes.
+        Parameters
+        ----------
+        n (int): how many iterations to run (self.NT by default)
+        save_data (bool): Whether or not to save the data
+
+        Returns
+        -------
+        runtime (float): runtime of this part of simulation in seconds
         """
         if n == -1:
             n = self.NT

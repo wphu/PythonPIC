@@ -1,3 +1,4 @@
+# coding=utf-8
 """ A particle in cell code implemented in Python, with a focus on efficiency and optimization """
 import argparse
 import time
@@ -14,7 +15,7 @@ def run_electrostatic(g, list_species, params, filename):
     NT, dt, epsilon_0 = params
     S = Simulation.Simulation(NT, dt, Constants(epsilon_0=epsilon_0, c=1), g, list_species, date_version_string())
     g.gather_charge(list_species)
-    fourier_field_energy = g.solve_poisson()
+    g.solve_poisson()
     for species in list_species:
         species.leapfrog_init(g.electric_field_function, dt)
 
@@ -45,17 +46,17 @@ def run_electrostatic(g, list_species, params, filename):
         filename = args.filename + ".hdf5"
     S.save_data(filename=filename, runtime=runtime)
 
+
 def run_electromagnetic(g, list_species, params, filename):
     """Full simulation run, with data gathering and saving to hdf5 file"""
     NT, dt, epsilon_0, B = params
-    constants = Constants()
     S = Simulation.Simulation(NT, dt, epsilon_0, g, list_species, date_version_string())
     g.gather_charge(list_species)
-    fourier_field_energy = g.solve_poisson()
+    g.solve_poisson()
 
     def magnetic_field_function(x):
         result = np.zeros((x.size, 3))
-        result[:,2] = B
+        result[:, 2] = B
         return result
 
     for species in list_species:
@@ -71,7 +72,7 @@ def run_electromagnetic(g, list_species, params, filename):
             # 1. GATHER FIELD TO PARTICLES
             # 2. INTEGRATE EQUATIONS OF MOTION
             kinetic_energy = species.boris_push_particles(g.electric_field_function,
-                    magnetic_field_function, dt, g.L).sum()
+                                                          magnetic_field_function, dt, g.L).sum()
             # TODO: remove sum from this place
             species.kinetic_energy_history[i] = kinetic_energy
             total_kinetic_energy += kinetic_energy
@@ -94,8 +95,10 @@ def run_electromagnetic(g, list_species, params, filename):
         filename = args.filename + ".hdf5"
     S.save_data(filename=filename, runtime=runtime)
 
+
 if __name__ == "__main__":
     from configs.run_twostream import two_stream_instability
+
     parser = argparse.ArgumentParser()
     parser.add_argument("filename", help="hdf5 file name for storing data")
     args = parser.parse_args()

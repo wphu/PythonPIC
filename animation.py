@@ -1,5 +1,6 @@
-import matplotlib.pyplot as plt
+# coding=utf-8
 import matplotlib.animation as anim
+import matplotlib.pyplot as plt
 import numpy as np
 
 colors = "brgyk"

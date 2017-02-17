@@ -1,10 +1,4 @@
-import numpy as np
-from Species import Species, RelativisticSpecies
-import numpy as np
-import matplotlib.pyplot as plt
 # import numba
-import time
-from Grid import RelativisticGrid
 
 
 # def test_rela_boris():

@@ -1,3 +1,4 @@
+# coding=utf-8
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -41,11 +42,11 @@ def temperature_time_plot(S, file_name):
 def energy_time_plots(S, file_name):
     fig2, energy_axes = plt.subplots()
     for species in S.all_species:
-        energy_axes.plot(np.arange(S.NT) * S.dt, (species.kinetic_energy_history), ".-",
+        energy_axes.plot(np.arange(S.NT) * S.dt, species.kinetic_energy_history, ".-",
                          label="Kinetic energy: {}".format(species.name))
-    energy_axes.plot(np.arange(S.NT) * S.dt, (S.grid.grid_energy_history), ".-", label="Field energy (Fourier)",
+    energy_axes.plot(np.arange(S.NT) * S.dt, S.grid.grid_energy_history, ".-", label="Field energy (Fourier)",
                      alpha=0.5)
-    energy_axes.plot(np.arange(S.NT) * S.dt, (S.total_energy), ".-", label="Total energy")
+    energy_axes.plot(np.arange(S.NT) * S.dt, S.total_energy, ".-", label="Total energy")
     energy_axes.plot(np.arange(S.NT) * S.dt, S.grid.epsilon_0 * (S.grid.electric_field_history ** 2).sum(axis=1) * 0.5,
                      ".-", label="Field energy (direct solve)", alpha=0.5)
     # TODO: implement direct field energy solver outside this place

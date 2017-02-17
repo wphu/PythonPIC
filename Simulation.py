@@ -1,3 +1,4 @@
+# coding=utf-8
 import time
 
 import h5py
@@ -9,7 +10,7 @@ from Species import Species
 from helper_functions import date_version_string
 
 
-class Simulation():
+class Simulation:
     """Contains data from one run of the simulation:
     NT: number of iterations
     NGrid: Number of points on the grid
@@ -39,11 +40,11 @@ class Simulation():
         self.date_ver_str = date_ver_str
         # TODO: add more information about run, maybe to plotting
 
-    def update_grid(self, i, grid = NotImplemented):
+    def update_grid(self, i):
         """Update the i-th set of field values"""
         self.grid.save_field_values(i)
 
-    def update_particles(self, i, list_species = NotImplemented):
+    def update_particles(self, i):
         """Update the i-th set of particle values"""
         for species in self.all_species:
             species.save_particle_values(i)
@@ -136,6 +137,4 @@ def load_data(filename):
 
     S.total_energy = total_energy
 
-    # for species in all_species:
-    #     S.position_history[species.name], S.velocity_history[species.name], S.kinetic_energy_history[species.name] = particle_histories[species.name]
     return S
