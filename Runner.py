@@ -41,8 +41,8 @@ class Runner():
         for name, arguments in kwargs.items():
             if type(arguments) is species_args:
                 s = Species(arguments.q, arguments.m, arguments.N, arguments.name, arguments.NT)
-                if arguments.initial_position == initial_positions.uniform:
-                    s.distribute_uniformly(self.grid.L)
+                if arguments.initial_position == initial_positions.uniform.name:
+                    s.distribute_uniformly(self.grid.L, 0)
                 # TODO: if arguments.initial_position == initial_positions.sinusoidal
                 particles_in_grid = s.x.max() < self.grid.L and s.x.min() >= 0
                 assert particles_in_grid

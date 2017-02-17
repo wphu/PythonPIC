@@ -3,6 +3,7 @@ from Grid import Grid
 from Species import Species
 from pic3 import run_electrostatic
 import plotting
+from Constants import Constants
 
 def cold_plasma_oscillations(filename, plasma_frequency=1, qmratio=-1, dt=0.2, NT=150,
                              NG=32, N_electrons=128, L=2 * np.pi, epsilon_0=1,

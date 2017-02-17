@@ -12,7 +12,7 @@ from helper_functions import date_version_string
 def run_electrostatic(g, list_species, params, filename):
     """Full simulation run, with data gathering and saving to hdf5 file"""
     NT, dt, epsilon_0 = params
-    S = Simulation.Simulation(NT, dt, epsilon_0, g, list_species, date_version_string())
+    S = Simulation.Simulation(NT, dt, Constants(epsilon_0=epsilon_0, c=1), g, list_species, date_version_string())
     g.gather_charge(list_species)
     fourier_field_energy = g.solve_poisson()
     for species in list_species:
@@ -100,6 +100,6 @@ if __name__ == "__main__":
     parser.add_argument("filename", help="hdf5 file name for storing data")
     args = parser.parse_args()
     if args.filename[-5:] != ".hdf5":
-        args.filename = args.filename + ".hdf5"
+        args.filename += ".hdf5"
 
     two_stream_instability("data_analysis/" + args.filename)

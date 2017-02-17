@@ -19,7 +19,8 @@ class Simulation():
     particle_positions, velocities: shape (NT, NParticle) numpy arrays of historical particle data
     charge_density, electric_field: shape (NT, NGrid) numpy arrays of historical grid data
     """
-    def __init__(self, NT, dt, constants: Constants, grid: Grid, list_species):
+
+    def __init__(self, NT, dt, constants: Constants, grid: Grid, list_species, date_ver_str=date_version_string()):
         """
         :param NT:
         :param dt:
@@ -27,14 +28,15 @@ class Simulation():
         :param grid:
         :param list_species:
         """
+        self.NT = NT
         self.grid = grid
         self.all_species = list_species
         self.field_energy = np.zeros(NT)
         self.total_energy = np.zeros(NT)
         self.constants = constants
         self.dt = dt
-        self.epsilon_0, self.NT = constants
-        self.date_ver_str = date_version_string()
+        self.epsilon_0, self.c = constants.epsilon_0, constants.c #TODO: refactor this
+        self.date_ver_str = date_ver_str
         # TODO: add more information about run, maybe to plotting
 
     def update_grid(self, i, grid = NotImplemented):
@@ -80,8 +82,11 @@ class Simulation():
         assert self.date_ver_str == other.date_ver_str, "date not equal!"
         result *= self.date_ver_str == other.date_ver_str
 
-        assert self.epsilon_0 == other.epsilon_0, "epsilon 0 not equal!"
-        result *= self.epsilon_0 == other.epsilon_0
+        assert self.constants.epsilon_0 == other.constants.epsilon_0, "epsilon 0 not equal!"
+        result *= self.constants.epsilon_0 == other.constants.epsilon_0
+
+        assert self.constants.c == other.constants.c, "epsilon 0 not equal!"
+        result *= self.constants.c == other.constants.c
 
         assert self.NT == other.NT, "NT not equal!"
         result *= self.NT == other.NT
@@ -127,7 +132,7 @@ def load_data(filename):
             all_species.append(species)
         date_ver_str = f.attrs['date_ver_str']
 
-    S = Simulation(NT, dt, grid.epsilon_0, grid, all_species, date_ver_str)
+    S = Simulation(NT, dt, Constants(epsilon_0=grid.epsilon_0, c=1), grid, all_species, date_ver_str)
 
     S.total_energy = total_energy
 
