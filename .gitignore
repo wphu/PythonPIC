@@ -2,3 +2,9 @@
 __pycache__
 .cache
 *.ipynb_checkpoints/
+_static/
+_templates/
+documentation/_static/
+documentation/_templates/
+**/.idea/workspace.xml
+**/.idea/tasks.xml
