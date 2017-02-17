@@ -15,5 +15,12 @@ def cold_plasma_oscillations(filename, q=-1, m=1, scaling_factor=1, dt=0.1, NT=1
 
 
 if __name__ == '__main__':
-    cold_plasma_oscillations("data_analysis/CO/CO.hdf5")
+    plasma_frequency = 1
+    N_electrons = 128
+    epsilon_0 = 1
+    qmratio = 1
+    L = 2 * pi
+    particle_charge = plasma_frequency ** 2 * L / float(N_electrons * epsilon_0 * qmratio)
+
+    cold_plasma_oscillations("data_analysis/CO/CO.hdf5", scaling_factor=particle_charge)
     plotting("data_analysis/CO/CO.hdf5", show=False, save=True, animate=False)
