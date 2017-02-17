@@ -16,6 +16,7 @@ def cold_plasma_oscillations(filename, plasma_frequency=1, qmratio=-1, dt=0.2, N
     print("Running cold plasma oscillations")
     particle_charge = plasma_frequency**2 * L / float(N_electrons * epsilon_0 * qmratio)
     particle_mass = particle_charge / qmratio
+    print(particle_charge, particle_mass)
 
     g = Grid(L=L, NG=NG, NT=NT)
     electrons = Species(particle_charge, particle_mass, N_electrons, "electrons", NT=NT)
@@ -28,19 +29,11 @@ def cold_plasma_oscillations(filename, plasma_frequency=1, qmratio=-1, dt=0.2, N
 
 
 if __name__ == '__main__':
-    show = True
-    save = False
+    show = False
+    save = True
+    animation = False
 
-    cold_plasma_oscillations("data_analysis/CO1/CO1.hdf5", NG=64, N_electrons=1024)
-    plotting.plotting("data_analysis/CO1/CO1.hdf5", show=show, save=save)
-
-    cold_plasma_oscillations("data_analysis/CO2/CO2.hdf5", NG=64, N_electrons=1024, push_amplitude=0.5)
-    plotting.plotting("data_analysis/CO2/CO2.hdf5", show=show, save=save)
-
-    cold_plasma_oscillations("data_analysis/CO3/CO3.hdf5", NG=64, N_electrons=1024, push_mode=4)
-    plotting.plotting("data_analysis/CO3/CO3.hdf5", show=show, save=save)
-
-    cold_plasma_oscillations("data_analysis/CO4/CO4.hdf5", NG=64, N_electrons=1024, push_mode=4, push_amplitude=0.5)
-    plotting.plotting("data_analysis/CO4/CO4.hdf5", show=show, save=save)
+    cold_plasma_oscillations("data_analysis/CO1/CO1.hdf5")
+    plotting.plotting("data_analysis/CO1/CO1.hdf5", show=show, save=save, animate=animation)
 
 
