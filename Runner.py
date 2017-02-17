@@ -1,5 +1,4 @@
 import time
-from collections import namedtuple
 from enum import Enum
 
 from numpy import pi
@@ -10,8 +9,7 @@ from Simulation import Simulation
 from Species import Species
 from helper_functions import date_version_string
 
-species_args = namedtuple('species_arguments', ['N', 'q', 'm', 'NT', 'name', 'initial_position'])
-initial_positions = Enum('initial positions', 'uniform')
+initial_positions = Enum('initial positions', ['uniform', "position_perturbation"])
 
 class Runner():
     """
@@ -39,10 +37,14 @@ class Runner():
         self.grid = Grid(NG=NG, L=L, NT=NT)
         self.list_species = []
         for name, arguments in kwargs.items():
-            if type(arguments) is species_args:
-                s = Species(arguments.q, arguments.m, arguments.N, arguments.name, arguments.NT)
-                if arguments.initial_position == initial_positions.uniform.name:
+            if type(arguments) is dict:
+                s = Species(arguments['q'], arguments['m'], arguments['N'], arguments['name'], arguments['NT'])
+                if arguments['initial_position'] == initial_positions.uniform.name:
                     s.distribute_uniformly(self.grid.L, 0)
+                elif arguments['initial_position'] == initial_positions.position_perturbation.name:
+                    s.distribute_uniformly(self.grid.L, 0)
+                    s.sinusoidal_position_perturbation(arguments['mode_amplitude'], arguments['mode_number'],
+                                                       self.grid.L)
                 # TODO: if arguments.initial_position == initial_positions.sinusoidal
                 particles_in_grid = s.x.max() < self.grid.L and s.x.min() >= 0
                 assert particles_in_grid
@@ -121,11 +123,3 @@ class Runner():
         for species in self.list_species:
             result_string = result_string + "\n\t" + str(species)
         return result_string
-
-
-if __name__ == '__main__':
-    runner = Runner(species1=species_args(1, 1, 1, 10, 'test particles', initial_positions.uniform))
-    runner.grid_species_initialization()
-    runner.run(save_data=False)
-    print(runner)
-    print("Run completed!")
