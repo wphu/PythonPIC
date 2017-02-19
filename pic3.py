@@ -6,45 +6,7 @@ import time
 import numpy as np
 
 import Simulation
-from Constants import Constants
 from helper_functions import date_version_string
-
-
-def run_electrostatic(g, list_species, params, filename):
-    """Full simulation run, with data gathering and saving to hdf5 file"""
-    NT, dt, epsilon_0 = params
-    S = Simulation.Simulation(NT, dt, Constants(epsilon_0=epsilon_0, c=1), g, list_species, date_version_string())
-    g.gather_charge(list_species)
-    g.solve_poisson()
-    for species in list_species:
-        species.leapfrog_init(g.electric_field_function, dt)
-
-    start_time = time.time()
-    for i in range(NT):
-        g.save_field_values(i)
-
-        total_kinetic_energy = 0
-        for species in list_species:
-            species.save_particle_values(i)
-            kinetic_energy = species.leapfrog_push(g.electric_field_function,
-                                                   dt,
-                                                   g.L).sum()
-            #   TODO: remove sum from this place
-            species.kinetic_energy_history[i] = kinetic_energy
-            total_kinetic_energy += kinetic_energy
-
-        g.gather_charge(list_species)
-        fourier_field_energy = g.solve_poisson()
-        g.grid_energy_history[i] = fourier_field_energy
-        total_energy = fourier_field_energy + total_kinetic_energy
-        S.total_energy[i] = total_energy
-
-    runtime = time.time() - start_time
-    print("Runtime: {}".format(runtime))
-
-    if filename[-5:] != ".hdf5":
-        filename = args.filename + ".hdf5"
-    S.save_data(filename=filename, runtime=runtime)
 
 
 def run_electromagnetic(g, list_species, params, filename):

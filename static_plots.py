@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+# TODO: a general static plot class and subclasses for each of these below - or use strategy functions
 def ESE_time_plots(S, file_name):
     fig, axis = plt.subplots()
     data = S.grid.energy_per_mode_history.T
@@ -74,12 +75,14 @@ def velocity_distribution_plots(S, file_name, i=0):
 
 def phase_trajectories(S, file_name):
     fig, axis = plt.subplots()
+    assert S.all_species # has members
     for species in S.all_species:
         # for i in range(species.N):
         i = int(species.N / 2)
         x = species.position_history[:, i]
         y = species.velocity_history[:, i, 0]
         axis.plot(x, y)
+    # noinspection PyUnboundLocalVariable
     axis.set_title("Phase space plot for particle {}".format(i))
     axis.set_xlabel("x")
     axis.set_ylabel("vx")

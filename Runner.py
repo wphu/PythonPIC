@@ -19,11 +19,11 @@ class Runner:
     """
 
     def __init__(self, NT: int = 1, dt: float = 0.1, epsilon_0: float = 1, c: float = 1, NG: int = 32,
-                 L: float = 2 * pi, filename=time.strftime("%Y-%m-%d_%H-%M-%S.hdf5"), **list_species):
+                 L: float = 2 * pi, filename=time.strftime("%Y-%m-%d_%H-%M-%S.hdf5"), **list_species: dict):
         """
         Initial conditions and settings for the simulation
         :param int NT: number of iterations
-        :param float dt: iteration timestep
+        :param float dt: iteration time step
         :param float epsilon_0: the physical constant
         :param float c: the speed of light
         :param int NG: number of grid points
@@ -41,9 +41,9 @@ class Runner:
             if type(arguments) is dict:
                 s = Species(arguments['q'], arguments['m'], arguments['N'], arguments['name'], arguments['NT'])
                 if arguments['initial_position'] == initial_positions.uniform.name:
-                    s.distribute_uniformly(self.grid.L, 0)
+                    s.distribute_uniformly(self.grid.L)
                 elif arguments['initial_position'] == initial_positions.position_perturbation.name:
-                    s.distribute_uniformly(self.grid.L, 0)
+                    s.distribute_uniformly(self.grid.L)
                     s.sinusoidal_position_perturbation(arguments['mode_amplitude'], arguments['mode_number'],
                                                        self.grid.L)
                 # TODO: if arguments.initial_position == initial_positions.sinusoidal
@@ -96,7 +96,7 @@ class Runner:
         self.grid.grid_energy_history[i] = fourier_field_energy
         self.simulation.total_energy[i] = total_kinetic_energy + fourier_field_energy
 
-    def run(self, n: int = -1, save_data=True):
+    def run(self, n: int = -1, save_data: bool = True) -> float:
         """
         Run n iterations of the simulation, saving data as it goes.
         Parameters
@@ -124,7 +124,7 @@ class Runner:
         result_string = f"""
         Runner from {self.run_date} containing:
         Epsilon zero = {self.constants.epsilon_0}, c = {self.constants.epsilon_0}
-        {self.NT} iterations with timestep {self.dt}
+        {self.NT} iterations with time step {self.dt}
         {self.grid.NG}-cell grid of length {self.grid.L:.2f}""".lstrip()
         for species in self.list_species:
             result_string = result_string + "\n\t" + str(species)

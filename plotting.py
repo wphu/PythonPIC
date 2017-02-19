@@ -11,7 +11,7 @@ from spectrograph import spectral_analysis
 directory = "data_analysis/"
 
 
-def plotting(filename, show=True, save=False, animate=True, lines=False, alpha=1):
+def plotting(filename: str, show: bool = True, save: bool = False, animate: bool = True, lines: bool = False, alpha: float = 1):
     print("Plotting for %s" % filename)
     S = Simulation.load_data(filename)
     static_plots.energy_time_plots(S, filename.replace(".hdf5", "_energy.png"))
@@ -24,7 +24,8 @@ def plotting(filename, show=True, save=False, animate=True, lines=False, alpha=1
             videofile_name = filename.replace(".hdf5", ".mp4")
         else:
             videofile_name = None
-        anim = animation.animation(S, videofile_name, lines, alpha=alpha)
+        # noinspection PyUnusedLocal
+        anim = animation.animation(S, videofile_name, lines, alpha=alpha)  # this has to be saved and not used due to matplotlib.animation
     if show:
         plt.show()
     else:

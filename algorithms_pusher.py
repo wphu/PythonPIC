@@ -1,6 +1,7 @@
 """mathematical algorithms for the particle pusher, Leapfrog and Boris"""
 # coding=utf-8
 import numpy as np
+from typing import Tuple
 
 
 # import numba
@@ -42,7 +43,8 @@ def rotation_matrix(t: np.ndarray, s: np.ndarray, n: int) -> np.ndarray:
 
 
 # @numba.njit()
-def rela_boris_push(x, v, E, B, q, m, dt, c=1):
+def rela_boris_push(x: np.ndarray, v: np.ndarray, E: np.ndarray, B: np.ndarray, q: float, m: float, dt: float,
+                    c: float = 1) -> Tuple(np.ndarray, np.ndarray):
     """
     relativistic Boris pusher
     """

@@ -12,7 +12,7 @@ class Species:
     m: float, particle mass
     N: int, total number of particles in species
     name: string, ID of particles
-    NT: int, number of timesteps (for diagnostics)
+    NT: int, number of time steps (for diagnostics)
     """
 
     def __init__(self, q, m, N, name=None, NT=1):
@@ -21,7 +21,7 @@ class Species:
         :param float m: particle mass
         :param int N: total number of species particles
         :param str name: name of particle set
-        :param int NT: number of timesteps (for history saving)
+        :param int NT: number of time steps (for history saving)
         """
         self.q = q
         self.m = m
@@ -53,11 +53,11 @@ class Species:
         b) uses -dt/2
 
         :param electric_field_function: E(x), interpolated from grid
-        :param float dt: original timestep
-        :return float energy: (N,) size array of particle kinetic energies calculated at half timestep
+        :param float dt: original time step
+        :return float energy: (N,) size array of particle kinetic energies calculated at half time step
         """
         """Leapfrog pusher initialization
-        dt: usual timestep, minus halving is done automatically"""
+        dt: usual time step, minus halving is done automatically"""
 
         electric_force = electric_field_function(self.x) * self.q / self.m
         v_new = self.v.copy()
@@ -71,9 +71,9 @@ class Species:
         Leapfrog pusher for particles.
 
         :param electric_field_function: E(x), interpolated from grid
-        :param float dt: original timestep
+        :param float dt: original time step
         :param float L: grid size, used to enforce boundary condition
-        :return float energy: (N,) size array of particle kinetic energies calculated at half timestep
+        :return float energy: (N,) size array of particle kinetic energies calculated at half time step
         """
         electric_force = electric_field_function(self.x) * self.q / self.m
         v_new = self.v.copy()
@@ -89,22 +89,22 @@ class Species:
     Initial conditions
     """
 
-    def distribute_uniformly(self, Lx, shift=False):
-        self.x = (np.linspace(Lx / self.N / 1e10, Lx, self.N, endpoint=False) + shift * self.N / Lx / 10) % Lx
+    def distribute_uniformly(self, Lx: float, shift: float = 0):
+        self.x = (np.linspace(Lx / self.N / 1e10, Lx, self.N, endpoint=False) + shift * self.N / Lx / 10) % Lx  # Type:
 
-    def sinusoidal_position_perturbation(self, amplitude, mode, L):
+    def sinusoidal_position_perturbation(self, amplitude: float, mode: int, L: float):
         self.x += amplitude * np.cos(2 * mode * np.pi * self.x / L)
         self.x %= L
 
-    def sinusoidal_velocity_perturbation(self, axis, amplitude, mode, L):
+    def sinusoidal_velocity_perturbation(self, axis: int, amplitude: float, mode: int, L: float):
         self.v[:, axis] += amplitude * np.cos(2 * mode * np.pi * self.x / L)
 
-    def random_velocity_perturbation(self, axis, std):
+    def random_velocity_perturbation(self, axis: int, std: float):
         self.v[:, axis] += np.random.normal(scale=std, size=self.N)
 
     """ DATA ACCESS """
 
-    def save_particle_values(self, i):
+    def save_particle_values(self, i: int):
         """Update the i-th set of particle values"""
         self.position_history[i] = self.x[::self.save_every_n_particle]
         self.velocity_history[i] = self.v[::self.save_every_n_particle]
@@ -112,7 +112,7 @@ class Species:
     def save_to_h5py(self, species_data):
         """
         Saves all species data to h5py file
-        species_data: h5py group for this species in premade hdf5 file
+        species_data: h5py group for this species in pre-made hdf5 file
         """
         species_data.attrs['name'] = self.name
         species_data.attrs['N'] = self.N
@@ -124,9 +124,10 @@ class Species:
         species_data.create_dataset(name="Kinetic energy", dtype=float, data=self.kinetic_energy_history)
 
     def load_from_h5py(self, species_data):
+        # TODO: move this out of class
         """
         Loads species data from h5py file
-        species_data: h5py group for this species in premade hdf5 file
+        species_data: h5py group for this species in pre-made hdf5 file
         """
         self.name = species_data.attrs['name']
         self.N = species_data.attrs['N']
@@ -153,7 +154,7 @@ class Species:
 
 class RelativisticSpecies(Species):
     def boris_init(self, electric_field_function, magnetic_field_function, dt):
-        """Boris pusher initialization, unrelativistic"""
+        """Boris pusher initialization, nonrelativistic"""
 
         dt = -dt / 2
         # add half electric impulse to v(t-dt/2)
@@ -165,16 +166,16 @@ class RelativisticSpecies(Species):
         t = -magnetic_field_function(self.x) * self.q / self.m * dt * 0.5
         s = 2 * t / (1 + t * t)
 
-        vprime = vminus + np.cross(vminus, t)  # TODO: axis?
-        vplus = vminus + np.cross(vprime, s)
-        v_new = vplus + self.q * efield / self.m * dt * 0.5
+        vprime = vminus + np.cross(vminus, t)  # type: np.ndarray # TODO: axis?
+        vplus = vminus + np.cross(vprime, s)  # type: np.ndarray
+        v_new = vplus + self.q * efield / self.m * dt * 0.5  # type: np.ndarray
 
         energy = self.v * v_new * (0.5 * self.m)
         self.v = v_new
         return energy
 
     def boris_push_particles(self, electric_field_function, magnetic_field_function, dt, L):
-        """Boris pusher, unrelativistic"""
+        """Boris pusher, nonrelativistic"""
         # add half electric impulse to v(t-dt/2)
         efield = np.zeros((self.N, 3))
         efield[:, 0] = electric_field_function(self.x)

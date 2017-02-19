@@ -36,25 +36,11 @@ class Simulation:
         self.total_energy = np.zeros(NT)
         self.constants = constants
         self.dt = dt
-        self.epsilon_0, self.c = constants.epsilon_0, constants.c #TODO: refactor this
+        self.epsilon_0, self.c = constants.epsilon_0, constants.c  # TODO: refactor this
         self.date_ver_str = date_ver_str
         # TODO: add more information about run, maybe to plotting
 
-    def update_grid(self, i):
-        """Update the i-th set of field values"""
-        self.grid.save_field_values(i)
-
-    def update_particles(self, i):
-        """Update the i-th set of particle values"""
-        for species in self.all_species:
-            species.save_particle_values(i)
-
-    def update_diagnostics(self, i, kinetic_energy, field_energy, total_energy):
-        self.kinetic_energy[i] = kinetic_energy
-        self.field_energy[i] = field_energy
-        self.total_energy[i] = total_energy
-
-    def save_data(self, filename=time.strftime("%Y-%m-%d_%H-%M-%S.hdf5"), runtime=None):
+    def save_data(self, filename: str = time.strftime("%Y-%m-%d_%H-%M-%S.hdf5"), runtime: bool = False) -> str:
         """Save simulation data to hdf5.
         filename by default is the timestamp for the simulation."""
 
@@ -78,7 +64,7 @@ class Simulation:
         print("Saved file to {}".format(filename))
         return filename
 
-    def __eq__(self, other):
+    def __eq__(self, other: 'Simulation') -> bool:
         result = True
         assert self.date_ver_str == other.date_ver_str, "date not equal!"
         result *= self.date_ver_str == other.date_ver_str
@@ -103,15 +89,7 @@ class Simulation:
         return result
 
 
-def read_hdf5_group(group):
-    print("Group:", group)
-    for i in group:
-        print(i, group[i])
-    for attr in group.attrs:
-        print(attr, group.attrs[attr])
-
-
-def load_data(filename):
+def load_data(filename: str) -> Simulation:
     """Create a Simulation object from a hdf5 file"""
     with h5py.File(filename, "r") as f:
         total_energy = f['Total energy'][...]
@@ -126,9 +104,8 @@ def load_data(filename):
 
         all_species = []
         for species_group_name in f['species']:
-            # import ipdb; ipdb.set_trace()
             species_group = f['species'][species_group_name]
-            species = Species(1,1,1, NT=NT)
+            species = Species(1, 1, 1, NT=NT)
             species.load_from_h5py(species_group)
             all_species.append(species)
         date_ver_str = f.attrs['date_ver_str']
