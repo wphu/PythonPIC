@@ -1,3 +1,4 @@
+"""Class representing a group of particles"""
 # coding=utf-8
 import numpy as np
 
@@ -6,7 +7,7 @@ MAX_SAVED_PARTICLES = int(1e4)
 
 class Species:
     """Object representing a species of particles: ions, electrons, or simply
-    a group of particles with a particular (heh) initial velocity distribution.
+    a group of particles with a particular (nyeh) initial velocity distribution.
 
     q: float, particle charge
     m: float, particle mass
@@ -53,11 +54,9 @@ class Species:
         b) uses -dt/2
 
         :param electric_field_function: E(x), interpolated from grid
-        :param float dt: original time step
+        :param float dt: original time step.
         :return float energy: (N,) size array of particle kinetic energies calculated at half time step
         """
-        """Leapfrog pusher initialization
-        dt: usual time step, minus halving is done automatically"""
 
         electric_force = electric_field_function(self.x) * self.q / self.m
         v_new = self.v.copy()
@@ -85,21 +84,49 @@ class Species:
         self.v = v_new
         return energy
 
-    """ INITIALIZATION
-    Initial conditions
-    """
+    """POSITION INITIALIZATION"""
 
     def distribute_uniformly(self, Lx: float, shift: float = 0):
+        """
+        Distribute uniformly on grid.
+
+        :param Lx: grid size
+        :param shift: displace all particles right by this distance
+        """
         self.x = (np.linspace(Lx / self.N / 1e10, Lx, self.N, endpoint=False) + shift * self.N / Lx / 10) % Lx  # Type:
 
     def sinusoidal_position_perturbation(self, amplitude: float, mode: int, L: float):
+        """
+        Displace positions by a sinusoidal perturbation calculated for each particle.
+
+        :param float amplitude: Amplitude of perturbation
+        :param int mode: which mode is excited
+        :param float L: grid length
+        :return:
+        """
         self.x += amplitude * np.cos(2 * mode * np.pi * self.x / L)
-        self.x %= L
+        self.x %= L  # ensure boundaries
+
+    """VELOCITY INITIALIZATION"""
 
     def sinusoidal_velocity_perturbation(self, axis: int, amplitude: float, mode: int, L: float):
+        """
+        Displace velocities by a sinusoidal perturbation calculated for each particle.
+
+        :param int axis: axis, for 3d velocities
+        :param float amplitude: of perturbation
+        :param int mode: which mode is excited
+        :param float L: grid length
+        """
         self.v[:, axis] += amplitude * np.cos(2 * mode * np.pi * self.x / L)
 
     def random_velocity_perturbation(self, axis: int, std: float):
+        """
+        Add Gausian noise to particle velocities on
+
+        :param int axis:
+        :param float std: standard deviation of noise
+        """
         self.v[:, axis] += np.random.normal(scale=std, size=self.N)
 
     """ DATA ACCESS """
@@ -153,6 +180,7 @@ class Species:
 
 
 class RelativisticSpecies(Species):
+    """Particle class for relativistic simulations"""
     def boris_init(self, electric_field_function, magnetic_field_function, dt):
         """Boris pusher initialization, nonrelativistic"""
 

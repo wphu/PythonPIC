@@ -1,3 +1,4 @@
+"""Class representing a run of the simulation"""
 # coding=utf-8
 import time
 from enum import Enum

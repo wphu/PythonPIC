@@ -1,3 +1,4 @@
+"""Data interface class"""
 # coding=utf-8
 import time
 

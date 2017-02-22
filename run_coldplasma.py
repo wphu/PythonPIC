@@ -1,3 +1,4 @@
+""" Run cold plasma oscillations"""
 # coding=utf-8
 from numpy import pi
 
@@ -10,21 +11,21 @@ def cold_plasma_oscillations(filename: str, q: float = -1, m: float = 1, scaling
                              NG: int = 32, N_electrons: int = 128, L: float = 2 * pi, epsilon_0: float = 1, c: float = 1,
                              push_amplitude: float = 0.001, push_mode: float = 1):
     """
+    Runs cold plasma oscilltaions
 
-    :param test filename:
-    :param q:
-    :param m:
-    :param scaling_factor:
-    :param dt:
-    :param NT:
-    :param NG:
-    :param N_electrons:
-    :param L:
-    :param epsilon_0:
-    :param c:
-    :param push_amplitude:
-    :param push_mode:
-    :return:
+    :param str filename: hdf5 file name
+    :param float q: particle charge
+    :param float m: particle mass
+    :param float scaling_factor: how many particles should be represented by each superparticle
+    :param float dt: timestep
+    :param int NT: number of timesteps to run
+    :param int N_electrons: number of electron superparticles
+    :param int NG: number of cells on grid
+    :param float L: grid size
+    :param float epsilon_0: the physical constant
+    :param float c: the speed of light
+    :param float push_amplitude: amplitude of initial position displacement
+    :param int push_mode: mode of initially excited mode
     """
     particles = dict(N=N_electrons, q=q * scaling_factor, m=m * scaling_factor, NT=NT, name="particles",
                      initial_position="position_perturbation", mode_number=push_mode, mode_amplitude=push_amplitude)
