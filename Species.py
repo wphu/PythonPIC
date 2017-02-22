@@ -2,6 +2,8 @@
 # coding=utf-8
 import numpy as np
 
+from algorithms_pusher import rela_boris_push
+
 MAX_SAVED_PARTICLES = int(1e4)
 
 
@@ -46,7 +48,7 @@ class Species:
         self.kinetic_energy_history = np.zeros(NT)
 
     # TODO:
-    def leapfrog_init(self, electric_field_function, dt):
+    def init_push(self, electric_field_function, dt, *args):
         r"""
         Initializes particles for Leapfrog pushing.
         Same as `leapfrog_push`, except
@@ -65,7 +67,7 @@ class Species:
         self.v = v_new
         return energy
 
-    def leapfrog_push(self, electric_field_function, dt, L):
+    def push(self, electric_field_function, dt, L, *args):
         r"""
         Leapfrog pusher for particles.
 
@@ -179,9 +181,10 @@ class Species:
         return result
 
 
-class RelativisticSpecies(Species):
-    """Particle class for relativistic simulations"""
-    def boris_init(self, electric_field_function, magnetic_field_function, dt):
+class MagneticSpecies(Species):
+    """Particle class for magnetic simulations"""
+
+    def init_push(self, electric_field_function, dt, magnetic_field_function, *args):
         """Boris pusher initialization, nonrelativistic"""
 
         dt = -dt / 2
@@ -202,7 +205,7 @@ class RelativisticSpecies(Species):
         self.v = v_new
         return energy
 
-    def boris_push_particles(self, electric_field_function, magnetic_field_function, dt, L):
+    def push(self, electric_field_function, dt, L, magnetic_field_function, *args):
         """Boris pusher, nonrelativistic"""
         # add half electric impulse to v(t-dt/2)
         efield = np.zeros((self.N, 3))
@@ -223,9 +226,22 @@ class RelativisticSpecies(Species):
         energy = self.v * v_new * (0.5 * self.m)
         self.v = v_new
         return energy
-        # add remaining half of electric impulse
 
 
-if __name__ == "__main__":
-    s = Species(1, 1, 1)
-    print(s)
+class RelativisticSpecies(Species):
+    """Particle class for relativistic electromagnetic simulations"""
+
+    def init_push(self, electric_field_function, dt, magnetic_field_function, c, *args):
+        """Boris pusher initialization, relativistic"""
+
+        E = electric_field_function(self.x)
+        B = magnetic_field_function(self.x)
+        _, self.v, energy = rela_boris_push(self.x, self.v, E, B, self.q, self.m, -dt / 2, c)
+        return energy
+
+    def push(self, electric_field_function, dt, L, magnetic_field_function, c, *args):
+        """Boris pusher, relativistic"""
+        E = electric_field_function(self.x)
+        B = magnetic_field_function(self.x)
+        self.x, self.v, energy = rela_boris_push(self.x, self.v, E, B, self.q, self.m, dt, c)
+        return energy

@@ -67,7 +67,7 @@ class Runner:
         self.grid.solve_poisson()  # TODO: abstract field solver
         for species in self.list_species:
             # TODO: abstract pusher
-            species.leapfrog_init(self.grid.electric_field_function, self.dt)
+            species.init_push(self.grid.electric_field_function, self.dt)
 
     def iteration(self, i: int):
         """
@@ -85,9 +85,7 @@ class Runner:
         total_kinetic_energy = 0  # accumulate over species
         for species in self.list_species:
             species.save_particle_values(i)
-            kinetic_energy = species.leapfrog_push(self.grid.electric_field_function,
-                                                   self.dt,
-                                                   self.grid.L).sum()
+            kinetic_energy = species.push(self.grid.electric_field_function, self.dt, self.grid.L).sum()
             # TODO: remove this sum
             species.kinetic_energy_history[i] = kinetic_energy
             total_kinetic_energy += kinetic_energy

@@ -22,7 +22,7 @@ def run_electromagnetic(g, list_species, params, filename):
         return result
 
     for species in list_species:
-        species.boris_init(g.electric_field_function, magnetic_field_function, dt, g.L)
+        species.init_push(g.electric_field_function, magnetic_field_function, dt)
 
     start_time = time.time()
     for i in range(NT):
@@ -33,8 +33,7 @@ def run_electromagnetic(g, list_species, params, filename):
             species.save_particle_values(i)
             # 1. GATHER FIELD TO PARTICLES
             # 2. INTEGRATE EQUATIONS OF MOTION
-            kinetic_energy = species.boris_push_particles(g.electric_field_function,
-                                                          magnetic_field_function, dt, g.L).sum()
+            kinetic_energy = species.push(g.electric_field_function, magnetic_field_function, dt, g.L).sum()
             # TODO: remove sum from this place
             species.kinetic_energy_history[i] = kinetic_energy
             total_kinetic_energy += kinetic_energy
