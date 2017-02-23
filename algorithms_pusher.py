@@ -46,12 +46,12 @@ def rela_boris_push(x: np.ndarray, v: np.ndarray, E: np.ndarray, B: np.ndarray, 
     """
     relativistic Boris pusher
     """
-    vminus = v + q * E / m * dt * 0.5
+    vminus = v + q * E / m * dt * 0.5  # eq. 21 LPIC
     n = x.size
-    gamma_middle = np.sqrt(1 + ((vminus / c) ** 2).sum(axis=1, keepdims=True))
+    gamma_n = np.sqrt(1 + ((vminus / c) ** 2).sum(axis=1, keepdims=True))  # below eq 22 LPIC
 
     # rotate to add magnetic field
-    t = B * q * dt / (2 * m * gamma_middle)
+    t = B * q * dt / (2 * m * gamma_n)  # above eq 23 LPIC
     s = 2 * t / (1 + t * t)
 
     rot = rotation_matrix(t, s, n)

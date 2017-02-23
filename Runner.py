@@ -85,7 +85,8 @@ class Runner:
         total_kinetic_energy = 0  # accumulate over species
         for species in self.list_species:
             species.save_particle_values(i)
-            kinetic_energy = species.push(self.grid.electric_field_function, self.dt, self.grid.L).sum()
+            kinetic_energy = species.push(self.grid.electric_field_function, self.dt).sum()
+            species.return_to_bounds(self.grid.L)
             # TODO: remove this sum
             species.kinetic_energy_history[i] = kinetic_energy
             total_kinetic_energy += kinetic_energy

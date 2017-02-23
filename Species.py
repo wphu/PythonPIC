@@ -67,7 +67,7 @@ class Species:
         self.v = v_new
         return energy
 
-    def push(self, electric_field_function, dt, L, *args):
+    def push(self, electric_field_function, dt, *args):
         r"""
         Leapfrog pusher for particles.
 
@@ -81,10 +81,12 @@ class Species:
         v_new[:, 0] += electric_force * dt
 
         self.x += v_new[:, 0] * dt
-        self.x %= L  # enforce boundary condition
         energy = self.v * v_new * (0.5 * self.m)
         self.v = v_new
         return energy
+
+    def return_to_bounds(self, L):
+        self.x %= L
 
     """POSITION INITIALIZATION"""
 
@@ -205,7 +207,7 @@ class MagneticSpecies(Species):
         self.v = v_new
         return energy
 
-    def push(self, electric_field_function, dt, L, magnetic_field_function, *args):
+    def push(self, electric_field_function, dt, magnetic_field_function, *args):
         """Boris pusher, nonrelativistic"""
         # add half electric impulse to v(t-dt/2)
         efield = np.zeros((self.N, 3))
@@ -222,7 +224,6 @@ class MagneticSpecies(Species):
 
         self.x += v_new[:, 0] * dt
 
-        self.x %= L
         energy = self.v * v_new * (0.5 * self.m)
         self.v = v_new
         return energy
@@ -239,7 +240,7 @@ class RelativisticSpecies(Species):
         _, self.v, energy = rela_boris_push(self.x, self.v, E, B, self.q, self.m, -dt / 2, c)
         return energy
 
-    def push(self, electric_field_function, dt, L, magnetic_field_function, c, *args):
+    def push(self, electric_field_function, dt, magnetic_field_function, c, *args):
         """Boris pusher, relativistic"""
         E = electric_field_function(self.x)
         B = magnetic_field_function(self.x)

@@ -73,17 +73,34 @@ def velocity_distribution_plots(S, file_name, i=0):
     return fig
 
 
-def phase_trajectories(S, file_name):
+def velocity_time_plots(s, dt):
+    fig, axes = plt.subplots(3)
+    labels = ["vx", "vy", "vz"]
+    t = np.arange(s.NT) * dt
+    for i in range(3):
+        axes[i].plot(t, s.velocity_history[:, :, i])
+        axes[i].set_ylabel(labels[i])
+        axes[i].set_xlabel("t")
+        axes[i].grid()
+    return fig
+
+
+def phase_trajectories(S, file_name, all=False):
     fig, axis = plt.subplots()
     assert S.all_species # has members
     for species in S.all_species:
         # for i in range(species.N):
-        i = int(species.N / 2)
-        x = species.position_history[:, i]
-        y = species.velocity_history[:, i, 0]
+        if all:
+            x = species.position_history[:, :]
+            y = species.velocity_history[:, :, 0]
+            axis.set_title("Phase space plot")
+        else:
+            i = int(species.N / 2)
+            x = species.position_history[:, i]
+            y = species.velocity_history[:, i, 0]
+            axis.set_title("Phase space plot for particle {}".format(i))
         axis.plot(x, y)
     # noinspection PyUnboundLocalVariable
-    axis.set_title("Phase space plot for particle {}".format(i))
     axis.set_xlabel("x")
     axis.set_ylabel("vx")
     axis.grid()
