@@ -1,14 +1,37 @@
-Algorytmy Particle-in-Cell ("cząstka w komórce") to jedne z najbardziej zbliżonych do fundamentalnej fizyki metod symulacji
-materii w stanie plazmy. Zastosowany w nich lagranżowski opis cząsteczek pozwala na dokładne odwzorowanie dynamiki ruchu
-elektronów i jonów. Jednocześnie, ewolucja pola elektromagnetycznego na Eulerowskiej siatce dokonywana zamiast bezpośredniego obliczania
-oddziaływań międzycząsteczkowych pozwala na znaczące przyspieszenie etapu obliczenia oddziaływań międzycząsteczkowych.
+Algorytmy Particle-in-Cell ("cząstka w komórce") to jedne z najbardziej zbliżonych do fundamentalnej fizyki
+metod symulacji materii w stanie plazmy. Zastosowany w nich lagranżowski opis cząsteczek pozwala na dokładne
+odwzorowanie dynamiki ruchu elektronów i jonów. Jednocześnie, ewolucja pola elektromagnetycznego na Eulerowskiej
+siatce dokonywana zamiast bezpośredniego obliczania oddziaływań międzycząsteczkowych pozwala na znaczące
+przyspieszenie etapu obliczenia oddziaływań międzycząsteczkowych. W większości symulacji cząsteczkowych właśnie
+ten etap jest najbardziej krytyczny dla wydajności progamu.
+
+W ostatnich czasach symulacje Particle-in-Cell zostały wykorzystane m.in. do
+\item symulacji przewidywanej turbulencji plazmy w reaktorze termojądrowym ITER %TODO: źródło,
+\item modelowania rekonekcji linii magnetycznych w polu gwiazdy %TODO: źródło
+\item projektowania silników jonowych (Halla) %TODO: jak wyżej
+\item badania interakcji laserów z plazmą w kontekście tworzenia niewielkich akceleratorów cząstek %TODO 
+
+Należy zauważyć, że w świetle rosnącej dostępności silnie równoległej mocy obliczeniowej w postaci kart graficznych %TODO
+możliwości algorytmów Particle-in-Cell będą rosły współmiernie, co może pozwolić na rozszerzenie ich zastosowań.
+Inżynieria oprogramowania zorientowanego na wykorzystanie możliwości kart graficznych jest jednak utrudniona poprzez
+niskopoziomowość %TODO: to sformułowanie zabiło JFK i chciałbym inne
+istniejących technologii (CUDA, OpenGL) %TODO: źródło
+co utrudnia pisanie złożonych programów, zwłaszcza przez osoby zajmujące się głównie pracą badawczą
+niż wyłącznie programowaniem. %TODO: przeformułować
+
+Niniejsza praca ma na celu utworzenie kodu symulacyjnego wykorzystującego metodę Particle-in-Cell w języku
+wysokopoziomowym i %wyciśnięcie z niego tylu flopsów ile się da!
+Ma to dwojaki sens:
+1. zweryfikowanie możliwości leżących w obecnych językach wysokopoziomowych bez wykorzystywania kart graficznych
 
 Python jest wysokopoziomowym, interpretowanym językiem programowania, którego atutami są szybkie prototypowanie,
 
 Python znajduje zastosowania w analizie danych, uczeniu maszynowym (zwłaszcza w astronomii). W zakresie symulacji
 w ostatnich czasach powstały kody skalujące się nawet w zakres superkomputerów, np. w mechanice płynów % TODO: PyFR
 
-Atutem Pythona w wysokowydajnych obliczeniach jest łatwość wywoływania w nim zewnętrznych bibliotek napisanych na przykład w C lub Fortranie, co pozwala
-na osiągnięcie podobnych rezultatów wydajnościowych jak dla kodów napisanych w C.
+Atutem Pythona w wysokowydajnych obliczeniach jest łatwość wywoływania w nim zewnętrznych bibliotek napisanych
+na przykład w C lub Fortranie, co pozwala na osiągnięcie podobnych rezultatów wydajnościowych jak dla kodów
+napisanych w C.
 
-Innym podejściem do optymalizacji kodu napisanego w Pythonie jest kompilacja Just-In-Time
+Innym podejściem do optymalizacji kodu napisanego w Pythonie jest kompilacja Just-In-Time, polegająca na % TODO: JIT
+
