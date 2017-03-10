@@ -43,7 +43,7 @@ def cold_plasma_oscillations(filename: str,
     particles.distribute_uniformly(L)
     particles.sinusoidal_position_perturbation(push_amplitude, push_mode, L)
     grid = Grid(L, NG, epsilon_0, NT)
-    run = Simulation(NT, dt, Constants(epsilon_0, c), grid, [particles], filename=filename)
+    run = Simulation(NT, dt, Constants(c, epsilon_0), grid, [particles], filename=filename)
     run.grid_species_initialization()
     run.run()
 

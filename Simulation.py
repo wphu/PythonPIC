@@ -39,16 +39,6 @@ class Simulation:
         :param list_species:
         """
 
-        # if T and NT:
-        #     print("Running on T, NT")
-        #     self.dt = T / NT
-        #     self.NT = NT
-        # elif T and dt:
-        #     print("Running on T, dt")
-        #     self.NT = np.ceil(T // dt)
-        #     self.dt = dt
-        # elif NT and dt:
-        #     print("Running on NT, dt")
         self.NT = NT
         self.dt = dt
         self.grid = grid
