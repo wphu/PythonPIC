@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 import Simulation
 import animation
 import static_plots
-from spectrograph import spectral_analysis
 
 directory = "data_analysis/"
 
@@ -33,7 +32,7 @@ def plotting(filename: str, show: bool = True, save: bool = False, animate: bool
     static_plots.energy_time_plots(S, filename.replace(".hdf5", "_energy.png"))
     static_plots.ESE_time_plots(S, filename.replace(".hdf5", "_mode_energy.png"))
     static_plots.temperature_time_plot(S, filename.replace(".hdf5", "_temperature.png"))
-    spectral_analysis(S, filename.replace(".hdf5", "_spectro.png"))
+    # spectral_analysis(S, filename.replace(".hdf5", "_spectro.png"))
     if animate:
         if save:
             videofile_name = filename.replace(".hdf5", ".mp4")

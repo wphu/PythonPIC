@@ -3,6 +3,7 @@
 import time
 from enum import Enum
 
+import numpy as np
 from numpy import pi
 
 from Constants import Constants
@@ -20,7 +21,7 @@ class Runner:
     """
 
     def __init__(self, NT: int = 1, dt: float = 0.1, epsilon_0: float = 1, c: float = 1, NG: int = 32,
-                 L: float = 2 * pi, filename=time.strftime("%Y-%m-%d_%H-%M-%S.hdf5"), **list_species: dict):
+                 L: float = 2 * pi, filename=time.strftime("%Y-%m-%d_%H-%M-%S.hdf5"), T=None, **list_species: dict):
         """
         Initial conditions and settings for the simulation
         :param int NT: number of iterations
@@ -33,8 +34,15 @@ class Runner:
         :param args: positional arguments, currently unused
         :param species_args list_species: settings for particle species
         """
-        self.NT = NT
-        self.dt = dt  # TODO: allow passing total simulation time
+        if T and NT:
+            self.dt = T / NT
+            self.NT = NT
+        elif T and dt:
+            self.NT = np.ceil(T // dt)
+            self.dt = dt
+        elif NT and dt:
+            self.NT = NT
+            self.dt = dt
         self.constants = Constants(c, epsilon_0)
         self.grid = Grid(NG=NG, L=L, NT=NT)
         self.list_species = []
