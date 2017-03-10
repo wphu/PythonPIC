@@ -1,16 +1,10 @@
 """Class representing a run of the simulation"""
 # coding=utf-8
-import time
 from enum import Enum
 
-import numpy as np
 from numpy import pi
 
-from Constants import Constants
-from Grid import Grid
-from Simulation import Simulation
 from Species import Species
-from helper_functions import date_version_string
 
 initial_positions = Enum('initial positions', ['uniform', "position_perturbation"])
 
@@ -21,7 +15,7 @@ class Runner:
     """
 
     def __init__(self, NT: int = 1, dt: float = 0.1, epsilon_0: float = 1, c: float = 1, NG: int = 32,
-                 L: float = 2 * pi, filename=time.strftime("%Y-%m-%d_%H-%M-%S.hdf5"), T=None, **list_species: dict):
+                 L: float = 2 * pi, T=None, **list_species: dict):
         """
         Initial conditions and settings for the simulation
         :param int NT: number of iterations
@@ -34,17 +28,6 @@ class Runner:
         :param args: positional arguments, currently unused
         :param species_args list_species: settings for particle species
         """
-        if T and NT:
-            self.dt = T / NT
-            self.NT = NT
-        elif T and dt:
-            self.NT = np.ceil(T // dt)
-            self.dt = dt
-        elif NT and dt:
-            self.NT = NT
-            self.dt = dt
-        self.constants = Constants(c, epsilon_0)
-        self.grid = Grid(NG=NG, L=L, NT=NT)
         self.list_species = []
         for name, arguments in list_species.items():
             if type(arguments) is dict:
@@ -60,80 +43,5 @@ class Runner:
                 assert particles_in_grid
                 self.list_species.append(s)
 
-        self.simulation = Simulation(NT, dt, self.constants, self.grid, self.list_species)
-        self.run_date = date_version_string()
-        self.filename = filename
 
-    def grid_species_initialization(self):
-        """
-        Initializes grid and particle relations:
-        1. gathers charge from particles to grid
-        2. solves Poisson equation to get initial field
-        3. initializes pusher via a step back
-        """
-        self.grid.gather_charge(self.list_species)
-        self.grid.solve_poisson()  # TODO: abstract field solver
-        for species in self.list_species:
-            # TODO: abstract pusher
-            species.init_push(self.grid.electric_field_function, self.dt)
 
-    def iteration(self, i: int):
-        """
-
-        :param int i: iteration number
-        Runs an iteration step
-        1. saves field values
-        2. for all particles:
-            2. 1. saves particle values
-            2. 2. pushes particles forward
-
-        """
-        self.grid.save_field_values(i)  # TODO: is this necessary with what happens after loop
-
-        total_kinetic_energy = 0  # accumulate over species
-        for species in self.list_species:
-            species.save_particle_values(i)
-            kinetic_energy = species.push(self.grid.electric_field_function, self.dt).sum()
-            species.return_to_bounds(self.grid.L)
-            # TODO: remove this sum
-            species.kinetic_energy_history[i] = kinetic_energy
-            total_kinetic_energy += kinetic_energy
-
-        self.grid.gather_charge(self.list_species)
-        fourier_field_energy = self.grid.solve_poisson()
-        self.grid.grid_energy_history[i] = fourier_field_energy
-        self.simulation.total_energy[i] = total_kinetic_energy + fourier_field_energy
-
-    def run(self, n: int = -1, save_data: bool = True) -> float:
-        """
-        Run n iterations of the simulation, saving data as it goes.
-        Parameters
-        ----------
-        n (int): how many iterations to run (self.NT by default)
-        save_data (bool): Whether or not to save the data
-
-        Returns
-        -------
-        runtime (float): runtime of this part of simulation in seconds
-        """
-        if n == -1:
-            n = self.NT
-        start_time = time.time()
-        for i in range(n):
-            self.iteration(i)
-            # TODO: run for X iterations, save data, run again? needs a static counter
-        runtime = time.time() - start_time
-
-        if save_data:
-            self.simulation.save_data(filename=self.filename, runtime=runtime)
-        return runtime
-
-    def __str__(self, *args, **kwargs):
-        result_string = f"""
-        Runner from {self.run_date} containing:
-        Epsilon zero = {self.constants.epsilon_0}, c = {self.constants.epsilon_0}
-        {self.NT} iterations with time step {self.dt}
-        {self.grid.NG}-cell grid of length {self.grid.L:.2f}""".lstrip()
-        for species in self.list_species:
-            result_string = result_string + "\n\t" + str(species)
-        return result_string

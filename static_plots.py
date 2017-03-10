@@ -23,7 +23,7 @@ def ESE_time_plots(S, file_name):
 def temperature_time_plot(S, file_name):
     fig, axis = plt.subplots()
     t = np.arange(S.NT) * S.dt
-    for species in S.all_species:
+    for species in S.list_species:
         meanv = species.velocity_history.mean(axis=1)
         meanv2 = (species.velocity_history ** 2).mean(axis=1)
         temperature = meanv2 - meanv ** 2
@@ -42,7 +42,7 @@ def temperature_time_plot(S, file_name):
 
 def energy_time_plots(S, file_name):
     fig2, energy_axes = plt.subplots()
-    for species in S.all_species:
+    for species in S.list_species:
         energy_axes.plot(np.arange(S.NT) * S.dt, species.kinetic_energy_history, ".-",
                          label="Kinetic energy: {}".format(species.name))
     energy_axes.plot(np.arange(S.NT) * S.dt, S.grid.grid_energy_history, ".-", label="Field energy (Fourier)",
@@ -64,7 +64,7 @@ def energy_time_plots(S, file_name):
 
 def velocity_distribution_plots(S, file_name, i=0):
     fig, axis = plt.subplots()
-    for species in S.all_species:
+    for species in S.list_species:
         axis.hist(S.velocity_history[species.name][i, :, 0], bins=50, alpha=0.5)
     axis.set_title("Velocity distribution at iteration %d" % i)
     axis.grid()
@@ -87,8 +87,8 @@ def velocity_time_plots(s, dt):
 
 def phase_trajectories(S, file_name, all=False):
     fig, axis = plt.subplots()
-    assert S.all_species # has members
-    for species in S.all_species:
+    assert S.list_species  # has members
+    for species in S.list_species:
         # for i in range(species.N):
         if all:
             x = species.position_history[:, :]

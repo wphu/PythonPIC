@@ -22,7 +22,15 @@ class Simulation:
     charge_density, electric_field: shape (NT, NGrid) numpy arrays of historical grid data
     """
 
-    def __init__(self, NT, dt, constants: Constants, grid: Grid, list_species, date_ver_str=date_version_string()):
+    def __init__(self,
+                 NT,
+                 dt,
+                 constants: Constants,
+                 grid: Grid,
+                 list_species,
+                 date_ver_str=date_version_string(),
+                 filename=time.strftime("%Y-%m-%d_%H-%M-%S.hdf5"),
+                 ):
         """
         :param NT:
         :param dt:
@@ -30,16 +38,89 @@ class Simulation:
         :param grid:
         :param list_species:
         """
+
+        # if T and NT:
+        #     print("Running on T, NT")
+        #     self.dt = T / NT
+        #     self.NT = NT
+        # elif T and dt:
+        #     print("Running on T, dt")
+        #     self.NT = np.ceil(T // dt)
+        #     self.dt = dt
+        # elif NT and dt:
+        #     print("Running on NT, dt")
         self.NT = NT
+        self.dt = dt
         self.grid = grid
-        self.all_species = list_species
+        self.list_species = list_species
         self.field_energy = np.zeros(NT)
         self.total_energy = np.zeros(NT)
         self.constants = constants
         self.dt = dt
-        self.epsilon_0, self.c = constants.epsilon_0, constants.c  # TODO: refactor this
         self.date_ver_str = date_ver_str
-        # TODO: add more information about run, maybe to plotting
+        self.filename = filename
+
+    def grid_species_initialization(self):
+        """
+        Initializes grid and particle relations:
+        1. gathers charge from particles to grid
+        2. solves Poisson equation to get initial field
+        3. initializes pusher via a step back
+        """
+        self.grid.gather_charge(self.list_species)
+        self.grid.solve_poisson()  # TODO: allow for abstract field solver for relativistic case
+        # this would go like
+        # self.grid.solve_field()
+        # and the backend would call solve_poisson or solve_relativistic_bs_poisson_maxwell_whatever
+        for species in self.list_species:
+            species.init_push(self.grid.electric_field_function, self.dt)
+
+    def iteration(self, i: int):
+        """
+
+        :param int i: iteration number
+        Runs an iteration step
+        1. saves field values
+        2. for all particles:
+            2. 1. saves particle values
+            2. 2. pushes particles forward
+
+        """
+        self.grid.save_field_values(i)  # TODO: is this necessary with what happens after loop
+
+        total_kinetic_energy = 0  # accumulate over species
+        for species in self.list_species:
+            species.save_particle_values(i)
+            kinetic_energy = species.push(self.grid.electric_field_function, self.dt).sum()
+            species.return_to_bounds(self.grid.L)
+            # TODO: remove this sum
+            species.kinetic_energy_history[i] = kinetic_energy
+            total_kinetic_energy += kinetic_energy
+
+        self.grid.gather_charge(self.list_species)
+        fourier_field_energy = self.grid.solve_poisson()
+        self.grid.grid_energy_history[i] = fourier_field_energy
+        self.total_energy[i] = total_kinetic_energy + fourier_field_energy
+
+    def run(self, save_data: bool = True) -> float:
+        """
+        Run n iterations of the simulation, saving data as it goes.
+        Parameters
+        ----------
+        save_data (bool): Whether or not to save the data
+
+        Returns
+        -------
+        runtime (float): runtime of this part of simulation in seconds
+        """
+        start_time = time.time()
+        for i in range(self.NT):
+            self.iteration(i)
+        runtime = time.time() - start_time
+
+        if save_data:
+            self.save_data(filename=self.filename, runtime=runtime)
+        return runtime
 
     def save_data(self, filename: str = time.strftime("%Y-%m-%d_%H-%M-%S.hdf5"), runtime: bool = False) -> str:
         """Save simulation data to hdf5.
@@ -51,7 +132,7 @@ class Simulation:
             self.grid.save_to_h5py(grid_data)
 
             all_species = f.create_group('species')
-            for species in S.all_species:
+            for species in S.list_species:
                 species_data = all_species.create_group(species.name)
                 species.save_to_h5py(species_data)
             f.create_dataset(name="Field energy", dtype=float, data=S.field_energy)
@@ -64,6 +145,16 @@ class Simulation:
                 f.attrs['runtime'] = runtime
         print("Saved file to {}".format(filename))
         return filename
+
+    def __str__(self, *args, **kwargs):
+        result_string = f"""
+        Simulation from {self.run_date} containing:
+        Epsilon zero = {self.constants.epsilon_0}, c = {self.constants.epsilon_0}
+        {self.NT} iterations with time step {self.dt}
+        {self.grid.NG}-cell grid of length {self.grid.L:.2f}""".lstrip()
+        for species in self.list_species:
+            result_string = result_string + "\n\t" + str(species)
+        return result_string
 
     def __eq__(self, other: 'Simulation') -> bool:
         result = True
@@ -82,7 +173,7 @@ class Simulation:
         assert self.dt == other.dt, "NT not equal!"
         result *= self.dt == other.dt
 
-        for this_species, other_species in zip(self.all_species, other.all_species):
+        for this_species, other_species in zip(self.list_species, other.list_species):
             assert this_species == other_species, "{} and {} not equal!".format(this_species.name, other_species.name)
             result *= this_species == other_species
         assert self.grid == other.grid, "grid not equal!"

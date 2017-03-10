@@ -61,11 +61,11 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
     phase_dots = {}
     if lines:
         phase_lines = {}
-    for i, species in enumerate(S.all_species):
+    for i, species in enumerate(S.list_species):
         phase_dots[species.name], = phase_axes.plot([], [], colors[i]+".", alpha=alpha)
         if lines:
             phase_lines[species.name], = phase_axes.plot([], [], colors[i]+"-", alpha=alpha/2, lw=0.7)
-    maxv = max([10 * np.mean(np.abs(species.velocity_history)) for species in S.all_species])
+    maxv = max([10 * np.mean(np.abs(species.velocity_history)) for species in S.list_species])
     phase_axes.set_xlim(0, S.grid.L)
     phase_axes.set_ylim(-maxv, maxv)
     phase_axes.set_xlabel("$x$")
@@ -88,7 +88,7 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
         charge_plot.set_data(S.grid.x, np.zeros_like(S.grid.x))
         field_plot.set_data(S.grid.x, np.zeros_like(S.grid.x))
         freq_plot.set_data(S.grid.k_plot, np.zeros_like(S.grid.k_plot))
-        for species in S.all_species:
+        for species in S.list_species:
             phase_dots[species.name].set_data([], [])
             if lines:
                 phase_lines[species.name].set_data([], [])
@@ -102,7 +102,7 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
         charge_plot.set_ydata(S.grid.charge_density_history[i])
         field_plot.set_ydata(S.grid.electric_field_history[i])
         freq_plot.set_ydata(S.grid.energy_per_mode_history[i])
-        for species in S.all_species:
+        for species in S.list_species:
             phase_dots[species.name].set_data(species.position_history[i,:], species.velocity_history[i,:,0])
             if lines:
                 phase_lines[species.name].set_data(species.position_history[:i + 1, ::10].T, species.velocity_history[:i + 1, ::10, 0].T)
@@ -119,10 +119,3 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
         animation_object.save(videofile_name, fps=15, writer='ffmpeg', extra_args=['-vcodec', 'libx264'])
         print("Saved animation to {}".format(videofile_name))
     return animation_object
-
-if __name__=="__main__":
-    import Simulation
-    S = Simulation.load_data("data_analysis/TS3.hdf5")
-    animation(S, None, False)
-    if show:
-        plt.show()

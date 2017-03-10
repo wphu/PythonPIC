@@ -42,7 +42,7 @@ def test_uniform_electric():
     dt = 1e-2
     NT = 10000
     simulation = setup(NT, dt, 8.854e-12, 3e8, e_field_magnitude=1, b_field_magnitude=0)
-    s = simulation.all_species[0]
+    s = simulation.list_species[0]
     t = np.arange(NT) * dt
     estimated_field_magnitude = np.polyfit(t, s.velocity_history[:, 0, 0], 2)[1]
     print(estimated_field_magnitude)
@@ -54,7 +54,7 @@ def test_circular():
     dt = 1e-2
     NT = 10000
     simulation = setup(NT, dt, 8.854e-12, 3e8, e_field_magnitude=0, b_field_magnitude=1, vx=1)
-    s = simulation.all_species[0]
+    s = simulation.list_species[0]
     t = np.arange(NT) * dt
     fig = velocity_time_plots(s, dt)
     plt.show()
@@ -65,7 +65,7 @@ def test_circular_relativistic():
     dt = 1e-2
     NT = 10000
     simulation = setup(NT, dt, 8.854e-12, 3e8, e_field_magnitude=0, b_field_magnitude=1, vx=4e8)
-    s = simulation.all_species[0]
+    s = simulation.list_species[0]
     t = np.arange(NT) * dt
     fig = velocity_time_plots(s, dt)
     plt.show()
