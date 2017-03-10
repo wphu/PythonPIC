@@ -1,67 +1,76 @@
-import numpy as np
-from Species import Species, RelativisticSpecies
-import numpy as np
+"""Tests relativistic species"""
+# coding=utf-8
 import matplotlib.pyplot as plt
-# import numba
-import time
-from Grid import RelativisticGrid
+import numpy as np
+
+from Constants import Constants
+from Simulation import Simulation
+from Species import RelativisticSpecies
+from static_plots import velocity_time_plots
 
 
-def test_rela_boris():
+def setup(NT, dt, epsilon_0, c, e_field_magnitude, b_field_magnitude, vx=0, vy=0, vz=0):
     q = 1
     m = 1
-    dt = 0.001
-    c = 1
-    N = 100
-    x = np.zeros(N)
-    v = np.linspace(0,0.99*c, N)[:, np.newaxis]*np.array([[1., 0, 0]])
-    v[:,0] += np.random.normal(size=N, scale=1e-2)
-    v[:,0] %= c
-    # E = np.array([1., 2., 3.])
-    E = np.array(N*[[0., 0., 0]])
-    # B = np.array([1., 2., 3.])
-    B = np.array(N*[[0., 0., 1.]])
+    N = 1
+    name = "test particles"
+    s = RelativisticSpecies(q, m, N, name, NT)
+    s.distribute_uniformly(1)
+    s.v[:, 0] = vx
+    s.v[:, 1] = vy
+    s.v[:, 2] = vz
+    simulation = Simulation(NT, dt, Constants(epsilon_0, c), None, [s])
 
-    NT = 100000
-    x_history = np.zeros((NT, N))
-    v_history = np.zeros((NT, N, 3))
-    t = np.arange(NT) * dt
-    start_time = time.time()
+    def electric_field_function(x):
+        result = np.zeros((N, 3))
+        result[:, 0] = e_field_magnitude
+        return result
+
+    def magnetic_field_function(x):
+        result = np.zeros((N, 3))
+        result[:, 2] = b_field_magnitude
+        return result
+
     for i in range(NT):
-        x_history[i] = x
-        v_history[i] = v
-        x, v = rela_boris_push(x, v, E, B, q, m, dt, c)
-    runtime = time.time() - start_time
-    print(f"Runtime was {runtime:.3f} s")
+        s.save_particle_values(i)
+        kinetic_energy = s.push(electric_field_function, dt, magnetic_field_function, c)
 
-    plt.plot(t, x_history)
-    plt.xlabel("t")
-    plt.ylabel("x")
-    plt.figure()
-    plt.plot(t, v_history[:,:,0], label="vx")
-    plt.plot(t, v_history[:,:,1], label="vy")
-    plt.plot(t, v_history[:,:,2], label="vz")
-    plt.xlabel("t")
-    plt.ylabel("v")
-    plt.legend()
-    plt.figure()
-    plt.plot(x_history, v_history[:,:,0])
-    plt.xlabel("x")
-    plt.ylabel("v")
+    return simulation
+
+
+def test_uniform_electric():
+    dt = 1e-2
+    NT = 10000
+    simulation = setup(NT, dt, 8.854e-12, 3e8, e_field_magnitude=1, b_field_magnitude=0)
+    s = simulation.list_species[0]
+    t = np.arange(NT) * dt
+    estimated_field_magnitude = np.polyfit(t, s.velocity_history[:, 0, 0], 2)[1]
+    print(estimated_field_magnitude)
+    fig = velocity_time_plots(s, dt)
+    assert np.isclose(estimated_field_magnitude, 1), plt.show()
+
+
+def test_circular():
+    dt = 1e-2
+    NT = 10000
+    simulation = setup(NT, dt, 8.854e-12, 3e8, e_field_magnitude=0, b_field_magnitude=1, vx=1)
+    s = simulation.list_species[0]
+    t = np.arange(NT) * dt
+    fig = velocity_time_plots(s, dt)
     plt.show()
+    assert np.isclose(estimated_field_magnitude, 1)
 
-# def test_rela_boris2():
-#     N=100
-#     NT = 100000
-#     species = RelativisticSpecies(1, 1, N, NT)
-#     c = 1
-#     dt = 0.001
-#     species.v = np.linspace(0,0.99*c, N)[:, np.newaxis]*np.array([[1., 0, 0]])
-#     species.v[:,0] += np.random.normal(size=N, scale=1e-2)
-#     species.v[:,0] %= c
-#
-#     E = np.array(N*[[0., 0., 0]])
-#     B = np.array(N*[[0., 0., 1.]])
 
-if __name__=="__main__":
-    test_rela_boris()
+def test_circular_relativistic():
+    dt = 1e-2
+    NT = 10000
+    simulation = setup(NT, dt, 8.854e-12, 3e8, e_field_magnitude=0, b_field_magnitude=1, vx=4e8)
+    s = simulation.list_species[0]
+    t = np.arange(NT) * dt
+    fig = velocity_time_plots(s, dt)
+    plt.show()
+    assert np.isclose(estimated_field_magnitude, 1), plt.show()
+
+
+if __name__ == '__main__':
+    test_circular()

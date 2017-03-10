@@ -1,19 +1,11 @@
-class Constants():
-    """
-    Physical constants
-    """
-    def __init__(self, c : float = 1, epsilon_0 : float = 1):
-        """
-        :param float c: speed of light
-        :param float epsilon_0: :math:`\epsilon_0`
-        """
-        self.c = c
-        self.epsilon_0 = epsilon_0
+# coding=utf-8
+from collections import namedtuple
 
+Constants = namedtuple('Constants', ['c', 'epsilon_0'])
 
 class TestConstants():
     def test1(self):
-        c = Constants()
+        c = Constants(1, 1)
         assert c.c == 1
         assert c.epsilon_0 == 1
     def test2(self):

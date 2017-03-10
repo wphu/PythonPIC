@@ -1,9 +1,10 @@
+# coding=utf-8
 import numpy as np
-import h5py
-from grid_algorithms import PoissonSolver
-import grid_algorithms
-from grid_algorithms import interpolateField, PoissonSolver
 import scipy.fftpack as fft
+
+import algorithms_grid
+from algorithms_grid import interpolateField, PoissonSolver
+
 
 class Grid():
     """Object representing the grid on which charges and fields are computed
@@ -30,9 +31,9 @@ class Grid():
         self.k_plot = self.k[:int(NG / 2)]
 
         self.charge_density_history = np.zeros((NT, self.NG))
-        self.electric_field_history = np.zeros((NT, self.NG))
+        self.electric_field_history = np.zeros((NT, self.NG))  # TODO: not quite necessary for plotting
         self.potential_history = np.zeros((NT, self.NG))
-        self.energy_per_mode_history = np.zeros((NT, int(self.NG / 2)))
+        self.energy_per_mode_history = np.zeros((NT, int(self.NG / 2)))  # TODO: is this necessary for plotting
         self.grid_energy_history = np.zeros(NT)
 
 
@@ -60,12 +61,13 @@ class Grid():
     def gather_charge(self, list_species):
         self.charge_density[:] = 0.0
         for species in list_species:
-            self.charge_density += grid_algorithms.charge_density_deposition(self.x, self.dx, species.x, species.q)
-
+            gathered_density = algorithms_grid.charge_density_deposition(self.x, self.dx, species.x, species.q)
+            # assert gathered_density.size == self.NG
+            self.charge_density += gathered_density
     def gather_current(self, list_species):
         self.current_density = np.zeros((self.NG, 3))
         for species in list_species:
-            self.current_density += grid_algorithms.current_density_deposition(self.x, self.dx, species.x, species.q, species.v)
+            self.current_density += algorithms_grid.current_density_deposition(self.x, self.dx, species.x, species.q, species.v)
 
     def electric_field_function(self, xp):
         return interpolateField(xp, self.electric_field, self.x, self.dx)
@@ -127,8 +129,8 @@ class Grid():
         return result
 
 class RelativisticGrid(Grid):
-    def __init__(self, L=2 * np.pi, NG=32, epsilon_0=1, c =1, NT=None):
-        super().__init__(L, NG, epsilon_0, c, NT)
+    def __init__(self, L=2 * np.pi, NG=32, epsilon_0=1, c =1, NT=1):
+        super().__init__(L, NG, epsilon_0, NT)
         self.c = c
         self.dt = self.dx / c
         self.Jyplus = np.zeros_like(self.x)
@@ -138,6 +140,8 @@ class RelativisticGrid(Grid):
         self.Ey_history = np.zeros((NT, self.NG))
         self.Bz_history = np.zeros((NT, self.NG))
         self.current_density_history = np.zeros((NT, self.NG, 3))
+
+    # TODO: implement LPIC-style field solver
 
     def iterate_EM_field(self):
         """
@@ -151,7 +155,6 @@ class RelativisticGrid(Grid):
 
         TODO: check viability of laser BC
         take average of last term instead at last point instead
-
         """
         self.Fplus[1:] = self.Fplus[:-1] - 0.25 * self.dt * (self.Jyplus[:-1] + self.Jyminus[1:])
         self.Fminus[1:-1] = self.Fminus[0:-2] - 0.25 * self.dt * (self.Jyplus[2:] - self.Jyminus[1:-1])

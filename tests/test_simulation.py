@@ -19,7 +19,7 @@ def test_simulation_equality():
     filename = "test_simulation_data_format.hdf5"
     if os.path.isfile(filename):
         os.remove(filename)
-    S = Simulation(NT, dt, epsilon_0, g, [electrons, positrons], date_ver_str)
+    S = Simulation(NT, dt, epsilon_0, g, [electrons, positrons])
     S.save_data(filename)
 
     S_loaded = load_data(filename)
