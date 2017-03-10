@@ -15,7 +15,7 @@ def test_constant_field(plotting=False):
     x_data = []
     for i in range(t.size):
         x_data.append(s.x[0])
-        s.leapfrog_push(uniform_field, dt, np.inf)
+        s.push(uniform_field, dt, np.inf)
     x_data = np.array(x_data)
     print(x_analytical - x_data)
 

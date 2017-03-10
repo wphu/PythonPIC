@@ -152,10 +152,11 @@ class Simulation:
         assert self.date_ver_str == other.date_ver_str, "date not equal!"
         result *= self.date_ver_str == other.date_ver_str
 
-        assert self.constants.epsilon_0 == other.constants.epsilon_0, "epsilon 0 not equal!"
+        print(self, other)
+        assert self.constants.epsilon_0 == other.constants.epsilon_0, print("epsilon 0 not equal!")
         result *= self.constants.epsilon_0 == other.constants.epsilon_0
 
-        assert self.constants.c == other.constants.c, "epsilon 0 not equal!"
+        assert self.constants.c == other.constants.c, "c not equal!"
         result *= self.constants.c == other.constants.c
 
         assert self.NT == other.NT, "NT not equal!"
