@@ -47,7 +47,6 @@ class Species:
         self.velocity_history = np.zeros((NT, self.saved_particles, 3))
         self.kinetic_energy_history = np.zeros(NT)
 
-    # TODO:
     def init_push(self, electric_field_function, dt, *args):
         r"""
         Initializes particles for Leapfrog pushing.
@@ -170,7 +169,7 @@ class Species:
         self.kinetic_energy_history = species_data["Kinetic energy"][...]
 
     def __repr__(self, *args, **kwargs):
-        return f"Species(q={self.q},m={self.m},N={self.N},name=\"{self.name}\",NT={self.NT})"
+        return f"Species(q={self.q:.4f},m={self.m:.4f},N={self.N},name=\"{self.name}\",NT={self.NT})"
 
     def __eq__(self, other):
         result = True
