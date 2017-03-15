@@ -22,7 +22,6 @@ class Simulation:
     charge_density, electric_field: shape (NT, NGrid) numpy arrays of historical grid data
     """
 
-
     def __init__(self,
                  NT,
                  dt,
@@ -31,6 +30,7 @@ class Simulation:
                  list_species,
                  date_ver_str=date_version_string(),
                  filename=time.strftime("%Y-%m-%d_%H-%M-%S.hdf5"),
+                 title = "",
                  ):
         """
         :param NT:
@@ -50,6 +50,7 @@ class Simulation:
         self.dt = dt
         self.date_ver_str = date_ver_str
         self.filename = filename
+        self.title = title
 
     def grid_species_initialization(self):
         """
@@ -139,20 +140,18 @@ class Simulation:
 
     def __str__(self, *args, **kwargs):
         result_string = f"""
-        Simulation from {self.run_date} containing:
+        Simulation containing:
         Epsilon zero = {self.constants.epsilon_0}, c = {self.constants.epsilon_0}
         {self.NT} iterations with time step {self.dt}
         {self.grid.NG}-cell grid of length {self.grid.L:.2f}""".lstrip()
         for species in self.list_species:
-            result_string = result_string + "\n\t" + str(species)
+            result_string = result_string + "\n" + str(species)
         return result_string
 
     def __eq__(self, other: 'Simulation') -> bool:
         result = True
         assert self.date_ver_str == other.date_ver_str, "date not equal!"
         result *= self.date_ver_str == other.date_ver_str
-
-        print(self, other)
         assert self.constants.epsilon_0 == other.constants.epsilon_0, print("epsilon 0 not equal!")
         result *= self.constants.epsilon_0 == other.constants.epsilon_0
 

@@ -1,25 +1,37 @@
 # coding=utf-8
 import matplotlib.pyplot as plt
+from matplotlib import gridspec
 import numpy as np
 
 
-def static_plot_window(S, n, m):
-    fig, axes = plt.subplots(n, m, figsize=(16, 10))
+def static_plot_window(S, N, M):
+    fig = plt.figure(figsize=(13, 8))
+    gs = gridspec.GridSpec(N, M)
+    axes = [[fig.add_subplot(gs[n,m]) for m in range(M)] for n in range(N)]
     fig.suptitle(S.date_ver_str, fontsize=12)  # TODO: add str(S)
-    fig.tight_layout()
-    fig.subplots_adjust(top=0.9)
+    gs.update(left = 0.05, right=0.95, bottom=0.1, top=0.9) # , wspace=0.05, hspace=0.05
+
     return fig, axes
 
 
 def ESE_time_plots(S, axis):
-    data = S.grid.energy_per_mode_history.T
-    energies = [y for y in data]
+    data = S.grid.energy_per_mode_history
+    weights = (data**2).sum(axis=0) / (data**2).sum()
+    max_mode = weights.argmax()
+    max_index = data[max_mode].argmax()
+    # import ipdb; ipdb.set_trace()
+
     t = np.arange(S.NT) * S.dt
-    for i, y in enumerate(energies):
-        axis.plot(t, y, label=i)
-    axis.legend()
+    # for i, y in enumerate(energies):
+    axis.plot(t, data)
+    axis.annotate(f"Mode {max_mode}",
+                  xy=(t[max_index], data[max_mode, max_index]),
+                  arrowprops=dict(facecolor='black', shrink=0.05),
+                  xytext=(t.mean(), data.max()/2))
+
+    # axis.legend()
     axis.grid()
-    axis.set_xlabel("Time")
+    axis.set_xlabel(f"Time [dt: {S.dt:.3e}]")
     axis.set_ylabel("Energy")
     axis.set_title("Energy per mode versus time")
 
@@ -106,11 +118,11 @@ if __name__ == "__main__":
     S = Simulation.load_data("data_analysis/CO/COsimrun.hdf5")
     time_fig, axes = static_plot_window(S, 3, 2)
 
-    ESE_time_plots(S, axes[0, 0])
-    temperature_time_plot(S, axes[1, 0])
-    energy_time_plots(S, axes[2, 0])
-    phase_trajectories(S, axes[0, 1])
-    velocity_distribution_plots(S, axes[1, 1])
-    velocity_time_plots(S, axes[2, 1])
+    ESE_time_plots(S, axes[0][0])
+    temperature_time_plot(S, axes[1][0])
+    energy_time_plots(S, axes[2][0])
+    phase_trajectories(S, axes[0][1])
+    velocity_distribution_plots(S, axes[1][1])
+    velocity_time_plots(S, axes[2][1])
 
     plt.show()
