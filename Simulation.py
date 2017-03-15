@@ -133,6 +133,7 @@ class Simulation:
             f.attrs['dt'] = S.dt
             f.attrs['NT'] = S.NT
             f.attrs['date_ver_str'] = date_version_string()
+            f.attrs['title'] = S.title
             if runtime:
                 f.attrs['runtime'] = runtime
         print("Saved file to {}".format(filename))
@@ -179,6 +180,7 @@ def load_data(filename: str) -> Simulation:
 
         NT = f.attrs['NT']
         dt = f.attrs['dt']
+        title = f.attrs['title']
 
         grid_data = f['grid']
         NG = grid_data.attrs['NGrid']
@@ -193,7 +195,7 @@ def load_data(filename: str) -> Simulation:
             all_species.append(species)
         date_ver_str = f.attrs['date_ver_str']
 
-    S = Simulation(NT, dt, Constants(epsilon_0=grid.epsilon_0, c=1), grid, all_species, date_ver_str)
+    S = Simulation(NT, dt, Constants(epsilon_0=grid.epsilon_0, c=1), grid, all_species, date_ver_str, title = title)
 
     S.total_energy = total_energy
 

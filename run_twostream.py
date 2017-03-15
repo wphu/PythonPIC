@@ -29,7 +29,7 @@ def two_stream_instability(filename, plasma_frequency=1, qmratio=-1, dt=0.2, NT=
             species.random_velocity_perturbation(0, vrandom)
     params = NT, dt, epsilon_0
     run = Simulation(NT, dt, Constants(1, epsilon_0),
-                     grid, list_species, filename=filename)
+                     grid, list_species, filename=filename, title="Twostream instability")
     run.grid_species_initialization()
     run.run()
 

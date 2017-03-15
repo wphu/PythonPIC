@@ -28,6 +28,7 @@ def plotting(filename: str, show: bool = True, save: bool = False, animate: bool
     print("Plotting for %s" % filename)
     S = Simulation.load_data(filename)
     static_plots.static_plots(S, filename.replace(".hdf5", ".png"))
+    print(S)
     if animate:
         if save:
             videofile_name = filename.replace(".hdf5", ".mp4")

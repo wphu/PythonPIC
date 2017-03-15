@@ -8,8 +8,8 @@ def static_plot_window(S, N, M):
     fig = plt.figure(figsize=(13, 8))
     gs = gridspec.GridSpec(N, M)
     axes = [[fig.add_subplot(gs[n,m]) for m in range(M)] for n in range(N)]
-    fig.suptitle(S.date_ver_str, fontsize=12)  # TODO: add str(S)
-    gs.update(left = 0.05, right=0.95, bottom=0.1, top=0.9) # , wspace=0.05, hspace=0.05
+    fig.suptitle(str(S), fontsize=12)  # TODO: add str(S)
+    gs.update(left = 0.05, right=0.95, bottom=0.075, top=0.8) # , wspace=0.05, hspace=0.05
     return fig, axes
 
 
