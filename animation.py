@@ -106,7 +106,7 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
             phase_dots[species.name].set_data(species.position_history[i,:], species.velocity_history[i,:,0])
             if lines:
                 phase_lines[species.name].set_data(species.position_history[:i + 1, ::10].T, species.velocity_history[:i + 1, ::10, 0].T)
-        iteration.set_text(f"Iteration: {i}/{S.NT}")
+        iteration.set_text(f"Iteration: {i}/{S.NT}\nTime: {i*S.dt:.3g}/{S.NT*S.dt:.3g}")
 
         if lines:
             return [charge_plot, field_plot, freq_plot, *phase_dots.values(),  iteration, *phase_lines.values()]
@@ -115,7 +115,7 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
 
     animation_object = anim.FuncAnimation(fig, animate, interval=100, frames=int(S.NT), blit=True, init_func=init)
     if videofile_name:
-        print("Saving animation to {}".format(videofile_name))
+        print(f"Saving animation to {videofile_name}")
         animation_object.save(videofile_name, fps=15, writer='ffmpeg', extra_args=['-vcodec', 'libx264'])
-        print("Saved animation to {}".format(videofile_name))
+        print(f"Saved animation to {videofile_name}")
     return animation_object

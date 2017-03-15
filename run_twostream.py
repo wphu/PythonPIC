@@ -34,10 +34,11 @@ def two_stream_instability(filename, plasma_frequency=1, qmratio=-1, dt=0.2, NT=
     run.run()
 
 if __name__ == '__main__':
-    two_stream_instability("data_analysis/TS1/TS1.hdf5",
-                                NG = 64,
-                                N_electrons=512,
-                                )
+    np.random.seed(0)
+    # two_stream_instability("data_analysis/TS1/TS1.hdf5",
+    #                             NG = 64,
+    #                             N_electrons=512,
+    #                             )
     # two_stream_instability("data_analysis/TS2/TS2.hdf5",
     #                             NG = 64,
     #                             N_electrons=1024,
@@ -51,18 +52,18 @@ if __name__ == '__main__':
     #                         vrandom = 1e-1,
     #                         )
     #
-    # two_stream_instability("data_analysis/TSRANDOM2/TSRANDOM2.hdf5",
-    #                             NG = 64,
-    #                             N_electrons=1024,
-    #                             plasma_frequency=5,
-    #                             dt=0.2/5,
-    #                             NT=300*5,
-    #                             vrandom = 1e-1,
-    #                             )
+    two_stream_instability("data_analysis/TSRANDOM2/TSRANDOM2.hdf5",
+                                NG = 64,
+                                N_electrons=1024,
+                                plasma_frequency=5,
+                                dt=0.2/5,
+                                NT=300*5,
+                                vrandom = 1e-1,
+                                )
 
     show = True
     save = False
-    plotting.plotting("data_analysis/TS1/TS1.hdf5", show=show, save=save, alpha=0.5)
+    # plotting.plotting("data_analysis/TS1/TS1.hdf5", show=show, save=save, alpha=0.5)
     # plotting.plotting("data_analysis/TS2/TS2.hdf5", show=show, save=save, alpha=0.5)
     # plotting.plotting("data_analysis/TSRANDOM1/TSRANDOM1.hdf5", show=show, alpha=0.5, save=save)
-    # plotting.plotting("data_analysis/TSRANDOM2/TSRANDOM2.hdf5", show=show, alpha=0.5, save=save)
+    plotting.plotting("data_analysis/TSRANDOM2/TSRANDOM2.hdf5", show=show, alpha=0.5, save=save)

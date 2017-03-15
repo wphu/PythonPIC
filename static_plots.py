@@ -10,26 +10,29 @@ def static_plot_window(S, N, M):
     axes = [[fig.add_subplot(gs[n,m]) for m in range(M)] for n in range(N)]
     fig.suptitle(S.date_ver_str, fontsize=12)  # TODO: add str(S)
     gs.update(left = 0.05, right=0.95, bottom=0.1, top=0.9) # , wspace=0.05, hspace=0.05
-
     return fig, axes
 
 
 def ESE_time_plots(S, axis):
     data = S.grid.energy_per_mode_history
     weights = (data**2).sum(axis=0) / (data**2).sum()
-    max_mode = weights.argmax()
-    max_index = data[max_mode].argmax()
     # import ipdb; ipdb.set_trace()
+
+    max_mode = weights.argmax()
+    max_index = data[:, max_mode].argmax()
 
     t = np.arange(S.NT) * S.dt
     # for i, y in enumerate(energies):
-    axis.plot(t, data)
+    for i in range(5):
+        axis.plot(t, data[:, i], label=f"Mode {i}")
+    for i in range(5, data.shape[1]):
+        axis.plot(t, data[:, i])
     axis.annotate(f"Mode {max_mode}",
-                  xy=(t[max_index], data[max_mode, max_index]),
+                  xy=(t[max_index], data[max_index, max_mode]),
                   arrowprops=dict(facecolor='black', shrink=0.05),
                   xytext=(t.mean(), data.max()/2))
 
-    # axis.legend()
+    axis.legend()
     axis.grid()
     axis.set_xlabel(f"Time [dt: {S.dt:.3e}]")
     axis.set_ylabel("Energy")
@@ -72,9 +75,10 @@ def energy_time_plots(S, axis):
 
 def velocity_distribution_plots(S, axis, i=0):
     for species in S.list_species:
-        axis.hist(species.velocity_history[i, :, 0], bins=50, alpha=0.5)
+        axis.hist(species.velocity_history[i, :, 0], bins=50, alpha=0.5, label=species.name)
     axis.set_title("Velocity distribution at iteration %d" % i)
     axis.grid()
+    axis.legend(loc='best')
     axis.set_xlabel("v")
     axis.set_ylabel("N")
 
@@ -92,7 +96,8 @@ def phase_trajectories(S, axis, all=False):
             x = species.position_history[:, i]
             y = species.velocity_history[:, i, 0]
             axis.set_title("Phase space plot for particle {}".format(i))
-        axis.plot(x, y)
+        axis.plot(x, y, ".")
+    axis.set_xlim(0, S.grid.L)
     # noinspection PyUnboundLocalVariable
     axis.set_xlabel("x")
     axis.set_ylabel("vx")
@@ -112,10 +117,7 @@ def velocity_time_plots(S, axis):
     plt.legend()
     axis.grid()
 
-if __name__ == "__main__":
-    import Simulation
-
-    S = Simulation.load_data("data_analysis/CO/COsimrun.hdf5")
+def static_plots(S, filename=False):
     time_fig, axes = static_plot_window(S, 3, 2)
 
     ESE_time_plots(S, axes[0][0])
@@ -123,6 +125,16 @@ if __name__ == "__main__":
     energy_time_plots(S, axes[2][0])
     phase_trajectories(S, axes[0][1])
     velocity_distribution_plots(S, axes[1][1])
-    velocity_time_plots(S, axes[2][1])
+    velocity_distribution_plots(S, axes[2][1], S.NT-1)
 
+    if filename:
+            time_fig.savefig(filename)
+    return time_fig
+
+
+if __name__ == "__main__":
+    import Simulation
+
+    S = Simulation.load_data("data_analysis/CO/COsimrun.hdf5")
+    static_plots(S)
     plt.show()

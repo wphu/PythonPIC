@@ -140,7 +140,7 @@ class Simulation:
 
     def __str__(self, *args, **kwargs):
         result_string = f"""
-        Simulation containing:
+        {self.title} simulation containing:
         Epsilon zero = {self.constants.epsilon_0}, c = {self.constants.epsilon_0}
         {self.NT} iterations with time step {self.dt}
         {self.grid.NG}-cell grid of length {self.grid.L:.2f}""".lstrip()
