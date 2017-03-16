@@ -154,7 +154,7 @@ class Species:
         species_data.create_dataset(name="Kinetic energy", dtype=float, data=self.kinetic_energy_history)
 
     def load_from_h5py(self, species_data):
-        # TODO: move this out of class
+        # REFACTOR: move this out of class (like Simulation.load_data)
         """
         Loads species data from h5py file
         species_data: h5py group for this species in pre-made hdf5 file

@@ -35,7 +35,7 @@ def run_electromagnetic(g, list_species, params, filename):
             # 1. GATHER FIELD TO PARTICLES
             # 2. INTEGRATE EQUATIONS OF MOTION
             kinetic_energy = species.push(g.electric_field_function, magnetic_field_function, dt, g.L).sum()
-            # TODO: remove sum from this place
+            # OPTIMIZE: remove sum from this place
             species.kinetic_energy_history[i] = kinetic_energy
             total_kinetic_energy += kinetic_energy
 

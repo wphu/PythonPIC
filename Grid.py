@@ -31,9 +31,9 @@ class Grid():
         self.k_plot = self.k[:int(NG / 2)]
 
         self.charge_density_history = np.zeros((NT, self.NG))
-        self.electric_field_history = np.zeros((NT, self.NG))  # TODO: not quite necessary for plotting
+        self.electric_field_history = np.zeros((NT, self.NG)) # OPTIMIZE: is this absolutely necessary for plotting?
         self.potential_history = np.zeros((NT, self.NG))
-        self.energy_per_mode_history = np.zeros((NT, int(self.NG / 2)))  # TODO: is this necessary for plotting
+        self.energy_per_mode_history = np.zeros((NT, int(self.NG / 2)))  # OPTIMIZE: can't I get this from potential_history?
         self.grid_energy_history = np.zeros(NT)
 
 
@@ -107,7 +107,7 @@ class Grid():
         self.epsilon_0 = grid_data.attrs['epsilon_0']
         self.NT = grid_data['rho'].shape[0]
 
-        # TODO: check whether these might not be able to be loaded partially for animation...?
+        # OPTIMIZE: check whether these might not be able to be loaded partially for animation...?
         self.x = grid_data['x'][...]
         self.dx = self.x[1] - self.x[0]
         self.charge_density_history = grid_data['rho'][...]

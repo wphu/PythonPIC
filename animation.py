@@ -28,8 +28,6 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
     phase_axes = fig.add_subplot(223)
     freq_axes = fig.add_subplot(224)
 
-    # TODO: change this to show density and field excitations
-
     iteration = freq_axes.text(0.1, 0.9, 'i=x', horizontalalignment='left',
                                  verticalalignment='center', transform=freq_axes.transAxes)
 

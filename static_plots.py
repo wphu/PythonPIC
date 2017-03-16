@@ -8,7 +8,8 @@ def static_plot_window(S, N, M):
     fig = plt.figure(figsize=(13, 8))
     gs = gridspec.GridSpec(N, M)
     axes = [[fig.add_subplot(gs[n,m]) for m in range(M)] for n in range(N)]
-    fig.suptitle(str(S), fontsize=12)  # TODO: add str(S)
+    fig.suptitle(str(S), fontsize=12) # REFACTOR: maybe add git version, run date
+    # REFACTOR: separate window creation and axis layout into separate functions
     gs.update(left = 0.05, right=0.95, bottom=0.075, top=0.8) # , wspace=0.05, hspace=0.05
     return fig, axes
 
@@ -66,9 +67,9 @@ def energy_time_plots(S, axis):
               alpha=0.5)
     # axis.plot(np.arange(S.NT) * S.dt, S.grid.epsilon_0 * (S.grid.electric_field_history ** 2).sum(axis=1) * 0.5,
     #                  ".-", label="Field energy (direct solve)", alpha=0.5)
-    axis.plot(np.arange(S.NT) * S.dt, S.total_energy, ".-", label="Total energy")
     # TODO: implement direct field energy solver outside this place
-    # TODO: why is direct field energy solver shifted
+    # TODO: why is direct field energy solver shifted by a half? is this due to the staggered Leapfrog\Boris solver?
+    axis.plot(np.arange(S.NT) * S.dt, S.total_energy, ".-", label="Total energy")
     axis.grid()
     axis.set_xlabel("Time")
     axis.set_xlim(0, S.NT * S.dt)

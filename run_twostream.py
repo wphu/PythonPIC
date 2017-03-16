@@ -74,7 +74,7 @@ if __name__ == '__main__':
                                ),
     ]
 
-    show = True
-    save = False
+    show = False
+    save = True
     for s in simulations:
         plotting.plotting(s, show=show, alpha=0.5, save=save)

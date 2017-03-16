@@ -50,7 +50,7 @@ def current_density_deposition(x, dx, x_particles, particle_charge, velocity):
     left_fractions = 1 - right_fractions
     current_to_right = particle_charge * velocity * right_fractions
     current_to_left = particle_charge * velocity * left_fractions
-    # TODO: vectorise this instead of looping over dimensions
+    # OPTIMIZE: vectorise this instead of looping over dimensions
     for dim in range(3):
         current_hist[:,dim] += np.bincount(logical_coordinates, current_to_left[:,dim], minlength=x.size)
         current_hist[:,dim] += np.roll(np.bincount(logical_coordinates, current_to_right[:,dim], minlength=x.size), +1)
@@ -92,7 +92,7 @@ def PoissonSolver(rho, k, NG, epsilon_0=1, neutralize=True):
     and both the field and potential pop out easily
 
     The conceptually problematic part is getting the $k$ wave vector right
-    #TODO: finish this description
+    # DOCUMENTATION: finish this description
     """
 
     rho_F = fft.fft(rho)

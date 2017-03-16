@@ -49,7 +49,7 @@ class Simulation:
         self.total_energy = np.zeros(NT)
         self.constants = constants
         self.dt = dt
-        self.date_ver_str = date_ver_str
+        self.date_ver_str = date_ver_str # REFACTOR: replace with run start date
         self.filename = filename
         self.title = title
 
@@ -61,7 +61,7 @@ class Simulation:
         3. initializes pusher via a step back
         """
         self.grid.gather_charge(self.list_species)
-        self.grid.solve_poisson()  # TODO: allow for abstract field solver for relativistic case
+        self.grid.solve_poisson()  # REFACTOR: allow for abstract field solver for relativistic case
         # this would go like
         # self.grid.solve_field()
         # and the backend would call solve_poisson or solve_relativistic_bs_poisson_maxwell_whatever
@@ -79,14 +79,14 @@ class Simulation:
             2. 2. pushes particles forward
 
         """
-        self.grid.save_field_values(i)  # TODO: is this necessary with what happens after loop
+        self.grid.save_field_values(i)  # OPTIMIZE: is this necessary with what happens after loop
 
         total_kinetic_energy = 0  # accumulate over species
         for species in self.list_species:
             species.save_particle_values(i)
             kinetic_energy = species.push(self.grid.electric_field_function, self.dt).sum()
+            # OPTIMIZE: remove this sum if it's not necessary (kinetic energy histogram?)
             species.return_to_bounds(self.grid.L)
-            # TODO: remove this sum
             species.kinetic_energy_history[i] = kinetic_energy
             total_kinetic_energy += kinetic_energy
 
@@ -144,10 +144,10 @@ class Simulation:
         result_string = f"""
         {self.title} simulation ({os.path.basename(self.filename)}) containing {self.NT} iterations with time step {self.dt}
         {self.grid.NG}-cell grid of length {self.grid.L:.2f}. Epsilon zero = {self.constants.epsilon_0}, c = {self.constants.epsilon_0}""".lstrip()
-
+        # REFACTOR: add run date
         for species in self.list_species:
             result_string = result_string + "\n" + str(species)
-        return result_string
+        return result_string # REFACTOR: add information from config file (run_coldplasma...)
 
     def __eq__(self, other: 'Simulation') -> bool:
         result = True

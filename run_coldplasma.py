@@ -59,6 +59,7 @@ if __name__ == '__main__':
     L = 2 * pi
     particle_charge = plasma_frequency ** 2 * L / float(N_electrons * epsilon_0 * qmratio)
     particle_mass = particle_charge / qmratio
-    S = cold_plasma_oscillations("data_analysis/CO/COsimrun.hdf5", q=particle_charge, m=particle_mass, NG=64,
+    S = cold_plasma_oscillations("data_analysis/CO1/CO1.hdf5", q=particle_charge, m=particle_mass, NG=64,
                                  N_electrons=N_electrons, push_mode=2)
-    plotting(S, show=True, save=False, animate=True)
+    plotting(S, show=False, save=True, animate=True)
+    # TEST: this should be a test

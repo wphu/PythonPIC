@@ -4,7 +4,7 @@ import numpy as np
 
 # import numba
 
-# @numba.njit() #TODO: add numba to this algorithm
+# @numba.njit() # OPTIMIZE: add numba to this algorithm
 def rotation_matrix(t: np.ndarray, s: np.ndarray, n: int) -> np.ndarray:
     """
     Implements the heavy lifting rotation matrix calculation of the Boris pusher
