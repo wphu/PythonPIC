@@ -1,7 +1,7 @@
 # coding=utf-8
 import matplotlib.pyplot as plt
-from matplotlib import gridspec
 import numpy as np
+from matplotlib import gridspec
 
 
 def static_plot_window(S, N, M):
@@ -24,18 +24,19 @@ def ESE_time_plots(S, axis):
     t = np.arange(S.NT) * S.dt
     # for i, y in enumerate(energies):
     for i in range(5):
-        axis.plot(t, data[:, i], label=f"Mode {i}")
+        axis.plot(t, data[:, i], label=f"Mode {i}", alpha=0.8)
     for i in range(5, data.shape[1]):
-        axis.plot(t, data[:, i])
-    axis.annotate(f"Mode {max_mode}",
-                  xy=(t[max_index], data[max_index, max_mode]),
-                  arrowprops=dict(facecolor='black', shrink=0.05),
-                  xytext=(t.mean(), data.max()/2))
+        axis.plot(t, data[:, i], alpha=0.9)
+    # axis.annotate(f"Mode {max_mode}",
+    #               xy=(t[max_index], data[max_index, max_mode]),
+    #               arrowprops=dict(facecolor='black', shrink=0.05),
+    #               xytext=(t.mean(), data.max()/2))
 
-    axis.legend()
+    axis.legend(loc='upper right')
     axis.grid()
     axis.set_xlabel(f"Time [dt: {S.dt:.3e}]")
     axis.set_ylabel("Energy")
+    axis.set_xlim(0, S.NT * S.dt)
     axis.set_title("Energy per mode versus time")
 
 
@@ -53,6 +54,7 @@ def temperature_time_plot(S, axis):
     axis.legend(loc='lower right')
     axis.grid()
     axis.set_xlabel("Time")
+    axis.set_xlim(0, S.NT * S.dt)
     axis.set_ylabel("Temperature")
 
 
@@ -62,13 +64,14 @@ def energy_time_plots(S, axis):
                   label="Kinetic energy: {}".format(species.name))
     axis.plot(np.arange(S.NT) * S.dt, S.grid.grid_energy_history, ".-", label="Field energy (Fourier)",
               alpha=0.5)
+    # axis.plot(np.arange(S.NT) * S.dt, S.grid.epsilon_0 * (S.grid.electric_field_history ** 2).sum(axis=1) * 0.5,
+    #                  ".-", label="Field energy (direct solve)", alpha=0.5)
     axis.plot(np.arange(S.NT) * S.dt, S.total_energy, ".-", label="Total energy")
-    axis.plot(np.arange(S.NT) * S.dt, S.grid.epsilon_0 * (S.grid.electric_field_history ** 2).sum(axis=1) * 0.5,
-                     ".-", label="Field energy (direct solve)", alpha=0.5)
     # TODO: implement direct field energy solver outside this place
     # TODO: why is direct field energy solver shifted
     axis.grid()
     axis.set_xlabel("Time")
+    axis.set_xlim(0, S.NT * S.dt)
     axis.set_ylabel("Energy")
     axis.legend(loc='lower right')
 
@@ -78,7 +81,7 @@ def velocity_distribution_plots(S, axis, i=0):
         axis.hist(species.velocity_history[i, :, 0], bins=50, alpha=0.5, label=species.name)
     axis.set_title("Velocity distribution at iteration %d" % i)
     axis.grid()
-    axis.legend(loc='best')
+    axis.legend(loc='upper right')
     axis.set_xlabel("v")
     axis.set_ylabel("N")
 

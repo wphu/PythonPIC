@@ -171,6 +171,9 @@ class Species:
     def __repr__(self, *args, **kwargs):
         return f"Species(q={self.q:.4f},m={self.m:.4f},N={self.N},name=\"{self.name}\",NT={self.NT})"
 
+    def __str__(self):
+        return f"{self.name} with q = {self.q:.4f}, m = {self.m:.4f}, {self.NT} history steps "
+
     def __eq__(self, other):
         result = True
         result *= self.q == other.q
