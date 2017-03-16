@@ -47,9 +47,11 @@ def cold_plasma_oscillations(filename: str,
                      title="Cold plasma oscillation")
     run.grid_species_initialization()
     run.run()
+    return run
 
 
 if __name__ == '__main__':
+
     plasma_frequency = 1
     N_electrons = 1024
     epsilon_0 = 1
@@ -57,6 +59,6 @@ if __name__ == '__main__':
     L = 2 * pi
     particle_charge = plasma_frequency ** 2 * L / float(N_electrons * epsilon_0 * qmratio)
     particle_mass = particle_charge / qmratio
-    cold_plasma_oscillations("data_analysis/CO/COsimrun.hdf5", q=particle_charge, m=particle_mass, NG=64,
-                             N_electrons=N_electrons, push_mode=2)
-    plotting("data_analysis/CO/COsimrun.hdf5", show=True, save=False, animate=True)
+    S = cold_plasma_oscillations("data_analysis/CO/COsimrun.hdf5", q=particle_charge, m=particle_mass, NG=64,
+                                 N_electrons=N_electrons, push_mode=2)
+    plotting(S, show=True, save=False, animate=True)

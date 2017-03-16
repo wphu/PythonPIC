@@ -81,7 +81,8 @@ def velocity_distribution_plots(S, axis, i=0):
         axis.hist(species.velocity_history[i, :, 0], bins=50, alpha=0.5, label=species.name)
     axis.set_title("Velocity distribution at iteration %d" % i)
     axis.grid()
-    axis.legend(loc='upper right')
+    if len(S.list_species) > 1:
+        axis.legend(loc='upper right')
     axis.set_xlabel("v")
     axis.set_ylabel("N")
 
@@ -99,8 +100,10 @@ def phase_trajectories(S, axis, all=False):
             x = species.position_history[:, i]
             y = species.velocity_history[:, i, 0]
             axis.set_title("Phase space plot for particle {}".format(i))
-        axis.plot(x, y, ".")
+        axis.plot(x, y, ".", label=species.name)
     axis.set_xlim(0, S.grid.L)
+    if len(S.list_species) > 1:
+        axis.legend()
     # noinspection PyUnboundLocalVariable
     axis.set_xlabel("x")
     axis.set_ylabel("vx")
@@ -117,7 +120,8 @@ def velocity_time_plots(S, axis):
         for i in range(3):
             axis.plot(t, s.velocity_history[:, int(s.N / 2), i], label=s.name + labels[i])
     axis.set_xlabel("t")
-    plt.legend()
+    if len(S.list_species) > 1:
+        axis.legend()
     axis.grid()
 
 def static_plots(S, filename=False):

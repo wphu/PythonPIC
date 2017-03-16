@@ -1,6 +1,7 @@
 """plotting suite for simulation data analysis, can be called from command line"""
 # coding=utf-8
 import argparse
+
 import matplotlib.pyplot as plt
 
 import Simulation
@@ -9,7 +10,8 @@ import static_plots
 
 directory = "data_analysis/"
 
-def plotting(filename: str, show: bool = True, save: bool = False, animate: bool = True, lines: bool = False, alpha: float = 1):
+
+def plotting(file, show: bool = True, save: bool = False, animate: bool = True, lines: bool = False, alpha: float = 1):
     """
     Runs visual analysis on saved hdf5 file. Currently runs:
     * energy vs time plot
@@ -18,20 +20,24 @@ def plotting(filename: str, show: bool = True, save: bool = False, animate: bool
     * spectral analysis
 
 
-    :param str filename: hdf5 file location
+    :param str file: hdf5 file location
     :param bool show: True if you want to show the plots right after creating
     :param bool save: True if you want to save the plots
     :param bool animate: True if you want to display/save animation
     :param bool lines: True if you want to draw trajectories on the phase plot
     :param float alpha: [0, 1] phaseplot dot opacity
     """
-    print("Plotting for %s" % filename)
-    S = Simulation.load_data(filename)
-    static_plots.static_plots(S, filename.replace(".hdf5", ".png"))
+    if type(file) == Simulation.Simulation:
+        S = file
+    else:
+        print(f"Loading simulation data from {file}")
+        S = Simulation.load_data(file)
+    # import ipdb; ipdb.set_trace()
+    static_plots.static_plots(S, S.filename.replace(".hdf5", ".png"))
     print(S)
     if animate:
         if save:
-            videofile_name = filename.replace(".hdf5", ".mp4")
+            videofile_name = S.filename.replace(".hdf5", ".mp4")
         else:
             videofile_name = None
         # noinspection PyUnusedLocal

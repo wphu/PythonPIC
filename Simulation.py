@@ -1,5 +1,6 @@
 """Data interface class"""
 # coding=utf-8
+import os
 import time
 
 import h5py
@@ -117,23 +118,23 @@ class Simulation:
     def save_data(self, filename: str = time.strftime("%Y-%m-%d_%H-%M-%S.hdf5"), runtime: bool = False) -> str:
         """Save simulation data to hdf5.
         filename by default is the timestamp for the simulation."""
-
-        S = self
+        if not os.path.exists(os.path.dirname(filename)):
+            os.makedirs(os.path.dirname(filename))
         with h5py.File(filename, "w") as f:
             grid_data = f.create_group('grid')
             self.grid.save_to_h5py(grid_data)
 
             all_species = f.create_group('species')
-            for species in S.list_species:
+            for species in self.list_species:
                 species_data = all_species.create_group(species.name)
                 species.save_to_h5py(species_data)
-            f.create_dataset(name="Field energy", dtype=float, data=S.field_energy)
-            f.create_dataset(name="Total energy", dtype=float, data=S.total_energy)
+            f.create_dataset(name="Field energy", dtype=float, data=self.field_energy)
+            f.create_dataset(name="Total energy", dtype=float, data=self.total_energy)
 
-            f.attrs['dt'] = S.dt
-            f.attrs['NT'] = S.NT
+            f.attrs['dt'] = self.dt
+            f.attrs['NT'] = self.NT
             f.attrs['date_ver_str'] = date_version_string()
-            f.attrs['title'] = S.title
+            f.attrs['title'] = self.title
             if runtime:
                 f.attrs['runtime'] = runtime
         print("Saved file to {}".format(filename))
@@ -141,7 +142,7 @@ class Simulation:
 
     def __str__(self, *args, **kwargs):
         result_string = f"""
-        {self.title} simulation containing {self.NT} iterations with time step {self.dt}
+        {self.title} simulation ({os.path.basename(self.filename)}) containing {self.NT} iterations with time step {self.dt}
         {self.grid.NG}-cell grid of length {self.grid.L:.2f}. Epsilon zero = {self.constants.epsilon_0}, c = {self.constants.epsilon_0}""".lstrip()
 
         for species in self.list_species:
