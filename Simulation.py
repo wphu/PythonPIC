@@ -113,7 +113,7 @@ class Simulation:
             self.iteration(i)
         runtime = time.time() - start_time
 
-        if save_data:
+        if self.filename and save_data:
             self.save_data(filename=self.filename, runtime=runtime)
         return runtime
 
