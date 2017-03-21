@@ -5,7 +5,7 @@ from matplotlib import gridspec
 
 
 def static_plot_window(S, N, M):
-    fig = plt.figure(figsize=(13, 8))
+    fig = plt.figure(figsize=(14, 9))
     gs = gridspec.GridSpec(N, M)
     axes = [[fig.add_subplot(gs[n,m]) for m in range(M)] for n in range(N)]
     fig.suptitle(str(S), fontsize=12)
@@ -49,14 +49,15 @@ def temperature_time_plot(S, axis):
         temperature = meanv2 - meanv ** 2
         temperature_parallel = temperature[:, 0]
         temperature_transverse = temperature[:, 1:].sum(axis=1)
+        # REFACTOR: use axis.twiny here
         axis.plot(t, temperature_parallel, label=species.name + r" $T_{||}$")
         axis.plot(t, meanv2[:, 0], label=species.name + r" $<v^2>$")
         axis.plot(t, meanv[:, 0] ** 2, label=species.name + r" $<v>^2$")
     axis.legend(loc='lower right')
     axis.grid()
-    axis.set_xlabel("Time")
+    axis.set_xlabel(r"Time $t$")
     axis.set_xlim(0, S.NT * S.dt)
-    axis.set_ylabel("Temperature")
+    axis.set_ylabel("Temperature $t$")
 
 
 def energy_time_plots(S, axis):
@@ -71,9 +72,9 @@ def energy_time_plots(S, axis):
     # TODO: why is direct field energy solver shifted by a half? is this due to the staggered Leapfrog\Boris solver?
     axis.plot(np.arange(S.NT) * S.dt, S.total_energy, ".-", label="Total energy")
     axis.grid()
-    axis.set_xlabel("Time")
+    axis.set_xlabel(r"Time $t$")
     axis.set_xlim(0, S.NT * S.dt)
-    axis.set_ylabel("Energy")
+    axis.set_ylabel(r"Energy $E$")
     axis.legend(loc='lower right')
 
 
@@ -84,8 +85,8 @@ def velocity_distribution_plots(S, axis, i=0):
     axis.grid()
     if len(S.list_species) > 1:
         axis.legend(loc='upper right')
-    axis.set_xlabel("v")
-    axis.set_ylabel("N")
+    axis.set_xlabel(r"Velocity $v$")
+    axis.set_ylabel(r"Number of superparticles")
 
 
 def phase_trajectories(S, axis, all=False):
@@ -106,8 +107,8 @@ def phase_trajectories(S, axis, all=False):
     if len(S.list_species) > 1:
         axis.legend()
     # noinspection PyUnboundLocalVariable
-    axis.set_xlabel("x")
-    axis.set_ylabel("vx")
+    axis.set_xlabel(r"Position $x$")
+    axis.set_ylabel(r"Velocity $v_x$")
     axis.grid()
 
 
@@ -115,12 +116,13 @@ def phase_trajectories(S, axis, all=False):
 
 
 def velocity_time_plots(S, axis):
-    labels = ["vx", "vy", "vz"]
+    labels = [r"$v_x$", r"$v_y$", r"$v_z$"]
     t = np.arange(S.NT)
     for s in S.list_species:
         for i in range(3):
             axis.plot(t, s.velocity_history[:, int(s.N / 2), i], label=s.name + labels[i])
-    axis.set_xlabel("t")
+    axis.set_xlabel(r"Time $t$")
+    axis.set_ylabel(r"Velocity $v$")
     if len(S.list_species) > 1:
         axis.legend()
     axis.grid()
@@ -143,6 +145,6 @@ def static_plots(S, filename=False):
 if __name__ == "__main__":
     import Simulation
 
-    S = Simulation.load_data("data_analysis/CO/COsimrun.hdf5")
+    S = Simulation.load_data("data_analysis/CO1/CO1.hdf5")
     static_plots(S)
     plt.show()

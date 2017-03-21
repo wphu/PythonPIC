@@ -63,5 +63,5 @@ if __name__ == '__main__':
     particle_mass = particle_charge / qmratio
     S = cold_plasma_oscillations("data_analysis/CO1/CO1.hdf5", q=particle_charge, m=particle_mass, NG=64,
                                  N_electrons=N_electrons, push_mode=2)
-    plotting(S, show=False, save=True, animate=True)
+    plotting(S, show=True, save=False, animate=True)
     # TEST: this should be a test

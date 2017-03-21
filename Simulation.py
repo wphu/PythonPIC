@@ -202,6 +202,7 @@ def load_data(filename: str) -> Simulation:
         run_date = f.attrs['run_date']
         git_version = f.attrs['git_version']
     S = Simulation(NT, dt, Constants(epsilon_0=grid.epsilon_0, c=1), grid, all_species, run_date, git_version,
+                   filename=filename,
                    title=title)
 
     S.total_energy = total_energy
