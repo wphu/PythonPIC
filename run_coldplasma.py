@@ -12,7 +12,7 @@ from plotting import plotting
 def cold_plasma_oscillations(filename: str,
                              q: float = -1,
                              m: float = 1,
-                             scaling_factor: float = 1,
+                             scaling_factor: float = 1,  # TODO: include this
                              dt: float = 0.2,
                              NT: int = 150,
                              NG: int = 32,
@@ -43,15 +43,17 @@ def cold_plasma_oscillations(filename: str,
     particles.distribute_uniformly(L)
     particles.sinusoidal_position_perturbation(push_amplitude, push_mode, L)
     grid = Grid(L, NG, epsilon_0, NT)
+
+    description = f"Cold plasma oscillations\nposition initial condition perturbed by sinusoidal oscillation mode {push_mode} excited with amplitude {push_amplitude}\n"
+
     run = Simulation(NT, dt, Constants(c, epsilon_0), grid, [particles], filename=filename,
-                     title="Cold plasma oscillation")
+                     title=description)
     run.grid_species_initialization()
     run.run()
     return run
 
 
 if __name__ == '__main__':
-
     plasma_frequency = 1
     N_electrons = 1024
     epsilon_0 = 1

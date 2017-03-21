@@ -1,7 +1,6 @@
 """various helper functions"""
 # coding=utf-8
 import subprocess
-import time
 
 import numpy as np
 
@@ -33,15 +32,8 @@ def l2_test(reference: np.ndarray, test: np.ndarray, rtol: float = 1e-3) -> bool
     return norm < rtol
 
 
-def date_version_string() -> str:
+def git_version() -> str:
     """
-    :return str: current system time and latest git version hash
+    :return: a short version of the git version hash
     """
-    run_time = time.ctime()
-    git_version = subprocess.check_output(['git', 'describe', '--always']).decode()[:-1]
-    dv_string = "{}\nLatest git version: {}".format(run_time, git_version)
-    return dv_string
-
-if __name__ == "__main__":
-    print(date_version_string())
-
+    return subprocess.check_output(['git', 'describe', '--always']).decode()[:-1]

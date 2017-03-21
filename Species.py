@@ -72,7 +72,6 @@ class Species:
 
         :param electric_field_function: E(x), interpolated from grid
         :param float dt: original time step
-        :param float L: grid size, used to enforce boundary condition
         :return float energy: (N,) size array of particle kinetic energies calculated at half time step
         """
         electric_force = electric_field_function(self.x) * self.q / self.m
@@ -85,6 +84,10 @@ class Species:
         return energy
 
     def return_to_bounds(self, L):
+        """
+        Moves particles back into the grid via modulo division. Works in-place.
+        :param L: length of grid
+        """
         self.x %= L
 
     """POSITION INITIALIZATION"""
@@ -172,7 +175,7 @@ class Species:
         return f"Species(q={self.q:.4f},m={self.m:.4f},N={self.N},name=\"{self.name}\",NT={self.NT})"
 
     def __str__(self):
-        return f"{self.name} with q = {self.q:.4f}, m = {self.m:.4f}, {self.NT} history steps "
+        return f"{self.N} {self.name} with q = {self.q:.4f}, m = {self.m:.4f}, {self.NT} history steps "
 
     def __eq__(self, other):
         result = True

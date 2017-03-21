@@ -9,7 +9,7 @@ import numpy as np
 from Constants import Constants
 from Grid import Grid
 from Species import Species
-from helper_functions import date_version_string
+from helper_functions import git_version
 
 
 class Simulation:
@@ -29,9 +29,10 @@ class Simulation:
                  constants: Constants,
                  grid: Grid,
                  list_species,
-                 date_ver_str=date_version_string(),
+                 run_date=time.ctime(),
+                 git_version=git_version(),
                  filename=time.strftime("%Y-%m-%d_%H-%M-%S.hdf5"),
-                 title = "",
+                 title="",
                  ):
         """
         :param NT:
@@ -49,9 +50,10 @@ class Simulation:
         self.total_energy = np.zeros(NT)
         self.constants = constants
         self.dt = dt
-        self.date_ver_str = date_ver_str # REFACTOR: replace with run start date
         self.filename = filename
         self.title = title
+        self.git_version = git_version
+        self.run_date = run_date
 
     def grid_species_initialization(self):
         """
@@ -133,7 +135,8 @@ class Simulation:
 
             f.attrs['dt'] = self.dt
             f.attrs['NT'] = self.NT
-            f.attrs['date_ver_str'] = date_version_string()
+            f.attrs['run_date'] = self.run_date
+            f.attrs['git_version'] = self.git_version
             f.attrs['title'] = self.title
             if runtime:
                 f.attrs['runtime'] = runtime
@@ -143,16 +146,19 @@ class Simulation:
     def __str__(self, *args, **kwargs):
         result_string = f"""
         {self.title} simulation ({os.path.basename(self.filename)}) containing {self.NT} iterations with time step {self.dt}
+        Done on {self.run_date} from git version {self.git_version}
         {self.grid.NG}-cell grid of length {self.grid.L:.2f}. Epsilon zero = {self.constants.epsilon_0}, c = {self.constants.epsilon_0}""".lstrip()
-        # REFACTOR: add run date
         for species in self.list_species:
             result_string = result_string + "\n" + str(species)
-        return result_string # REFACTOR: add information from config file (run_coldplasma...)
+        return result_string  # REFACTOR: add information from config file (run_coldplasma...)
 
     def __eq__(self, other: 'Simulation') -> bool:
         result = True
-        assert self.date_ver_str == other.date_ver_str, "date not equal!"
-        result *= self.date_ver_str == other.date_ver_str
+        # REFACTOR: this is a horrible way to do comparisons
+        assert self.run_date == other.run_date, "date not equal!"
+        result *= self.run_date == other.run_date
+        assert self.git_version == other.git_version, "Git version not equal!"
+        result *= self.git_version == other.git_version
         assert self.constants.epsilon_0 == other.constants.epsilon_0, print("epsilon 0 not equal!")
         result *= self.constants.epsilon_0 == other.constants.epsilon_0
 
@@ -193,9 +199,10 @@ def load_data(filename: str) -> Simulation:
             species = Species(1, 1, 1, NT=NT)
             species.load_from_h5py(species_group)
             all_species.append(species)
-        date_ver_str = f.attrs['date_ver_str']
-
-    S = Simulation(NT, dt, Constants(epsilon_0=grid.epsilon_0, c=1), grid, all_species, date_ver_str, title = title)
+        run_date = f.attrs['run_date']
+        git_version = f.attrs['git_version']
+    S = Simulation(NT, dt, Constants(epsilon_0=grid.epsilon_0, c=1), grid, all_species, run_date, git_version,
+                   title=title)
 
     S.total_energy = total_energy
 
