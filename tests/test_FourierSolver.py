@@ -1,8 +1,9 @@
-from algorithms_grid import PoissonSolver
+# coding=utf-8
 import matplotlib.pyplot as plt
-from helper_functions import l2_norm, l2_test
+
 from Grid import Grid
-from Species import Species
+from helper_functions import l2_norm, l2_test
+
 DEBUG = False
 import numpy as np
 
@@ -230,5 +231,3 @@ def test_PoissonSolver_ramp(debug=DEBUG):
     polynomial_coefficients = np.polyfit(g.x, g.potential, 3)
     assert np.isclose(polynomial_coefficients[0], -a / 6,), plots()
 
-if __name__ == "__main__":
-    test_PoissonSolver_complex(True)

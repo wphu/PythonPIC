@@ -1,6 +1,8 @@
-from Species import Species
-import numpy as np
+# coding=utf-8
 import matplotlib.pyplot as plt
+import numpy as np
+
+from Species import Species
 from helper_functions import l2_test
 
 
@@ -89,9 +91,10 @@ def test_constant_field(plotting=False):
 #     ramp_field = lambda x: x - 0.5
 #     x_analytical = np.exp(t)
 #     x_data = []
+#     s.init_push(ramp_field, dt)
 #     for i in range(t.size):
 #         x_data.append(s.x[0])
-#         s.leapfrog_push(ramp_field, dt, np.inf)
+#         s.push(ramp_field, dt, np.inf)
 #     x_data = np.array(x_data)
 #     print(x_analytical - x_data)
 #

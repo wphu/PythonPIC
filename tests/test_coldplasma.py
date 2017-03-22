@@ -32,6 +32,6 @@ def test_linear_dominant_mode(push_mode):
                                  N_electrons=N_electrons, push_mode=push_mode, save_data=False)
     calculated_dominant_mode = get_dominant_mode(S)
     assert calculated_dominant_mode == push_mode, (
-        f"got {calculated_dominant_mode} instead of {push_mode}",
+        f"got {get_dominant_mode} instead of {push_mode}",
         plotting(S, show=False, save=False, animate=False))
     return S
