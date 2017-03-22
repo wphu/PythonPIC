@@ -5,6 +5,7 @@ __pycache__
 *.ipynb_checkpoints/
 _static/
 _templates/
+*.hdf5
 documentation/_static/
 documentation/_templates/
 **/.idea/workspace.xml
