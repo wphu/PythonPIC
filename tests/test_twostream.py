@@ -4,7 +4,8 @@ from run_twostream import two_stream_instability
 
 
 def test_linear_regime_beam_stability():
-    S = two_stream_instability("data_analysis/TS1/TS1.hdf5",
+    run_name = f"TS_LINEAR"
+    S = two_stream_instability(f"data_analysis/{run_name}/{run_name}.hdf5",
                                NG=64,
                                N_electrons=512,
                                )
@@ -12,7 +13,8 @@ def test_linear_regime_beam_stability():
 
 
 def test_nonlinear_regime_beam_instability():
-    S = two_stream_instability("data_analysis/TS2/TS2.hdf5",
+    run_name = f"TS_NONLINEAR"
+    S = two_stream_instability(f"data_analysis/{run_name}/{run_name}.hdf5",
                                NG=64,
                                N_electrons=1024,
                                plasma_frequency=5,
