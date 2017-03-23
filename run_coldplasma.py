@@ -12,7 +12,7 @@ from plotting import plotting
 def cold_plasma_oscillations(filename,
                              q: float = -1,
                              m: float = 1,
-                             scaling_factor: float = 1,  # TODO: include this
+                             scaling: float = 1,  # TODO: include this
                              dt: float = 0.2,
                              NT: int = 150,
                              NG: int = 32,
@@ -40,7 +40,7 @@ def cold_plasma_oscillations(filename,
     :param float push_amplitude: amplitude of initial position displacement
     :param int push_mode: mode of initially excited mode
     """
-    particles = Species(N=N_electrons, q=q, m=m, name="electrons", NT=NT)
+    particles = Species(N=N_electrons, q=q, m=m, name="electrons", NT=NT, scaling=scaling)
     particles.distribute_uniformly(L)
     particles.sinusoidal_position_perturbation(push_amplitude, push_mode, L)
     grid = Grid(L, NG, epsilon_0, NT)
@@ -61,8 +61,9 @@ if __name__ == '__main__':
     qmratio = -1
     L = 2 * pi
 
-    particle_charge = plasma_frequency ** 2 * L / float(N_electrons * epsilon_0 * qmratio)
-    particle_mass = particle_charge / qmratio
+    particle_mass = 1
+    particle_charge = particle_mass * qmratio
+    scaling = abs(particle_mass * plasma_frequency ** 2 * L / float(particle_charge * N_electrons * epsilon_0)) # TODO: verify this line
     S = cold_plasma_oscillations("data_analysis/CO1/CO1.hdf5", q=particle_charge, m=particle_mass, NG=64,
-                                 N_electrons=N_electrons, push_mode=push_mode)
+                                 scaling=scaling, N_electrons=N_electrons, push_mode=push_mode)
     plotting(S, show=True, save=False, animate=True)

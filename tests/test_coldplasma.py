@@ -23,13 +23,15 @@ def test_linear_dominant_mode(push_mode):
     epsilon_0 = 1
     qmratio = -1
     L = 2 * pi
-
-    particle_charge = plasma_frequency ** 2 * L / float(N_electrons * epsilon_0 * qmratio)
-    particle_mass = particle_charge / qmratio
+ 
+    particle_mass = 1
+    particle_charge = particle_mass * qmratio
+    scaling = particle_mass * plasma_frequency ** 2 * L / abs((particle_charge * N_electrons * epsilon_0)) # TODO: verify this line
+    print(f"scaling: {scaling}")
 
     run_name = f"CO_LINEAR_{push_mode}"
     S = cold_plasma_oscillations(f"data_analysis/{run_name}/{run_name}.hdf5", q=particle_charge, m=particle_mass, NG=64,
-                                 N_electrons=N_electrons, push_mode=push_mode, save_data=False)
+                                 scaling=scaling, N_electrons=N_electrons, push_mode=push_mode, save_data=False)
     calculated_dominant_mode = get_dominant_mode(S)
     assert calculated_dominant_mode == push_mode, (
         f"got {get_dominant_mode} instead of {push_mode}",

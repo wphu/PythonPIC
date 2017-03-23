@@ -18,16 +18,17 @@ class Species:
     NT: int, number of time steps (for diagnostics)
     """
 
-    def __init__(self, q, m, N, name=None, NT=1):
+    def __init__(self, q, m, N, name=None, NT=1, scaling=1):
         r"""
         :param float q: particle charge
         :param float m: particle mass
         :param int N: total number of species particles
+        :param int scaling: number of particles per superparticle
         :param str name: name of particle set
         :param int NT: number of time steps (for history saving)
         """
-        self.q = q
-        self.m = m
+        self.q = q*scaling
+        self.m = m*scaling
         self.N = int(N)
         self.NT = NT
         self.x = np.zeros(N, dtype=float)
