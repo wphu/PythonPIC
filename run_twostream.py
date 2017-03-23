@@ -9,9 +9,20 @@ from Simulation import Simulation
 from Species import Species
 
 
-def two_stream_instability(filename, plasma_frequency=1, qmratio=-1, dt=0.2, NT=300,
-                             NG=32, N_electrons=128, L=2 * np.pi, epsilon_0=1,
-                             push_amplitude=0.001, push_mode=1, v0=1.0, vrandom = 0):
+def two_stream_instability(filename,
+                           plasma_frequency=1,
+                           qmratio=-1,
+                           dt=0.2,
+                           NT=300,
+                           NG=32,
+                           N_electrons=128,
+                           L=2 * np.pi,
+                           epsilon_0=1,
+                           push_amplitude=0.001,
+                           push_mode=1,
+                           v0=1.0,
+                           vrandom = 0,
+                           save_data: bool = True):
     """Implements two stream instability from Birdsall and Langdon"""
     print("Running two stream instability")
     particle_charge = plasma_frequency**2 * L / float(2*N_electrons * epsilon_0 * qmratio)
@@ -36,7 +47,7 @@ def two_stream_instability(filename, plasma_frequency=1, qmratio=-1, dt=0.2, NT=
                      grid, list_species, filename=filename, title="Twostream instability")
     # REFACTOR: add initial condition values to Simulation object
     run.grid_species_initialization()
-    run.run()
+    run.run(save_data)
     return run
 
 if __name__ == '__main__':

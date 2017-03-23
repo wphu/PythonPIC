@@ -1,25 +1,36 @@
 import numpy as np
+import pytest
 
 from run_twostream import two_stream_instability
 
-
-def test_linear_regime_beam_stability():
-    run_name = f"TS_LINEAR"
+@pytest.mark.parametrize(["NG", "N_electrons"], [
+                         (64, 512),
+                         (128, 1024),
+                         ])
+def test_linear_regime_beam_stability(NG, N_electrons):
+    run_name = f"TS_LINEAR_{NG}_{N_electrons}"
     S = two_stream_instability(f"data_analysis/{run_name}/{run_name}.hdf5",
-                               NG=64,
-                               N_electrons=512,
+                               NG=NG,
+                               N_electrons=N_electrons,
+                               save_data=False,
                                )
     assert (~did_it_thermalize(S)).all()
 
-
-def test_nonlinear_regime_beam_instability():
-    run_name = f"TS_NONLINEAR"
+@pytest.mark.parametrize(["NG", "N_electrons", "plasma_frequency"], [
+                         (64, 1024, 5),
+                         (128, 2048, 5),
+                         (64, 1024, 7),
+                         (64, 1024, 4),
+                         ])
+def test_nonlinear_regime_beam_instability(NG, N_electrons, plasma_frequency):
+    run_name = f"TS_NONLINEAR_{NG}_{N_electrons}_{plasma_frequency}"
     S = two_stream_instability(f"data_analysis/{run_name}/{run_name}.hdf5",
-                               NG=64,
-                               N_electrons=1024,
-                               plasma_frequency=5,
+                               NG=NG,
+                               N_electrons=N_electrons,
+                               plasma_frequency=plasma_frequency,
                                dt=0.2 / 5,
-                               NT=300 * 5
+                               NT=300 * 5,
+                               save_data=False,
                                )
     assert did_it_thermalize(S).all()
 

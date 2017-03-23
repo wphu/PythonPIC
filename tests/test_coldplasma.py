@@ -29,7 +29,7 @@ def test_linear_dominant_mode(push_mode):
 
     run_name = f"CO_LINEAR_{push_mode}"
     S = cold_plasma_oscillations(f"data_analysis/{run_name}/{run_name}.hdf5", q=particle_charge, m=particle_mass, NG=64,
-                                 N_electrons=N_electrons, push_mode=push_mode, save_data=True)
+                                 N_electrons=N_electrons, push_mode=push_mode, save_data=False)
     calculated_dominant_mode = get_dominant_mode(S)
     assert calculated_dominant_mode == push_mode, (
         f"got {get_dominant_mode} instead of {push_mode}",
