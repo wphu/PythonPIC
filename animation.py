@@ -7,6 +7,9 @@ import numpy as np
 colors = "brgyk"
 
 
+# formatter = matplotlib.ticker.ScalarFormatter(useMathText=True, useOffset=False)
+
+
 def velocity_histogram_data(arr, bins):
     bin_height, bin_edge = np.histogram(arr, bins=bins)
     bin_center = (bin_edge[:-1] + bin_edge[1:]) * 0.5
@@ -27,7 +30,7 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
 
     returns: matplotlib figure with animation
     """
-    fig = plt.figure(figsize=(10, 10))
+    fig = plt.figure(figsize=(10, 8))
     charge_axes = fig.add_subplot(221)
     distribution_axes = fig.add_subplot(222)
     # TODO: add magnetic field
@@ -38,24 +41,27 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
                                verticalalignment='center', transform=freq_axes.transAxes)
 
     fig.suptitle(str(S), fontsize=12)
-    fig.subplots_adjust(top=0.81)
+    fig.subplots_adjust(top=0.81, bottom=0.08, left=0.08, right=0.95,
+                        wspace=.25, hspace=0.3)
 
     charge_plot, = charge_axes.plot([], [], "b.-")
     charge_axes.set_xlim(0, S.grid.L)
     charge_axes.set_ylabel(r"Charge density $\rho$", color='b')
     charge_axes.tick_params('y', colors='b')
     charge_axes.set_xlabel(r"Position $x$")
+    charge_axes.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
     mincharge = np.min(S.grid.charge_density_history)
     maxcharge = np.max(S.grid.charge_density_history)
     charge_axes.set_ylim(mincharge, maxcharge)
-    # charge_axes.vlines(S.grid.x, mincharge/10, maxcharge/10)
     charge_axes.grid()
+    # charge_axes.yaxis.set_major_formatter(formatter)
 
     field_axes = charge_axes.twinx()
     field_axes.set_xlim(0, S.grid.L)
     field_plot, = field_axes.plot([], [], "r.-")
     field_axes.set_ylabel(r"Electric field $E$", color='r')
     field_axes.tick_params('y', colors='r')
+    field_axes.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
     maxfield = np.max(np.abs(S.grid.electric_field_history))
     # field_axes.vlines(S.grid.x, -maxfield/10, maxfield/10)
     field_axes.grid()
@@ -74,6 +80,7 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
     phase_axes.set_ylim(-maxv, maxv)
     phase_axes.set_xlabel(r"Particle position $x$")
     phase_axes.set_ylabel(r"Particle velocity $v_x$")
+    phase_axes.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
     # phase_axes.vlines(S.grid.x, -maxv/10, maxv/10)
     phase_axes.grid()
 
@@ -85,8 +92,11 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
         histograms.append(
             distribution_axes.plot(*velocity_histogram_data(s.velocity_history[0], bin_array), colors[i])[0])
     distribution_axes.grid()
+    distribution_axes.yaxis.tick_right()
+    distribution_axes.yaxis.set_label_position("right")
     distribution_axes.set_xlabel(r"Velocity $v$")
     distribution_axes.set_ylabel(r"Number of particles")
+    distribution_axes.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
 
     freq_plot, = freq_axes.plot([], [], "bo-", label="energy per mode")
     freq_axes.set_xlabel(r"Wavevector mode $k$")
@@ -94,6 +104,9 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
     freq_axes.set_xlim(0, S.grid.NG / 2)
     freq_axes.set_ylim(S.grid.energy_per_mode_history.min(), S.grid.energy_per_mode_history.max())
     freq_axes.grid()
+    freq_axes.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True, useOffset=False)
+    freq_axes.yaxis.tick_right()
+    freq_axes.yaxis.set_label_position("right")
 
     # fig.tight_layout()
 
