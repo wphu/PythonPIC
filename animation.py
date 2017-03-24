@@ -11,9 +11,17 @@ colors = "brgyk"
 
 
 def velocity_histogram_data(arr, bins):
+    """
+
+    :param arr: particle velocity array
+    :param bins: number of bins or array of edges 
+    :return: x, y data on bins for linear plotting
+    """
     bin_height, bin_edge = np.histogram(arr, bins=bins)
     bin_center = (bin_edge[:-1] + bin_edge[1:]) * 0.5
     return bin_center, bin_height
+
+
 def animation(S, videofile_name=None, lines=False, alpha=1):
     """ animates the simulation, showing:
     * grid charge vs grid position
@@ -65,10 +73,8 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
     field_axes.grid()
     field_axes.set_ylim(-maxfield, maxfield)
 
-
     phase_dots = {}
-    if lines:
-        phase_lines = {}
+    phase_lines = {}
     for i, species in enumerate(S.list_species):
         phase_dots[species.name], = phase_axes.plot([], [], colors[i] + ".", alpha=alpha)
         if lines:
@@ -84,7 +90,7 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
     histograms = []
     bin_arrays = []
     for i, s in enumerate(S.list_species):
-        bin_array = np.linspace(s.velocity_history.min(), s.velocity_history.max(), 50)
+        bin_array = np.linspace(s.velocity_history.min(), s.velocity_history.max())
         bin_arrays.append(bin_array)
         histograms.append(
             distribution_axes.plot(*velocity_histogram_data(s.velocity_history[0], bin_array), colors[i])[0])
@@ -104,7 +110,6 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
     freq_axes.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True, useOffset=False)
     freq_axes.yaxis.tick_right()
     freq_axes.yaxis.set_label_position("right")
-
 
     def init():
         """initializes animation window for faster drawing"""
@@ -134,7 +139,6 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
                                                    species.velocity_history[:i + 1, ::10, 0].T)
             histogram.set_data(*velocity_histogram_data(species.velocity_history[i], bin_array))
         iteration.set_text(f"Iteration: {i}/{S.NT}\nTime: {i*S.dt:.3g}/{S.NT*S.dt:.3g}")
-
 
         if lines:
             return [charge_plot, field_plot, freq_plot, *histograms, *phase_dots.values(), iteration,

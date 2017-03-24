@@ -7,6 +7,7 @@ from Constants import Constants
 from Grid import Grid
 from Simulation import Simulation
 from Species import Species
+from helper_functions import plotting_parser
 
 
 def two_stream_instability(filename,
@@ -21,34 +22,40 @@ def two_stream_instability(filename,
                            push_amplitude=0.001,
                            push_mode=1,
                            v0=1.0,
-                           vrandom = 0,
+                           vrandom=0,
                            save_data: bool = True):
     """Implements two stream instability from Birdsall and Langdon"""
     print("Running two stream instability")
-    particle_charge = plasma_frequency**2 * L / float(2*N_electrons * epsilon_0 * qmratio)
+    particle_charge = plasma_frequency ** 2 * L / float(2 * N_electrons * epsilon_0 * qmratio)
     particle_mass = particle_charge / qmratio
 
     grid = Grid(L=L, NG=NG, NT=NT)
-    k0 = 2*np.pi/L
+    k0 = 2 * np.pi / L
     w0 = plasma_frequency
-    print("k0*v0/w0 is", k0*v0/w0, "which means the regime is", "stable" if k0*v0/w0 > 2**0.5 else "unstable")
+    expected_stability = k0 * v0 / w0 > 2 ** -0.5
+    print("k0*v0/w0 is", k0 * v0 / w0, "which means the regime is", "stable" if expected_stability else "unstable")
     electrons1 = Species(particle_charge, particle_mass, N_electrons, "beam1", NT=NT)
     electrons2 = Species(particle_charge, particle_mass, N_electrons, "beam2", NT=NT)
     electrons1.v[:] = v0
     electrons2.v[:] = -v0
     list_species = [electrons1, electrons2]
     for i, species in enumerate(list_species):
-        species.distribute_uniformly(L, 0.5*grid.dx*i)
+        species.distribute_uniformly(L, 0.5 * grid.dx * i)
         species.sinusoidal_position_perturbation(push_amplitude, push_mode, grid.L)
-        if vrandom > 0:
+        if vrandom:
             species.random_velocity_perturbation(0, vrandom)
-    params = NT, dt, epsilon_0
+    description = f"Two stream instability - two beams counterstreaming with $v_0$ {v0:.2f}"
+    if vrandom:
+        description += f" + thermal $v_1$ of standard dev. {vrandom:.2f}"
+
+    description += f" ({'stable' if expected_stability else 'unstable'}).\n"
     run = Simulation(NT, dt, Constants(1, epsilon_0),
-                     grid, list_species, filename=filename, title="Twostream instability")
+                     grid, list_species, filename=filename, title=description)
     # REFACTOR: add initial condition values to Simulation object
     run.grid_species_initialization()
     run.run(save_data)
     return run
+
 
 if __name__ == '__main__':
     np.random.seed(0)
@@ -86,7 +93,6 @@ if __name__ == '__main__':
                                ),
     ]
 
-    show = False
-    save = True
+    show, save, animate = plotting_parser("Two stream instability")
     for s in simulations:
-        plotting.plotting(s, show=show, alpha=0.5, save=save)
+        plotting.plotting(s, show=show, alpha=0.5, save=save, animate=animate)

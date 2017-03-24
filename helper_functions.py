@@ -1,10 +1,8 @@
 """various helper functions"""
 # coding=utf-8
 import subprocess
-
+import argparse
 import numpy as np
-
-epsilon_0 = 1
 
 
 def l2_norm(reference: np.ndarray, test: np.ndarray) -> float:
@@ -37,3 +35,20 @@ def git_version() -> str:
     :return: a short version of the git version hash
     """
     return subprocess.check_output(['git', 'describe', '--always']).decode()[:-1]
+
+
+def plotting_parser(description):
+    """
+    Parses flags for showing or animating plots
+    
+    :param str description: Short program description
+    """
+    parser = argparse.ArgumentParser(description=description)
+    parser.add_argument("--show", help="Show plots once the run finishes", action="store_true")
+    parser.add_argument("--save", help="Save plots once the run finishes", action="store_true")
+    parser.add_argument("--animate", help="Animate the run", action="store_true")
+    args = parser.parse_args()
+    show = args.show
+    save = args.save
+    animate = args.animate
+    return show, save, animate
