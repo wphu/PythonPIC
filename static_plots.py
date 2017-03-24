@@ -5,28 +5,27 @@ from matplotlib import gridspec
 
 
 def static_plot_window(S, N, M):
-    fig = plt.figure(figsize=(14, 9))
+    fig = plt.figure(figsize=(10, 8))
     gs = gridspec.GridSpec(N, M)
     axes = [[fig.add_subplot(gs[n,m]) for m in range(M)] for n in range(N)]
     fig.suptitle(str(S), fontsize=12)
+
     # REFACTOR: separate window creation and axis layout into separate functions
-    gs.update(left = 0.05, right=0.95, bottom=0.075, top=0.8) # , wspace=0.05, hspace=0.05
+    gs.update(left=0.075, right=0.95, bottom=0.075, top=0.8, hspace=0.45, wspace=0.025)  # , wspace=0.05, hspace=0.05
     return fig, axes
 
 
 def ESE_time_plots(S, axis):
     data = S.grid.energy_per_mode_history
     weights = (data**2).sum(axis=0) / (data**2).sum()
-    # import ipdb; ipdb.set_trace()
 
     max_mode = weights.argmax()
     max_index = data[:, max_mode].argmax()
 
     t = np.arange(S.NT) * S.dt
-    # for i, y in enumerate(energies):
-    for i in range(5):
+    for i in range(1, 6):
         axis.plot(t, data[:, i], label=f"Mode {i}", alpha=0.8)
-    for i in range(5, data.shape[1]):
+    for i in range(6, data.shape[1]):
         axis.plot(t, data[:, i], alpha=0.9)
     # axis.annotate(f"Mode {max_mode}",
     #               xy=(t[max_index], data[max_index, max_mode]),
@@ -35,38 +34,41 @@ def ESE_time_plots(S, axis):
 
     axis.legend(loc='upper right')
     axis.grid()
-    axis.set_xlabel(f"Time [dt: {S.dt:.3e}]")
+    axis.set_xlabel(f"Time [dt: {S.dt:.2e}]")
     axis.set_ylabel("Energy")
     axis.set_xlim(0, S.NT * S.dt)
+    axis.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
     axis.set_title("Energy per mode versus time")
 
 
-def temperature_time_plot(S, axis):
+def temperature_time_plot(S, axis, twinaxis=True):
+    from matplotlib.font_manager import FontProperties
+    fontP = FontProperties()
+    fontP.set_size('small')
+
     t = np.arange(S.NT) * S.dt
-    axis2 = axis.twinx()
     for species in S.list_species:
         meanv = species.velocity_history.mean(axis=1)
         meanv2 = (species.velocity_history ** 2).mean(axis=1)
         temperature = meanv2 - meanv ** 2
         temperature_parallel = temperature[:, 0]
         temperature_transverse = temperature[:, 1:].sum(axis=1)
-        # REFACTOR: use axis.twiny here
         axis.plot(t, temperature_parallel, label=species.name + r" $T_{||}$")
-        axis2.plot(t, meanv2[:, 0], "--", label=species.name + r" $<v^2>$")
-        axis2.plot(t, meanv[:, 0] ** 2, "--", label=species.name + r" $<v>^2$")
-    axis.legend(loc='lower left')
-    axis2.legend(loc='lower right')
+        if twinaxis:
+            axis.plot(t, meanv2[:, 0], "--", label=species.name + r" $<v^2>$", alpha=0.5)
+            axis.plot(t, meanv[:, 0] ** 2, "--", label=species.name + r" $<v>^2$", alpha=0.5)
+    axis.legend(loc='center right', ncol=len(S.list_species), prop=fontP)
+    axis.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
     axis.grid()
     axis.set_xlabel(r"Time $t$")
     axis.set_xlim(0, S.NT * S.dt)
     axis.set_ylabel("Temperature $t$")
-    axis2.set_ylabel("Mean $v^2$")
 
 
 def energy_time_plots(S, axis):
     for species in S.list_species:
         axis.plot(np.arange(S.NT) * S.dt, species.kinetic_energy_history, ".-",
-                  label="Kinetic energy: {}".format(species.name))
+                  label="Kinetic energy: {}".format(species.name), alpha=0.3)
     axis.plot(np.arange(S.NT) * S.dt, S.grid.grid_energy_history, ".-", label="Field energy (Fourier)",
               alpha=0.5)
     # axis.plot(np.arange(S.NT) * S.dt, S.grid.epsilon_0 * (S.grid.electric_field_history ** 2).sum(axis=1) * 0.5,
@@ -79,6 +81,7 @@ def energy_time_plots(S, axis):
     axis.set_xlim(0, S.NT * S.dt)
     axis.set_ylabel(r"Energy $E$")
     axis.legend(loc='lower right')
+    axis.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
 
 
 def velocity_distribution_plots(S, axis, i=0):
@@ -90,12 +93,11 @@ def velocity_distribution_plots(S, axis, i=0):
         axis.legend(loc='upper right')
     axis.set_xlabel(r"Velocity $v$")
     axis.set_ylabel(r"Number of superparticles")
-
+    axis.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
 
 def phase_trajectories(S, axis, all=False):
     assert S.list_species  # has members
     for species in S.list_species:
-        # for i in range(species.N):
         if all:
             x = species.position_history[:, :]
             y = species.velocity_history[:, :, 0]
@@ -109,10 +111,10 @@ def phase_trajectories(S, axis, all=False):
     axis.set_xlim(0, S.grid.L)
     if len(S.list_species) > 1:
         axis.legend()
-    # noinspection PyUnboundLocalVariable
     axis.set_xlabel(r"Position $x$")
     axis.set_ylabel(r"Velocity $v_x$")
     axis.grid()
+    axis.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
 
 
 """Multiple window plots"""
@@ -129,6 +131,7 @@ def velocity_time_plots(S, axis):
     if len(S.list_species) > 1:
         axis.legend()
     axis.grid()
+    axis.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
 
 def static_plots(S, filename=False):
     time_fig, axes = static_plot_window(S, 3, 2)
@@ -137,8 +140,14 @@ def static_plots(S, filename=False):
     temperature_time_plot(S, axes[1][0])
     energy_time_plots(S, axes[2][0])
     phase_trajectories(S, axes[0][1])
+    axes[0][1].yaxis.tick_right()
+    axes[0][1].yaxis.set_label_position("right")
     velocity_distribution_plots(S, axes[1][1])
+    axes[1][1].yaxis.tick_right()
+    axes[1][1].yaxis.set_label_position("right")
     velocity_distribution_plots(S, axes[2][1], S.NT-1)
+    axes[2][1].yaxis.tick_right()
+    axes[2][1].yaxis.set_label_position("right")
 
     if filename:
             time_fig.savefig(filename)
@@ -148,6 +157,8 @@ def static_plots(S, filename=False):
 if __name__ == "__main__":
     import Simulation
 
+    S = Simulation.load_data("data_analysis/TS2/TS2.hdf5")
+    static_plots(S)
     S = Simulation.load_data("data_analysis/TS1/TS1.hdf5")
     static_plots(S)
     plt.show()

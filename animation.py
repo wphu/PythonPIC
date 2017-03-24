@@ -54,7 +54,6 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
     maxcharge = np.max(S.grid.charge_density_history)
     charge_axes.set_ylim(mincharge, maxcharge)
     charge_axes.grid()
-    # charge_axes.yaxis.set_major_formatter(formatter)
 
     field_axes = charge_axes.twinx()
     field_axes.set_xlim(0, S.grid.L)
@@ -63,7 +62,6 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
     field_axes.tick_params('y', colors='r')
     field_axes.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
     maxfield = np.max(np.abs(S.grid.electric_field_history))
-    # field_axes.vlines(S.grid.x, -maxfield/10, maxfield/10)
     field_axes.grid()
     field_axes.set_ylim(-maxfield, maxfield)
 
@@ -81,7 +79,6 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
     phase_axes.set_xlabel(r"Particle position $x$")
     phase_axes.set_ylabel(r"Particle velocity $v_x$")
     phase_axes.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
-    # phase_axes.vlines(S.grid.x, -maxv/10, maxv/10)
     phase_axes.grid()
 
     histograms = []
@@ -108,7 +105,6 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
     freq_axes.yaxis.tick_right()
     freq_axes.yaxis.set_label_position("right")
 
-    # fig.tight_layout()
 
     def init():
         """initializes animation window for faster drawing"""
