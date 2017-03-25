@@ -11,9 +11,8 @@ from helper_functions import plotting_parser
 
 
 def cold_plasma_oscillations(filename,
-                             q: float = -1,
-                             m: float = 1,
-                             scaling: float = 1,  # TODO: include this
+                             plasma_frequency=1,
+                             qmratio=-1,
                              dt: float = 0.2,
                              NT: int = 150,
                              NG: int = 32,
@@ -42,7 +41,14 @@ def cold_plasma_oscillations(filename,
     :param int push_mode: mode of initially excited mode
     :param bool save_data: 
     """
-    particles = Species(N=N_electrons, q=q, m=m, name="electrons", NT=NT, scaling=scaling)
+
+
+    particle_mass = 1
+    particle_charge = particle_mass * qmratio
+    scaling = abs(particle_mass * plasma_frequency ** 2 * L / float(
+        particle_charge * N_electrons * epsilon_0))
+
+    particles = Species(N=N_electrons, q=particle_charge, m=particle_mass, name="electrons", NT=NT, scaling=scaling)
     particles.distribute_uniformly(L)
     particles.sinusoidal_position_perturbation(push_amplitude, push_mode, L)
     grid = Grid(L, NG, epsilon_0, NT)
@@ -60,16 +66,10 @@ if __name__ == '__main__':
     plasma_frequency = 1
     push_mode = 2
     N_electrons = 1024
-    epsilon_0 = 1
+    NG = 64
     qmratio = -1
-    L = 2 * pi
 
-    particle_mass = 1
-    particle_charge = particle_mass * qmratio
-    scaling = abs(particle_mass * plasma_frequency ** 2 * L / float(
-        particle_charge * N_electrons * epsilon_0))  # TODO: verify this line
-    # scaling = 1
-    S = cold_plasma_oscillations("data_analysis/CO1/CO1.hdf5", q=particle_charge, m=particle_mass, NG=64,
-                                 scaling=scaling, N_electrons=N_electrons, push_mode=push_mode)
+    S = cold_plasma_oscillations(f"data_analysis/CO1/CO1.hdf5", qmratio=qmratio, plasma_frequency=plasma_frequency, NG=NG,
+                                 N_electrons=N_electrons, push_mode=push_mode, save_data=False)
     show, save, animate = plotting_parser("Cold plasma oscillations")
     plotting(S, show=show, save=save, animate=animate)

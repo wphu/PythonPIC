@@ -105,6 +105,8 @@ class Species:
     def sinusoidal_position_perturbation(self, amplitude: float, mode: int, L: float):
         """
         Displace positions by a sinusoidal perturbation calculated for each particle.
+        
+            dx = amplitude * cos(2 * mode * pi * x / L)xk
 
         :param float amplitude: Amplitude of perturbation
         :param int mode: which mode is excited
@@ -119,6 +121,7 @@ class Species:
     def sinusoidal_velocity_perturbation(self, axis: int, amplitude: float, mode: int, L: float):
         """
         Displace velocities by a sinusoidal perturbation calculated for each particle.
+        
 
         :param int axis: axis, for 3d velocities
         :param float amplitude: of perturbation

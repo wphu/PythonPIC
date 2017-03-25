@@ -28,8 +28,8 @@ def test_nonlinear_regime_beam_instability(NG, N_electrons, plasma_frequency):
                                NG=NG,
                                N_electrons=N_electrons,
                                plasma_frequency=plasma_frequency,
-                               dt=0.2 / 5,
-                               NT=300 * 5,
+                               dt=0.2 / 2,
+                               NT=300 * 2,
                                save_data=False,
                                )
     assert did_it_thermalize(S).all()

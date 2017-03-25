@@ -26,16 +26,18 @@ def two_stream_instability(filename,
                            save_data: bool = True):
     """Implements two stream instability from Birdsall and Langdon"""
     print("Running two stream instability")
-    particle_charge = plasma_frequency ** 2 * L / float(2 * N_electrons * epsilon_0 * qmratio)
-    particle_mass = particle_charge / qmratio
+    particle_mass = 1
+    particle_charge = particle_mass * qmratio
+    scaling = abs(particle_mass * plasma_frequency ** 2 * L / float(
+        particle_charge * N_electrons * epsilon_0))
 
     grid = Grid(L=L, NG=NG, NT=NT)
     k0 = 2 * np.pi / L
     w0 = plasma_frequency
     expected_stability = k0 * v0 / w0 > 2 ** -0.5
     print("k0*v0/w0 is", k0 * v0 / w0, "which means the regime is", "stable" if expected_stability else "unstable")
-    electrons1 = Species(particle_charge, particle_mass, N_electrons, "beam1", NT=NT)
-    electrons2 = Species(particle_charge, particle_mass, N_electrons, "beam2", NT=NT)
+    electrons1 = Species(particle_charge, particle_mass, N_electrons, "beam1", NT, scaling)
+    electrons2 = Species(particle_charge, particle_mass, N_electrons, "beam2", NT, scaling)
     electrons1.v[:] = v0
     electrons2.v[:] = -v0
     list_species = [electrons1, electrons2]
