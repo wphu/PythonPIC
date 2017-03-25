@@ -42,7 +42,7 @@ def cold_plasma_oscillations(filename,
     :param bool save_data: 
     """
 
-
+    filename = f"data_analysis/{filename}/{filename}.hdf5"
     particle_mass = 1
     particle_charge = particle_mass * qmratio
     scaling = abs(particle_mass * plasma_frequency ** 2 * L / float(
@@ -60,7 +60,6 @@ def cold_plasma_oscillations(filename,
     run.grid_species_initialization()
     run.run(save_data)
     return run
-
 
 if __name__ == '__main__':
     plasma_frequency = 1
