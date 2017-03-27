@@ -10,10 +10,12 @@ def test_constant_field(plotting=False):
     s = Species(1, 1, 1)
     # s.x = np.array([0], dtype=float)
     print(s.x)
+
     def uniform_field(x):
         return np.ones_like(x)
+
     t, dt = np.linspace(0, 10, 200, retstep=True, endpoint=False)
-    x_analytical = 0.5 * t**2 + 0
+    x_analytical = 0.5 * t ** 2 + 0
     x_data = []
     for i in range(t.size):
         x_data.append(s.x[0])
@@ -35,10 +37,12 @@ def test_constant_field(plotting=False):
         ax2.set_ylabel("delta x")
         plt.show()
         return None
+
     if plotting:
         plot()
 
     assert l2_test(x_analytical, x_data), plot()
+
 
 # def test_boris_pusher():
 #     import matplotlib.pyplot as plt

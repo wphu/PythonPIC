@@ -32,7 +32,6 @@ def plotting(file, show: bool = True, save: bool = False, animate: bool = True, 
     else:
         print(f"Loading simulation data from {file}")
         S = Simulation.load_data(file)
-    # import ipdb; ipdb.set_trace()
     static_plots.static_plots(S, S.filename.replace(".hdf5", ".png"))
     print(S)
     if animate:

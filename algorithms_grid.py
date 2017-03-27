@@ -1,3 +1,4 @@
+"""Numerical algorithms for the grid - interpolation to and from the grid, PDE solvers"""
 # coding=utf-8
 import numpy as np
 from scipy import fftpack as fft
@@ -26,7 +27,8 @@ def charge_density_deposition(x, dx, x_particles, particle_charge):
     charge_to_left = particle_charge * left_fractions
     charge_hist_to_right = np.roll(np.bincount(logical_coordinates, charge_to_right, minlength=x.size), +1)
     charge_hist_to_left = np.bincount(logical_coordinates, charge_to_left, minlength=x.size)
-    return (charge_hist_to_right + charge_hist_to_left)
+    return charge_hist_to_right + charge_hist_to_left
+
 
 def current_density_deposition(x, dx, x_particles, particle_charge, velocity):
     """scatters charge from particles to grid
@@ -52,8 +54,9 @@ def current_density_deposition(x, dx, x_particles, particle_charge, velocity):
     current_to_left = particle_charge * velocity * left_fractions
     # OPTIMIZE: vectorise this instead of looping over dimensions
     for dim in range(3):
-        current_hist[:,dim] += np.bincount(logical_coordinates, current_to_left[:,dim], minlength=x.size)
-        current_hist[:,dim] += np.roll(np.bincount(logical_coordinates, current_to_right[:,dim], minlength=x.size), +1)
+        current_hist[:, dim] += np.bincount(logical_coordinates, current_to_left[:, dim], minlength=x.size)
+        current_hist[:, dim] += np.roll(np.bincount(logical_coordinates, current_to_right[:, dim], minlength=x.size),
+                                        +1)
     return current_hist
 
 
@@ -67,8 +70,8 @@ def interpolateField(x_particles, scalar_field, x, dx):
     """
     indices_on_grid = (x_particles / dx).astype(int)
     NG = scalar_field.size
-    field = (x[indices_on_grid] + dx - x_particles) * scalar_field[indices_on_grid] +\
-        (x_particles - x[indices_on_grid]) * scalar_field[(indices_on_grid + 1) % NG]
+    field = (x[indices_on_grid] + dx - x_particles) * scalar_field[indices_on_grid] + \
+            (x_particles - x[indices_on_grid]) * scalar_field[(indices_on_grid + 1) % NG]
     return field / dx
 
 

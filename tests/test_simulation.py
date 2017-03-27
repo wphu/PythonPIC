@@ -1,3 +1,4 @@
+# coding=utf-8
 # def test_simulation_equality():
 #     g = Grid(L=2 * np.pi, NG=32, NT=1)
 #     N = 128

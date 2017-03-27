@@ -95,7 +95,7 @@ if __name__ == '__main__':
                                NT=300 * 5,
                                vrandom=1e-1,
                                ),
-    ]
+        ]
 
     show, save, animate = plotting_parser("Two stream instability")
     for s in simulations:

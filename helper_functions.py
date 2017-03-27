@@ -1,7 +1,8 @@
 """various helper functions"""
 # coding=utf-8
-import subprocess
 import argparse
+import subprocess
+
 import numpy as np
 
 
@@ -55,6 +56,13 @@ def plotting_parser(description):
 
 
 def get_dominant_mode(S):
+    """
+    Calculates the dominant mode from energy oscillations
+    :param Simulation S: simulation object
+    :type S: Simulation
+    :return: number of dominant mode
+    :rtype: int
+    """
     data = S.grid.energy_per_mode_history
     weights = (data ** 2).sum(axis=0) / (data ** 2).sum()
 

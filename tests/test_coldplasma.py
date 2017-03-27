@@ -1,19 +1,20 @@
 # coding=utf-8
 
+import numpy as np
 import pytest
 
+from Species import Species
 from helper_functions import get_dominant_mode
 from plotting import plotting
 from run_coldplasma import cold_plasma_oscillations
-from Species import Species
-import numpy as np
+
 
 @pytest.mark.parametrize("push_mode", range(1, 32, 3))
 def test_linear_dominant_mode(push_mode):
     plasma_frequency = 1
     N_electrons = 1024
-    NG=64
-    qmratio=-1
+    NG = 64
+    qmratio = -1
 
     run_name = f"CO_LINEAR_{push_mode}"
     S = cold_plasma_oscillations(run_name, qmratio=qmratio, plasma_frequency=plasma_frequency, NG=NG,
@@ -23,6 +24,7 @@ def test_linear_dominant_mode(push_mode):
         f"got {calculated_dominant_mode} instead of {push_mode}",
         plotting(S, show=False, save=False, animate=False))
     return S
+
 
 @pytest.mark.parametrize(["N_electrons", "expected_dominant_mode", "push_amplitude"],
                          [(32, 7, 0), (33, 1, 0), (32, 1, 1e-6)])
@@ -36,7 +38,8 @@ def test_kaiser_wilhelm(N_electrons, expected_dominant_mode, push_amplitude):
     show, save, animate = True, False, True
     assert get_dominant_mode(S) == expected_dominant_mode, plotting(S, show=show, save=save, animate=animate)
 
-@pytest.mark.parametrize(["proton_mass"], [(100,),(200,),(1836,)])
+
+@pytest.mark.parametrize(["proton_mass"], [(100,), (200,), (1836,)])
 def test_heavy_protons(proton_mass):
     plasma_frequency = 1
     push_mode = 2
@@ -47,13 +50,14 @@ def test_heavy_protons(proton_mass):
     epsilon_0 = 1
     NT = 150
     proton_charge = 1
-    proton_frequency = plasma_frequency / proton_mass**0.5
-    proton_scaling = scaling = abs(proton_mass * proton_frequency ** 2 * L / float(
+    proton_frequency = plasma_frequency / proton_mass ** 0.5
+    proton_scaling = abs(proton_mass * proton_frequency ** 2 * L / float(
         proton_mass * N_electrons * epsilon_0))
     print(proton_frequency, proton_scaling)
-    protons = Species(N=N_electrons, q = proton_charge, m = proton_mass, name="protons", NT=NT, scaling=proton_scaling)
+    protons = Species(N=N_electrons, q=proton_charge, m=proton_mass, name="protons", NT=NT, scaling=proton_scaling)
 
-    S = cold_plasma_oscillations(f"CO_TWO_SPECIES_{proton_mass}", qmratio=qmratio, plasma_frequency=plasma_frequency, NG=NG,
+    S = cold_plasma_oscillations(f"CO_TWO_SPECIES_{proton_mass}", qmratio=qmratio, plasma_frequency=plasma_frequency,
+                                 NG=NG,
                                  N_electrons=N_electrons, push_mode=push_mode, save_data=False, protons=protons)
     for s in S.list_species:
         print(f"{s.name}: DV = {s.velocity_history.max() - s.velocity_history.min()}")
@@ -63,7 +67,8 @@ def test_heavy_protons(proton_mass):
     assert np.isclose(velocity_ratio, proton_mass, rtol=1e-3), (
         f"velocity range ratio is {velocity_ratio}", plotting(S, show=True, save=False, animate=True))
 
-@pytest.mark.parametrize(["dt"], [(10,),(100,)])
+
+@pytest.mark.parametrize(["dt"], [(10,), (100,)])
 def test_leapfrog_instability(dt):
     """far above plasma_frequency * dt > 2 the system enters the leapfrog instability
     
@@ -76,6 +81,6 @@ def test_leapfrog_instability(dt):
 
     S = cold_plasma_oscillations(f"CO_LEAPFROG", qmratio=qmratio, plasma_frequency=plasma_frequency, NG=NG,
                                  N_electrons=N_electrons, push_mode=push_mode, save_data=False, dt=dt)
-    energy_final_to_initial = S.total_energy[-1]/S.total_energy[0]
+    energy_final_to_initial = S.total_energy[-1] / S.total_energy[0]
     assert energy_final_to_initial > 100, (f"Energy gain: {energy_final_to_initial}",
                                            plotting(S, show=True, save=False, animate=True))

@@ -1,12 +1,14 @@
+# coding=utf-8
 import numpy as np
 import pytest
 
 from run_twostream import two_stream_instability
 
+
 @pytest.mark.parametrize(["NG", "N_electrons"], [
-                         (64, 512),
-                         (128, 1024),
-                         ])
+    (64, 512),
+    (128, 1024),
+    ])
 def test_linear_regime_beam_stability(NG, N_electrons):
     run_name = f"TS_LINEAR_{NG}_{N_electrons}"
     S = two_stream_instability(run_name,
@@ -16,12 +18,13 @@ def test_linear_regime_beam_stability(NG, N_electrons):
                                )
     assert (~did_it_thermalize(S)).all()
 
+
 @pytest.mark.parametrize(["NG", "N_electrons", "plasma_frequency"], [
-                         (64, 1024, 5),
-                         (128, 2048, 5),
-                         (64, 1024, 7),
-                         (64, 1024, 4),
-                         ])
+    (64, 1024, 5),
+    (128, 2048, 5),
+    (64, 1024, 7),
+    (64, 1024, 4),
+    ])
 def test_nonlinear_regime_beam_instability(NG, N_electrons, plasma_frequency):
     run_name = f"TS_NONLINEAR_{NG}_{N_electrons}_{plasma_frequency}"
     S = two_stream_instability(run_name,

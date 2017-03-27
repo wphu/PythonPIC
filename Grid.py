@@ -1,3 +1,4 @@
+"""The spatial grid"""
 # coding=utf-8
 import numpy as np
 import scipy.fftpack as fft
@@ -6,9 +7,10 @@ import algorithms_grid
 from algorithms_grid import interpolateField, PoissonSolver
 
 
-class Grid():
+class Grid:
     """Object representing the grid on which charges and fields are computed
     """
+
     def __init__(self, L=2 * np.pi, NG=32, epsilon_0=1, NT=1):
         """
         :param float L: grid length, in nondimensional units
@@ -31,11 +33,11 @@ class Grid():
         self.k_plot = self.k[:int(NG / 2)]
 
         self.charge_density_history = np.zeros((NT, self.NG))
-        self.electric_field_history = np.zeros((NT, self.NG)) # OPTIMIZE: is this absolutely necessary for plotting?
+        self.electric_field_history = np.zeros((NT, self.NG))  # OPTIMIZE: is this absolutely necessary for plotting?
         self.potential_history = np.zeros((NT, self.NG))
-        self.energy_per_mode_history = np.zeros((NT, int(self.NG / 2)))  # OPTIMIZE: can't I get this from potential_history?
+        self.energy_per_mode_history = np.zeros(
+            (NT, int(self.NG / 2)))  # OPTIMIZE: can't I get this from potential_history?
         self.grid_energy_history = np.zeros(NT)
-
 
     def direct_energy_calculation(self):
         r"""
@@ -45,7 +47,7 @@ class Grid():
 
         :return float E: calculated energy
         """
-        return self.epsilon_0 * (self.electric_field**2).sum() * 0.5 * self.dx
+        return self.epsilon_0 * (self.electric_field ** 2).sum() * 0.5 * self.dx
 
     def solve_poisson(self):
         r"""
@@ -54,9 +56,8 @@ class Grid():
         """
         self.electric_field, self.potential, self.energy_per_mode = PoissonSolver(
             self.charge_density, self.k, self.NG, epsilon_0=self.epsilon_0
-        )
-        return self.energy_per_mode.sum() / (self.NG/2)# * 8 * np.pi * self.k[1]**2
-
+            )
+        return self.energy_per_mode.sum() / (self.NG / 2)  # * 8 * np.pi * self.k[1]**2
 
     def gather_charge(self, list_species):
         self.charge_density[:] = 0.0
@@ -64,10 +65,12 @@ class Grid():
             gathered_density = algorithms_grid.charge_density_deposition(self.x, self.dx, species.x, species.q)
             # assert gathered_density.size == self.NG
             self.charge_density += gathered_density
+
     def gather_current(self, list_species):
         self.current_density = np.zeros((self.NG, 3))
         for species in list_species:
-            self.current_density += algorithms_grid.current_density_deposition(self.x, self.dx, species.x, species.q, species.v)
+            self.current_density += algorithms_grid.current_density_deposition(self.x, self.dx, species.x, species.q,
+                                                                               species.v)
 
     def electric_field_function(self, xp):
         return interpolateField(xp, self.electric_field, self.x, self.dx)
@@ -78,7 +81,7 @@ class Grid():
         self.electric_field_history[i] = self.electric_field
         self.potential_history[i] = self.electric_field
         self.energy_per_mode_history[i] = self.energy_per_mode
-        self.grid_energy_history[i] = self.energy_per_mode.sum() / (self.NG/2)
+        self.grid_energy_history[i] = self.energy_per_mode.sum() / (self.NG / 2)
 
     def save_to_h5py(self, grid_data):
         """
@@ -128,8 +131,9 @@ class Grid():
         result *= self.epsilon_0 == other.epsilon_0
         return result
 
+
 class RelativisticGrid(Grid):
-    def __init__(self, L=2 * np.pi, NG=32, epsilon_0=1, c =1, NT=1):
+    def __init__(self, L=2 * np.pi, NG=32, epsilon_0=1, c=1, NT=1):
         super().__init__(L, NG, epsilon_0, NT)
         self.c = c
         self.dt = self.dx / c
@@ -170,5 +174,5 @@ class RelativisticGrid(Grid):
         self.Fminus[0] = (E0 - B0) / 2
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     pass

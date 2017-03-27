@@ -1,14 +1,13 @@
 """ Run cold plasma oscillations"""
 # coding=utf-8
-import numpy as np
 from numpy import pi
 
 from Constants import Constants
 from Grid import Grid
 from Simulation import Simulation
 from Species import Species
+from helper_functions import plotting_parser
 from plotting import plotting
-from helper_functions import plotting_parser, get_dominant_mode
 
 
 def cold_plasma_oscillations(filename,
@@ -28,10 +27,11 @@ def cold_plasma_oscillations(filename,
     """
     Runs cold plasma oscilltaions
 
+    :param qmratio: the ratio between charge and mass for electrons 
+    :type qmratio: float 
+    :param plasma_frequency: the plasma frequency $\omega_{pe}$ for electrons
+    :type plasma_frequency: float
     :param str filename: hdf5 file name
-    :param float q: particle charge
-    :param float m: particle mass
-    :param float scaling: how many particles should be represented by each superparticle
     :param float dt: timestep
     :param int NT: number of timesteps to run
     :param int N_electrons: number of electron superparticles
@@ -50,7 +50,6 @@ def cold_plasma_oscillations(filename,
     scaling = abs(particle_mass * plasma_frequency ** 2 * L / float(
         particle_charge * N_electrons * epsilon_0))
 
-
     list_species = [
         Species(N=N_electrons, q=particle_charge, m=particle_mass, name="electrons", NT=NT, scaling=scaling),
         ]
@@ -63,13 +62,15 @@ def cold_plasma_oscillations(filename,
         species.sinusoidal_position_perturbation(push_amplitude, push_mode, L)
     grid = Grid(L, NG, epsilon_0, NT)
 
-    description = f"Cold plasma oscillations\nposition initial condition perturbed by sinusoidal oscillation mode {push_mode} excited with amplitude {push_amplitude}\n"
+    description = f"Cold plasma oscillations\nposition initial condition perturbed by sinusoidal oscillation mode" \
+                  f"{push_mode} excited with amplitude {push_amplitude}\n"
 
     run = Simulation(NT, dt, Constants(c, epsilon_0), grid, list_species, filename=filename,
                      title=description)
     run.grid_species_initialization()
     run.run(save_data)
     return run
+
 
 if __name__ == '__main__':
     plasma_frequency = 1

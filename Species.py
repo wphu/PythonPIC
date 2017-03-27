@@ -195,7 +195,7 @@ class Species:
 class MagneticSpecies(Species):
     """Particle class for magnetic simulations"""
 
-    def init_push(self, electric_field_function, dt, magnetic_field_function, *args):
+    def init_push(self, electric_field_function, dt, magnetic_field_function, *args):  # TODO: signature
         """Boris pusher initialization, nonrelativistic"""
 
         dt = -dt / 2
@@ -216,7 +216,7 @@ class MagneticSpecies(Species):
         self.v = v_new
         return energy
 
-    def push(self, electric_field_function, dt, magnetic_field_function, *args):
+    def push(self, electric_field_function, dt, magnetic_field_function, *args):  #TODO: signature
         """Boris pusher, nonrelativistic"""
         # add half electric impulse to v(t-dt/2)
         efield = np.zeros((self.N, 3))
@@ -241,7 +241,7 @@ class MagneticSpecies(Species):
 class RelativisticSpecies(Species):
     """Particle class for relativistic electromagnetic simulations"""
 
-    def init_push(self, electric_field_function, dt, magnetic_field_function, c, *args):
+    def init_push(self, electric_field_function, dt, magnetic_field_function, c, *args):  #TODO: signature
         """Boris pusher initialization, relativistic"""
 
         E = electric_field_function(self.x)
@@ -249,7 +249,7 @@ class RelativisticSpecies(Species):
         _, self.v, energy = rela_boris_push(self.x, self.v, E, B, self.q, self.m, -dt / 2, c)
         return energy
 
-    def push(self, electric_field_function, dt, magnetic_field_function, c, *args):
+    def push(self, electric_field_function, dt, magnetic_field_function, c, *args):  #TODO: signature
         """Boris pusher, relativistic"""
         E = electric_field_function(self.x)
         B = magnetic_field_function(self.x)

@@ -1,12 +1,4 @@
-*.swp
-*.gif
-__pycache__
 .cache
-*.ipynb_checkpoints/
-_static/
-_templates/
+*.swp
 *.hdf5
-documentation/_static/
-documentation/_templates/
 **/.idea/workspace.xml
-**/.idea/tasks.xml

@@ -2,6 +2,7 @@
 # coding=utf-8
 import numpy as np
 
+
 # import numba
 
 # @numba.njit() # OPTIMIZE: add numba to this algorithm

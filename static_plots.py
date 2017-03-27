@@ -1,13 +1,15 @@
 # coding=utf-8
+import os
+
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import gridspec
-import os
+
 
 def static_plot_window(S, N, M):
     fig = plt.figure(figsize=(10, 8))
     gs = gridspec.GridSpec(N, M)
-    axes = [[fig.add_subplot(gs[n,m]) for m in range(M)] for n in range(N)]
+    axes = [[fig.add_subplot(gs[n, m]) for m in range(M)] for n in range(N)]
     fig.suptitle(str(S), fontsize=12)
 
     # REFACTOR: separate window creation and axis layout into separate functions
@@ -17,10 +19,11 @@ def static_plot_window(S, N, M):
 
 def ESE_time_plots(S, axis):
     data = S.grid.energy_per_mode_history
-    weights = (data**2).sum(axis=0) / (data**2).sum()
+    weights = (data ** 2).sum(axis=0) / (data ** 2).sum()
 
+    # noinspection PyUnusedLocal
     max_mode = weights.argmax()
-    max_index = data[:, max_mode].argmax()
+    # TODO: max_index = data[:, max_mode].argmax()
 
     t = np.arange(S.NT) * S.dt
     for i in range(1, 6):
@@ -52,7 +55,7 @@ def temperature_time_plot(S, axis, twinaxis=True):
         meanv2 = (species.velocity_history ** 2).mean(axis=1)
         temperature = meanv2 - meanv ** 2
         temperature_parallel = temperature[:, 0]
-        temperature_transverse = temperature[:, 1:].sum(axis=1)
+        # TODO: temperature_transverse = temperature[:, 1:].sum(axis=1)
         axis.plot(t, temperature_parallel, label=species.name + r" $T_{||}$")
         if twinaxis:
             axis.plot(t, meanv2[:, 0], "--", label=species.name + r" $<v^2>$", alpha=0.5)
@@ -95,6 +98,7 @@ def velocity_distribution_plots(S, axis, i=0):
     axis.set_ylabel(r"Number of superparticles")
     axis.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
 
+
 def phase_trajectories(S, axis, all=False):
     assert S.list_species  # has members
     for species in S.list_species:
@@ -133,6 +137,7 @@ def velocity_time_plots(S, axis):
     axis.grid()
     axis.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
 
+
 def static_plots(S, filename=False):
     if not os.path.exists(os.path.dirname(filename)):
         os.makedirs(os.path.dirname(filename))
@@ -147,12 +152,12 @@ def static_plots(S, filename=False):
     velocity_distribution_plots(S, axes[1][1])
     axes[1][1].yaxis.tick_right()
     axes[1][1].yaxis.set_label_position("right")
-    velocity_distribution_plots(S, axes[2][1], S.NT-1)
+    velocity_distribution_plots(S, axes[2][1], S.NT - 1)
     axes[2][1].yaxis.tick_right()
     axes[2][1].yaxis.set_label_position("right")
 
     if filename:
-            time_fig.savefig(filename)
+        time_fig.savefig(filename)
     return time_fig
 
 

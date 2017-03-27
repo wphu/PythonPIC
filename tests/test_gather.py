@@ -19,7 +19,9 @@ def test_poly(power, plotting=False):
     N = 128
     x_particles = np.linspace(0, L, N, endpoint=False)
 
-    electric_field_function = lambda x: x ** power
+    def electric_field_function(x):
+        return x ** power
+
     electric_field = electric_field_function(x)
 
     interpolated = interpolateField(x_particles, electric_field, x, dx)
@@ -54,7 +56,8 @@ def test_periodic(field, plotting=False):
 
     N = 128
     x_particles = np.linspace(0, L, N, endpoint=False)
-    particle_charge = 1
+    # noinspection PyUnusedLocal
+    particle_charge = 1  # TEST: vary this
 
     electric_field = field(x)
     interpolated = interpolateField(x_particles, electric_field, x, dx)
@@ -90,7 +93,8 @@ def test_single_particle(power, plotting=False):
     x, dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
     x_particles = np.array([x[3], x[6] + dx / 2, x[9] + 0.75 * dx, x[-1] + dx / 2])
 
-    electric_field_function = lambda x: x ** power
+    def electric_field_function(x):
+        return x ** power
     electric_field = electric_field_function(x)
 
     interpolated = interpolateField(x_particles, electric_field, x, dx)
@@ -108,6 +112,7 @@ def test_single_particle(power, plotting=False):
         plot()
 
     assert l2_test(analytical, interpolated), plot()
+
 
 if __name__ == "__main__":
     test_single_particle()
