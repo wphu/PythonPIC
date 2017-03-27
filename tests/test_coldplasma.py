@@ -62,3 +62,20 @@ def test_heavy_protons(proton_mass):
     velocity_ratio = velocity_ranges['electrons'] / velocity_ranges['protons']
     assert np.isclose(velocity_ratio, proton_mass, rtol=1e-3), (
         f"velocity range ratio is {velocity_ratio}", plotting(S, show=True, save=False, animate=True))
+
+@pytest.mark.parametrize(["dt"], [(10,),(100,)])
+def test_leapfrog_instability(dt):
+    """far above plasma_frequency * dt > 2 the system enters the leapfrog instability
+    
+    at plasma_frequency * dt ~ 2, we should have odd-even decoupling"""
+    plasma_frequency = 1
+    push_mode = 2
+    N_electrons = 1024
+    NG = 64
+    qmratio = -1
+
+    S = cold_plasma_oscillations(f"CO_LEAPFROG", qmratio=qmratio, plasma_frequency=plasma_frequency, NG=NG,
+                                 N_electrons=N_electrons, push_mode=push_mode, save_data=False, dt=dt)
+    energy_final_to_initial = S.total_energy[-1]/S.total_energy[0]
+    assert energy_final_to_initial > 100, (f"Energy gain: {energy_final_to_initial}",
+                                           plotting(S, show=True, save=False, animate=True))
