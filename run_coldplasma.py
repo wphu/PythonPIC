@@ -23,7 +23,8 @@ def cold_plasma_oscillations(filename,
                              c: float = 1,
                              push_amplitude: float = 0.001,
                              push_mode: float = 1,
-                             save_data: bool = True):
+                             save_data: bool = True,
+                             **kwargs):
     """
     Runs cold plasma oscilltaions
 
@@ -49,14 +50,22 @@ def cold_plasma_oscillations(filename,
     scaling = abs(particle_mass * plasma_frequency ** 2 * L / float(
         particle_charge * N_electrons * epsilon_0))
 
-    particles = Species(N=N_electrons, q=particle_charge, m=particle_mass, name="electrons", NT=NT, scaling=scaling)
-    particles.distribute_uniformly(L)
-    particles.sinusoidal_position_perturbation(push_amplitude, push_mode, L)
+
+    list_species = [
+        Species(N=N_electrons, q=particle_charge, m=particle_mass, name="electrons", NT=NT, scaling=scaling),
+        ]
+    for name, value in kwargs.items():
+        if type(value) == Species:
+            list_species.append(value)
+        print(f"{name}:{value}")
+    for species in list_species:
+        species.distribute_uniformly(L)
+        species.sinusoidal_position_perturbation(push_amplitude, push_mode, L)
     grid = Grid(L, NG, epsilon_0, NT)
 
     description = f"Cold plasma oscillations\nposition initial condition perturbed by sinusoidal oscillation mode {push_mode} excited with amplitude {push_amplitude}\n"
 
-    run = Simulation(NT, dt, Constants(c, epsilon_0), grid, [particles], filename=filename,
+    run = Simulation(NT, dt, Constants(c, epsilon_0), grid, list_species, filename=filename,
                      title=description)
     run.grid_species_initialization()
     run.run(save_data)
