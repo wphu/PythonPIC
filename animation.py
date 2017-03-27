@@ -49,7 +49,7 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
                                verticalalignment='center', transform=freq_axes.transAxes)
 
     fig.suptitle(str(S), fontsize=12)
-    fig.subplots_adjust(top=0.81, bottom=0.08, left=0.08, right=0.95,
+    fig.subplots_adjust(top=0.81, bottom=0.08, left=0.15, right=0.95,
                         wspace=.25, hspace=0.3)
 
     charge_plot, = charge_axes.plot([], [], "b.-")

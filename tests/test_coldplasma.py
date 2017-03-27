@@ -1,19 +1,10 @@
 # coding=utf-8
 
 import pytest
-from numpy import pi
 
+from helper_functions import get_dominant_mode
 from plotting import plotting
 from run_coldplasma import cold_plasma_oscillations
-
-
-def get_dominant_mode(S):
-    data = S.grid.energy_per_mode_history
-    weights = (data ** 2).sum(axis=0) / (data ** 2).sum()
-
-    max_mode = weights.argmax()
-    # max_index = data[:, max_mode].argmax()
-    return max_mode
 
 
 @pytest.mark.parametrize("push_mode", range(1, 32, 3))
@@ -28,6 +19,18 @@ def test_linear_dominant_mode(push_mode):
                                  N_electrons=N_electrons, push_mode=push_mode, save_data=False)
     calculated_dominant_mode = get_dominant_mode(S)
     assert calculated_dominant_mode == push_mode, (
-        f"got {get_dominant_mode} instead of {push_mode}",
+        f"got {calculated_dominant_mode} instead of {push_mode}",
         plotting(S, show=False, save=False, animate=False))
     return S
+
+@pytest.mark.parametrize(["N_electrons", "expected_dominant_mode", "push_amplitude"],
+                         [(32, 7, 0), (33, 1, 0), (32, 1, 1e-6)])
+def test_kaiser_wilhelm(N_electrons, expected_dominant_mode, push_amplitude):
+    """aliasing effect with particles exactly at or close to grid nodes.
+    Particles exactly on grid nodes cause excitation of high modes.
+    Even a slight push prevents that."""
+    S = cold_plasma_oscillations(f"CO_KW_{N_electrons}{'_PUSH' if push_amplitude != 0 else ''}", save_data=False,
+                                 N_electrons=N_electrons, NG=16,
+                                 push_amplitude=push_amplitude)
+    show, save, animate = True, False, True
+    assert get_dominant_mode(S) == expected_dominant_mode, plotting(S, show=show, save=save, animate=animate)

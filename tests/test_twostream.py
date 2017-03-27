@@ -9,7 +9,7 @@ from run_twostream import two_stream_instability
                          ])
 def test_linear_regime_beam_stability(NG, N_electrons):
     run_name = f"TS_LINEAR_{NG}_{N_electrons}"
-    S = two_stream_instability(f"data_analysis/{run_name}/{run_name}.hdf5",
+    S = two_stream_instability(run_name,
                                NG=NG,
                                N_electrons=N_electrons,
                                save_data=False,
@@ -24,7 +24,7 @@ def test_linear_regime_beam_stability(NG, N_electrons):
                          ])
 def test_nonlinear_regime_beam_instability(NG, N_electrons, plasma_frequency):
     run_name = f"TS_NONLINEAR_{NG}_{N_electrons}_{plasma_frequency}"
-    S = two_stream_instability(f"data_analysis/{run_name}/{run_name}.hdf5",
+    S = two_stream_instability(run_name,
                                NG=NG,
                                N_electrons=N_electrons,
                                plasma_frequency=plasma_frequency,

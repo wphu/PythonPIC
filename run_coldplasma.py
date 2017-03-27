@@ -1,5 +1,6 @@
 """ Run cold plasma oscillations"""
 # coding=utf-8
+import numpy as np
 from numpy import pi
 
 from Constants import Constants
@@ -7,7 +8,7 @@ from Grid import Grid
 from Simulation import Simulation
 from Species import Species
 from plotting import plotting
-from helper_functions import plotting_parser
+from helper_functions import plotting_parser, get_dominant_mode
 
 
 def cold_plasma_oscillations(filename,
@@ -42,7 +43,7 @@ def cold_plasma_oscillations(filename,
     :param bool save_data: 
     """
 
-    filename = f"data_analysis/{filename}/{filename}.hdf5"
+    filename = f"data_analysis/CO/{filename}/{filename}.hdf5"
     particle_mass = 1
     particle_charge = particle_mass * qmratio
     scaling = abs(particle_mass * plasma_frequency ** 2 * L / float(
@@ -68,7 +69,7 @@ if __name__ == '__main__':
     NG = 64
     qmratio = -1
 
-    S = cold_plasma_oscillations(f"data_analysis/CO1/CO1.hdf5", qmratio=qmratio, plasma_frequency=plasma_frequency, NG=NG,
+    S = cold_plasma_oscillations(f"CO1", qmratio=qmratio, plasma_frequency=plasma_frequency, NG=NG,
                                  N_electrons=N_electrons, push_mode=push_mode, save_data=False)
     show, save, animate = plotting_parser("Cold plasma oscillations")
     plotting(S, show=show, save=save, animate=animate)

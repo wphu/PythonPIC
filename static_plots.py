@@ -2,7 +2,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import gridspec
-
+import os
 
 def static_plot_window(S, N, M):
     fig = plt.figure(figsize=(10, 8))
@@ -134,6 +134,8 @@ def velocity_time_plots(S, axis):
     axis.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
 
 def static_plots(S, filename=False):
+    if not os.path.exists(os.path.dirname(filename)):
+        os.makedirs(os.path.dirname(filename))
     time_fig, axes = static_plot_window(S, 3, 2)
 
     ESE_time_plots(S, axes[0][0])

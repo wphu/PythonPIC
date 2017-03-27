@@ -31,6 +31,8 @@ def two_stream_instability(filename,
     scaling = abs(particle_mass * plasma_frequency ** 2 * L / float(
         particle_charge * N_electrons * epsilon_0))
 
+    filename = f"data_analysis/TS/{filename}/{filename}.hdf5"
+
     grid = Grid(L=L, NG=NG, NT=NT)
     k0 = 2 * np.pi / L
     w0 = plasma_frequency
@@ -62,30 +64,30 @@ def two_stream_instability(filename,
 if __name__ == '__main__':
     np.random.seed(0)
     simulations = [
-        two_stream_instability("data_analysis/TS1/TS1.hdf5",
+        two_stream_instability("TS1",
                                NG=64,
                                N_electrons=512,
                                ),
-        two_stream_instability("data_analysis/TS2/TS2.hdf5",
+        two_stream_instability("TS2",
                                NG=64,
                                N_electrons=1024,
                                plasma_frequency=5,
                                dt=0.2 / 5,
                                NT=300 * 5
                                ),
-        two_stream_instability("data_analysis/TS3/TS3.hdf5",
+        two_stream_instability("TS3",
                                NG=64,
                                N_electrons=1024,
                                plasma_frequency=10,
                                dt=0.2 / 5,
                                NT=300 * 5
                                ),
-        two_stream_instability("data_analysis/TSRANDOM1/TSRANDOM1.hdf5",
+        two_stream_instability("TSRANDOM1",
                                NG=64,
                                N_electrons=1024,
                                vrandom=1e-1,
                                ),
-        two_stream_instability("data_analysis/TSRANDOM2/TSRANDOM2.hdf5",
+        two_stream_instability("TSRANDOM2",
                                NG=64,
                                N_electrons=1024,
                                plasma_frequency=5,
