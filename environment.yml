@@ -1,0 +1,11 @@
+name: pic_dev
+dependencies:
+    - python=3.6
+    - numpy
+    - scipy
+    - matplotlib
+    - h5py
+    - numba
+    - pytest
+    - pip:
+        - pytest-watch

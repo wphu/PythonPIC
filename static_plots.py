@@ -40,7 +40,7 @@ def ESE_time_plots(S, axis):
     axis.set_xlabel(f"Time [dt: {S.dt:.2e}]")
     axis.set_ylabel("Energy")
     axis.set_xlim(0, S.NT * S.dt)
-    axis.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
+    axis.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True, useOffset=False)
     axis.set_title("Energy per mode versus time")
 
 
@@ -61,7 +61,7 @@ def temperature_time_plot(S, axis, twinaxis=True):
             axis.plot(t, meanv2[:, 0], "--", label=species.name + r" $<v^2>$", alpha=0.5)
             axis.plot(t, meanv[:, 0] ** 2, "--", label=species.name + r" $<v>^2$", alpha=0.5)
     axis.legend(loc='center right', ncol=len(S.list_species), prop=fontP)
-    axis.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
+    axis.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True, useOffset=False)
     axis.grid()
     axis.set_xlabel(r"Time $t$")
     axis.set_xlim(0, S.NT * S.dt)
@@ -84,7 +84,7 @@ def energy_time_plots(S, axis):
     axis.set_xlim(0, S.NT * S.dt)
     axis.set_ylabel(r"Energy $E$")
     axis.legend(loc='lower right')
-    axis.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
+    axis.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True, useOffset=False)
 
 
 def velocity_distribution_plots(S, axis, i=0):

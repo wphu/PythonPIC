@@ -25,7 +25,7 @@ def boris_push(x, v, E, B, q, m, dt):
     x += v_new[:, 0] * dt
 
     energy = v * v_new * (0.5 * m)
-    return x + vnew[:, 0] * dt v_new, energy
+    return x + vnew[:, 0] * dt, v_new, energy
 
 # @numba.njit() # OPTIMIZE: add numba to this algorithm
 def rotation_matrix(t: np.ndarray, s: np.ndarray, n: int) -> np.ndarray:
