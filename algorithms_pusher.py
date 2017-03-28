@@ -1,9 +1,31 @@
 """mathematical algorithms for the particle pusher, Leapfrog and Boris"""
 # coding=utf-8
 import numpy as np
-
-
 # import numba
+
+def leapfrog_push(x, v, E, q, m, dt):
+    v_new = v.copy()
+    dv = E * q / m * dt
+    v_new[:, 0] += dv
+    energy = v * v_new * (0.5 * m)
+    return x + v_new[:, 0] * dt, v_new, energy
+
+def boris_push(x, v, E, B, q, m, dt):
+    # add half electric impulse to v(t-dt/2)
+    vminus = v + q * E / m * dt * 0.5
+
+    # rotate to add magnetic field
+    t = -B * q / m * dt * 0.5
+    s = 2 * t / (1 + t * t)
+
+    vprime = vminus + np.cross(vminus, t)  # TODO: axis?
+    vplus = vminus + np.cross(vprime, s)
+    v_new = vplus + q * E / m * dt * 0.5
+
+    x += v_new[:, 0] * dt
+
+    energy = v * v_new * (0.5 * m)
+    return x + vnew[:, 0] * dt v_new, energy
 
 # @numba.njit() # OPTIMIZE: add numba to this algorithm
 def rotation_matrix(t: np.ndarray, s: np.ndarray, n: int) -> np.ndarray:

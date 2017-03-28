@@ -2,7 +2,7 @@
 # coding=utf-8
 import numpy as np
 
-from algorithms_pusher import rela_boris_push
+from algorithms_pusher import rela_boris_push, leapfrog_push, boris_push
 
 MAX_SAVED_PARTICLES = int(1e4)
 
@@ -60,11 +60,8 @@ class Species:
         :return float energy: (N,) size array of particle kinetic energies calculated at half time step
         """
 
-        electric_force = electric_field_function(self.x) * self.q / self.m
-        v_new = self.v.copy()
-        v_new[:, 0] -= electric_force * 0.5 * dt
-        energy = self.v * v_new * (0.5 * self.m)
-        self.v = v_new
+        E = electric_field_function(self.x)
+        _, self.v, energy = leapfrog_push(self.x, self.v, E, self.q, self.m, -dt*0.5)
         return energy
 
     def push(self, electric_field_function, dt, *args):
@@ -75,13 +72,9 @@ class Species:
         :param float dt: original time step
         :return float energy: (N,) size array of particle kinetic energies calculated at half time step
         """
-        electric_force = electric_field_function(self.x) * self.q / self.m
-        v_new = self.v.copy()
-        v_new[:, 0] += electric_force * dt
 
-        self.x += v_new[:, 0] * dt
-        energy = self.v * v_new * (0.5 * self.m)
-        self.v = v_new
+        E = electric_field_function(self.x)
+        self.x, self.v, energy = leapfrog_push(self.x, self.v, E, self.q, self.m, dt)
         return energy
 
     def return_to_bounds(self, L):
@@ -193,50 +186,24 @@ class Species:
 
 
 class MagneticSpecies(Species):
-    """Particle class for magnetic simulations"""
+    """Particle class for nonrelativistic magnetic simulations"""
 
     def init_push(self, electric_field_function, dt, magnetic_field_function, *args):  # TODO: signature
         """Boris pusher initialization, nonrelativistic"""
 
-        dt = -dt / 2
-        # add half electric impulse to v(t-dt/2)
         efield = np.zeros((self.N, 3))
         efield[:, 0] = electric_field_function(self.x)
-        vminus = self.v + self.q * efield / self.m * dt * 0.5
-
-        # rotate to add magnetic field
-        t = -magnetic_field_function(self.x) * self.q / self.m * dt * 0.5
-        s = 2 * t / (1 + t * t)
-
-        vprime = vminus + np.cross(vminus, t)  # type: np.ndarray # TODO: axis?
-        vplus = vminus + np.cross(vprime, s)  # type: np.ndarray
-        v_new = vplus + self.q * efield / self.m * dt * 0.5  # type: np.ndarray
-
-        energy = self.v * v_new * (0.5 * self.m)
-        self.v = v_new
+        bfield = magnetic_field_function(self.x)
+        _, self.v, energy = boris_push(self.x, self.v, efield, bfield, self.q, self.m, -dt*0.5)
         return energy
 
     def push(self, electric_field_function, dt, magnetic_field_function, *args):  #TODO: signature
         """Boris pusher, nonrelativistic"""
-        # add half electric impulse to v(t-dt/2)
         efield = np.zeros((self.N, 3))
         efield[:, 0] = electric_field_function(self.x)
-        vminus = self.v + self.q * efield / self.m * dt * 0.5
-
-        # rotate to add magnetic field
-        t = -magnetic_field_function(self.x) * self.q / self.m * dt * 0.5
-        s = 2 * t / (1 + t * t)
-
-        vprime = vminus + np.cross(vminus, t)  # TODO: axis?
-        vplus = vminus + np.cross(vprime, s)
-        v_new = vplus + self.q * efield / self.m * dt * 0.5
-
-        self.x += v_new[:, 0] * dt
-
-        energy = self.v * v_new * (0.5 * self.m)
-        self.v = v_new
+        bfield = magnetic_field_function(self.x)
+        self.x, self.v, energy = boris_push(self.x, self.v, efield, bfield, self.q, self.m, dt)
         return energy
-
 
 class RelativisticSpecies(Species):
     """Particle class for relativistic electromagnetic simulations"""
