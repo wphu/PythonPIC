@@ -23,7 +23,8 @@ def two_stream_instability(filename,
                            push_mode=1,
                            v0=1.0,
                            vrandom=0,
-                           save_data: bool = True):
+                           save_data: bool = True,
+                           species_2_sign=1):
     """Implements two stream instability from Birdsall and Langdon"""
     print("Running two stream instability")
     particle_mass = 1
@@ -39,7 +40,7 @@ def two_stream_instability(filename,
     expected_stability = k0 * v0 / w0 > 2 ** -0.5
     print("k0*v0/w0 is", k0 * v0 / w0, "which means the regime is", "stable" if expected_stability else "unstable")
     electrons1 = Species(particle_charge, particle_mass, N_electrons, "beam1", NT, scaling)
-    electrons2 = Species(particle_charge, particle_mass, N_electrons, "beam2", NT, scaling)
+    electrons2 = Species(species_2_sign * particle_charge, particle_mass, N_electrons, "beam2", NT, scaling)
     electrons1.v[:] = v0
     electrons2.v[:] = -v0
     list_species = [electrons1, electrons2]
@@ -67,10 +68,6 @@ if __name__ == '__main__':
         two_stream_instability("TS1",
                                NG=64,
                                N_electrons=512,
-                               ),
-        two_stream_instability("TS2",
-                               NG=64,
-                               N_electrons=1024,
                                plasma_frequency=5,
                                dt=0.2 / 5,
                                NT=300 * 5

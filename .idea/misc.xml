@@ -3,5 +3,5 @@
   <component name="IpnbSettings">
     <option name="workingDirectory" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="3p6 Anaconda" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="dev-pic" project-jdk-type="Python SDK" />
 </project>
