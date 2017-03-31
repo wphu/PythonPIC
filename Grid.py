@@ -6,6 +6,8 @@ import scipy.fftpack as fft
 import algorithms_grid
 from algorithms_grid import interpolateField, PoissonSolver
 
+def laser_boundary_condition(t, t_0, tau_e, n):
+    return np.exp(-(t-t_0)**n/tau_e)
 
 class Grid:
     """Object representing the grid on which charges and fields are computed

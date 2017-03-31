@@ -3,6 +3,7 @@
 import numpy as np
 from scipy import fftpack as fft
 
+# TODO: quadratic interpolation to and from grid
 
 def charge_density_deposition(x, dx, x_particles, particle_charge):
     """scatters charge from particles to grid
@@ -108,3 +109,16 @@ def PoissonSolver(rho, k, NG, epsilon_0=1, neutralize=True):
     potential = fft.ifft(potential_F).real
     energy_presum = (rho_F * potential_F.conjugate()).real[:int(NG / 2)] / 2
     return field, potential, energy_presum
+
+def DirectLaplaceSolver(potential, c, dx, N_iterations = 4000):
+    """
+    Solves the Laplace equation for a wave with boundary condition at potential[0].
+    d_dt V - d2_d2x V = 0
+    """
+    dt = dx/c # dt/2/dx/dx = 1/c/4/dx
+    new_potential = np.copy(potential)
+    for n in range(1):
+        for i in range(1, potential.size-1): # from 1 to incorporate boundary condition # TODO: check right boundary
+            new_potential[i] += dt*(potential[i-1] + potential[i+1] - 2 * potential[i])/(2*dx**2) # add source term on Poisson transition here
+    return new_potential
+    
