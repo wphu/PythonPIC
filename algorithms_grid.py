@@ -110,15 +110,18 @@ def PoissonSolver(rho, k, NG, epsilon_0=1, neutralize=True):
     energy_presum = (rho_F * potential_F.conjugate()).real[:int(NG / 2)] / 2
     return field, potential, energy_presum
 
-def DirectLaplaceSolver(potential, c, dx, N_iterations = 4000):
+
+# def LaxWendroffSolver(potential, c, dx, dt):
+
+
+def DirectWaveSolver(potential_current, potential_previous, c, dx, dt):
     """
     Solves the Laplace equation for a wave with boundary condition at potential[0].
     d_dt V - d2_d2x V = 0
     """
-    dt = dx/c # dt/2/dx/dx = 1/c/4/dx
-    new_potential = np.copy(potential)
-    for n in range(1):
-        for i in range(1, potential.size-1): # from 1 to incorporate boundary condition # TODO: check right boundary
-            new_potential[i] += dt*(potential[i-1] + potential[i+1] - 2 * potential[i])/(2*dx**2) # add source term on Poisson transition here
-    return new_potential
-    
+    potential_result = np.zeros_like(potential_current)
+    alpha2 = (c * dt / dx) ** 2
+    potential_result[1:-1] = -potential_previous[1:-1] + \
+                             alpha2 * (potential_current[:-2] + potential_current[2:]) + \
+                             0.5 * (1 - alpha2) * potential_current[1:-1]
+    return potential_result

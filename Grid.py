@@ -6,6 +6,7 @@ import scipy.fftpack as fft
 import algorithms_grid
 from algorithms_grid import interpolateField, PoissonSolver
 
+
 def laser_boundary_condition(t, t_0, tau_e, n):
     return np.exp(-(t-t_0)**n/tau_e)
 
@@ -35,7 +36,7 @@ class Grid:
         self.k_plot = self.k[:int(NG / 2)]
 
         self.charge_density_history = np.zeros((NT, self.NG))
-        self.electric_field_history = np.zeros((NT, self.NG))  # OPTIMIZE: is this absolutely necessary for plotting?
+        self.electric_field_history = np.zeros((NT, self.NG))
         self.potential_history = np.zeros((NT, self.NG))
         self.energy_per_mode_history = np.zeros(
             (NT, int(self.NG / 2)))  # OPTIMIZE: can't I get this from potential_history?
