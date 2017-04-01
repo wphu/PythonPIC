@@ -33,6 +33,7 @@ class Species:
         self.NT = NT
         self.x = np.zeros(N, dtype=float)
         self.v = np.zeros((N, 3), dtype=float)
+        self.alive = np.ones(N, dtype=bool)
         if name:
             self.name = name
         else:
@@ -46,6 +47,7 @@ class Species:
 
         self.position_history = np.zeros((NT, self.saved_particles))
         self.velocity_history = np.zeros((NT, self.saved_particles, 3))
+        self.alive_history = np.zeros((NT, self.saved_particles), dtype=bool)
         self.kinetic_energy_history = np.zeros(NT)
 
     def init_push(self, electric_field_function, dt, *args):
@@ -60,8 +62,9 @@ class Species:
         :return float energy: (N,) size array of particle kinetic energies calculated at half time step
         """
 
-        E = electric_field_function(self.x)
-        _, self.v, energy = leapfrog_push(self.x, self.v, E, self.q, self.m, -dt*0.5)
+        E = electric_field_function(self.x[self.alive])
+        _, self.v[self.alive], energy = leapfrog_push(self.x[self.alive], self.v[self.alive], E, self.q, self.m,
+                                                      -dt * 0.5)
         return energy
 
     def push(self, electric_field_function, dt, *args):
@@ -73,8 +76,9 @@ class Species:
         :return float energy: (N,) size array of particle kinetic energies calculated at half time step
         """
 
-        E = electric_field_function(self.x)
-        self.x, self.v, energy = leapfrog_push(self.x, self.v, E, self.q, self.m, dt)
+        E = electric_field_function(self.x[self.alive])
+        self.x[self.alive], self.v[self.alive], energy = leapfrog_push(self.x[self.alive], self.v[self.alive], E,
+                                                                       self.q, self.m, dt)
         return energy
 
     def return_to_bounds(self, L):
@@ -83,6 +87,11 @@ class Species:
         :param L: length of grid
         """
         self.x %= L
+
+    def kill_particles_outside_bounds(self, L):
+        self.alive = (0 < self.x) * (self.x < L)
+        self.x[~self.alive] = -1
+        self.v[~self.alive] = 0
 
     """POSITION INITIALIZATION"""
 
@@ -151,6 +160,7 @@ class Species:
 
         species_data.create_dataset(name="x", dtype=float, data=self.position_history)
         species_data.create_dataset(name="v", dtype=float, data=self.velocity_history)
+        species_data.create_dataset(name="alive", dtype=float, data=self.alive)
         species_data.create_dataset(name="Kinetic energy", dtype=float, data=self.kinetic_energy_history)
 
     def load_from_h5py(self, species_data):
@@ -166,6 +176,7 @@ class Species:
 
         self.position_history = species_data["x"][...]
         self.velocity_history = species_data["v"][...]
+        self.alive_history = species_data["alive"][...]
         self.kinetic_energy_history = species_data["Kinetic energy"][...]
 
     def __repr__(self, *args, **kwargs):

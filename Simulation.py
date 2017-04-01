@@ -70,7 +70,7 @@ class Simulation:
         for species in self.list_species:
             species.init_push(self.grid.electric_field_function, self.dt)
 
-    def iteration(self, i: int):
+    def iteration(self, i: int, periodic: bool = False):
         """
 
         :param int i: iteration number
@@ -88,7 +88,10 @@ class Simulation:
             species.save_particle_values(i)
             kinetic_energy = species.push(self.grid.electric_field_function, self.dt).sum()
             # OPTIMIZE: remove this sum if it's not necessary (kinetic energy histogram?)
-            species.return_to_bounds(self.grid.L)
+            if periodic:
+                species.return_to_bounds(self.grid.L)
+            else:
+                species.kill_particles_outside_bounds(self.grid.L)
             species.kinetic_energy_history[i] = kinetic_energy
             total_kinetic_energy += kinetic_energy
 
