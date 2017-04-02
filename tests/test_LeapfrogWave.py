@@ -60,7 +60,8 @@ def test_dAlambert(NX, NT, c, dx, dt, initial_potential):
     # assert False, plot_all(potential_history, analytical_solution)
 
 
-def plots(T, measured_value_half, expected_value_half):
+def plots(T, boundary_value, measured_value_half, expected_value_half):
+    plt.plot(T, boundary_value, label="Boundary")
     plt.plot(T, measured_value_half, label="Measured")
     plt.plot(T, expected_value_half, label="Expected")
     plt.legend()
@@ -69,6 +70,16 @@ def plots(T, measured_value_half, expected_value_half):
 
 @pytest.mark.parametrize(["NX", "NT", "c", "dx", "dt", "boundary_condition"],
                          [(100, 200000, 5, 0.01, 0.001, lambda n, dt, NT: sine_boundary_condition(n * dt, dt, NT)),
+                          # (100, 200000, 5, 0.01, 0.001, lambda n, dt, NT: laser_boundary_condition(n * dt, NT*dt/2,
+                          #  NT*dt*1, 2)),
+                          # (100, 200000, 5, 0.01, 0.001, lambda n, dt, NT: laser_boundary_condition(n * dt, NT*dt/2,
+                          #  NT*dt*2, 2)),
+                          # (100, 200000, 5, 0.01, 0.001, lambda n, dt, NT: laser_boundary_condition(n * dt, NT*dt/2,
+                          #  NT*dt*3, 2)),
+                          # (100, 200000, 5, 0.01, 0.001, lambda n, dt, NT: laser_boundary_condition(n * dt, NT*dt/2,
+                          #  NT*dt*4, 2)),
+                          # (100, 200000, 5, 0.01, 0.001, lambda n, dt, NT: laser_boundary_condition(n * dt, NT*dt/2,
+                          #  NT*dt*10, 2)),
                           ])
 def test_BC(NX, NT, c, dx, dt, boundary_condition):
     alpha = c * dt / dx
@@ -93,4 +104,5 @@ def test_BC(NX, NT, c, dx, dt, boundary_condition):
 
     measured_value_half = potential_history[:, int(NX / 2)]
     expected_value_half = boundary_condition(T, dt, NT) / 2
-    assert l2_test(measured_value_half, expected_value_half), plots(T, measured_value_half, expected_value_half)
+    assert l2_test(measured_value_half, expected_value_half), plots(T, potential_history[:, 0], measured_value_half,
+                                                                    expected_value_half)
