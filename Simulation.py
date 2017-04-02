@@ -63,6 +63,7 @@ class Simulation:
         3. initializes pusher via a step back
         """
         self.grid.gather_charge(self.list_species)
+
         self.grid.solve_poisson()  # REFACTOR: allow for abstract field solver for relativistic case
         # this would go like
         # self.grid.solve_field()

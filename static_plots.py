@@ -19,11 +19,12 @@ def static_plot_window(S, N, M):
 
 def ESE_time_plots(S, axis):
     data = S.grid.energy_per_mode_history
-    weights = (data ** 2).sum(axis=0) / (data ** 2).sum()
 
-    # noinspection PyUnusedLocal
-    max_mode = weights.argmax()
-    # TODO: max_index = data[:, max_mode].argmax()
+    # weights = (data ** 2).sum(axis=0) / (data ** 2).sum()
+    #
+    # # noinspection PyUnusedLocal
+    # max_mode = weights.argmax()
+    # # TODO: max_index = data[:, max_mode].argmax()
 
     t = np.arange(S.NT) * S.dt
     for i in range(1, 6):
@@ -100,7 +101,6 @@ def velocity_distribution_plots(S, axis, i=0):
 
 
 def phase_trajectories(S, axis, all=False):
-    assert S.list_species  # has members
     for species in S.list_species:
         if all:
             x = species.position_history[:, :]
@@ -139,7 +139,7 @@ def velocity_time_plots(S, axis):
 
 
 def static_plots(S, filename=False):
-    if not os.path.exists(os.path.dirname(filename)):
+    if filename and not os.path.exists(os.path.dirname(filename)):
         os.makedirs(os.path.dirname(filename))
     time_fig, axes = static_plot_window(S, 3, 2)
 

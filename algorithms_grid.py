@@ -120,7 +120,7 @@ def LeapfrogWaveInitial(potential, derivative, c, dx, dt):
     return potential_first
 
 
-def LeapfrogWaveSolver(potential_current, potential_previous, c, dx, dt):
+def LeapfrogWaveSolver(potential_current, potential_previous, c, dx, dt, epsilon_0=1):
     """
     Solves the Laplace equation for a wave with boundary condition at potential[0].
     d_dt V - d2_d2x V = 0
@@ -130,4 +130,6 @@ def LeapfrogWaveSolver(potential_current, potential_previous, c, dx, dt):
     potential_result[1:-1] = -potential_previous[1:-1] + \
                              alpha2 * (potential_current[:-2] + potential_current[2:]) + \
                              2 * (1 - alpha2) * potential_current[1:-1]
-    return potential_result
+    electric_field = -np.diff(potential_result)
+    energy = 0.5 * epsilon_0 * dx * (electric_field ** 2).sum()
+    return electric_field, potential_result, energy

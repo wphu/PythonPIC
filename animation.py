@@ -79,9 +79,12 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
         phase_dots[species.name], = phase_axes.plot([], [], colors[i] + ".", alpha=alpha)
         if lines:
             phase_lines[species.name], = phase_axes.plot([], [], colors[i] + "-", alpha=alpha / 2, lw=0.7)
-    maxv = max([10 * np.mean(np.abs(species.velocity_history)) for species in S.list_species])
+    try:
+        maxv = max([10 * np.mean(np.abs(species.velocity_history)) for species in S.list_species])
+        phase_axes.set_ylim(-maxv, maxv)
+    except ValueError:
+        pass
     phase_axes.set_xlim(0, S.grid.L)
-    phase_axes.set_ylim(-maxv, maxv)
     phase_axes.set_xlabel(r"Particle position $x$")
     phase_axes.set_ylabel(r"Particle velocity $v_x$")
     phase_axes.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)

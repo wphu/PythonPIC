@@ -4,10 +4,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
-from Grid import sine_boundary_condition
+from Constants import Constants
+from Grid import sine_boundary_condition, Grid
+from Simulation import Simulation
 from algorithms_grid import LeapfrogWaveSolver, LeapfrogWaveInitial
 # TODO: use of multigrid methods for wave equation
 from helper_functions import l2_test
+from plotting import plotting
 
 
 def plot_all(potential_history, analytical_solution):
@@ -45,13 +48,13 @@ def test_dAlambert(NX, NT, c, dx, dt, initial_potential):
     potential = initial_potential(X, NX, dx)
     derivative = np.zeros_like(X)
     potential[0] = potential[-1] = 0
-    potential_first = LeapfrogWaveInitial(potential, derivative, c, dx, dt)
+    _, potential_first, _ = LeapfrogWaveInitial(potential, derivative, c, dx, dt)
 
     potential_history = np.zeros((NT, NX), dtype=float)
     potential_history[0] = potential
     potential_history[1] = potential_first
     for n in range(2, NT):
-        potential_history[n] = LeapfrogWaveSolver(potential_history[n - 1], potential_history[n - 2], c, dx, dt)
+        _, potential_history[n], _ = LeapfrogWaveSolver(potential_history[n - 1], potential_history[n - 2], c, dx, dt)
     XGRID, TGRID = np.meshgrid(X, T)
     analytical_solution = (initial_potential(XGRID - c * TGRID, NX, dx) + initial_potential(XGRID + c * TGRID, NX,
                                                                                             dx)) / 2
@@ -92,17 +95,37 @@ def test_BC(NX, NT, c, dx, dt, boundary_condition):
     derivative = np.zeros_like(X)
     potential[0] = boundary_condition(0, dt, NT)
     potential[-1] = 0
-    potential_first = LeapfrogWaveInitial(potential, derivative, c, dx, dt)
+    _, potential_first, _ = LeapfrogWaveInitial(potential, derivative, c, dx, dt)
     potential_first[0] = boundary_condition(dt, dt, NT)
 
     potential_history = np.zeros((NT, NX), dtype=float)
     potential_history[0] = potential
     potential_history[1] = potential_first
     for n in range(2, NT):
-        potential_history[n] = LeapfrogWaveSolver(potential_history[n - 1], potential_history[n - 2], c, dx, dt)
+        _, potential_history[n], _ = LeapfrogWaveSolver(potential_history[n - 1], potential_history[n - 2], c, dx, dt)
         potential_history[n, 0] = boundary_condition(n * dt, dt, NT)
 
     measured_value_half = potential_history[:, int(NX / 2)]
     expected_value_half = boundary_condition(T, dt, NT) / 2
     assert l2_test(measured_value_half, expected_value_half), plots(T, potential_history[:, 0], measured_value_half,
                                                                     expected_value_half)
+
+
+def test_Simulation():
+    filename = "EMWAVE1"
+    filename = f"data_analysis/EMWAVE/{filename}/{filename}.hdf5"
+    NT = 100
+    dt = 0.01
+    NG = 100
+    L = 2 * np.pi
+    epsilon_0 = 1
+    c = 1
+    grid = Grid(L, NG, epsilon_0, NT)
+
+    description = "Electrostatic wave driven by boundary condition\n"
+
+    run = Simulation(NT, dt, Constants(c, epsilon_0), grid, [], filename=filename, title=description)
+    run.grid_species_initialization()
+    run.run()
+    # return run
+    assert False, plotting(run, show=True, save=False, animate=True)
