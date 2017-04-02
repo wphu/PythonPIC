@@ -12,7 +12,7 @@ def laser_boundary_condition(t, t_0, tau_e, n):
 
 
 def sine_boundary_condition(t, dt, NT):
-    return np.sin(t / 10 / NT / dt * 2 * np.pi)
+    return np.sin(t * 10 / NT / dt * 2 * np.pi)
 
 class Grid:
     """Object representing the grid on which charges and fields are computed
