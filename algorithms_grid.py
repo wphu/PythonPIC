@@ -111,10 +111,16 @@ def PoissonSolver(rho, k, NG, epsilon_0=1, neutralize=True):
     return field, potential, energy_presum
 
 
-# def LaxWendroffSolver(potential, c, dx, dt):
+def LeapfrogWaveInitial(potential, derivative, c, dx, dt):
+    alpha = c * dt / dx
+    potential_first = np.zeros_like(potential)
+    potential_first[1:-1] = dt * derivative[1:-1] + \
+                            potential[1:-1] * (1 - alpha ** 2) + \
+                            0.5 * alpha ** 2 * (potential[:-2] + potential[2:])
+    return potential_first
 
 
-def DirectWaveSolver(potential_current, potential_previous, c, dx, dt):
+def LeapfrogWaveSolver(potential_current, potential_previous, c, dx, dt):
     """
     Solves the Laplace equation for a wave with boundary condition at potential[0].
     d_dt V - d2_d2x V = 0
@@ -123,5 +129,5 @@ def DirectWaveSolver(potential_current, potential_previous, c, dx, dt):
     alpha2 = (c * dt / dx) ** 2
     potential_result[1:-1] = -potential_previous[1:-1] + \
                              alpha2 * (potential_current[:-2] + potential_current[2:]) + \
-                             0.5 * (1 - alpha2) * potential_current[1:-1]
+                             2 * (1 - alpha2) * potential_current[1:-1]
     return potential_result
