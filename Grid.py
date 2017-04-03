@@ -4,21 +4,14 @@ import numpy as np
 import scipy.fftpack as fft
 
 import algorithms_grid
-from algorithms_grid import interpolateField, PoissonSolver
+from algorithms_grid import interpolateField, PoissonSolver, LeapfrogWaveInitial, LeapfrogWaveSolver
 
-
-def laser_boundary_condition(t, t_0, tau_e, n):
-    return np.exp(-(t-t_0)**n/tau_e)
-
-
-def sine_boundary_condition(t, dt, NT):
-    return np.sin(t * 10 / NT / dt * 2 * np.pi)
 
 class Grid:
     """Object representing the grid on which charges and fields are computed
     """
 
-    def __init__(self, L=2 * np.pi, NG=32, epsilon_0=1, NT=1):
+    def __init__(self, L=2 * np.pi, NG=32, epsilon_0=1, NT=1, c=1, dt=1, solver="poisson"):
         """
         :param float L: grid length, in nondimensional units
         :param int NG: number of grid cells
@@ -26,10 +19,12 @@ class Grid:
         :param int NT: number of timesteps for history tracking purposes
         """
         self.x, self.dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
+        self.dt = dt
         self.charge_density = np.zeros_like(self.x)
         self.current_density = np.zeros((NG, 3))
         self.electric_field = np.zeros_like(self.x)
         self.potential = np.zeros_like(self.x)
+        self.c = c
         self.energy_per_mode = np.zeros(int(NG / 2))
         self.L = L
         self.NG = int(NG)
@@ -45,6 +40,17 @@ class Grid:
         self.energy_per_mode_history = np.zeros(
             (NT, int(self.NG / 2)))  # OPTIMIZE: can't I get this from potential_history?
         self.grid_energy_history = np.zeros(NT)
+
+        if solver == "direct":
+            self.init_solver = self.initial_leapfrog
+            self.solve = self.solve_leapfrog
+            self.apply_bc = self.leapfrog_bc
+        elif solver == "poisson":
+            self.init_solver = self.initial_poisson
+            self.solve = self.solve_poisson
+            self.apply_bc = self.poisson_bc
+        else:
+            assert False, "need a solver!"
 
     def direct_energy_calculation(self):
         r"""
@@ -65,6 +71,28 @@ class Grid:
             self.charge_density, self.k, self.NG, epsilon_0=self.epsilon_0
             )
         return self.energy_per_mode.sum() / (self.NG / 2)  # * 8 * np.pi * self.k[1]**2
+
+    def initial_poisson(self):
+        self.solve_poisson()
+
+    def poisson_bc(self, i):
+        pass
+
+    def leapfrog_bc(self, i):
+        self.potential[0] = algorithms_grid.sine_boundary_condition(i * self.dt, self.dt, self.NT)
+
+    def initial_leapfrog(self):
+        self.previous_potential = LeapfrogWaveInitial(self.potential, np.zeros_like(self.potential), self.c, self.dx,
+                                                      self.dt)
+
+    def solve_leapfrog(self):
+        self.potential_backup = self.potential.copy()
+        self.electric_field, self.potential, self.energy_per_mode = LeapfrogWaveSolver(
+            self.potential, self.previous_potential, self.c, self.dx, self.dt, self.epsilon_0)
+        self.previous_potential = self.potential_backup
+        return self.energy_per_mode
+
+
 
     def gather_charge(self, list_species):
         self.charge_density[:] = 0.0

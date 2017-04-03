@@ -5,9 +5,9 @@ import numpy as np
 import pytest
 
 from Constants import Constants
-from Grid import sine_boundary_condition, Grid
+from Grid import Grid
 from Simulation import Simulation
-from algorithms_grid import LeapfrogWaveSolver, LeapfrogWaveInitial
+from algorithms_grid import LeapfrogWaveSolver, LeapfrogWaveInitial, sine_boundary_condition
 # TODO: use of multigrid methods for wave equation
 from helper_functions import l2_test
 from plotting import plotting
@@ -48,7 +48,7 @@ def test_dAlambert(NX, NT, c, dx, dt, initial_potential):
     potential = initial_potential(X, NX, dx)
     derivative = np.zeros_like(X)
     potential[0] = potential[-1] = 0
-    _, potential_first, _ = LeapfrogWaveInitial(potential, derivative, c, dx, dt)
+    potential_first = LeapfrogWaveInitial(potential, derivative, c, dx, dt)
 
     potential_history = np.zeros((NT, NX), dtype=float)
     potential_history[0] = potential
@@ -95,7 +95,7 @@ def test_BC(NX, NT, c, dx, dt, boundary_condition):
     derivative = np.zeros_like(X)
     potential[0] = boundary_condition(0, dt, NT)
     potential[-1] = 0
-    _, potential_first, _ = LeapfrogWaveInitial(potential, derivative, c, dx, dt)
+    potential_first = LeapfrogWaveInitial(potential, derivative, c, dx, dt)
     potential_first[0] = boundary_condition(dt, dt, NT)
 
     potential_history = np.zeros((NT, NX), dtype=float)
@@ -120,7 +120,7 @@ def test_Simulation():
     L = 2 * np.pi
     epsilon_0 = 1
     c = 1
-    grid = Grid(L, NG, epsilon_0, NT)
+    grid = Grid(L, NG, epsilon_0, NT, dt=dt, solver="direct")
 
     description = "Electrostatic wave driven by boundary condition\n"
 

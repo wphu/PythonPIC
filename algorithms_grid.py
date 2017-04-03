@@ -112,7 +112,7 @@ def PoissonSolver(rho, k, NG, epsilon_0=1, neutralize=True):
 
 
 def LeapfrogWaveInitial(potential, derivative, c, dx, dt):
-    alpha = c * dt / dx
+    alpha = abs(c * dt / dx)
     potential_first = np.zeros_like(potential)
     potential_first[1:-1] = dt * derivative[1:-1] + \
                             potential[1:-1] * (1 - alpha ** 2) + \
@@ -133,3 +133,11 @@ def LeapfrogWaveSolver(potential_current, potential_previous, c, dx, dt, epsilon
     electric_field = -np.diff(potential_result)
     energy = 0.5 * epsilon_0 * dx * (electric_field ** 2).sum()
     return electric_field, potential_result, energy
+
+
+def laser_boundary_condition(t, t_0, tau_e, n):
+    return np.exp(-(t - t_0) ** n / tau_e)
+
+
+def sine_boundary_condition(t, dt, NT):
+    return np.sin(t * 10 / NT / dt * 2 * np.pi)

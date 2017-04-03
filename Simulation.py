@@ -64,10 +64,11 @@ class Simulation:
         """
         self.grid.gather_charge(self.list_species)
 
-        self.grid.solve_poisson()  # REFACTOR: allow for abstract field solver for relativistic case
+        self.grid.init_solver()  # REFACTOR: allow for abstract field solver for relativistic case
         # this would go like
         # self.grid.solve_field()
         # and the backend would call solve_poisson or solve_relativistic_bs_poisson_maxwell_whatever
+        self.grid.apply_bc(0)
         for species in self.list_species:
             species.init_push(self.grid.electric_field_function, self.dt)
 
@@ -92,9 +93,9 @@ class Simulation:
             species.return_to_bounds(self.grid.L)
             species.kinetic_energy_history[i] = kinetic_energy
             total_kinetic_energy += kinetic_energy
-
+        self.grid.apply_bc(i)
         self.grid.gather_charge(self.list_species)
-        fourier_field_energy = self.grid.solve_poisson()
+        fourier_field_energy = self.grid.solve()
         self.grid.grid_energy_history[i] = fourier_field_energy
         self.total_energy[i] = total_kinetic_energy + fourier_field_energy
 
