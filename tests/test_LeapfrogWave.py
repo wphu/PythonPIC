@@ -72,7 +72,7 @@ def plots(T, boundary_value, measured_value_half, expected_value_half):
 
 
 @pytest.mark.parametrize(["NX", "NT", "c", "dx", "dt", "boundary_condition"],
-                         [(100, 200000, 5, 0.01, 0.001, lambda n, dt, NT: sine_boundary_condition(n * dt, dt, NT)),
+                         [(100, 200000, 5, 0.01, 0.001, lambda n, dt, NT: sine_boundary_condition(n * dt, dt)),
                           # (100, 200000, 5, 0.01, 0.001, lambda n, dt, NT: laser_boundary_condition(n * dt, NT*dt/2,
                           #  NT*dt*1, 2)),
                           # (100, 200000, 5, 0.01, 0.001, lambda n, dt, NT: laser_boundary_condition(n * dt, NT*dt/2,

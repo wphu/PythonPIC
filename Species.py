@@ -2,7 +2,7 @@
 # coding=utf-8
 import numpy as np
 
-from algorithms_pusher import rela_boris_push, leapfrog_push, boris_push
+from algorithms_pusher import leapfrog_push
 
 MAX_SAVED_PARTICLES = int(1e4)
 
@@ -48,7 +48,7 @@ class Species:
         self.velocity_history = np.zeros((NT, self.saved_particles, 3))
         self.kinetic_energy_history = np.zeros(NT)
 
-    def init_push(self, electric_field_function, dt, *args):
+    def init_push(self, electric_field_function, dt):
         r"""
         Initializes particles for Leapfrog pushing.
         Same as `leapfrog_push`, except
@@ -64,7 +64,7 @@ class Species:
         _, self.v, energy = leapfrog_push(self.x, self.v, E, self.q, self.m, -dt*0.5)
         return energy
 
-    def push(self, electric_field_function, dt, *args):
+    def push(self, electric_field_function, dt):
         r"""
         Leapfrog pusher for particles.
 
@@ -184,41 +184,41 @@ class Species:
         result *= self.name == other.name
         return result
 
+# class MagneticSpecies(Species):
+#     """Particle class for nonrelativistic magnetic simulations"""
+#
+#     def init_push(self, electric_field_function, dt, magnetic_field_function, *args):  # TODO: signature
+#         """Boris pusher initialization, nonrelativistic"""
+#
+#         efield = np.zeros((self.N, 3))
+#         efield[:, 0] = electric_field_function(self.x)
+#         bfield = magnetic_field_function(self.x)
+#         _, self.v, energy = boris_push(self.x, self.v, efield, bfield, self.q, self.m, -dt*0.5)
+#         return energy
+#
+#     def push(self, electric_field_function, dt, magnetic_field_function, *args):  #TODO: signature
+#         """Boris pusher, nonrelativistic"""
+#         efield = np.zeros((self.N, 3))
+#         efield[:, 0] = electric_field_function(self.x)
+#         bfield = magnetic_field_function(self.x)
+#         self.x, self.v, energy = boris_push(self.x, self.v, efield, bfield, self.q, self.m, dt)
+#         return energy
+#
 
-class MagneticSpecies(Species):
-    """Particle class for nonrelativistic magnetic simulations"""
-
-    def init_push(self, electric_field_function, dt, magnetic_field_function, *args):  # TODO: signature
-        """Boris pusher initialization, nonrelativistic"""
-
-        efield = np.zeros((self.N, 3))
-        efield[:, 0] = electric_field_function(self.x)
-        bfield = magnetic_field_function(self.x)
-        _, self.v, energy = boris_push(self.x, self.v, efield, bfield, self.q, self.m, -dt*0.5)
-        return energy
-
-    def push(self, electric_field_function, dt, magnetic_field_function, *args):  #TODO: signature
-        """Boris pusher, nonrelativistic"""
-        efield = np.zeros((self.N, 3))
-        efield[:, 0] = electric_field_function(self.x)
-        bfield = magnetic_field_function(self.x)
-        self.x, self.v, energy = boris_push(self.x, self.v, efield, bfield, self.q, self.m, dt)
-        return energy
-
-class RelativisticSpecies(Species):
-    """Particle class for relativistic electromagnetic simulations"""
-
-    def init_push(self, electric_field_function, dt, magnetic_field_function, c, *args):  #TODO: signature
-        """Boris pusher initialization, relativistic"""
-
-        E = electric_field_function(self.x)
-        B = magnetic_field_function(self.x)
-        _, self.v, energy = rela_boris_push(self.x, self.v, E, B, self.q, self.m, -dt / 2, c)
-        return energy
-
-    def push(self, electric_field_function, dt, magnetic_field_function, c, *args):  #TODO: signature
-        """Boris pusher, relativistic"""
-        E = electric_field_function(self.x)
-        B = magnetic_field_function(self.x)
-        self.x, self.v, energy = rela_boris_push(self.x, self.v, E, B, self.q, self.m, dt, c)
-        return energy
+# class RelativisticSpecies(Species):
+#     """Particle class for relativistic electromagnetic simulations"""
+#
+#     def init_push(self, electric_field_function, dt, magnetic_field_function, c, *args):  #TODO: signature
+#         """Boris pusher initialization, relativistic"""
+#
+#         E = electric_field_function(self.x)
+#         B = magnetic_field_function(self.x)
+#         _, self.v, energy = rela_boris_push(self.x, self.v, E, B, self.q, self.m, -dt / 2, c)
+#         return energy
+#
+#     def push(self, electric_field_function, dt, magnetic_field_function, c, *args):  #TODO: signature
+#         """Boris pusher, relativistic"""
+#         E = electric_field_function(self.x)
+#         B = magnetic_field_function(self.x)
+#         self.x, self.v, energy = rela_boris_push(self.x, self.v, E, B, self.q, self.m, dt, c)
+#         return energy

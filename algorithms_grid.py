@@ -3,6 +3,7 @@
 import numpy as np
 from scipy import fftpack as fft
 
+
 # TODO: quadratic interpolation to and from grid
 
 def charge_density_deposition(x, dx, x_particles, particle_charge):
@@ -106,7 +107,6 @@ def PoissonSolver(rho, k, NG, epsilon_0=1, neutralize=True):
     potential_F = field_F / (-1j * k * epsilon_0)
     field = fft.ifft(field_F).real
     # TODO: check for differences with finite difference field gotten from potential
-    potential = fft.ifft(potential_F).real
     energy_presum = (rho_F * potential_F.conjugate()).real[:int(NG / 2)] / 2
     return field, energy_presum
 
@@ -134,9 +134,9 @@ def LeapfrogWaveSolver(field_current, field_previous, c, dx, dt, epsilon_0=1):
     return field_result, energy
 
 
-def laser_boundary_condition(t, t_0, tau_e, n, *args):
+def laser_boundary_condition(t, t_0, tau_e, n):
     return np.exp(-(t - t_0) ** n / tau_e)
 
 
-def sine_boundary_condition(t, omega, *args):
+def sine_boundary_condition(t, omega):
     return np.sin(omega * t)

@@ -59,6 +59,7 @@ class Grid:
             self.bc_function = algorithms_grid.sine_boundary_condition
         elif bc == "laser":
             self.bc_function = algorithms_grid.laser_boundary_condition
+
     def direct_energy_calculation(self):
         r"""
         Direct energy calculation as

@@ -62,7 +62,7 @@ class Simulation:
         2. solves Poisson equation to get initial field
         3. initializes pusher via a step back
         """
-        self.grid.gather_charge(self.list_species, 0)
+        self.grid.gather_charge(self.list_species)
 
         self.grid.init_solver()  # REFACTOR: allow for abstract field solver for relativistic case
         # this would go like

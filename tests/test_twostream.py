@@ -48,14 +48,7 @@ def test_nonlinear_regime_beam_instability(NG, N_electrons, plasma_frequency):
 def test_electron_positron(v0, NT):
     """the electron-positron run is much noisier
     the particles do not really seem to jump between beams """
-    S = two_stream_instability("TS_EP",
-                               NG=64,
-                               N_electrons=512,
-                               plasma_frequency=5,
-                               dt=0.2,
-                               NT=NT,
-                               v0=v0,
-                               species_2_sign=-1)
+    S = two_stream_instability("TS_EP", NG=64, N_electrons=512, plasma_frequency=5, NT=NT, v0=v0, species_2_sign=-1)
     average_velocities = [sp.velocity_history[:, int(sp.N / 2), 0].mean() for sp in S.list_species]
     avg_velocity_difference = abs(average_velocities[1] - average_velocities[0])
     print(avg_velocity_difference)
