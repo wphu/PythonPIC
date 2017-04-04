@@ -13,15 +13,15 @@ from helper_functions import l2_test
 from plotting import plotting
 
 
-def plot_all(potential_history, analytical_solution):
-    T, X = potential_history.shape
+def plot_all(field_history, analytical_solution):
+    T, X = field_history.shape
     XGRID, TGRID = np.meshgrid(np.arange(X), np.arange(T))
-    for n in range(potential_history.shape[0]):
-        if potential_history.shape[0] < 200 or n % 100:
-            plt.plot(potential_history[n])
+    for n in range(field_history.shape[0]):
+        if field_history.shape[0] < 200 or n % 100:
+            plt.plot(field_history[n])
     fig = plt.figure()
     ax = fig.add_subplot(211)
-    CF1 = ax.contourf(TGRID, XGRID, potential_history, alpha=1)
+    CF1 = ax.contourf(TGRID, XGRID, field_history, alpha=1)
     ax.set_xlabel("time")
     ax.set_ylabel("space")
     plt.colorbar(CF1)
@@ -33,34 +33,34 @@ def plot_all(potential_history, analytical_solution):
     plt.show()
 
 
-@pytest.mark.parametrize(["NX", "NT", "c", "dx", "dt", "initial_potential"],
+@pytest.mark.parametrize(["NX", "NT", "c", "dx", "dt", "initial_field"],
                          [(1000, 2000, 1 / 2, 0.01, 0.01, lambda x, NX, dx: np.sin(np.pi * x)),
                           (1000, 200, 1 / 2, 0.01, 0.01,
                            lambda x, NX, dx: np.exp(-(x - NX / 2 * dx) ** 2 / (0.1 * NX * dx))),
                           ])
-def test_dAlambert(NX, NT, c, dx, dt, initial_potential):
+def test_dAlambert(NX, NT, c, dx, dt, initial_field):
     alpha = c * dt / dx
     print(f"alpha is {alpha}")
     assert alpha <= 1, f"alpha is {alpha}, may not be stable"
 
     X = np.arange(NX) * dx
     T = np.arange(NT) * dt
-    potential = initial_potential(X, NX, dx)
+    field = initial_field(X, NX, dx)
     derivative = np.zeros_like(X)
-    potential[0] = potential[-1] = 0
-    potential_first = LeapfrogWaveInitial(potential, derivative, c, dx, dt)
+    field[0] = field[-1] = 0
+    field_first = LeapfrogWaveInitial(field, derivative, c, dx, dt)
 
-    potential_history = np.zeros((NT, NX), dtype=float)
-    potential_history[0] = potential
-    potential_history[1] = potential_first
+    field_history = np.zeros((NT, NX), dtype=float)
+    field_history[0] = field
+    field_history[1] = field_first
     for n in range(2, NT):
-        _, potential_history[n], _ = LeapfrogWaveSolver(potential_history[n - 1], potential_history[n - 2], c, dx, dt)
+        field_history[n], _ = LeapfrogWaveSolver(field_history[n - 1], field_history[n - 2], c, dx, dt)
     XGRID, TGRID = np.meshgrid(X, T)
-    analytical_solution = (initial_potential(XGRID - c * TGRID, NX, dx) + initial_potential(XGRID + c * TGRID, NX,
-                                                                                            dx)) / 2
+    analytical_solution = (initial_field(XGRID - c * TGRID, NX, dx) + initial_field(XGRID + c * TGRID, NX,
+                                                                                    dx)) / 2
 
-    assert l2_test(analytical_solution, potential_history), plot_all(potential_history, analytical_solution)
-    # assert False, plot_all(potential_history, analytical_solution)
+    assert l2_test(analytical_solution, field_history), plot_all(field_history, analytical_solution)
+    # assert False, plot_all(field_history, analytical_solution)
 
 
 def plots(T, boundary_value, measured_value_half, expected_value_half):
@@ -91,23 +91,23 @@ def test_BC(NX, NT, c, dx, dt, boundary_condition):
 
     X = np.arange(NX) * dx
     T = np.arange(NT) * dt
-    potential = np.zeros_like(X)
+    field = np.zeros_like(X)
     derivative = np.zeros_like(X)
-    potential[0] = boundary_condition(0, dt, NT)
-    potential[-1] = 0
-    potential_first = LeapfrogWaveInitial(potential, derivative, c, dx, dt)
-    potential_first[0] = boundary_condition(dt, dt, NT)
+    field[0] = boundary_condition(0, dt, NT)
+    field[-1] = 0
+    field_first = LeapfrogWaveInitial(field, derivative, c, dx, dt)
+    field_first[0] = boundary_condition(dt, dt, NT)
 
-    potential_history = np.zeros((NT, NX), dtype=float)
-    potential_history[0] = potential
-    potential_history[1] = potential_first
+    field_history = np.zeros((NT, NX), dtype=float)
+    field_history[0] = field
+    field_history[1] = field_first
     for n in range(2, NT):
-        _, potential_history[n], _ = LeapfrogWaveSolver(potential_history[n - 1], potential_history[n - 2], c, dx, dt)
-        potential_history[n, 0] = boundary_condition(n * dt, dt, NT)
+        field_history[n], _ = LeapfrogWaveSolver(field_history[n - 1], field_history[n - 2], c, dx, dt)
+        field_history[n, 0] = boundary_condition(n * dt, dt, NT)
 
-    measured_value_half = potential_history[:, int(NX / 2)]
+    measured_value_half = field_history[:, int(NX / 2)]
     expected_value_half = boundary_condition(T, dt, NT) / 2
-    assert l2_test(measured_value_half, expected_value_half), plots(T, potential_history[:, 0], measured_value_half,
+    assert l2_test(measured_value_half, expected_value_half), plots(T, field_history[:, 0], measured_value_half,
                                                                     expected_value_half)
 
 

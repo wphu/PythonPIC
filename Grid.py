@@ -11,7 +11,7 @@ class Grid:
     """Object representing the grid on which charges and fields are computed
     """
 
-    def __init__(self, L=2 * np.pi, NG=32, epsilon_0=1, NT=1, c=1, dt=1, solver="poisson", bc="sine", bc_params=[1]):
+    def __init__(self, L=2 * np.pi, NG=32, epsilon_0=1, NT=1, c=1, dt=1, solver="poisson", bc="sine", bc_params=(1,)):
         """
         :param float L: grid length, in nondimensional units
         :param int NG: number of grid cells
@@ -23,7 +23,6 @@ class Grid:
         self.charge_density = np.zeros_like(self.x)
         self.current_density = np.zeros((NG, 3))
         self.electric_field = np.zeros_like(self.x)
-        self.potential = np.zeros_like(self.x)
         self.c = c
         self.energy_per_mode = np.zeros(int(NG / 2))
         self.L = L
@@ -33,7 +32,6 @@ class Grid:
 
         self.charge_density_history = np.zeros((NT, self.NG))  # REFACTOR: 3rd axis of size len(species)
         self.electric_field_history = np.zeros((NT, self.NG))
-        self.potential_history = np.zeros((NT, self.NG))  # OPTIMIZE: remove this
         self.energy_per_mode_history = np.zeros(
             (NT, int(self.NG / 2)))  # OPTIMIZE: get this from efield_history?
         self.grid_energy_history = np.zeros(NT)  # OPTIMIZE: get this from efield_history
@@ -75,7 +73,7 @@ class Grid:
         Solves
         :return float energy:
         """
-        self.electric_field, self.potential, self.energy_per_mode = PoissonSolver(
+        self.electric_field, self.energy_per_mode = PoissonSolver(
             self.charge_density, self.k, self.NG, epsilon_0=self.epsilon_0
             )
         return self.energy_per_mode.sum() / (self.NG / 2)  # * 8 * np.pi * self.k[1]**2
@@ -87,17 +85,18 @@ class Grid:
         pass
 
     def leapfrog_bc(self, i):
-        self.potential[0] = self.bc_function(i * self.dt, *self.bc_params)
+        self.electric_field[0] = self.bc_function(i * self.dt, *self.bc_params)
 
     def initial_leapfrog(self):
-        self.previous_potential = LeapfrogWaveInitial(self.potential, np.zeros_like(self.potential), self.c, self.dx,
-                                                      self.dt)
+        self.previous_field = LeapfrogWaveInitial(self.electric_field, np.zeros_like(self.electric_field), self.c,
+                                                  self.dx,
+                                                  self.dt)
 
     def solve_leapfrog(self):
-        self.potential_backup = self.potential.copy()
-        self.electric_field, self.potential, self.energy_per_mode = LeapfrogWaveSolver(
-            self.potential, self.previous_potential, self.c, self.dx, self.dt, self.epsilon_0)
-        self.previous_potential = self.potential_backup
+        self.electric_field_backup = self.electric_field.copy()
+        self.electric_field, self.energy_per_mode = LeapfrogWaveSolver(
+            self.electric_field, self.previous_field, self.c, self.dx, self.dt, self.epsilon_0)
+        self.previous_field = self.electric_field_backup
         return self.energy_per_mode
 
 
@@ -122,7 +121,6 @@ class Grid:
         """Update the i-th set of field values"""
         self.charge_density_history[i] = self.charge_density
         self.electric_field_history[i] = self.electric_field
-        self.potential_history[i] = self.electric_field
         self.energy_per_mode_history[i] = self.energy_per_mode
         self.grid_energy_history[i] = self.energy_per_mode.sum() / (self.NG / 2)
 
@@ -139,7 +137,6 @@ class Grid:
 
         grid_data.create_dataset(name="rho", dtype=float, data=self.charge_density_history)
         grid_data.create_dataset(name="Efield", dtype=float, data=self.electric_field_history)
-        grid_data.create_dataset(name="potential", dtype=float, data=self.potential_history)
         grid_data.create_dataset(name="energy per mode", dtype=float, data=self.energy_per_mode_history)
         grid_data.create_dataset(name="grid energy", dtype=float, data=self.grid_energy_history)
 
@@ -158,7 +155,6 @@ class Grid:
         self.dx = self.x[1] - self.x[0]
         self.charge_density_history = grid_data['rho'][...]
         self.electric_field_history = grid_data['Efield'][...]
-        self.potential_history = grid_data["potential"][...]
         self.energy_per_mode_history = grid_data["energy per mode"][...]
         self.grid_energy_history = grid_data["grid energy"][...]
 
@@ -167,7 +163,6 @@ class Grid:
         result *= np.isclose(self.x, other.x).all()
         result *= np.isclose(self.charge_density, other.charge_density).all()
         result *= np.isclose(self.electric_field, other.electric_field).all()
-        result *= np.isclose(self.potential, other.potential).all()
         result *= self.dx == other.dx
         result *= self.L == other.L
         result *= self.NG == other.NG
