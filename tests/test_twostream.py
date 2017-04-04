@@ -1,7 +1,7 @@
 # coding=utf-8
-import numpy as np
 import pytest
 
+from helper_functions import did_it_thermalize
 from plotting import plotting
 from run_twostream import two_stream_instability
 
@@ -74,8 +74,3 @@ def test_electron_positron(v0, NT):
 #
 #     # TEST: finish this
 
-def did_it_thermalize(S):
-    initial_velocities = np.array([s.velocity_history[0, :, 0].mean() for s in S.list_species])
-    initial_velocity_stds = np.array([s.velocity_history[0, :, 0].std() for s in S.list_species])
-    average_velocities = np.array([s.velocity_history[:, :, 0].mean() for s in S.list_species])
-    return np.abs((initial_velocities - average_velocities)) > initial_velocity_stds

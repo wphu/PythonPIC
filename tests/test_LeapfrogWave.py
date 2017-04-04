@@ -111,10 +111,13 @@ def test_BC(NX, NT, c, dx, dt, boundary_condition):
                                                                     expected_value_half)
 
 
-def test_Simulation():
-    filename = "EMWAVE1"
+@pytest.mark.parametrize(["filename", "bc", "bc_parameter_function", "bc_params"],
+                         [("sine", "sine", lambda T: 10, (0,)),
+                          ("laser", "laser", lambda T: T / 25, (1, 2)),
+                          ])
+def test_Simulation(filename, bc, bc_parameter_function, bc_params):
     filename = f"data_analysis/EMWAVE/{filename}/{filename}.hdf5"
-    NT = 1000
+    NT = 2000
     dt = 0.01
     T = NT * dt
     print(f"T is {T}")
@@ -122,7 +125,7 @@ def test_Simulation():
     L = 2 * np.pi
     epsilon_0 = 1
     c = 1
-    grid = Grid(L, NG, epsilon_0, NT, dt=dt, solver="direct", bc="sine", bc_params=(10,))
+    grid = Grid(L, NG, epsilon_0, NT, dt=dt, solver="direct", bc=bc, bc_params=(bc_parameter_function(T), *bc_params))
     alpha = c * dt / grid.dx
     print(f"alpha is {alpha}")
     assert alpha <= 1
@@ -131,7 +134,7 @@ def test_Simulation():
     run = Simulation(NT, dt, Constants(c, epsilon_0), grid, [], filename=filename, title=description)
     run.grid_species_initialization()
     run.run()
-    plotting(run, show=True, save=True, animate=True)
+    # plotting(run, show=True, save=True, animate=True)
     assert run.grid.grid_energy_history.mean() > 0, plotting(run, show=True, save=False, animate=True)
 
 

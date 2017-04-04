@@ -30,6 +30,8 @@ class Grid:
         self.NG = int(NG)
         self.NT = NT
         self.epsilon_0 = epsilon_0
+
+        # specific to Poisson solver
         self.k = 2 * np.pi * fft.fftfreq(NG, self.dx)
         self.k[0] = 0.0001
         self.k_plot = self.k[:int(NG / 2)]
@@ -41,7 +43,8 @@ class Grid:
             (NT, int(self.NG / 2)))  # OPTIMIZE: can't I get this from potential_history?
         self.grid_energy_history = np.zeros(NT)
 
-
+        self.solver_string = solver
+        self.bc_string = bc
         if solver == "direct":
             self.init_solver = self.initial_leapfrog
             self.solve = self.solve_leapfrog
