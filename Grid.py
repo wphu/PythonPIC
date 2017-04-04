@@ -31,17 +31,12 @@ class Grid:
         self.NT = NT
         self.epsilon_0 = epsilon_0
 
-        # specific to Poisson solver
-        self.k = 2 * np.pi * fft.fftfreq(NG, self.dx)
-        self.k[0] = 0.0001
-        self.k_plot = self.k[:int(NG / 2)]
-
-        self.charge_density_history = np.zeros((NT, self.NG))
+        self.charge_density_history = np.zeros((NT, self.NG))  # REFACTOR: 3rd axis of size len(species)
         self.electric_field_history = np.zeros((NT, self.NG))
-        self.potential_history = np.zeros((NT, self.NG))
+        self.potential_history = np.zeros((NT, self.NG))  # OPTIMIZE: remove this
         self.energy_per_mode_history = np.zeros(
-            (NT, int(self.NG / 2)))  # OPTIMIZE: can't I get this from potential_history?
-        self.grid_energy_history = np.zeros(NT)
+            (NT, int(self.NG / 2)))  # OPTIMIZE: get this from efield_history?
+        self.grid_energy_history = np.zeros(NT)  # OPTIMIZE: get this from efield_history
 
         self.solver_string = solver
         self.bc_string = bc
@@ -53,6 +48,10 @@ class Grid:
             self.init_solver = self.initial_poisson
             self.solve = self.solve_poisson
             self.apply_bc = self.poisson_bc
+            # specific to Poisson solver
+            self.k = 2 * np.pi * fft.fftfreq(NG, self.dx)
+            self.k[0] = 0.0001
+            self.k_plot = self.k[:int(NG / 2)]
         else:
             assert False, "need a solver!"
 
@@ -61,7 +60,6 @@ class Grid:
             self.bc_function = algorithms_grid.sine_boundary_condition
         elif bc == "laser":
             self.bc_function = algorithms_grid.laser_boundary_condition
-
     def direct_energy_calculation(self):
         r"""
         Direct energy calculation as
@@ -109,7 +107,7 @@ class Grid:
         for species in list_species:
             gathered_density = algorithms_grid.charge_density_deposition(self.x, self.dx, species.x, species.q)
             assert gathered_density.size == self.NG
-            self.charge_density += gathered_density
+            self.charge_density += gathered_density  # REFACTOR: charge_density[:,:,i_species]
 
     def gather_current(self, list_species):
         self.current_density = np.zeros((self.NG, 3))
@@ -118,7 +116,7 @@ class Grid:
                                                                                species.v)
 
     def electric_field_function(self, xp):
-        return interpolateField(xp, self.electric_field, self.x, self.dx)
+        return interpolateField(xp, self.electric_field, self.x, self.dx)  # OPTIMIZE: this is probably slow
 
     def save_field_values(self, i):
         """Update the i-th set of field values"""
