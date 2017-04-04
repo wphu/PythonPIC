@@ -130,7 +130,7 @@ def LeapfrogWaveSolver(potential_current, potential_previous, c, dx, dt, epsilon
     potential_result[1:-1] = -potential_previous[1:-1] + \
                              alpha2 * (potential_current[:-2] + potential_current[2:]) + \
                              2 * (1 - alpha2) * potential_current[1:-1]
-    electric_field = -np.diff(potential_result)
+    electric_field = potential_result
     energy = 0.5 * epsilon_0 * dx * (electric_field ** 2).sum()
     return electric_field, potential_result, energy
 
@@ -140,4 +140,4 @@ def laser_boundary_condition(t, t_0, tau_e, n):
 
 
 def sine_boundary_condition(t, dt, NT):
-    return np.sin(t * 10 / NT / dt * 2 * np.pi)
+    return np.sin(t * 1 / NT / dt * 2 * np.pi)

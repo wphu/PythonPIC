@@ -114,18 +114,23 @@ def test_BC(NX, NT, c, dx, dt, boundary_condition):
 def test_Simulation():
     filename = "EMWAVE1"
     filename = f"data_analysis/EMWAVE/{filename}/{filename}.hdf5"
-    NT = 100
+    NT = 1000
     dt = 0.01
     NG = 100
     L = 2 * np.pi
     epsilon_0 = 1
     c = 1
     grid = Grid(L, NG, epsilon_0, NT, dt=dt, solver="direct")
-
+    alpha = c * dt / grid.dx
+    print(f"alpha is {alpha}")
+    assert alpha <= 1
     description = "Electrostatic wave driven by boundary condition\n"
 
     run = Simulation(NT, dt, Constants(c, epsilon_0), grid, [], filename=filename, title=description)
     run.grid_species_initialization()
     run.run()
-    # return run
-    assert False, plotting(run, show=True, save=False, animate=True)
+    assert run.grid.grid_energy_history.mean() > 0, plotting(run, show=True, save=False, animate=True)
+
+
+if __name__ == '__main__':
+    test_Simulation()
