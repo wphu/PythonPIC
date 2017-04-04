@@ -50,6 +50,7 @@ def cold_plasma_oscillations(filename,
     scaling = abs(particle_mass * plasma_frequency ** 2 * L / float(
         particle_charge * N_electrons * epsilon_0))
 
+
     list_species = [
         Species(N=N_electrons, q=particle_charge, m=particle_mass, name="electrons", NT=NT, scaling=scaling),
         ]
@@ -60,7 +61,7 @@ def cold_plasma_oscillations(filename,
     for species in list_species:
         species.distribute_uniformly(L)
         species.sinusoidal_position_perturbation(push_amplitude, push_mode, L)
-    grid = Grid(L, NG, epsilon_0, NT)
+    grid = Grid(L, NG, epsilon_0, NT, n_species=len(list_species))
 
     description = f"Cold plasma oscillations\nposition initial condition perturbed by sinusoidal oscillation mode" \
                   f"{push_mode} excited with amplitude {push_amplitude}\n"

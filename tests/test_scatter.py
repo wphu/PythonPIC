@@ -13,7 +13,7 @@ def test_sine_perturbation_effect(amplitude=0.001):
     particles.distribute_uniformly(g.L)
     particles.sinusoidal_position_perturbation(amplitude, 1, g.L)
 
-    g.gather_charge([particles])
+    g.gather_charge([particles], 0)
 
     def plots():
         plt.hist(particles.x, bins=g.x)

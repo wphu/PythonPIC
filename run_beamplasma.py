@@ -48,7 +48,7 @@ def weakbeam_instability(filename,
 
     filename = f"data_analysis/BP/{filename}/{filename}.hdf5"
 
-    grid = Grid(L=L, NG=NG, NT=NT)
+    grid = Grid(L=L, NG=NG, NT=NT, n_species=2)
     k0 = 2 * np.pi / L
     w0 = plasma_frequency
     plasma = Species(particle_charge, particle_mass, N_plasma, "plasma", NT, scaling(N_plasma))
