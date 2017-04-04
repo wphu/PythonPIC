@@ -116,11 +116,13 @@ def test_Simulation():
     filename = f"data_analysis/EMWAVE/{filename}/{filename}.hdf5"
     NT = 1000
     dt = 0.01
+    T = NT * dt
+    print(f"T is {T}")
     NG = 100
     L = 2 * np.pi
     epsilon_0 = 1
     c = 1
-    grid = Grid(L, NG, epsilon_0, NT, dt=dt, solver="direct")
+    grid = Grid(L, NG, epsilon_0, NT, dt=dt, solver="direct", bc="sine", bc_params=(10,))
     alpha = c * dt / grid.dx
     print(f"alpha is {alpha}")
     assert alpha <= 1
@@ -129,6 +131,7 @@ def test_Simulation():
     run = Simulation(NT, dt, Constants(c, epsilon_0), grid, [], filename=filename, title=description)
     run.grid_species_initialization()
     run.run()
+    plotting(run, show=True, save=True, animate=True)
     assert run.grid.grid_energy_history.mean() > 0, plotting(run, show=True, save=False, animate=True)
 
 

@@ -11,7 +11,7 @@ class Grid:
     """Object representing the grid on which charges and fields are computed
     """
 
-    def __init__(self, L=2 * np.pi, NG=32, epsilon_0=1, NT=1, c=1, dt=1, solver="poisson"):
+    def __init__(self, L=2 * np.pi, NG=32, epsilon_0=1, NT=1, c=1, dt=1, solver="poisson", bc="sine", bc_params=[1]):
         """
         :param float L: grid length, in nondimensional units
         :param int NG: number of grid cells
@@ -41,6 +41,7 @@ class Grid:
             (NT, int(self.NG / 2)))  # OPTIMIZE: can't I get this from potential_history?
         self.grid_energy_history = np.zeros(NT)
 
+
         if solver == "direct":
             self.init_solver = self.initial_leapfrog
             self.solve = self.solve_leapfrog
@@ -51,6 +52,12 @@ class Grid:
             self.apply_bc = self.poisson_bc
         else:
             assert False, "need a solver!"
+
+        self.bc_params = bc_params
+        if bc == "sine":
+            self.bc_function = algorithms_grid.sine_boundary_condition
+        elif bc == "laser":
+            self.bc_function = algorithms_grid.laser_boundary_condition
 
     def direct_energy_calculation(self):
         r"""
@@ -79,7 +86,7 @@ class Grid:
         pass
 
     def leapfrog_bc(self, i):
-        self.potential[0] = algorithms_grid.sine_boundary_condition(i * self.dt, self.dt, self.NT)
+        self.potential[0] = self.bc_function(i * self.dt, *self.bc_params)
 
     def initial_leapfrog(self):
         self.previous_potential = LeapfrogWaveInitial(self.potential, np.zeros_like(self.potential), self.c, self.dx,
