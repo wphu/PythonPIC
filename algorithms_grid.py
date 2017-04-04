@@ -113,8 +113,7 @@ def PoissonSolver(rho, k, NG, epsilon_0=1, neutralize=True):
 
 def LeapfrogWaveInitial(field, derivative, c, dx, dt):
     alpha = abs(c * dt / dx)
-    field_first = np.zeros_like(field)
-    field_first[1:-1] = dt * derivative[1:-1] + \
+    field_first = dt * derivative[1:-1] + \
                         field[1:-1] * (1 - alpha ** 2) + \
                         0.5 * alpha ** 2 * (field[:-2] + field[2:])
     return field_first
@@ -125,18 +124,17 @@ def LeapfrogWaveSolver(field_current, field_previous, c, dx, dt, epsilon_0=1):
     Solves the Laplace equation for a wave with boundary condition at field[0].
     d_dt V - d2_d2x V = 0
     """
-    field_result = np.zeros_like(field_current)
     alpha2 = (c * dt / dx) ** 2
-    field_result[1:-1] = -field_previous[1:-1] + \
+    field_result = -field_previous[1:-1] + \
                          alpha2 * (field_current[:-2] + field_current[2:]) + \
                          2 * (1 - alpha2) * field_current[1:-1]
     energy = 0.5 * epsilon_0 * dx * (field_result ** 2).sum()
     return field_result, energy
 
 
-def laser_boundary_condition(t, t_0, tau_e, n):
+def laser_boundary_condition(t, t_0, tau_e, n, *args):
     return np.exp(-(t - t_0) ** n / tau_e)
 
 
-def sine_boundary_condition(t, omega):
+def sine_boundary_condition(t, omega, *args):
     return np.sin(omega * t)

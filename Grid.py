@@ -11,7 +11,8 @@ class Grid:
     """Object representing the grid on which charges and fields are computed
     """
 
-    def __init__(self, L=2 * np.pi, NG=32, epsilon_0=1, NT=1, c=1, dt=1, n_species=1, solver="poisson", bc="sine",
+    def __init__(self, L: float = 2 * np.pi, NG: int = 32, epsilon_0: float = 1, NT: float = 1, c: float = 1,
+                 dt: float = 1, n_species: int = 1, solver="poisson", bc="sine",
                  bc_params=(1,)):
         """
         :param float L: grid length, in nondimensional units
@@ -21,9 +22,9 @@ class Grid:
         """
         self.x, self.dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
         self.dt = dt
-        self.charge_density = np.zeros_like(self.x)
-        self.current_density = np.zeros((NG, 3))
-        self.electric_field = np.zeros_like(self.x)
+        self.charge_density = np.zeros(NG + 2)
+        self.current_density = np.zeros((NG + 2, 3))
+        self.electric_field = np.zeros(NG + 2)
         self.c = c
         self.energy_per_mode = np.zeros(int(NG / 2))
         self.L = L
@@ -43,6 +44,7 @@ class Grid:
             self.init_solver = self.initial_leapfrog
             self.solve = self.solve_leapfrog
             self.apply_bc = self.leapfrog_bc
+            self.previous_field = np.zeros_like(self.electric_field)
         elif solver == "poisson":
             self.init_solver = self.initial_poisson
             self.solve = self.solve_poisson
@@ -70,13 +72,13 @@ class Grid:
         """
         return self.epsilon_0 * (self.electric_field ** 2).sum() * 0.5 * self.dx
 
-    def solve_poisson(self):
+    def solve_poisson(self, neutralize=True):
         r"""
         Solves
         :return float energy:
         """
-        self.electric_field, self.energy_per_mode = PoissonSolver(
-            self.charge_density, self.k, self.NG, epsilon_0=self.epsilon_0
+        self.electric_field[1:-1], self.energy_per_mode = PoissonSolver(
+            self.charge_density[1:-1], self.k, self.NG, epsilon_0=self.epsilon_0, neutralize=neutralize
             )
         return self.energy_per_mode.sum() / (self.NG / 2)  # * 8 * np.pi * self.k[1]**2
 
@@ -90,13 +92,13 @@ class Grid:
         self.electric_field[0] = self.bc_function(i * self.dt, *self.bc_params)
 
     def initial_leapfrog(self):
-        self.previous_field = LeapfrogWaveInitial(self.electric_field, np.zeros_like(self.electric_field), self.c,
+        self.previous_field[1:-1] = LeapfrogWaveInitial(self.electric_field, np.zeros_like(self.electric_field), self.c,
                                                   self.dx,
                                                   self.dt)
 
     def solve_leapfrog(self):
         self.electric_field_backup = self.electric_field.copy()
-        self.electric_field, self.energy_per_mode = LeapfrogWaveSolver(
+        self.electric_field[1:-1], self.energy_per_mode = LeapfrogWaveSolver(
             self.electric_field, self.previous_field, self.c, self.dx, self.dt, self.epsilon_0)
         self.previous_field = self.electric_field_backup
         return self.energy_per_mode
@@ -107,20 +109,20 @@ class Grid:
             gathered_density = algorithms_grid.charge_density_deposition(self.x, self.dx, species.x, species.q)
             assert gathered_density.size == self.NG
             self.charge_density_history[i, :, i_species] = gathered_density
-            self.charge_density += gathered_density
+            self.charge_density[1:-1] += gathered_density
 
-    def gather_current(self, list_species):
-        self.current_density = np.zeros((self.NG, 3))
-        for species in list_species:
-            self.current_density += algorithms_grid.current_density_deposition(self.x, self.dx, species.x, species.q,
-                                                                               species.v)
+    # def gather_current(self, list_species):
+    #     self.current_density = np.zeros((self.NG, 3))
+    #     for species in list_species:
+    #         self.current_density += algorithms_grid.current_density_deposition(self.x, self.dx, species.x, species.q,
+    #                                                                            species.v)
 
     def electric_field_function(self, xp):
-        return interpolateField(xp, self.electric_field, self.x, self.dx)  # OPTIMIZE: this is probably slow
+        return interpolateField(xp, self.electric_field[1:-1], self.x, self.dx)  # OPTIMIZE: this is probably slow
 
     def save_field_values(self, i):
         """Update the i-th set of field values"""
-        self.electric_field_history[i] = self.electric_field
+        self.electric_field_history[i] = self.electric_field[1:-1]
         self.energy_per_mode_history[i] = self.energy_per_mode
         self.grid_energy_history[i] = self.energy_per_mode.sum() / (self.NG / 2)
 
@@ -170,46 +172,46 @@ class Grid:
         return result
 
 
-class RelativisticGrid(Grid):
-    def __init__(self, L=2 * np.pi, NG=32, epsilon_0=1, c=1, NT=1):
-        super().__init__(L, NG, epsilon_0, NT)
-        self.c = c
-        self.dt = self.dx / c
-        self.Jyplus = np.zeros_like(self.x)
-        self.Jyminus = np.zeros_like(self.x)
-        self.Fplus = np.zeros_like(self.x)
-        self.Fminus = np.zeros_like(self.x)
-        self.Ey_history = np.zeros((NT, self.NG))
-        self.Bz_history = np.zeros((NT, self.NG))
-        self.current_density_history = np.zeros((NT, self.NG, 3))
-
-    # TODO: implement LPIC-style field solver
-
-    def iterate_EM_field(self):
-        """
-        calculate Fplus, Fminus in next iteration based on their previous
-        values
-
-        assumes fixed left ([0]) boundary condition
-
-        F_plus(n+1, j) = F_plus(n, j) - 0.25 * dt * (Jyminus(n, j-1) + Jplus(n, j))
-        F_minus(n+1, j) = F_minus(n, j) - 0.25 * dt * (Jyminus(n, j+1) - Jplus(n, j))
-
-        TODO: check viability of laser BC
-        take average of last term instead at last point instead
-        """
-        self.Fplus[1:] = self.Fplus[:-1] - 0.25 * self.dt * (self.Jyplus[:-1] + self.Jyminus[1:])
-        self.Fminus[1:-1] = self.Fminus[0:-2] - 0.25 * self.dt * (self.Jyplus[2:] - self.Jyminus[1:-1])
-
-        # TODO: get laser boundary condition from Birdsall
-        self.Fminus[-1] = self.Fminus[-2] - 0.25 * self.dt * (self.Jyplus[0] - self.Jyminus[-1])
-
-    def unroll_EyBz(self):
-        return self.Fplus + self.Fminus, self.Fplus - self.Fminus
-
-    def apply_laser_BC(self, B0, E0):
-        self.Fplus[0] = (E0 + B0) / 2
-        self.Fminus[0] = (E0 - B0) / 2
+# class RelativisticGrid(Grid):
+#     def __init__(self, L=2 * np.pi, NG=32, epsilon_0=1, c=1, NT=1):
+#         super().__init__(L, NG, epsilon_0, NT)
+#         self.c = c
+#         self.dt = self.dx / c
+#         self.Jyplus = np.zeros_like(self.x)
+#         self.Jyminus = np.zeros_like(self.x)
+#         self.Fplus = np.zeros_like(self.x)
+#         self.Fminus = np.zeros_like(self.x)
+#         self.Ey_history = np.zeros((NT, self.NG))
+#         self.Bz_history = np.zeros((NT, self.NG))
+#         self.current_density_history = np.zeros((NT, self.NG, 3))
+#
+#     # TODO: implement LPIC-style field solver
+#
+#     def iterate_EM_field(self):
+#         """
+#         calculate Fplus, Fminus in next iteration based on their previous
+#         values
+#
+#         assumes fixed left ([0]) boundary condition
+#
+#         F_plus(n+1, j) = F_plus(n, j) - 0.25 * dt * (Jyminus(n, j-1) + Jplus(n, j))
+#         F_minus(n+1, j) = F_minus(n, j) - 0.25 * dt * (Jyminus(n, j+1) - Jplus(n, j))
+#
+#         TODO: check viability of laser BC
+#         take average of last term instead at last point instead
+#         """
+#         self.Fplus[1:] = self.Fplus[:-1] - 0.25 * self.dt * (self.Jyplus[:-1] + self.Jyminus[1:])
+#         self.Fminus[1:-1] = self.Fminus[0:-2] - 0.25 * self.dt * (self.Jyplus[2:] - self.Jyminus[1:-1])
+#
+#         # TODO: get laser boundary condition from Birdsall
+#         self.Fminus[-1] = self.Fminus[-2] - 0.25 * self.dt * (self.Jyplus[0] - self.Jyminus[-1])
+#
+#     def unroll_EyBz(self):
+#         return self.Fplus + self.Fminus, self.Fplus - self.Fminus
+#
+#     def apply_laser_BC(self, B0, E0):
+#         self.Fplus[0] = (E0 + B0) / 2
+#         self.Fminus[0] = (E0 - B0) / 2
 
 
 if __name__ == "__main__":
