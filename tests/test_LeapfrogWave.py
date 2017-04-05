@@ -9,6 +9,7 @@ from Grid import Grid
 from Simulation import Simulation
 # TODO: use of multigrid methods for wave equation
 from plotting import plotting
+from run_wave import wave_propagation
 
 
 def plot_all(field_history, analytical_solution):
@@ -114,29 +115,7 @@ def plot_all(field_history, analytical_solution):
                          [("sine", "sine", lambda T: 10, (0,)),
                           ("laser", "laser", lambda T: T / 25, (1, 2)),
                           ])
-def test_Simulation(filename, bc, bc_parameter_function, bc_params):
-    filename = f"data_analysis/EMWAVE/{filename}/{filename}.hdf5"
-    NT = 2000
-    dt = 0.01
-    T = NT * dt
-    print(f"T is {T}")
-    NG = 100
-    L = 2 * np.pi
-    epsilon_0 = 1
-    c = 1
-    grid = Grid(L, NG, epsilon_0, NT, dt=dt, solver="direct", bc=bc, bc_params=(bc_parameter_function(T), *bc_params))
-    alpha = c * dt / grid.dx
-    print(f"alpha is {alpha}")
-    assert alpha <= 1
-    description = "Electrostatic wave driven by boundary condition\n"
-
-    run = Simulation(NT, dt, Constants(c, epsilon_0), grid, [], filename=filename, title=description)
-    run.grid_species_initialization()
-    run.run()
-    # plotting(run, show=True, save=True, animate=True)
+def test_wave_propagation(filename, bc, bc_parameter_function, bc_params):
+    run = wave_propagation(filename, bc, bc_parameter_function, bc_params)
     assert run.grid.grid_energy_history.mean() > 0, plotting(run, show=True, save=False, animate=True)
 
-
-if __name__ == '__main__':
-    test_Simulation("sine", "sine", lambda T: 10, (0,))
-    test_Simulation("laser", "laser", lambda T: T / 25, (1, 2))
