@@ -34,7 +34,7 @@ def two_stream_instability(filename,
 
     filename = f"data_analysis/TS/{filename}/{filename}.hdf5"
 
-    grid = Grid(L=L, NG=NG, NT=NT)
+    grid = Grid(L=L, NG=NG, NT=NT, n_species=2)
     k0 = 2 * np.pi / L
     w0 = plasma_frequency
     expected_stability = k0 * v0 / w0 > 2 ** -0.5

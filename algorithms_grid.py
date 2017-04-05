@@ -4,6 +4,8 @@ import numpy as np
 from scipy import fftpack as fft
 
 
+# TODO: quadratic interpolation to and from grid
+
 def charge_density_deposition(x, dx, x_particles, particle_charge):
     """scatters charge from particles to grid
     uses linear interpolation
@@ -105,6 +107,41 @@ def PoissonSolver(rho, k, NG, epsilon_0=1, neutralize=True):
     potential_F = field_F / (-1j * k * epsilon_0)
     field = fft.ifft(field_F).real
     # TODO: check for differences with finite difference field gotten from potential
-    potential = fft.ifft(potential_F).real
     energy_presum = (rho_F * potential_F.conjugate()).real[:int(NG / 2)] / 2
-    return field, potential, energy_presum
+    return field, energy_presum
+
+
+def LeapfrogWaveInitial(field, derivative, c, dx, dt):
+    alpha = abs(c * dt / dx)
+    field_first = dt * derivative[1:-1] + \
+                        field[1:-1] * (1 - alpha ** 2) + \
+                        0.5 * alpha ** 2 * (field[:-2] + field[2:])
+    return field_first
+
+
+def LeapfrogWaveSolver(field_current, field_previous, c, dx, dt, epsilon_0=1):
+    """
+    Solves the Laplace equation for a wave with boundary condition at field[0].
+    d_dt V - d2_d2x V = 0
+    """
+    alpha = c * dt / dx
+    alpha2 = (alpha) ** 2
+    Q = (1 - alpha) / (1 + alpha)
+    field_result = np.zeros_like(field_current)
+    field_result[1:-1] = -field_previous[1:-1] + \
+                         alpha2 * (field_current[:-2] + field_current[2:]) + \
+                         2 * (1 - alpha2) * field_current[1:-1]
+    # field_result[0] = field_current[1] + Q * (field_current[0] - field_previous[1])
+    field_result[-1] = field_current[-2] + Q * (field_current[-1] - field_result[-2])
+
+    energy = 0.5 * epsilon_0 * dx * (field_result[1:-1] ** 2).sum()
+    return field_result, energy
+
+
+def laser_boundary_condition(t, t_0, tau_e, n, *args):
+    return np.exp(-(t - t_0) ** n / tau_e)
+
+
+def sine_boundary_condition(t, omega, *args):
+    return np.sin(omega * t)
+
