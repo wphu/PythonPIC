@@ -40,6 +40,11 @@ class Grid:
 
         self.solver_string = solver
         self.bc_string = bc
+
+        # specific to Poisson solver
+        self.k = 2 * np.pi * fft.fftfreq(NG, self.dx)
+        self.k[0] = 0.0001
+        self.k_plot = self.k[:int(NG / 2)]
         if solver == "direct":
             self.init_solver = self.initial_leapfrog
             self.solve = self.solve_leapfrog
@@ -49,10 +54,6 @@ class Grid:
             self.init_solver = self.initial_poisson
             self.solve = self.solve_poisson
             self.apply_bc = self.poisson_bc
-            # specific to Poisson solver
-            self.k = 2 * np.pi * fft.fftfreq(NG, self.dx)
-            self.k[0] = 0.0001
-            self.k_plot = self.k[:int(NG / 2)]
         else:
             assert False, "need a solver!"
 
@@ -98,7 +99,7 @@ class Grid:
 
     def solve_leapfrog(self):
         self.electric_field_backup = self.electric_field.copy()
-        self.electric_field[1:-1], self.energy_per_mode = LeapfrogWaveSolver(
+        self.electric_field, self.energy_per_mode = LeapfrogWaveSolver(
             self.electric_field, self.previous_field, self.c, self.dx, self.dt, self.epsilon_0)
         self.previous_field = self.electric_field_backup
         return self.energy_per_mode

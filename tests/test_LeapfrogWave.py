@@ -7,9 +7,7 @@ import pytest
 from Constants import Constants
 from Grid import Grid
 from Simulation import Simulation
-from algorithms_grid import LeapfrogWaveSolver, LeapfrogWaveInitial, sine_boundary_condition
 # TODO: use of multigrid methods for wave equation
-from helper_functions import l2_test
 from plotting import plotting
 
 
@@ -140,4 +138,5 @@ def test_Simulation(filename, bc, bc_parameter_function, bc_params):
 
 
 if __name__ == '__main__':
-    test_Simulation()
+    test_Simulation("sine", "sine", lambda T: 10, (0,))
+    test_Simulation("laser", "laser", lambda T: T / 25, (1, 2))
