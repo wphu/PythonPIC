@@ -22,7 +22,7 @@ def test_linear_dominant_mode(push_mode):
     calculated_dominant_mode = get_dominant_mode(S)
     assert calculated_dominant_mode == push_mode, (
         f"got {calculated_dominant_mode} instead of {push_mode}",
-        plotting(S, show=False, save=False, animate=False))
+        plotting(S, show=True, save=False, animate=True))
     return S
 
 

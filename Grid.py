@@ -107,7 +107,8 @@ class Grid:
     def gather_charge(self, list_species, i=0):
         self.charge_density[:] = 0.0
         for i_species, species in enumerate(list_species):
-            gathered_density = algorithms_grid.charge_density_deposition(self.x, self.dx, species.x, species.q)
+            gathered_density = algorithms_grid.charge_density_deposition(self.x, self.dx, species.x[species.alive],
+                                                                         species.q)
             assert gathered_density.size == self.NG
             self.charge_density_history[i, :, i_species] = gathered_density
             self.charge_density[1:-1] += gathered_density

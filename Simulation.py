@@ -72,7 +72,7 @@ class Simulation:
         for species in self.list_species:
             species.init_push(self.grid.electric_field_function, self.dt)
 
-    def iteration(self, i: int, periodic: bool = False):
+    def iteration(self, i: int, periodic: bool = True):
         """
 
         :param int i: iteration number
