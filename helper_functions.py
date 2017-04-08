@@ -78,5 +78,5 @@ def did_it_thermalize(S):
     return np.abs((initial_velocities - average_velocities)) > initial_velocity_stds
 
 
-colors = "brgykc"
+colors = "brgyc"
 directions = "xyz"

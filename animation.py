@@ -54,14 +54,18 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
 
     charge_plots = []
     current_plots = []
+    field_plots = []
+
     for i, species in enumerate(S.list_species):
         charge_plots.append(
-            grid_axes[0].plot(S.grid.x, S.grid.charge_density_history[0, :, i], ".-", color=colors[i], alpha=0.1)[0])
-        for j in range(3):
-            current_plots.append(grid_axes[j].plot(S.grid.x, S.grid.current_density_history[0, :, j, i], ".-",
-                                                   color=colors[3 * i + j], alpha=0.9,
-                                                   label=f"{species.name} $j_{directions[j]}$")[0])
+            grid_axes[0].plot(S.grid.x, S.grid.charge_density_history[0, :, i], ".-", label=f"{species.name} $\\rho$",
+                              color=colors[i], alpha=0.8)[0])
+
     for j in range(3):
+        for i, species in enumerate(S.list_species):
+            current_plots.append(grid_axes[j].plot(S.grid.x, S.grid.current_density_history[0, :, j, i], ".-",
+                                                   color=colors[i], alpha=0.9,
+                                                   label=f"{species.name} $j_{directions[j]}$")[0])
         grid_axes[j].set_xlim(0, S.grid.L)
         grid_axes[j].set_ylabel(f"Current density $j_{directions[j]}$", color='b')
         grid_axes[j].tick_params('y', colors='b')
@@ -73,23 +77,21 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
         grid_axes[j].grid()
         grid_axes[j].legend(loc='lower left')
 
-    field_axes = grid_axes[0].twinx()
-    field_axes.set_xlim(0, S.grid.L)
-    field_plot, = field_axes.plot([], [], "r.-", label="$E_x$")
-    field_axes.set_ylabel(r"Electric field $E$", color='r')
-    field_axes.tick_params('y', colors='r')
-    field_axes.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
-    maxfield = np.max(np.abs(S.grid.electric_field_history))
-    field_axes.grid()
-    field_axes.legend()
-    field_axes.set_ylim(-maxfield, maxfield)
+        field_axes = grid_axes[j].twinx()
+        field_axes.set_xlim(0, S.grid.L)
+        field_plots.append(field_axes.plot([], [], "k.-", label=f"$E_{directions[j]}$")[0])  # TODO: this is E_x for now
+        field_axes.set_ylabel(r"Electric field $E$", color='k')
+        field_axes.tick_params('y', colors='k')
+        field_axes.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
+        maxfield = np.max(np.abs(S.grid.electric_field_history))
+        field_axes.grid()
+        field_axes.legend(loc='upper right')
+        field_axes.set_ylim(-maxfield, maxfield)
 
     phase_dots = {}
     phase_lines = {}
     for i, species in enumerate(S.list_species):
         phase_dots[species.name], = phase_axes.plot([], [], colors[i] + ".", alpha=alpha)
-        if lines:
-            phase_lines[species.name], = phase_axes.plot([], [], colors[i] + "-", alpha=alpha / 2, lw=0.7)
     try:
         maxv = max([10 * np.mean(np.abs(species.velocity_history)) for species in S.list_species])
         phase_axes.set_ylim(-maxv, maxv)
@@ -128,45 +130,35 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
     def init():
         """initializes animation window for faster drawing"""
         iteration.set_text("Iteration: ")
-        field_plot.set_data(S.grid.x, np.zeros_like(S.grid.x))
-        freq_plot.set_data(S.grid.k_plot, np.zeros_like(S.grid.k_plot))
-        for i, species, histogram in zip(range(S.grid.n_species), S.list_species, histograms):
-            charge_plots[i].set_data(S.grid.x, np.zeros_like(S.grid.x))
-            phase_dots[species.name].set_data([], [])
-            for j in range(3):
-                current_plots[3 * i + j].set_data(S.grid.x, np.zeros_like(S.grid.x))
-            if lines:
-                phase_lines[species.name].set_data([], [])
-            histogram.set_data([], [])
-        if lines:
-            return [*current_plots, *charge_plots, field_plot, *phase_dots.values(), iteration,
-                    *phase_lines.values()]
-        else:
-            return [*current_plots, *charge_plots, field_plot, freq_plot, *phase_dots.values(), iteration]
+        freq_plot.set_data([], [])
+        for i in range(len(S.list_species)):
+            charge_plots[i].set_data([], [])
+        for j in range(3):
+            field_plots[j].set_data([], [])
+            for i, species, histogram in zip(range(S.grid.n_species), S.list_species, histograms):
+                phase_dots[species.name].set_data([], [])
+                current_plots[3 * i + j].set_data([], [])
+                histogram.set_data([], [])
+        return [*current_plots, *charge_plots, *field_plots, freq_plot, *phase_dots.values(), iteration]
 
     def animate(i):
         """draws the i-th frame of the simulation"""
-        field_plot.set_ydata(S.grid.electric_field_history[i])
-        freq_plot.set_ydata(S.grid.energy_per_mode_history[i])
-        for i_species, species, histogram, bin_array in zip(range(S.grid.n_species), S.list_species, histograms,
-                                                            bin_arrays):
-            charge_plots[i_species].set_ydata(S.grid.charge_density_history[i, :, i_species])
-            phase_dots[species.name].set_data(species.position_history[i, :], species.velocity_history[i, :, 0])
-            for j in range(3):
-                current_plots[3 * i_species + j].set_ydata(S.grid.current_density_history[i, :, j, i_species])
-            if lines:
-                phase_lines[species.name].set_data(species.position_history[:i + 1, ::10].T,
-                                                   species.velocity_history[:i + 1, ::10, 0].T)
-            histogram.set_data(*velocity_histogram_data(species.velocity_history[i], bin_array))
+        freq_plot.set_data(S.grid.k_plot, S.grid.energy_per_mode_history[i])
         iteration.set_text(f"Iteration: {i}/{S.NT}\nTime: {i*S.dt:.3g}/{S.NT*S.dt:.3g}")
+        for i_species in range(len(S.list_species)):
+            charge_plots[i_species].set_data(S.grid.x, S.grid.charge_density_history[i, :, i_species])
+        for j in range(3):
+            field_plots[j].set_data(S.grid.x, S.grid.electric_field_history[i])
+            for i_species, species, histogram, bin_array in zip(range(S.grid.n_species), S.list_species, histograms,
+                                                                bin_arrays):
+                phase_dots[species.name].set_data(species.position_history[i, :], species.velocity_history[i, :, 0])
+                current_plots[S.grid.n_species * j + i_species].set_data(S.grid.x,
+                                                                         S.grid.current_density_history[i, :, j,
+                                                                         i_species])
+                histogram.set_data(*velocity_histogram_data(species.velocity_history[i], bin_array))
 
-        if lines:
-            return [*current_plots, *charge_plots, field_plot, freq_plot, *histograms, *phase_dots.values(),
-                    iteration,
-                    *phase_lines.values()]
-        else:
-            return [*current_plots, *charge_plots, field_plot, freq_plot, *histograms, *phase_dots.values(),
-                    iteration]
+        return [*current_plots, *charge_plots, *field_plots, freq_plot, *histograms, *phase_dots.values(),
+                iteration]
 
     animation_object = anim.FuncAnimation(fig, animate, interval=100, frames=np.arange(0, S.NT, int(np.log10(S.NT))),
                                           blit=True, init_func=init)
