@@ -51,9 +51,8 @@ def current_density_deposition(x, dx, x_particles, particle_charge, velocity):
     # import ipdb; ipdb.set_trace()
     current_to_right = particle_charge * velocity * right_fractions.reshape(x_particles.size,1) 
     current_to_left = particle_charge * velocity * left_fractions.reshape(x_particles.size, 1)
-    print(current_to_left.shape) 
-    # OPTIMIZE: vectorise this instead of looping over dimensions
-    current_hist = np.zeros((x_particles.size, 3))
+    # OPTIMIZE: vectorise the following instead of looping over dimensions
+    current_hist = np.zeros((x.size, 3))
     for dim in range(3):
         current_hist[:, dim] += np.bincount(logical_coordinates, current_to_left[:, dim], minlength=x.size)
         current_hist[:, dim] += np.roll(np.bincount(logical_coordinates, current_to_right[:, dim], minlength=x.size),

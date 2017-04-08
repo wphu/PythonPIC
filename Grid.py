@@ -110,7 +110,6 @@ class Grid:
         for i_species, species in enumerate(list_species):
             gathered_density = algorithms_grid.charge_density_deposition(self.x, self.dx, species.x[species.alive],
                                                                          species.q)
-            assert gathered_density.size == self.NG
             self.charge_density_history[i, :, i_species] = gathered_density
             self.charge_density[1:-1] += gathered_density
 
@@ -119,7 +118,6 @@ class Grid:
         for i_species, species in enumerate(list_species):
             gathered_current = algorithms_grid.current_density_deposition(self.x, self.dx, species.x, species.q,
                                                                                species.v)
-            assert gathered_current.size == self.NG
             self.current_density_history[i, :, :, i_species] = gathered_current
             self.current_density[1:-1] += gathered_current
 
@@ -127,7 +125,7 @@ class Grid:
         return interpolateField(xp, self.electric_field[1:-1], self.x, self.dx)  # OPTIMIZE: this is probably slow
 
     def save_field_values(self, i):
-        """Update the i-th set of field values"""
+        """Update the i-th set of field values, without those gathered from interpolation (charge\current)"""
         self.electric_field_history[i] = self.electric_field[1:-1]
         self.energy_per_mode_history[i] = self.energy_per_mode
         self.grid_energy_history[i] = self.energy_per_mode.sum() / (self.NG / 2)
@@ -147,6 +145,7 @@ class Grid:
         grid_data.create_dataset(name="Efield", dtype=float, data=self.electric_field_history)
         grid_data.create_dataset(name="energy per mode", dtype=float, data=self.energy_per_mode_history)
         grid_data.create_dataset(name="grid energy", dtype=float, data=self.grid_energy_history)
+        grid_data.create_dataset(name="current", dtype=float, data=self.current_density_history)
 
     def load_from_h5py(self, grid_data):
         """
@@ -162,8 +161,10 @@ class Grid:
         self.x = grid_data['x'][...]
         self.dx = self.x[1] - self.x[0]
         self.charge_density_history = grid_data['rho'][...]
+        self.current_density_history = grid_data['current'][...]
         self.electric_field_history = grid_data['Efield'][...]
-        self.energy_per_mode_history = grid_data["energy per mode"][...]
+        self.energy_per_mode_history = grid_data["energy per mode"][
+            ...]  # OPTIMIZE: this can be calculated during analysis
         self.grid_energy_history = grid_data["grid energy"][...]
 
     def __eq__(self, other):
