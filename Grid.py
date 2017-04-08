@@ -33,6 +33,7 @@ class Grid:
         self.epsilon_0 = epsilon_0
         self.n_species = n_species
         self.charge_density_history = np.zeros((NT, self.NG, n_species))
+        self.current_density_history = np.zeros((NT, self.NG, 3, n_species))
         self.electric_field_history = np.zeros((NT, self.NG))
         self.energy_per_mode_history = np.zeros(
             (NT, int(self.NG / 2)))  # OPTIMIZE: get this from efield_history?
@@ -113,11 +114,14 @@ class Grid:
             self.charge_density_history[i, :, i_species] = gathered_density
             self.charge_density[1:-1] += gathered_density
 
-    # def gather_current(self, list_species):
-    #     self.current_density = np.zeros((self.NG, 3))
-    #     for species in list_species:
-    #         self.current_density += algorithms_grid.current_density_deposition(self.x, self.dx, species.x, species.q,
-    #                                                                            species.v)
+    def gather_current(self, list_species, i=0):
+        self.current_density[:] = 0.0
+        for i_species, species in enumerate(list_species):
+            gathered_current = algorithms_grid.current_density_deposition(self.x, self.dx, species.x, species.q,
+                                                                               species.v)
+            assert gathered_current.size == self.NG
+            self.current_density_history[i, :, :, i_species] = gathered_current
+            self.current_density[1:-1] += gathered_current
 
     def electric_field_function(self, xp):
         return interpolateField(xp, self.electric_field[1:-1], self.x, self.dx)  # OPTIMIZE: this is probably slow

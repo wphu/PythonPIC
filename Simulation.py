@@ -63,7 +63,7 @@ class Simulation:
         3. initializes pusher via a step back
         """
         self.grid.gather_charge(self.list_species)
-
+        self.grid.gather_current(self.list_species)
         self.grid.init_solver()  # REFACTOR: allow for abstract field solver for relativistic case
         # this would go like
         # self.grid.solve_field()
@@ -98,6 +98,7 @@ class Simulation:
             total_kinetic_energy += kinetic_energy
         self.grid.apply_bc(i)
         self.grid.gather_charge(self.list_species, i)
+        self.grid.gather_current(self.list_species, i)
         fourier_field_energy = self.grid.solve()
         self.grid.grid_energy_history[i] = fourier_field_energy
         self.total_energy[i] = total_kinetic_energy + fourier_field_energy

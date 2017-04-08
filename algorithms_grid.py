@@ -3,9 +3,6 @@
 import numpy as np
 from scipy import fftpack as fft
 
-
-# TODO: quadratic interpolation to and from grid
-
 def charge_density_deposition(x, dx, x_particles, particle_charge):
     """scatters charge from particles to grid
     uses linear interpolation
@@ -48,13 +45,15 @@ def current_density_deposition(x, dx, x_particles, particle_charge, velocity):
     to change the index for the right going  (keeping periodic boundary conditions)
     numpy.roll is used
     """
-    current_hist = np.zeros((x.size, 3))
     logical_coordinates = (x_particles / dx).astype(int)
-    right_fractions = (x_particles / dx - logical_coordinates).reshape(x_particles.size, 1)
+    right_fractions = x_particles / dx - logical_coordinates
     left_fractions = 1 - right_fractions
-    current_to_right = particle_charge * velocity * right_fractions
-    current_to_left = particle_charge * velocity * left_fractions
+    # import ipdb; ipdb.set_trace()
+    current_to_right = particle_charge * velocity * right_fractions.reshape(x_particles.size,1) 
+    current_to_left = particle_charge * velocity * left_fractions.reshape(x_particles.size, 1)
+    print(current_to_left.shape) 
     # OPTIMIZE: vectorise this instead of looping over dimensions
+    current_hist = np.zeros((x_particles.size, 3))
     for dim in range(3):
         current_hist[:, dim] += np.bincount(logical_coordinates, current_to_left[:, dim], minlength=x.size)
         current_hist[:, dim] += np.roll(np.bincount(logical_coordinates, current_to_right[:, dim], minlength=x.size),
