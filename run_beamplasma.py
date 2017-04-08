@@ -38,7 +38,7 @@ def weakbeam_instability(filename,
     
     
     """
-    print("Running two stream instability")
+    print("Running beam-plasma instability")
     particle_mass = 1
     particle_charge = particle_mass * qmratio
 
@@ -51,8 +51,8 @@ def weakbeam_instability(filename,
     grid = Grid(L=L, NG=NG, NT=NT, n_species=2)
     plasma = Species(particle_charge, particle_mass, N_plasma, "plasma", NT, scaling(N_plasma))
     beam = Species(particle_charge, particle_mass, N_beam, "beam2", NT, scaling(N_plasma))
-    beam.v[:] = v0
-    plasma.v[:] = 0
+    beam.v[:, 0] = v0
+    plasma.v[:, 0] = 0
     list_species = [beam, plasma]
     for i, species in enumerate(list_species):
         species.distribute_uniformly(L, 0.5 * grid.dx * i)
@@ -62,7 +62,7 @@ def weakbeam_instability(filename,
     description = f"Weak beam instability - beam with $v_0$ {v0:.2f} in cold plasma"
     if vrandom:
         description += f" + thermal $v_1$ of standard dev. {vrandom:.2f}"
-
+    description += "\n"
     run = Simulation(NT, dt, Constants(1, epsilon_0),
                      grid, list_species, filename=filename, title=description)
     run.grid_species_initialization()

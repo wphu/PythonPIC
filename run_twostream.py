@@ -41,8 +41,8 @@ def two_stream_instability(filename,
     print("k0*v0/w0 is", k0 * v0 / w0, "which means the regime is", "stable" if expected_stability else "unstable")
     electrons1 = Species(particle_charge, particle_mass, N_electrons, "beam1", NT, scaling)
     electrons2 = Species(species_2_sign * particle_charge, particle_mass, N_electrons, "beam2", NT, scaling)
-    electrons1.v[:] = v0
-    electrons2.v[:] = -v0
+    electrons1.v[:, 0] = v0
+    electrons2.v[:, 0] = -v0
     list_species = [electrons1, electrons2]
     for i, species in enumerate(list_species):
         species.distribute_uniformly(L, 0.5 * grid.dx * i)
@@ -64,36 +64,41 @@ def two_stream_instability(filename,
 
 if __name__ == '__main__':
     np.random.seed(0)
+    show, save, animate = plotting_parser("Two stream instability")
     simulations = [
-        two_stream_instability("TS1",
+        plotting.plotting(two_stream_instability("TS1",
+                               NG=64,
+                               N_electrons=512,
+                               NT=300 * 5
+                               ), show=show, alpha=0.5, save=save, animate=animate),
+        plotting.plotting(two_stream_instability("TS2",
                                NG=64,
                                N_electrons=512,
                                plasma_frequency=5,
                                dt=0.2 / 5,
                                NT=300 * 5
-                               ),
-        two_stream_instability("TS3",
+                               ), show=show, alpha=0.5, save=save, animate=animate),
+        plotting.plotting(two_stream_instability("TS3",
                                NG=64,
                                N_electrons=1024,
                                plasma_frequency=10,
                                dt=0.2 / 5,
                                NT=300 * 5
-                               ),
-        two_stream_instability("TSRANDOM1",
+                               ), show=show, alpha=0.5, save=save, animate=animate),
+        plotting.plotting(two_stream_instability("TSRANDOM1",
                                NG=64,
                                N_electrons=1024,
                                vrandom=1e-1,
-                               ),
-        two_stream_instability("TSRANDOM2",
+                               ), show=show, alpha=0.5, save=save, animate=animate),
+        plotting.plotting(two_stream_instability("TSRANDOM2",
                                NG=64,
                                N_electrons=1024,
                                plasma_frequency=5,
                                dt=0.2 / 5,
                                NT=300 * 5,
                                vrandom=1e-1,
-                               ),
+                               ), show=show, alpha=0.5, save=save, animate=animate),
         ]
 
-    show, save, animate = plotting_parser("Two stream instability")
     for s in simulations:
         plotting.plotting(s, show=show, alpha=0.5, save=save, animate=animate)

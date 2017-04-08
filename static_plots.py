@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import gridspec
 
+from helper_functions import directions, colors
+
 
 def static_plot_window(S, N, M):
     fig = plt.figure(figsize=(10, 8))
@@ -125,11 +127,14 @@ def phase_trajectories(S, axis, all=False):
 
 
 def velocity_time_plots(S, axis):
-    labels = [r"$v_x$", r"$v_y$", r"$v_z$"]
-    t = np.arange(S.NT)
+    t = np.arange(S.NT)*S.dt
     for s in S.list_species:
         for i in range(3):
-            axis.plot(t, s.velocity_history[:, int(s.N / 2), i], label=s.name + labels[i])
+            velocity = s.velocity_history[:, :, i]
+            mean = velocity.mean(axis=1)
+            std = velocity.std(axis=1)
+            axis.plot(t, mean, "-", color=colors[i], label=f"{s.name} $v_{directions[i]}$", alpha=1)
+            axis.fill_between(t, mean-std, mean+std, color=colors[i], alpha=0.3)
     axis.set_xlabel(r"Time $t$")
     axis.set_ylabel(r"Velocity $v$")
     if len(S.list_species) > 1:
@@ -146,7 +151,7 @@ def static_plots(S, filename=False):
     ESE_time_plots(S, axes[0][0])
     temperature_time_plot(S, axes[1][0])
     energy_time_plots(S, axes[2][0])
-    phase_trajectories(S, axes[0][1])
+    velocity_time_plots(S, axes[0][1])
     axes[0][1].yaxis.tick_right()
     axes[0][1].yaxis.set_label_position("right")
     velocity_distribution_plots(S, axes[1][1])

@@ -4,8 +4,7 @@ import matplotlib.animation as anim
 import matplotlib.pyplot as plt
 import numpy as np
 
-colors = "brgykc"
-directions = "xyz"
+from helper_functions import colors, directions
 
 
 # formatter = matplotlib.ticker.ScalarFormatter(useMathText=True, useOffset=False)
@@ -64,7 +63,7 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
                                                    label=f"{species.name} $j_{directions[j]}$")[0])
     for j in range(3):
         grid_axes[j].set_xlim(0, S.grid.L)
-        grid_axes[j].set_ylabel(r"Charge density $\rho$", color='b')
+        grid_axes[j].set_ylabel(f"Current density $j_{directions[j]}$", color='b')
         grid_axes[j].tick_params('y', colors='b')
         grid_axes[j].set_xlabel(r"Position $x$")
         grid_axes[j].ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
@@ -72,7 +71,7 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
         maxcharge = np.max(S.grid.current_density_history)
         grid_axes[j].set_ylim(mincharge, maxcharge)
         grid_axes[j].grid()
-        grid_axes[j].legend()
+        grid_axes[j].legend(loc='lower left')
 
     field_axes = grid_axes[0].twinx()
     field_axes.set_xlim(0, S.grid.L)
