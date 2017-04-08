@@ -48,8 +48,7 @@ def current_density_deposition(x, dx, x_particles, particle_charge, velocity):
     logical_coordinates = (x_particles / dx).astype(int)
     right_fractions = x_particles / dx - logical_coordinates
     left_fractions = 1 - right_fractions
-    # import ipdb; ipdb.set_trace()
-    current_to_right = particle_charge * velocity * right_fractions.reshape(x_particles.size,1) 
+    current_to_right = particle_charge * velocity * right_fractions.reshape(x_particles.size, 1)
     current_to_left = particle_charge * velocity * left_fractions.reshape(x_particles.size, 1)
     # OPTIMIZE: vectorise the following instead of looping over dimensions
     current_hist = np.zeros((x.size, 3))
