@@ -40,11 +40,11 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
     returns: matplotlib figure with animation
     """
     fig = plt.figure(figsize=(10, 8))
-    charge_axes = fig.add_subplot(221)
-    distribution_axes = fig.add_subplot(222)
+    grid_axes = [fig.add_subplot(321 + 2 * i) for i in range(3)]
+    distribution_axes = fig.add_subplot(322)
     # TODO: add magnetic field
-    phase_axes = fig.add_subplot(223)
-    freq_axes = fig.add_subplot(224)
+    phase_axes = fig.add_subplot(324)
+    freq_axes = fig.add_subplot(326)
 
     iteration = freq_axes.text(0.1, 0.9, 'i=x', horizontalalignment='left',
                                verticalalignment='center', transform=freq_axes.transAxes)
@@ -57,30 +57,32 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
     current_plots = []
     for i, species in enumerate(S.list_species):
         charge_plots.append(
-            charge_axes.plot(S.grid.x, S.grid.charge_density_history[0, :, i], ".-", color=colors[i], alpha=0.1)[0])
+            grid_axes[0].plot(S.grid.x, S.grid.charge_density_history[0, :, i], ".-", color=colors[i], alpha=0.1)[0])
         for j in range(3):
-            current_plots.append(charge_axes.plot(S.grid.x, S.grid.current_density_history[0, :, j, i], ".-",
-                                                  color=colors[3 * i + j], alpha=0.9,
-                                                  label=f"{species.name} $j_{directions[j]}$")[0])
-    charge_axes.set_xlim(0, S.grid.L)
-    charge_axes.set_ylabel(r"Charge density $\rho$", color='b')
-    charge_axes.tick_params('y', colors='b')
-    charge_axes.set_xlabel(r"Position $x$")
-    charge_axes.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
-    mincharge = np.min(S.grid.current_density_history)
-    maxcharge = np.max(S.grid.current_density_history)
-    charge_axes.set_ylim(mincharge, maxcharge)
-    charge_axes.grid()
-    charge_axes.legend()
+            current_plots.append(grid_axes[j].plot(S.grid.x, S.grid.current_density_history[0, :, j, i], ".-",
+                                                   color=colors[3 * i + j], alpha=0.9,
+                                                   label=f"{species.name} $j_{directions[j]}$")[0])
+    for j in range(3):
+        grid_axes[j].set_xlim(0, S.grid.L)
+        grid_axes[j].set_ylabel(r"Charge density $\rho$", color='b')
+        grid_axes[j].tick_params('y', colors='b')
+        grid_axes[j].set_xlabel(r"Position $x$")
+        grid_axes[j].ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
+        mincharge = np.min(S.grid.current_density_history)
+        maxcharge = np.max(S.grid.current_density_history)
+        grid_axes[j].set_ylim(mincharge, maxcharge)
+        grid_axes[j].grid()
+        grid_axes[j].legend()
 
-    field_axes = charge_axes.twinx()
+    field_axes = grid_axes[0].twinx()
     field_axes.set_xlim(0, S.grid.L)
-    field_plot, = field_axes.plot([], [], "r.-")
+    field_plot, = field_axes.plot([], [], "r.-", label="$E_x$")
     field_axes.set_ylabel(r"Electric field $E$", color='r')
     field_axes.tick_params('y', colors='r')
     field_axes.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
     maxfield = np.max(np.abs(S.grid.electric_field_history))
     field_axes.grid()
+    field_axes.legend()
     field_axes.set_ylim(-maxfield, maxfield)
 
     phase_dots = {}
