@@ -63,7 +63,7 @@ def temperature_time_plot(S, axis, twinaxis=True):
         if twinaxis:
             axis.plot(t, meanv2[:, 0], "--", label=species.name + r" $<v^2>$", alpha=0.5)
             axis.plot(t, meanv[:, 0] ** 2, "--", label=species.name + r" $<v>^2$", alpha=0.5)
-    axis.legend(loc='center right', ncol=len(S.list_species), prop=fontP)
+    axis.legend(loc='center right', ncol=S.grid.n_species, prop=fontP)
     axis.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True, useOffset=False)
     axis.grid()
     axis.set_xlabel(r"Time $t$")
@@ -95,7 +95,7 @@ def velocity_distribution_plots(S, axis, i=0):
         axis.hist(species.velocity_history[i, :, 0], bins=50, alpha=0.5, label=species.name)
     axis.set_title("Velocity distribution at iteration %d" % i)
     axis.grid()
-    if len(S.list_species) > 1:
+    if S.grid.n_species > 1:
         axis.legend(loc='upper right')
     axis.set_xlabel(r"Velocity $v$")
     axis.set_ylabel(r"Number of superparticles")
@@ -115,7 +115,7 @@ def phase_trajectories(S, axis, all=False):
             axis.set_title("Phase space plot for particle {}".format(i))
         axis.plot(x, y, ".", label=species.name)
     axis.set_xlim(0, S.grid.L)
-    if len(S.list_species) > 1:
+    if S.grid.n_species > 1:
         axis.legend()
     axis.set_xlabel(r"Position $x$")
     axis.set_ylabel(r"Velocity $v_x$")
@@ -137,7 +137,7 @@ def velocity_time_plots(S, axis):
             axis.fill_between(t, mean-std, mean+std, color=colors[i], alpha=0.3)
     axis.set_xlabel(r"Time $t$")
     axis.set_ylabel(r"Velocity $v$")
-    if len(S.list_species) > 1:
+    if S.grid.n_species > 1:
         axis.legend()
     axis.grid()
     axis.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)

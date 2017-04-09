@@ -131,7 +131,7 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
         """initializes animation window for faster drawing"""
         iteration.set_text("Iteration: ")
         freq_plot.set_data([], [])
-        for i in range(len(S.list_species)):
+        for i in range(S.grid.n_species):
             charge_plots[i].set_data([], [])
         for j in range(3):
             field_plots[j].set_data([], [])
@@ -145,7 +145,7 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
         """draws the i-th frame of the simulation"""
         freq_plot.set_data(S.grid.k_plot, S.grid.energy_per_mode_history[i])
         iteration.set_text(f"Iteration: {i}/{S.NT}\nTime: {i*S.dt:.3g}/{S.NT*S.dt:.3g}")
-        for i_species in range(len(S.list_species)):
+        for i_species in range(S.grid.n_species):
             charge_plots[i_species].set_data(S.grid.x, S.grid.charge_density_history[i, :, i_species])
         for j in range(3):
             field_plots[j].set_data(S.grid.x, S.grid.electric_field_history[i])
