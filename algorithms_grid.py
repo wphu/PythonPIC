@@ -109,6 +109,14 @@ def PoissonSolver(rho, k, NG, epsilon_0=1, neutralize=True):
     return field, energy_presum
 
 
+def BunemanSolver(field, current, dt, epsilon_0):
+    dE = - dt * current / epsilon_0
+    result = field + dE
+    # result[-1] = result[0] # TODO: check boundary condition
+    return result
+
+
+
 def LeapfrogWaveInitial(field, derivative, c, dx, dt):
     alpha = abs(c * dt / dx)
     field_first = dt * derivative[1:-1] + \

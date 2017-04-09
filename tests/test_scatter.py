@@ -2,7 +2,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from Grid import Grid#, RelativisticGrid
+from Grid import Grid
 from Species import Species
 from algorithms_grid import charge_density_deposition
 

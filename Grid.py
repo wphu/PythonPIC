@@ -4,7 +4,6 @@ import numpy as np
 import scipy.fftpack as fft
 
 import algorithms_grid
-from algorithms_grid import interpolateField, PoissonSolver, LeapfrogWaveInitial, LeapfrogWaveSolver
 
 
 class Grid:
@@ -12,7 +11,7 @@ class Grid:
     """
 
     def __init__(self, L: float = 2 * np.pi, NG: int = 32, epsilon_0: float = 1, NT: float = 1, c: float = 1,
-                 dt: float = 1, n_species: int = 1, solver="poisson", bc="sine",
+                 dt: float = 1, n_species: int = 1, solver="buneman", bc="sine",
                  bc_params=(1,)):
         """
         :param float L: grid length, in nondimensional units
@@ -61,6 +60,10 @@ class Grid:
             self.init_solver = self.initial_poisson
             self.solve = self.solve_poisson
             self.apply_bc = self.poisson_bc
+        elif solver == "buneman":
+            self.init_solver = self.initial_buneman
+            self.solve = self.solve_buneman
+            self.apply_bc = self.poisson_bc
         else:
             assert False, "need a solver!"
 
@@ -85,7 +88,7 @@ class Grid:
         Solves
         :return float energy:
         """
-        self.electric_field[1:-1, 0], self.energy_per_mode = PoissonSolver(
+        self.electric_field[1:-1, 0], self.energy_per_mode = algorithms_grid.PoissonSolver(
             self.charge_density[1:-1], self.k, self.NG, epsilon_0=self.epsilon_0, neutralize=neutralize
             )
         return self.energy_per_mode.sum() / (self.NG / 2)  # * 8 * np.pi * self.k[1]**2
@@ -99,15 +102,24 @@ class Grid:
     def leapfrog_bc(self, i):
         self.electric_field[0, :] = self.bc_function(i * self.dt, *self.bc_params)
 
+    def initial_buneman(self):
+        pass
+
+    def solve_buneman(self):
+        self.electric_field = algorithms_grid.BunemanSolver(self.electric_field, self.current_density, self.dt,
+                                                            self.epsilon_0)
+        return self.direct_energy_calculation()
+
     def initial_leapfrog(self):
-        self.previous_field[1:-1, 0] = LeapfrogWaveInitial(self.electric_field[:, 0],
-                                                           np.zeros_like(self.electric_field[:, 0]), self.c,
-                                                           self.dx,
-                                                           self.dt)
+        self.previous_field[1:-1, 0] = algorithms_grid.LeapfrogWaveInitial(self.electric_field[:, 0],
+                                                                           np.zeros_like(self.electric_field[:, 0]),
+                                                                           self.c,
+                                                                           self.dx,
+                                                                           self.dt)
 
     def solve_leapfrog(self):
         self.electric_field_backup = self.electric_field.copy()
-        self.electric_field[:, 0], self.energy_per_mode = LeapfrogWaveSolver(
+        self.electric_field[:, 0], self.energy_per_mode = algorithms_grid.LeapfrogWaveSolver(
             self.electric_field[:, 0], self.previous_field[:, 0], self.c, self.dx, self.dt, self.epsilon_0)
         self.previous_field = self.electric_field_backup
         return self.energy_per_mode
@@ -130,7 +142,8 @@ class Grid:
 
     def electric_field_function(self, xp):
         # TODO: this only takes x right now
-        return interpolateField(xp, self.electric_field[1:-1, 0], self.x, self.dx)  # OPTIMIZE: this is probably slow
+        return algorithms_grid.interpolateField(xp, self.electric_field[1:-1, 0], self.x,
+                                                self.dx)  # OPTIMIZE: this is probably slow
 
     def save_field_values(self, i):
         """Update the i-th set of field values, without those gathered from interpolation (charge\current)"""
