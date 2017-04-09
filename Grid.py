@@ -25,7 +25,7 @@ class Grid:
         self.charge_density = np.zeros(NG + 2)
         self.current_density = np.zeros((NG + 2, 3))
         self.electric_field = np.zeros((NG + 2, 3))
-        self.magnetic_field = np.zeros((NG + 2, 3))
+        self.magnetic_field = np.zeros((NG + 2, 2))
         self.energy_per_mode = np.zeros(int(NG / 2))
 
         self.L = L
@@ -39,7 +39,7 @@ class Grid:
         self.charge_density_history = np.zeros((NT, self.NG, n_species))
         self.current_density_history = np.zeros((NT, self.NG, 3, n_species))
         self.electric_field_history = np.zeros((NT, self.NG, 3))
-        self.magnetic_field_history = np.zeros((NT, self.NG, 3))
+        self.magnetic_field_history = np.zeros((NT, self.NG, 2))
 
         self.energy_per_mode_history = np.zeros(
             (NT, int(self.NG / 2)))  # OPTIMIZE: get this from efield_history?
