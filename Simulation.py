@@ -64,10 +64,7 @@ class Simulation:
         """
         self.grid.gather_charge(self.list_species)
         self.grid.gather_current(self.list_species)
-        self.grid.init_solver()  # REFACTOR: allow for abstract field solver for relativistic case
-        # this would go like
-        # self.grid.solve_field()
-        # and the backend would call solve_poisson or solve_relativistic_bs_poisson_maxwell_whatever
+        self.grid.init_solver()
         self.grid.apply_bc(0)
         for species in self.list_species:
             species.init_push(self.grid.electric_field_function, self.dt)

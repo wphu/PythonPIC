@@ -47,6 +47,8 @@ class Species:
 
         self.position_history = np.zeros((NT, self.saved_particles))
         self.velocity_history = np.zeros((NT, self.saved_particles, 3))
+        self.velocity_mean_history = np.zeros((NT, 3))
+        self.velocity_std_history = np.zeros((NT, 3))
         self.alive_history = np.zeros((NT, self.saved_particles), dtype=bool)
         self.kinetic_energy_history = np.zeros(NT)
 
@@ -147,6 +149,8 @@ class Species:
         """Update the i-th set of particle values"""
         self.position_history[i] = self.x[::self.save_every_n_particle]
         self.velocity_history[i] = self.v[::self.save_every_n_particle]
+        self.velocity_mean_history[i] = self.v[self.alive].mean(axis=0)
+        self.velocity_std_history[i] = self.v[self.alive].std(axis=0)
 
     def save_to_h5py(self, species_data):
         """
@@ -163,6 +167,9 @@ class Species:
         species_data.create_dataset(name="alive", dtype=float, data=self.alive)
         species_data.create_dataset(name="Kinetic energy", dtype=float, data=self.kinetic_energy_history)
 
+        species_data.create_dataset(name="v_mean", dtype=float, data=self.velocity_mean_history)
+        species_data.create_dataset(name="v_std", dtype=float, data=self.velocity_std_history)
+
     def load_from_h5py(self, species_data):
         # REFACTOR: move this out of class (like Simulation.load_data)
         """
@@ -173,6 +180,9 @@ class Species:
         self.N = species_data.attrs['N']
         self.q = species_data.attrs['q']
         self.m = species_data.attrs['m']
+
+        self.velocity_mean_history = species_data["v_mean"][...]
+        self.velocity_std_history = species_data["v_std"][...]
 
         self.position_history = species_data["x"][...]
         self.velocity_history = species_data["v"][...]

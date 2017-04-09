@@ -130,9 +130,8 @@ def velocity_time_plots(S, axis):
     t = np.arange(S.NT)*S.dt
     for s in S.list_species:
         for i in range(3):
-            velocity = s.velocity_history[:, :, i]
-            mean = velocity.mean(axis=1)
-            std = velocity.std(axis=1)
+            mean = s.velocity_mean_history[:, i]
+            std = s.velocity_std_history[:, i]
             axis.plot(t, mean, "-", color=colors[i], label=f"{s.name} $v_{directions[i]}$", alpha=1)
             axis.fill_between(t, mean-std, mean+std, color=colors[i], alpha=0.3)
     axis.set_xlabel(r"Time $t$")
