@@ -24,17 +24,23 @@ class Grid:
         self.dt = dt
         self.charge_density = np.zeros(NG + 2)
         self.current_density = np.zeros((NG + 2, 3))
-        self.electric_field = np.zeros(NG + 2)
-        self.c = c
+        self.electric_field = np.zeros((NG + 2, 3))
+        self.magnetic_field = np.zeros((NG + 2, 3))
         self.energy_per_mode = np.zeros(int(NG / 2))
+
         self.L = L
         self.NG = int(NG)
         self.NT = NT
+
+        self.c = c
         self.epsilon_0 = epsilon_0
         self.n_species = n_species
+
         self.charge_density_history = np.zeros((NT, self.NG, n_species))
         self.current_density_history = np.zeros((NT, self.NG, 3, n_species))
-        self.electric_field_history = np.zeros((NT, self.NG))
+        self.electric_field_history = np.zeros((NT, self.NG, 3))
+        self.magnetic_field_history = np.zeros((NT, self.NG, 3))
+
         self.energy_per_mode_history = np.zeros(
             (NT, int(self.NG / 2)))  # OPTIMIZE: get this from efield_history?
         self.grid_energy_history = np.zeros(NT)  # OPTIMIZE: get this from efield_history
@@ -42,7 +48,7 @@ class Grid:
         self.solver_string = solver
         self.bc_string = bc
 
-        # specific to Poisson solver
+        # specific to Poisson solver but used also elsewhere, for plotting # TODO: clear this part up
         self.k = 2 * np.pi * fft.fftfreq(NG, self.dx)
         self.k[0] = 0.0001
         self.k_plot = self.k[:int(NG / 2)]
@@ -79,7 +85,7 @@ class Grid:
         Solves
         :return float energy:
         """
-        self.electric_field[1:-1], self.energy_per_mode = PoissonSolver(
+        self.electric_field[1:-1, 0], self.energy_per_mode = PoissonSolver(
             self.charge_density[1:-1], self.k, self.NG, epsilon_0=self.epsilon_0, neutralize=neutralize
             )
         return self.energy_per_mode.sum() / (self.NG / 2)  # * 8 * np.pi * self.k[1]**2
@@ -91,17 +97,18 @@ class Grid:
         pass
 
     def leapfrog_bc(self, i):
-        self.electric_field[0] = self.bc_function(i * self.dt, *self.bc_params)
+        self.electric_field[0, :] = self.bc_function(i * self.dt, *self.bc_params)
 
     def initial_leapfrog(self):
-        self.previous_field[1:-1] = LeapfrogWaveInitial(self.electric_field, np.zeros_like(self.electric_field), self.c,
-                                                  self.dx,
-                                                  self.dt)
+        self.previous_field[1:-1, 0] = LeapfrogWaveInitial(self.electric_field[:, 0],
+                                                           np.zeros_like(self.electric_field[:, 0]), self.c,
+                                                           self.dx,
+                                                           self.dt)
 
     def solve_leapfrog(self):
         self.electric_field_backup = self.electric_field.copy()
-        self.electric_field, self.energy_per_mode = LeapfrogWaveSolver(
-            self.electric_field, self.previous_field, self.c, self.dx, self.dt, self.epsilon_0)
+        self.electric_field[:, 0], self.energy_per_mode = LeapfrogWaveSolver(
+            self.electric_field[:, 0], self.previous_field[:, 0], self.c, self.dx, self.dt, self.epsilon_0)
         self.previous_field = self.electric_field_backup
         return self.energy_per_mode
 
@@ -122,11 +129,13 @@ class Grid:
             self.current_density[1:-1] += gathered_current
 
     def electric_field_function(self, xp):
-        return interpolateField(xp, self.electric_field[1:-1], self.x, self.dx)  # OPTIMIZE: this is probably slow
+        # TODO: this only takes x right now
+        return interpolateField(xp, self.electric_field[1:-1, 0], self.x, self.dx)  # OPTIMIZE: this is probably slow
 
     def save_field_values(self, i):
         """Update the i-th set of field values, without those gathered from interpolation (charge\current)"""
         self.electric_field_history[i] = self.electric_field[1:-1]
+        self.magnetic_field_history[i] = self.magnetic_field[1:-1]
         self.energy_per_mode_history[i] = self.energy_per_mode
         self.grid_energy_history[i] = self.energy_per_mode.sum() / (self.NG / 2)
 
@@ -142,10 +151,13 @@ class Grid:
         grid_data.create_dataset(name="x", dtype=float, data=self.x)
 
         grid_data.create_dataset(name="rho", dtype=float, data=self.charge_density_history)
-        grid_data.create_dataset(name="Efield", dtype=float, data=self.electric_field_history)
-        grid_data.create_dataset(name="energy per mode", dtype=float, data=self.energy_per_mode_history)
-        grid_data.create_dataset(name="grid energy", dtype=float, data=self.grid_energy_history)
         grid_data.create_dataset(name="current", dtype=float, data=self.current_density_history)
+        grid_data.create_dataset(name="Efield", dtype=float, data=self.electric_field_history)
+        grid_data.create_dataset(name="Bfield", dtype=float, data=self.magnetic_field_history)
+
+        grid_data.create_dataset(name="energy per mode", dtype=float,
+                                 data=self.energy_per_mode_history)  # OPTIMIZE: do these in post production
+        grid_data.create_dataset(name="grid energy", dtype=float, data=self.grid_energy_history)
 
     def load_from_h5py(self, grid_data):
         """
@@ -163,6 +175,7 @@ class Grid:
         self.charge_density_history = grid_data['rho'][...]
         self.current_density_history = grid_data['current'][...]
         self.electric_field_history = grid_data['Efield'][...]
+        self.magnetic_field_history = grid_data['Bfield'][...]
         self.energy_per_mode_history = grid_data["energy per mode"][
             ...]  # OPTIMIZE: this can be calculated during analysis
         self.grid_energy_history = grid_data["grid energy"][...]

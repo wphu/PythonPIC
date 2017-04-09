@@ -15,8 +15,8 @@ DEBUG = False
 def test_PoissonSolver(NG, L, debug=DEBUG):
     g = Grid(L, NG, epsilon_0=1)
     charge_density = (2 * np.pi / L) ** 2 * np.sin(2 * g.x * np.pi / L)
-    field = np.zeros(NG+2)
-    field[1:-1] = -2 * np.pi / L * np.cos(2 * np.pi * g.x / L)
+    field = np.zeros((NG + 2, 3))
+    field[1:-1, 0] = -2 * np.pi / L * np.cos(2 * np.pi * g.x / L)
     g.charge_density[1:-1] = charge_density
     g.solve_poisson()
 
@@ -90,15 +90,17 @@ def test_PoissonSolver(NG, L, debug=DEBUG):
 #     potential_correct = np.isclose(g.potential, anal_potential(g.x)).all()
 #     assert field_correct and potential_correct and energy_correct, plots()
 
-
-def test_PoissonSolver_energy_sine(debug=DEBUG):
-    L = 1
-    NG = 32
+@pytest.mark.parametrize(["NG", "L"], [
+    (32, 1),
+    ])
+def test_PoissonSolver_energy_sine(NG, L, debug=DEBUG):
     resolution_increase = NG
     N = NG * resolution_increase
     epsilon_0 = 1
     x, dx = np.linspace(0, L, N, retstep=True, endpoint=False)
-    anal_field = -(2 * np.pi * np.cos(x * 2 * np.pi))
+    anal_field = np.zeros((N, 3))
+    anal_field[:, 0] = -(2 * np.pi * np.cos(x * 2 * np.pi))
+
     charge_density_anal = ((2 * np.pi) ** 2 * np.sin(x * 2 * np.pi))
 
     g = Grid(L, NG, epsilon_0)
@@ -136,13 +138,16 @@ def test_PoissonSolver_energy_sine(debug=DEBUG):
         plots()
 
     energy_correct = l2_test(energy_fourier, energy_direct)
-    field_correct = l2_test(g.electric_field[1:-1], anal_field[indices_in_denser_grid])
-    assert energy_correct and field_correct, plots()
+    assert energy_correct, plots()
+    field_correct = l2_test(g.electric_field[1:-1, 0], anal_field[indices_in_denser_grid][:, 0])
+    assert field_correct, plots()
 
 
-def test_PoissonSolver_sheets(debug=DEBUG, test_charge_density=1):
-    NG = 128
-    L = 1
+@pytest.mark.parametrize(["NG", "L"], [
+    (128, 1),
+    (128, 2 * np.pi)
+    ])
+def test_PoissonSolver_sheets(NG, L, debug=DEBUG, test_charge_density=1):
     epsilon_0 = 1
 
     x, dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
@@ -171,16 +176,20 @@ def test_PoissonSolver_sheets(debug=DEBUG, test_charge_density=1):
     if debug:
         plots()
 
-    polynomial_coefficients = np.polyfit(x[region1], g.electric_field[1:-1][region1], 1)
+    polynomial_coefficients = np.polyfit(x[region1], g.electric_field[1:-1, 0][region1], 1)
     first_bump_right = np.isclose(
         polynomial_coefficients[0], test_charge_density, rtol=1e-2)
-    polynomial_coefficients = np.polyfit(x[region2], g.electric_field[1:-1][region2], 1)
+    polynomial_coefficients = np.polyfit(x[region2], g.electric_field[1:-1, 0][region2], 1)
     second_bump_right = np.isclose(
         polynomial_coefficients[0], -test_charge_density, rtol=1e-2)
     assert first_bump_right and second_bump_right, plots()
 
 
-def test_PoissonSolver_ramp(debug=DEBUG):
+@pytest.mark.parametrize(["NG", "L"], [
+    (128, 1),
+    (128, 2 * np.pi)
+    ])
+def test_PoissonSolver_ramp(NG, L, debug=DEBUG):
     """ For a charge density rho = Ax + B
     d2phi/dx2 = -rho/epsilon_0
     set epsilon_0 to 1
@@ -188,8 +197,6 @@ def test_PoissonSolver_ramp(debug=DEBUG):
     phi must be of form
     phi = -Ax^3/6 + Bx^2 + Cx + D"""
 
-    NG = 128
-    L = 1
     a = 1
 
     # noinspection PyArgumentEqualDefault
@@ -215,5 +222,5 @@ def test_PoissonSolver_ramp(debug=DEBUG):
     if debug:
         plots()
 
-    polynomial_coefficients = np.polyfit(g.x, g.electric_field[1:-1], 2)
+    polynomial_coefficients = np.polyfit(g.x, g.electric_field[1:-1, 0], 2)
     assert np.isclose(polynomial_coefficients[0], a / 2, rtol=1e-2), (polynomial_coefficients[0], a / 2, plots())

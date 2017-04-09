@@ -50,7 +50,7 @@ def current_density_deposition(x, dx, x_particles, particle_charge, velocity):
     left_fractions = 1 - right_fractions
     current_to_right = particle_charge * velocity * right_fractions.reshape(x_particles.size, 1)
     current_to_left = particle_charge * velocity * left_fractions.reshape(x_particles.size, 1)
-    # OPTIMIZE: vectorise the following instead of looping over dimensions
+    # OPTIMIZE: use numba with this
     current_hist = np.zeros((x.size, 3))
     for dim in range(3):
         current_hist[:, dim] += np.bincount(logical_coordinates, current_to_left[:, dim], minlength=x.size)

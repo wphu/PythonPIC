@@ -59,7 +59,7 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
     for i, species in enumerate(S.list_species):
         charge_plots.append(
             grid_axes[0].plot(S.grid.x, S.grid.charge_density_history[0, :, i], ".-", label=f"{species.name} $\\rho$",
-                              color=colors[i], alpha=0.8)[0])
+                              color=colors[3 + i], alpha=0.8)[0])
 
     for j in range(3):
         for i, species in enumerate(S.list_species):
@@ -79,7 +79,8 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
 
         field_axes = grid_axes[j].twinx()
         field_axes.set_xlim(0, S.grid.L)
-        field_plots.append(field_axes.plot([], [], "k.-", label=f"$E_{directions[j]}$")[0])  # TODO: this is E_x for now
+        field_plots.append(
+            field_axes.plot(S.grid.x, S.grid.electric_field_history[0, :, j], "k.-", label=f"$E_{directions[j]}$")[0])
         field_axes.set_ylabel(r"Electric field $E$", color='k')
         field_axes.tick_params('y', colors='k')
         field_axes.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
@@ -148,7 +149,7 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
         for i_species in range(S.grid.n_species):
             charge_plots[i_species].set_data(S.grid.x, S.grid.charge_density_history[i, :, i_species])
         for j in range(3):
-            field_plots[j].set_data(S.grid.x, S.grid.electric_field_history[i])
+            field_plots[j].set_data(S.grid.x, S.grid.electric_field_history[i, :, j])
             for i_species, species, histogram, bin_array in zip(range(S.grid.n_species), S.list_species, histograms,
                                                                 bin_arrays):
                 phase_dots[species.name].set_data(species.position_history[i, :], species.velocity_history[i, :, 0])
