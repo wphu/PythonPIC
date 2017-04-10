@@ -59,7 +59,7 @@ def cold_plasma_oscillations(filename,
         print(f"{name}:{value}")
     for species in list_species:
         species.distribute_uniformly(L)
-        species.sinusoidal_velocity_perturbation(0, push_amplitude, push_mode, L)
+        species.sinusoidal_position_perturbation(push_amplitude, push_mode, L)
     grid = Grid(L, NG, epsilon_0, NT, n_species=len(list_species))
 
     description = f"Cold plasma oscillations\nposition initial condition perturbed by sinusoidal oscillation mode " \

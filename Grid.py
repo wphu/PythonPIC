@@ -11,7 +11,7 @@ class Grid:
     """
 
     def __init__(self, L: float = 2 * np.pi, NG: int = 32, epsilon_0: float = 1, NT: float = 1, c: float = 1,
-                 dt: float = 1, n_species: int = 1, solver="buneman", bc="sine",
+                 dt: float = 1, n_species: int = 1, solver="poisson", bc="sine",
                  bc_params=(1,)):
         """
         :param float L: grid length, in nondimensional units
@@ -56,7 +56,7 @@ class Grid:
             self.solve = self.solve_leapfrog
             self.apply_bc = self.leapfrog_bc
             self.previous_field = np.zeros_like(self.electric_field)
-        elif solver == "poisson":
+        elif solver == "poisson":  # TODO: this should be named Fourier
             self.init_solver = self.initial_poisson
             self.solve = self.solve_poisson
             self.apply_bc = self.poisson_bc
@@ -103,7 +103,7 @@ class Grid:
         self.electric_field[0, :] = self.bc_function(i * self.dt, *self.bc_params)
 
     def initial_buneman(self):
-        pass
+        self.solve_poisson()
 
     def solve_buneman(self):
         self.electric_field = algorithms_grid.BunemanSolver(self.electric_field, self.current_density, self.dt,
