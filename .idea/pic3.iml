@@ -9,7 +9,6 @@
       <excludeFolder url="file://$MODULE_DIR$/.ipynb_checkpoints" />
       <excludeFolder url="file://$MODULE_DIR$/_static" />
       <excludeFolder url="file://$MODULE_DIR$/_templates" />
-      <excludeFolder url="file://$MODULE_DIR$/configs" />
       <excludeFolder url="file://$MODULE_DIR$/documentation" />
     </content>
     <orderEntry type="jdk" jdkName="dev-pic" jdkType="Python SDK" />
