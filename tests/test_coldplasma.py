@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from Species import Species
-from helper_functions import get_dominant_mode
+from helper_functions import get_dominant_mode, show_on_fail
 from plotting import plotting
 from run_coldplasma import cold_plasma_oscillations
 
@@ -22,7 +22,7 @@ def test_linear_dominant_mode(push_mode):
     calculated_dominant_mode = get_dominant_mode(S)
     assert calculated_dominant_mode == push_mode, (
         f"got {calculated_dominant_mode} instead of {push_mode}",
-        plotting(S, show=True, save=False, animate=True))
+        plotting(S, show=show_on_fail, save=False, animate=True))
     return S
 
 
@@ -35,8 +35,8 @@ def test_kaiser_wilhelm(N_electrons, expected_dominant_mode, push_amplitude):
     S = cold_plasma_oscillations(f"CO_KW_{N_electrons}{'_PUSH' if push_amplitude != 0 else ''}", save_data=False,
                                  N_electrons=N_electrons, NG=16,
                                  push_amplitude=push_amplitude)
-    show, save, animate = True, False, True
-    assert get_dominant_mode(S) == expected_dominant_mode, plotting(S, show=show, save=save, animate=animate)
+    show, save, animate = False, False, True
+    assert get_dominant_mode(S) == expected_dominant_mode, plotting(S, show=show_on_fail, save=save, animate=animate)
 
 
 @pytest.mark.parametrize(["proton_mass"], [(100,), (200,), (1836,)])
@@ -65,7 +65,7 @@ def test_heavy_protons(proton_mass):
     print(velocity_ranges)
     velocity_ratio = velocity_ranges['electrons'] / velocity_ranges['protons']
     assert np.isclose(velocity_ratio, proton_mass, rtol=1e-3), (
-        f"velocity range ratio is {velocity_ratio}", plotting(S, show=True, save=False, animate=True))
+        f"velocity range ratio is {velocity_ratio}", plotting(S, show=show_on_fail, save=False, animate=True))
 
 
 @pytest.mark.parametrize(["dt"], [(10,), (100,)])
@@ -83,4 +83,4 @@ def test_leapfrog_instability(dt):
                                  N_electrons=N_electrons, push_mode=push_mode, save_data=False, dt=dt)
     energy_final_to_initial = S.total_energy[-1] / S.total_energy[0]
     assert energy_final_to_initial > 100, (f"Energy gain: {energy_final_to_initial}",
-                                           plotting(S, show=True, save=False, animate=True))
+                                           plotting(S, show=show_on_fail, save=False, animate=True))

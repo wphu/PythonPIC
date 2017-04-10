@@ -4,9 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
-from Constants import Constants
-from Grid import Grid
-from Simulation import Simulation
+from helper_functions import show_on_fail
 # TODO: use of multigrid methods for wave equation
 from plotting import plotting
 from run_wave import wave_propagation
@@ -117,5 +115,4 @@ def plot_all(field_history, analytical_solution):
                           ])
 def test_wave_propagation(filename, bc, bc_parameter_function, bc_params):
     run = wave_propagation(filename, bc, bc_parameter_function, bc_params)
-    assert run.grid.grid_energy_history.mean() > 0, plotting(run, show=True, save=False, animate=True)
-
+    assert run.grid.grid_energy_history.mean() > 0, plotting(run, show=show_on_fail, save=False, animate=True)
