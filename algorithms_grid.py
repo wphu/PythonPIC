@@ -146,14 +146,14 @@ def LeapfrogWaveSolver(field_current, field_previous, c, dx, dt, epsilon_0=1):
 
 def TransverseWaveSolver(electric_field, magnetic_field, current, dt, dx, c, epsilon_0):
     # dt = dx/c
-    Fplus = 0.5 * (electric_field[:, 1] + c * magnetic_field[:, 2])
-    Fminus = 0.5 * (electric_field[:, 1] - c * magnetic_field[:, 2])
-    Fplus[1:] = Fplus[:-1] - 0.5 * dt * (current[:, 1]) / epsilon_0
-    Fminus[:-1] = Fminus[1:] - 0.5 * dt * (current[:, 1]) / epsilon_0  # TODO: verify the index on current here
+    Fplus = 0.5 * (electric_field[:, 1] + c * magnetic_field[:, 1])
+    Fminus = 0.5 * (electric_field[:, 1] - c * magnetic_field[:, 1])
+    Fplus[1:] = Fplus[:-1] - 0.5 * dt * (current[:-1, 1]) / epsilon_0
+    Fminus[:-1] = Fminus[1:] - 0.5 * dt * (current[1:, 1]) / epsilon_0  # TODO: verify the index on current here
     new_electric_field = np.zeros_like(electric_field)
     new_magnetic_field = np.zeros_like(magnetic_field)
     new_electric_field[:, 1] = Fplus + Fminus
-    new_magnetic_field[:, 2] = (Fplus - Fminus) / c
+    new_magnetic_field[:, 1] = (Fplus - Fminus) / c
     electric_energy = 0.5 * epsilon_0 * dx * (new_electric_field ** 2).sum()
     magnetic_energy = 0.5 * dx * (new_magnetic_field ** 2).sum()
     return new_electric_field, new_magnetic_field, electric_energy + magnetic_energy

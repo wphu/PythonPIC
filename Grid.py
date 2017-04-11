@@ -118,10 +118,8 @@ class Grid:
                                                                            self.dt)
 
     def solve_leapfrog(self):
-        self.electric_field_backup = self.electric_field.copy()
-        self.electric_field[:, 0], self.energy_per_mode = algorithms_grid.LeapfrogWaveSolver(
-            self.electric_field[:, 0], self.previous_field[:, 0], self.c, self.dx, self.dt, self.epsilon_0)
-        self.previous_field = self.electric_field_backup
+        self.electric_field, self.magnetic_field, self.energy_per_mode = algorithms_grid.TransverseWaveSolver(
+            self.electric_field, self.magnetic_field, self.current_density, self.dt, self.dx, self.c, self.epsilon_0)
         return self.energy_per_mode
 
     def gather_charge(self, list_species, i=0):
