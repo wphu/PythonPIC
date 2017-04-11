@@ -17,14 +17,15 @@ def wave_propagation(filename,
                            ):
     """Implements wave propagation"""
     filename = f"data_analysis/EMWAVE/{filename}/{filename}.hdf5"
-    NT = 2000
-    dt = 0.01
-    T = NT * dt
+    T = 20
     print(f"T is {T}")
-    NG = 100
+    NG = 360
     L = 2 * np.pi
+    dx = L / (NG)
     epsilon_0 = 1
     c = 1
+    dt = dx / c
+    NT = np.ceil(T / dt).astype(int)
     grid = Grid(L, NG, epsilon_0, NT, dt=dt, n_species=0, solver="direct", bc=bc,
                 bc_params=(bc_parameter_function(T), *bc_params))
     alpha = c * dt / grid.dx
