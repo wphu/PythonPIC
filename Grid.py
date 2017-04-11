@@ -233,8 +233,6 @@ class Grid:
 #         TODO: check viability of laser BC
 #         take average of last term instead at last point instead
 #         """
-#         self.Fplus[1:] = self.Fplus[:-1] - 0.25 * self.dt * (self.Jyplus[:-1] + self.Jyminus[1:])
-#         self.Fminus[1:-1] = self.Fminus[0:-2] - 0.25 * self.dt * (self.Jyplus[2:] - self.Jyminus[1:-1])
 #
 #         # TODO: get laser boundary condition from Birdsall
 #         self.Fminus[-1] = self.Fminus[-2] - 0.25 * self.dt * (self.Jyplus[0] - self.Jyminus[-1])

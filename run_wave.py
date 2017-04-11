@@ -41,5 +41,5 @@ if __name__ == '__main__':
     show, save, animate = plotting_parser("Wave propagation")
     s = wave_propagation("laser2", "laser", lambda t: t / 25, (1, 2))
     plotting.plotting(s, show=show, alpha=0.5, save=save, animate=animate)
-    s = wave_propagation("laser6", "laser", lambda t: t / 25, (1, 6))
-    plotting.plotting(s, show=show, alpha=0.5, save=save, animate=animate)
+    # s = wave_propagation("laser6", "laser", lambda t: t / 25, (1, 6))
+    # plotting.plotting(s, show=show, alpha=0.5, save=save, animate=animate)

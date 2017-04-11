@@ -140,8 +140,23 @@ def LeapfrogWaveSolver(field_current, field_previous, c, dx, dt, epsilon_0=1):
     # field_result[0] = field_current[1] + Q * (field_current[0] - field_previous[1])
     field_result[-1] = field_current[-2] + Q * (field_current[-1] - field_result[-2])
 
-    energy = 0.5 * epsilon_0 * dx * (field_result[1:-1] ** 2).sum()
+    energy = 0.5 * epsilon_0 * dx * (field_result[1:-1] ** 2).sum()  # TODO: this is no longer at half intervals!
     return field_result, energy
+
+
+def TransverseWaveSolver(electric_field, magnetic_field, current, dt, dx, c, epsilon_0):
+    # dt = dx/c
+    Fplus = 0.5 * (electric_field[:, 1] + c * magnetic_field[:, 2])
+    Fminus = 0.5 * (electric_field[:, 1] - c * magnetic_field[:, 2])
+    Fplus[1:] = Fplus[:-1] - 0.5 * dt * (current[:, 1]) / epsilon_0
+    Fminus[:-1] = Fminus[1:] - 0.5 * dt * (current[:, 1]) / epsilon_0  # TODO: verify the index on current here
+    new_electric_field = np.zeros_like(electric_field)
+    new_magnetic_field = np.zeros_like(magnetic_field)
+    new_electric_field[:, 1] = Fplus + Fminus
+    new_magnetic_field[:, 2] = (Fplus - Fminus) / c
+    electric_energy = 0.5 * epsilon_0 * dx * (new_electric_field ** 2).sum()
+    magnetic_energy = 0.5 * dx * (new_magnetic_field ** 2).sum()
+    return new_electric_field, new_magnetic_field, electric_energy + magnetic_energy
 
 
 def laser_boundary_condition(t, t_0, tau_e, n, *args):
