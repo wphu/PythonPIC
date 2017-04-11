@@ -65,9 +65,12 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
     charge_axis.set_ylabel(f"Charge density $\\rho$")
     charge_axis.set_xlabel(r"Position $x$")
     charge_axis.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
-    mincharge = np.min(S.grid.charge_density_history)
-    maxcharge = np.max(S.grid.charge_density_history)
-    charge_axis.set_ylim(mincharge, maxcharge)
+    try:
+        mincharge = np.min(S.grid.charge_density_history)
+        maxcharge = np.max(S.grid.charge_density_history)
+        charge_axis.set_ylim(mincharge, maxcharge)
+    except ValueError:
+        pass
     charge_axis.grid()
     charge_axis.legend(loc='lower left')
     for j in range(3):
@@ -80,9 +83,12 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
         current_axes[j].tick_params('y', colors='b')
         current_axes[j].set_xlabel(r"Position $x$")
         current_axes[j].ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
-        mincurrent = S.grid.current_density_history.min()
-        maxcurrent = S.grid.current_density_history.max()
-        current_axes[j].set_ylim(mincurrent, maxcurrent)
+        try:
+            mincurrent = S.grid.current_density_history.min()
+            maxcurrent = S.grid.current_density_history.max()
+            current_axes[j].set_ylim(mincurrent, maxcurrent)
+        except ValueError:
+            pass
         current_axes[j].grid()
         current_axes[j].legend(loc='lower left')
 
@@ -144,6 +150,7 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
         iteration.set_text("Iteration: ")
         freq_plot.set_data([], [])
         for i in range(S.grid.n_species):
+            print(i, S.grid.n_species)
             charge_plots[i].set_data([], [])
         for j in range(3):
             field_plots[j].set_data([], [])

@@ -6,7 +6,6 @@ import plotting
 from Constants import Constants
 from Grid import Grid
 from Simulation import Simulation
-from Species import Species
 from helper_functions import plotting_parser
 
 
@@ -26,7 +25,8 @@ def wave_propagation(filename,
     L = 2 * np.pi
     epsilon_0 = 1
     c = 1
-    grid = Grid(L, NG, epsilon_0, NT, dt=dt, solver="direct", bc=bc, bc_params=(bc_parameter_function(T), *bc_params))
+    grid = Grid(L, NG, epsilon_0, NT, dt=dt, n_species=0, solver="direct", bc=bc,
+                bc_params=(bc_parameter_function(T), *bc_params))
     alpha = c * dt / grid.dx
     print(f"alpha is {alpha}")
     assert alpha <= 1

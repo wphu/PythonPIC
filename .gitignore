@@ -1,4 +1,5 @@
 .cache
+data_analysis
 *.swp
 *.hdf5
 **/.idea/workspace.xml
