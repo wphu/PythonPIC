@@ -45,6 +45,7 @@ def test_twostream(filename, plasma_frequency, NT, dt, N_electrons, NG, qmratio,
 
 @pytest.mark.parametrize(["filename", "bc", "bc_parameter_function", "bc_params"],
                          [
+                             ("sin1", "sine", lambda t: t / 25, (1,)),
                              ("laser2", "laser", lambda t: t / 25, (1, 2)),
                              ("laser6", "laser", lambda t: t / 25, (1, 6)),
                              ])

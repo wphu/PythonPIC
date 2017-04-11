@@ -54,7 +54,8 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
 
     charge_plots = []
     current_plots = []
-    field_plots = []
+    electric_field_plots = []
+    magnetic_field_plots = []
 
     for i, species in enumerate(S.list_species):
         charge_plots.append(
@@ -94,16 +95,22 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
 
         field_axes = current_axes[j].twinx()
         field_axes.set_xlim(0, S.grid.L)
-        field_plots.append(
+        electric_field_plots.append(
             field_axes.plot(S.grid.x, S.grid.electric_field_history[0, :, j], "k.-", label=f"$E_{directions[j]}$")[0])
+
+        if j > 0:
+            magnetic_field_plots.append(
+                field_axes.plot(S.grid.x, S.grid.magnetic_field_history[0, :, j-1], "m.-", label=f"$B_{directions[j]}$")[0])
         # TODO: add magnetic field
-        field_axes.set_ylabel(r"Electric field $E$", color='k')
+        field_axes.set_ylabel(r"Fields $E$, $B$", color='k')
         field_axes.tick_params('y', colors='k')
         field_axes.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
-        maxfield = np.max(np.abs(S.grid.electric_field_history))
+        maxE = np.max(np.abs(S.grid.electric_field_history))
+        maxB = np.max(np.abs(S.grid.magnetic_field_history))
+        maxfield = max([maxE, maxB])
+        field_axes.set_ylim(-maxfield, maxfield)
         field_axes.grid()
         field_axes.legend(loc='upper right')
-        field_axes.set_ylim(-maxfield, maxfield)
 
     phase_dots = {}
     phase_lines = {}
@@ -153,12 +160,14 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
             print(i, S.grid.n_species)
             charge_plots[i].set_data([], [])
         for j in range(3):
-            field_plots[j].set_data([], [])
+            electric_field_plots[j].set_data([], [])
+            if j > 0:
+                magnetic_field_plots[j-1].set_data([], [])
             for i, species, histogram in zip(range(S.grid.n_species), S.list_species, histograms):
                 phase_dots[species.name].set_data([], [])
                 current_plots[3 * i + j].set_data([], [])
                 histogram.set_data([], [])
-        return [*current_plots, *charge_plots, *field_plots, freq_plot, *phase_dots.values(), iteration]
+        return [*current_plots, *charge_plots, *electric_field_plots, *magnetic_field_plots, freq_plot, *phase_dots.values(), iteration]
 
     def animate(i):
         """draws the i-th frame of the simulation"""
@@ -167,7 +176,10 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
         for i_species in range(S.grid.n_species):
             charge_plots[i_species].set_data(S.grid.x, S.grid.charge_density_history[i, :, i_species])
         for j in range(3):
-            field_plots[j].set_data(S.grid.x, S.grid.electric_field_history[i, :, j])
+            electric_field_plots[j].set_data(S.grid.x, S.grid.electric_field_history[i, :, j])
+            if j > 0:
+                magnetic_field_plots[j-1].set_data(S.grid.x, S.grid.magnetic_field_history[i, :, j-1])
+
             for i_species, species, histogram, bin_array in zip(range(S.grid.n_species), S.list_species, histograms,
                                                                 bin_arrays):
                 phase_dots[species.name].set_data(species.position_history[i, :], species.velocity_history[i, :, 0])
@@ -176,7 +188,7 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
                                                                          i_species])
                 histogram.set_data(*velocity_histogram_data(species.velocity_history[i], bin_array))
 
-        return [*current_plots, *charge_plots, *field_plots, freq_plot, *histograms, *phase_dots.values(),
+        return [*current_plots, *charge_plots, *electric_field_plots, *magnetic_field_plots, freq_plot, *histograms, *phase_dots.values(),
                 iteration]
 
     animation_object = anim.FuncAnimation(fig, animate, interval=100, frames=np.arange(0, S.NT, int(np.log10(S.NT))),
