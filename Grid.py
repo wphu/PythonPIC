@@ -100,7 +100,8 @@ class Grid:
         pass
 
     def leapfrog_bc(self, i):
-        self.electric_field[0, :] = self.bc_function(i * self.dt, *self.bc_params)
+        self.electric_field[0, 1] = self.bc_function(i * self.dt, *self.bc_params)
+        self.magnetic_field[0, 1] = self.bc_function(i * self.dt, *self.bc_params) / self.c
 
     def initial_buneman(self):
         self.solve_poisson()
