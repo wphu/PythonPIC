@@ -144,7 +144,7 @@ def LeapfrogWaveSolver(field_current, field_previous, c, dx, dt, epsilon_0=1):
     return field_result, energy
 
 
-def TransverseWaveSolver(electric_field, magnetic_field, current, dt, dx, c, epsilon_0):
+def BunemanWaveSolver(electric_field, magnetic_field, current, dt, dx, c, epsilon_0):
     # dt = dx/c
     Fplus = 0.5 * (electric_field[:, 1] + c * magnetic_field[:, 1])
     Fminus = 0.5 * (electric_field[:, 1] - c * magnetic_field[:, 1])
@@ -163,7 +163,9 @@ def TransverseWaveSolver(electric_field, magnetic_field, current, dt, dx, c, eps
     new_electric_field[:, 2] = Gplus + Gminus
     new_magnetic_field[:, 0] = (Gplus - Gminus) / c
     new_magnetic_field[:, 1] = (Fplus - Fminus) / c
-    
+
+
+    new_electric_field[:,0] = electric_field[:, 0] - dt / epsilon_0 * current[:,0] # TODO: verify indices here
     electric_energy = 0.5 * epsilon_0 * dx * (new_electric_field ** 2).sum()
     magnetic_energy = 0.5 * dx * (new_magnetic_field ** 2).sum()
     return new_electric_field, new_magnetic_field, electric_energy + magnetic_energy

@@ -12,12 +12,13 @@ class Grid:
 
     def __init__(self, L: float = 2 * np.pi, NG: int = 32, epsilon_0: float = 1, NT: float = 1, c: float = 1,
                  dt: float = 1, n_species: int = 1, solver="poisson", bc="sine",
-                 bc_params=(1,)):
+                 bc_params=(1,), polarization_angle=0):
         """
         :param float L: grid length, in nondimensional units
         :param int NG: number of grid cells
         :param float epsilon_0: the physical constant
         :param int NT: number of timesteps for history tracking purposes
+        :param float polarization_angle: angle of polarization at left boundary, in radians
         """
         self.x, self.dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
         self.dt = dt
@@ -46,6 +47,8 @@ class Grid:
 
         self.solver_string = solver
         self.bc_string = bc
+
+        self.polarization_angle = polarization_angle
 
         # specific to Poisson solver but used also elsewhere, for plotting # TODO: clear this part up
         self.k = 2 * np.pi * fft.fftfreq(NG, self.dx)
@@ -99,10 +102,11 @@ class Grid:
     def poisson_bc(self, i):
         pass
 
-    def leapfrog_bc(self, i, angle_radians=0):
-        angle_vector = np.array([np.cos(angle_radians), np.sin(angle_radians)])
+    def leapfrog_bc(self, i):
+        angle_vector = np.array([np.cos(self.polarization_angle), np.sin(self.polarization_angle)])
+        angle_vector2 = np.array([-np.sin(self.polarization_angle), np.cos(self.polarization_angle)])
         self.electric_field[0, 1:] = self.bc_function(i * self.dt, *self.bc_params) * angle_vector
-        self.magnetic_field[0, :] = self.bc_function(i * self.dt, *self.bc_params) / self.c * np.roll(angle_vector, 1)
+        self.magnetic_field[0, :] = self.bc_function(i * self.dt, *self.bc_params) / self.c * angle_vector2
 
     def initial_buneman(self):
         self.solve_poisson()
@@ -120,7 +124,7 @@ class Grid:
                                                                            self.dt)
 
     def solve_leapfrog(self):
-        self.electric_field, self.magnetic_field, self.energy_per_mode = algorithms_grid.TransverseWaveSolver(
+        self.electric_field, self.magnetic_field, self.energy_per_mode = algorithms_grid.BunemanWaveSolver(
             self.electric_field, self.magnetic_field, self.current_density, self.dt, self.dx, self.c, self.epsilon_0)
         return self.energy_per_mode
 

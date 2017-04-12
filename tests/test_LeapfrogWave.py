@@ -116,3 +116,12 @@ def plot_all(field_history, analytical_solution):
 def test_wave_propagation(filename, bc, bc_parameter_function, bc_params):
     run = wave_propagation(filename, bc, bc_parameter_function, bc_params)
     assert run.grid.grid_energy_history.mean() > 0, plotting(run, show=show_on_fail, save=False, animate=True)
+
+@pytest.mark.parametrize(["filename", "bc", "bc_parameter_function", "bc_params", "polarization_angle"],
+                         [("sine_polarized", "sine", lambda T: 10, (0,), np.pi/4),
+                          ("laser_polarized", "laser", lambda T: T / 25, (1, 2), np.pi/3),
+                          ])
+def test_polarization_orthogonality(filename, bc, bc_parameter_function, bc_params, polarization_angle):
+    run = wave_propagation(filename, bc, bc_parameter_function, bc_params, polarization_angle, save_data=False)
+    angles = ((run.grid.electric_field_history[:,:,1:] * run.grid.magnetic_field_history).sum(axis=(1,2)))
+    assert np.isclose(angles, 0).all(), "Polarization is not orthogonal!"

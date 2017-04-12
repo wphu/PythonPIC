@@ -43,12 +43,15 @@ def test_twostream(filename, plasma_frequency, NT, dt, N_electrons, NG, qmratio,
     plotting.plotting(s, show=False, save=True, animate=True)
 
 
-@pytest.mark.parametrize(["filename", "bc", "bc_parameter_function", "bc_params"],
+@pytest.mark.parametrize(["filename", "bc", "bc_parameter_function", "bc_params", "polarization_angle"],
                          [
-                             ("sin1", "sine", lambda t: t / 25, (1,)),
-                             ("laser2", "laser", lambda t: t / 25, (1, 2)),
-                             ("laser6", "laser", lambda t: t / 25, (1, 6)),
+                             ("sin1", "sine", lambda t: t / 25, (1,), 0),
+                             ("sin1_polarized", "sine", lambda t: t / 25, (1,), np.pi/3),
+                             ("laser2", "laser", lambda t: t / 25, (1, 2), 0),
+                             ("laser2_polarized", "laser", lambda t: t / 25, (1, 2), 2*np.pi/3),
+                             ("laser6", "laser", lambda t: t / 25, (1, 6), 0),
+                             ("laser6_polarized", "laser", lambda t: t / 25, (1, 6), 2*np.pi/3),
                              ])
-def test_wave_propagation(filename, bc, bc_parameter_function, bc_params):
-    s = wave_propagation(filename, bc, bc_parameter_function, bc_params, save_data=True)
+def test_wave_propagation(filename, bc, bc_parameter_function, bc_params, polarization_angle):
+    s = wave_propagation(filename, bc, bc_parameter_function, bc_params, polarization_angle, save_data=True)
     plotting.plotting(s, show=False, save=True, animate=True)
