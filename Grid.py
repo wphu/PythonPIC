@@ -99,9 +99,10 @@ class Grid:
     def poisson_bc(self, i):
         pass
 
-    def leapfrog_bc(self, i):
-        self.electric_field[0, 1] = self.bc_function(i * self.dt, *self.bc_params)
-        self.magnetic_field[0, 1] = self.bc_function(i * self.dt, *self.bc_params) / self.c
+    def leapfrog_bc(self, i, angle_radians=0):
+        angle_vector = np.array([np.cos(angle_radians), np.sin(angle_radians)])
+        self.electric_field[0, 1:] = self.bc_function(i * self.dt, *self.bc_params) * angle_vector
+        self.magnetic_field[0, :] = self.bc_function(i * self.dt, *self.bc_params) / self.c * np.roll(angle_vector, 1)
 
     def initial_buneman(self):
         self.solve_poisson()
