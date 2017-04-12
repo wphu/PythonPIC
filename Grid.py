@@ -12,7 +12,7 @@ class Grid:
 
     def __init__(self, L: float = 2 * np.pi, NG: int = 32, epsilon_0: float = 1, NT: float = 1, c: float = 1,
                  dt: float = 1, n_species: int = 1, solver="poisson", bc="sine",
-                 bc_params=(1,), polarization_angle=0):
+                 bc_params=(1,), polarization_angle: float = 0.0):
         """
         :param float L: grid length, in nondimensional units
         :param int NG: number of grid cells
@@ -103,8 +103,8 @@ class Grid:
         pass
 
     def leapfrog_bc(self, i):
-        angle_vector = np.array([np.cos(self.polarization_angle), np.sin(self.polarization_angle)])
-        angle_vector2 = np.array([-np.sin(self.polarization_angle), np.cos(self.polarization_angle)])
+        angle_vector = np.array([np.cos(self.polarization_angle), np.sin(self.polarization_angle)], dtype=float)
+        angle_vector2 = np.array([np.cos(self.polarization_angle + np.pi/2), np.sin(self.polarization_angle + np.pi/2)], dtype=float)
         self.electric_field[0, 1:] = self.bc_function(i * self.dt, *self.bc_params) * angle_vector
         self.magnetic_field[0, :] = self.bc_function(i * self.dt, *self.bc_params) / self.c * angle_vector2
 

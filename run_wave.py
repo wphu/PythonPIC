@@ -20,7 +20,7 @@ def wave_propagation(filename,
     filename = f"data_analysis/EMWAVE/{filename}/{filename}.hdf5"
     T = 20
     print(f"T is {T}")
-    NG = 360
+    NG = 60
     L = 2 * np.pi
     dx = L / (NG)
     epsilon_0 = 1
@@ -32,7 +32,10 @@ def wave_propagation(filename,
     alpha = c * dt / grid.dx
     print(f"alpha is {alpha}")
     assert alpha <= 1
-    description = "Electrostatic wave driven by boundary condition\n"
+    description = \
+    f"""Electrostatic wave driven by boundary condition
+    Initial polarization is {polarization_angle/np.pi * 180} degrees
+    """
 
     run = Simulation(NT, dt, Constants(c, epsilon_0), grid, [], filename=filename, title=description)
     run.grid_species_initialization()
@@ -41,9 +44,11 @@ def wave_propagation(filename,
 
 if __name__ == '__main__':
     show, save, animate = plotting_parser("Wave propagation")
-    s = wave_propagation("laser2", "laser", lambda t: t / 3, (1, 2), 0)
-    plotting.plotting(s, show=show, alpha=0.5, save=save, animate=animate)
-    s = wave_propagation("laser6", "laser", lambda t: t / 3, (1, 6), 2*np.pi/3)
-    plotting.plotting(s, show=show, alpha=0.5, save=save, animate=animate)
-    s = wave_propagation("sine1", "sine", lambda t: 1, (1,), np.pi/4)
-    plotting.plotting(s, show=show, alpha=0.5, save=save, animate=animate)
+
+    for polarization in [0, np.pi/6, np.pi/4, np.pi/3, np.pi/2, np.pi]:
+        s = wave_propagation("laser2", "laser", lambda t: t / 4, (1, 2), polarization)
+        plotting.plotting(s, show=show, alpha=0.5, save=save, animate=animate)
+    # s = wave_propagation("laser6", "laser", lambda t: t / 3, (1, 6), 2*np.pi/3)
+    # plotting.plotting(s, show=show, alpha=0.5, save=save, animate=animate)
+    # s = wave_propagation("sine1", "sine", lambda t: 1, (1,), np.pi/4)
+    # plotting.plotting(s, show=show, alpha=0.5, save=save, animate=animate)
