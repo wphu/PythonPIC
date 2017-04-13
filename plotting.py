@@ -32,15 +32,11 @@ def plotting(file, show: bool = True, save: bool = False, animate: bool = True, 
     else:
         print(f"Loading simulation data from {file}")
         S = Simulation.load_data(file)
-    static_plots.static_plots(S, S.filename.replace(".hdf5", ".png"))
+    static_plots.static_plots(S, S.filename.replace(".hdf5", ".png") if save else None)
     print(S)
     if animate:
-        if save:
-            videofile_name = S.filename.replace(".hdf5", ".mp4")
-        else:
-            videofile_name = None
         # noinspection PyUnusedLocal
-        anim = animation.animation(S, videofile_name, lines, alpha=alpha)  # this needs name due to matplotlib.animation
+        anim = animation.animation(S, S.filename.replace(".hdf5", ".mp4") if save else None, lines, alpha=alpha)  # this needs name due to matplotlib.animation
     if show:
         plt.show()
     else:
