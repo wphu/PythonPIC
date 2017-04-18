@@ -48,12 +48,18 @@ def weakbeam_instability(filename,
 
     filename = f"data_analysis/BP/{filename}/{filename}.hdf5"
 
-    grid = Grid(L=L, NG=NG, NT=NT, n_species=2)
     plasma = Species(particle_charge, particle_mass, N_plasma, "plasma", NT, scaling(N_plasma))
     beam = Species(particle_charge, particle_mass, N_beam, "beam2", NT, scaling(N_plasma))
+    total_negative_charge = particle_charge * (N_plasma + N_beam)
+    N_protons = 100
+    q_protons = -total_negative_charge/N_protons
+    proton_mass = 1e10
     beam.v[:, 0] = v0
     plasma.v[:, 0] = 0
-    list_species = [beam, plasma]
+    background = Species(q_protons, proton_mass, N_protons, "protons", NT, scaling(N_plasma))
+    background.v[:,:] = 0
+    list_species = [beam, plasma, background]
+    grid = Grid(L=L, NG=NG, NT=NT, n_species=len(list_species))
     for i, species in enumerate(list_species):
         species.distribute_uniformly(L, 0.5 * grid.dx * i)
         species.sinusoidal_position_perturbation(push_amplitude, push_mode, grid.L)
