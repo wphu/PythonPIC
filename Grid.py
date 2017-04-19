@@ -150,14 +150,4 @@ class Grid:
             ...]  # OPTIMIZE: this can be calculated during analysis
         self.grid_energy_history = grid_data["grid energy"][...]
 
-    def __eq__(self, other):
-        result = True
-        result *= np.isclose(self.x, other.x).all()
-        result *= np.isclose(self.charge_density, other.charge_density).all()
-        result *= np.isclose(self.electric_field, other.electric_field).all()
-        result *= self.dx == other.dx
-        result *= self.L == other.L
-        result *= self.NG == other.NG
-        result *= self.epsilon_0 == other.epsilon_0
-        return result
 

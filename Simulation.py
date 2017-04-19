@@ -156,32 +156,6 @@ class Simulation:
             result_string = result_string + "\n" + str(species)
         return result_string  # REFACTOR: add information from config file (run_coldplasma...)
 
-    def __eq__(self, other: 'Simulation') -> bool:
-        result = True
-        # REFACTOR: this is a horrible way to do comparisons
-        assert self.run_date == other.run_date, "date not equal!"
-        result *= self.run_date == other.run_date
-        assert self.git_version == other.git_version, "Git version not equal!"
-        result *= self.git_version == other.git_version
-        assert self.constants.epsilon_0 == other.constants.epsilon_0, print("epsilon 0 not equal!")
-        result *= self.constants.epsilon_0 == other.constants.epsilon_0
-
-        assert self.constants.c == other.constants.c, "c not equal!"
-        result *= self.constants.c == other.constants.c
-
-        assert self.NT == other.NT, "NT not equal!"
-        result *= self.NT == other.NT
-
-        assert self.dt == other.dt, "NT not equal!"
-        result *= self.dt == other.dt
-
-        for this_species, other_species in zip(self.list_species, other.list_species):
-            assert this_species == other_species, "{} and {} not equal!".format(this_species.name, other_species.name)
-            result *= this_species == other_species
-        assert self.grid == other.grid, "grid not equal!"
-        result *= self.grid == other.grid
-        return result
-
 
 def load_data(filename: str) -> Simulation:
     """Create a Simulation object from a hdf5 file"""

@@ -20,13 +20,6 @@ def apply_bc_buneman(grid, i, bc_function):
     grid.electric_field[0, 1] = bc_function(i * grid.dt, *grid.bc_params)
     # self.magnetic_field[0, :] = self.bc_function(i * self.dt, *self.bc_params) / self.c
 
-# TODO: figure out how to apply bc function
-"""requirements for field boundary condition:
-type of boundary condition (sin, exp, one times other)
-place of application (left, right)
-"""
-
-
 class Laser:
     def __init__(self, laser_wavelength, envelope_center_t, envelope_width, envelope_power=2, c=1, laser_phase=0):
         self.laser_wavelength = laser_wavelength
@@ -52,8 +45,8 @@ def NonPeriodicBC(function):
     return BoundaryCondition(kill_particles_outside_bounds, function)
 
 
-laser = Laser(1, 10, 3)
 PeriodicBC = BoundaryCondition(return_particles_to_bounds, lambda x: None)
-LaserBC = NonPeriodicBC(laser.laser_pulse)
-WaveBC = NonPeriodicBC(laser.laser_wave)
-EnvelopeBC = NonPeriodicBC(laser.laser_envelope)
+# laser = Laser(1, 10, 3)
+# LaserBC = NonPeriodicBC(laser.laser_pulse)
+# WaveBC = NonPeriodicBC(laser.laser_wave)
+# EnvelopeBC = NonPeriodicBC(laser.laser_envelope)

@@ -62,6 +62,7 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
             charge_axis.plot(S.grid.x, S.grid.charge_density_history[0, :, i], ".-", label=f"{species.name} $\\rho$",
                              color=colors[i], alpha=0.8)[0])
 
+    # TODO: 3d animation for transverse fields
     charge_axis.set_xlim(0, S.grid.L)
     charge_axis.set_ylabel(f"Charge density $\\rho$")
     charge_axis.set_xlabel(r"Position $x$")
@@ -101,7 +102,6 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
         if j > 0:
             magnetic_field_plots.append(
                 field_axes.plot(S.grid.x, S.grid.magnetic_field_history[0, :, j-1], "m.-", alpha=0.7, label=f"$B_{directions[j]}$")[0])
-        # TODO: add magnetic field
         field_axes.set_ylabel(r"Fields $E$, $B$", color='k')
         field_axes.tick_params('y', colors='k')
         field_axes.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
