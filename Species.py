@@ -53,7 +53,7 @@ class Species:
         self.kinetic_energy_history = np.zeros(NT)
         self.pusher = pusher
 
-    def init_push(self, electric_field_function, dt, B=lambda x: np.zeros((x.size, 3))):
+    def init_push(self, electric_field_function, dt, magnetic_field_function=lambda x: np.zeros((x.size, 3))):
         r"""
         Initializes particles for Leapfrog pushing.
         Same as `leapfrog_push`, except
@@ -66,10 +66,11 @@ class Species:
         """
 
         E = electric_field_function(self.x[self.alive])
-        _, self.v[self.alive], energy = self.pusher(self, E, -dt * 0.5, B(self.x[self.alive]))
+        B = magnetic_field_function(self.x[self.alive])
+        _, self.v[self.alive], energy = self.pusher(self, E, -dt * 0.5, B)
         return energy
 
-    def push(self, electric_field_function, dt, B=lambda x: np.zeros((x.size, 3))):
+    def push(self, electric_field_function, dt, magnetic_field_function=lambda x: np.zeros((x.size, 3))):
         r"""
         Leapfrog pusher for particles.
 
@@ -79,7 +80,8 @@ class Species:
         """
 
         E = electric_field_function(self.x[self.alive])
-        self.x[self.alive], self.v[self.alive], energy = self.pusher(self, E, dt, B(self.x[self.alive]))
+        B = magnetic_field_function(self.x[self.alive])
+        self.x[self.alive], self.v[self.alive], energy = self.pusher(self, E, dt, B)
         return energy
 
     """POSITION INITIALIZATION"""

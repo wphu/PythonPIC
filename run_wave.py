@@ -41,9 +41,13 @@ def wave_propagation(filename,
 
 if __name__ == '__main__':
     show, save, animate = plotting_parser("Wave propagation")
-    polarization = 0
     for filename, boundary_function in zip(["Wave", "Envelope", "Laser"],
-                                           [BoundaryCondition.WaveBC, BoundaryCondition.EnvelopeBC,
-                                            BoundaryCondition.LaserBC]):
+                                           [BoundaryCondition.NonPeriodicBC(
+                                               BoundaryCondition.Laser(1, 10, 3).laser_wave),
+                                            BoundaryCondition.NonPeriodicBC(
+                                                BoundaryCondition.Laser(1, 10, 3).laser_envelope),
+                                            BoundaryCondition.NonPeriodicBC(
+                                                BoundaryCondition.Laser(1, 10, 3).laser_pulse),
+                                            ]):
         s = wave_propagation(filename, boundary_function)
         plotting.plotting(s, show=show, alpha=0.5, save=save, animate=animate)

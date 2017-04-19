@@ -25,7 +25,7 @@ class Grid:
         self.charge_density = np.zeros(NG + 2)
         self.current_density = np.zeros((NG + 2, 3))
         self.electric_field = np.zeros((NG + 2, 3))
-        self.magnetic_field = np.zeros((NG + 2, 2))
+        self.magnetic_field = np.zeros((NG + 2, 3))
         self.energy_per_mode = np.zeros(int(NG / 2))
 
         self.L = L
@@ -44,9 +44,6 @@ class Grid:
         self.energy_per_mode_history = np.zeros(
             (NT, int(self.NG / 2)))  # OPTIMIZE: get this from efield_history?
         self.grid_energy_history = np.zeros(NT)  # OPTIMIZE: get this from efield_history
-
-        self.solver_string = solver
-        self.bc_string = bc
 
         # specific to Poisson solver but used also elsewhere, for plotting # TODO: clear this part up
         self.k = 2 * np.pi * fft.fftfreq(NG, self.dx)
@@ -99,10 +96,16 @@ class Grid:
             result[:, i] = algorithms_interpolate.interpolateField(xp, self.electric_field[1:-1, i], self.x, self.dx)
         return result
 
+    def magnetic_field_function(self, xp):
+        result = np.zeros((xp.size, 3))
+        for i in range(1, 3):
+            result[:, i] = algorithms_interpolate.interpolateField(xp, self.magnetic_field[1:-1, i], self.x, self.dx)
+        return result
+
     def save_field_values(self, i):
         """Update the i-th set of field values, without those gathered from interpolation (charge\current)"""
         self.electric_field_history[i] = self.electric_field[1:-1]
-        self.magnetic_field_history[i] = self.magnetic_field[1:-1]
+        self.magnetic_field_history[i] = self.magnetic_field[1:-1, 1:]
         self.energy_per_mode_history[i] = self.energy_per_mode
         self.grid_energy_history[i] = self.energy_per_mode.sum() / (self.NG / 2)
 
