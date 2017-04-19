@@ -23,18 +23,9 @@ class Simulation:
     charge_density, electric_field: shape (NT, NGrid) numpy arrays of historical grid data
     """
 
-    def __init__(self,
-                 NT,
-                 dt,
-                 constants: Constants,
-                 grid: Grid,
-                 list_species,
-                 boundary_condition = BoundaryCondition.PeriodicBC,
-                 run_date=time.ctime(),
-                 git_version=git_version(),
-                 filename=time.strftime("%Y-%m-%d_%H-%M-%S.hdf5"),
-                 title="",
-                 ):
+    def __init__(self, NT, dt, list_species, grid: Grid, constants: Constants = Constants(1, 1),
+                 boundary_condition=BoundaryCondition.PeriodicBC, run_date=time.ctime(), git_version=git_version(),
+                 filename=time.strftime("%Y-%m-%d_%H-%M-%S.hdf5"), title=""):
         """
         :param NT:
         :param dt:
@@ -179,9 +170,8 @@ def load_data(filename: str) -> Simulation:
             all_species.append(species)
         run_date = f.attrs['run_date']
         git_version = f.attrs['git_version']
-    S = Simulation(NT, dt, Constants(epsilon_0=grid.epsilon_0, c=1), grid, all_species, run_date, git_version,
-                   filename=filename,
-                   title=title)
+    S = Simulation(NT, dt, all_species, grid, Constants(epsilon_0=grid.epsilon_0, c=1), run_date, git_version,
+                   filename=filename, title=title)
 
     S.total_energy = total_energy
 

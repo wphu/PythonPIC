@@ -53,8 +53,7 @@ def two_stream_instability(filename,
         description += f" + thermal $v_1$ of standard dev. {vrandom:.2f}"
 
     description += f" ({'stable' if expected_stability else 'unstable'}).\n"
-    run = Simulation(NT, dt, Constants(1, epsilon_0),
-                     grid, list_species, filename=filename, title=description)
+    run = Simulation(NT, dt, list_species, grid, Constants(1, epsilon_0), filename=filename, title=description)
     # REFACTOR: add initial condition values to Simulation object
     run.grid_species_initialization()
     run.run(save_data)

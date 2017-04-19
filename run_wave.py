@@ -33,7 +33,7 @@ def wave_propagation(filename,
     f"""Electrostatic wave driven by boundary condition
     """
 
-    run = Simulation(NT, dt, Constants(c, epsilon_0), grid, [], boundary_condition=bc, filename=filename,
+    run = Simulation(NT, dt, [], grid, Constants(c, epsilon_0), boundary_condition=bc, filename=filename,
                      title=description)
     run.grid_species_initialization()
     run.run(save_data)
