@@ -12,9 +12,6 @@ from helper_functions import plotting_parser, Constants
 
 def wave_propagation(filename,
                            bc,
-                           bc_parameter_function,
-                           bc_params,
-                           polarization_angle: float = 0,
                            save_data: bool = True,
                            ):
     """Implements wave propagation"""
@@ -28,17 +25,16 @@ def wave_propagation(filename,
     c = 1
     dt = dx / c
     NT = np.ceil(T / dt).astype(int)
-    grid = Grid(L, NG, epsilon_0, NT, dt=dt, n_species=0, solver=FieldSolver.BunemanSolver, bc=bc,
-                bc_params=(bc_parameter_function(T), *bc_params), polarization_angle=polarization_angle)
+    grid = Grid(L, NG, epsilon_0, NT, dt=dt, n_species=0, solver=FieldSolver.BunemanSolver, bc=bc)
     alpha = c * dt / grid.dx
     print(f"alpha is {alpha}")
     assert alpha <= 1
     description = \
     f"""Electrostatic wave driven by boundary condition
-    Initial polarization is {polarization_angle/np.pi * 180} degrees
     """
 
-    run = Simulation(NT, dt, Constants(c, epsilon_0), grid, [], boundary_condition=BoundaryCondition.LaserBC, filename=filename, title=description)
+    run = Simulation(NT, dt, Constants(c, epsilon_0), grid, [], boundary_condition=bc, filename=filename,
+                     title=description)
     run.grid_species_initialization()
     run.run(save_data)
     return run
@@ -46,9 +42,8 @@ def wave_propagation(filename,
 if __name__ == '__main__':
     show, save, animate = plotting_parser("Wave propagation")
     polarization = 0
-    s = wave_propagation("laser2", "laser", lambda t: t / 4, (1, 2), polarization)
-    plotting.plotting(s, show=show, alpha=0.5, save=save, animate=animate)
-    # s = wave_propagation("laser6", "laser", lambda t: t / 3, (1, 6), 2*np.pi/3)
-    # plotting.plotting(s, show=show, alpha=0.5, save=save, animate=animate)
-    # s = wave_propagation("sine1", "sine", lambda t: 1, (1,), np.pi/4)
-    # plotting.plotting(s, show=show, alpha=0.5, save=save, animate=animate)
+    for filename, boundary_function in zip(["Wave", "Envelope", "Laser"],
+                                           [BoundaryCondition.WaveBC, BoundaryCondition.EnvelopeBC,
+                                            BoundaryCondition.LaserBC]):
+        s = wave_propagation(filename, boundary_function)
+        plotting.plotting(s, show=show, alpha=0.5, save=save, animate=animate)

@@ -1,5 +1,7 @@
 # coding=utf-8
-import functools
+
+import numpy as np
+
 
 class BoundaryCondition:
     def __init__(self, particle_bc, field_bc):
@@ -24,7 +26,34 @@ type of boundary condition (sin, exp, one times other)
 place of application (left, right)
 """
 
+
+class Laser:
+    def __init__(self, laser_wavelength, envelope_center_t, envelope_width, envelope_power=2, c=1, laser_phase=0):
+        self.laser_wavelength = laser_wavelength
+        self.laser_phase = laser_phase
+        self.laser_omega = 2 * np.pi * c / laser_wavelength
+
+        self.envelope_center_t = envelope_center_t
+        self.envelope_width = envelope_width
+        self.envelope_power = envelope_power
+        self.c = c
+
+    def laser_wave(self, t):
+        return np.sin(self.laser_omega * t + self.laser_phase)
+
+    def laser_envelope(self, t):
+        return np.exp(-(t - self.envelope_center_t) ** self.envelope_power / self.envelope_width)
+
+    def laser_pulse(self, t):
+        return self.laser_wave(t) * self.laser_envelope(t)
+
+
+def NonPeriodicBC(function):
+    return BoundaryCondition(kill_particles_outside_bounds, function)
+
+
+laser = Laser(1, 10, 3)
 PeriodicBC = BoundaryCondition(return_particles_to_bounds, lambda x: None)
-# EnvelopeBC
-# SineBC
-LaserBC = BoundaryCondition(kill_particles_outside_bounds, functools.partial(apply_bc_buneman, lambda x: None)) # TODO: add bc function
+LaserBC = NonPeriodicBC(laser.laser_pulse)
+WaveBC = NonPeriodicBC(laser.laser_wave)
+EnvelopeBC = NonPeriodicBC(laser.laser_envelope)

@@ -65,10 +65,3 @@ def BunemanWaveSolver(electric_field, magnetic_field, current, dt, dx, c, epsilo
     return new_electric_field, new_magnetic_field, electric_energy + magnetic_energy
 
 
-def laser_boundary_condition(t, t_0, tau_e, n, *args):
-    return np.exp(-(t - t_0) ** n / tau_e)
-
-
-def sine_boundary_condition(t, omega, *args):
-    return np.sin(omega * t)
-

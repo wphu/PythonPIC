@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
+import BoundaryCondition
 from helper_functions import show_on_fail
 # TODO: use of multigrid methods for wave equation
 from plotting import plotting
@@ -109,19 +110,22 @@ def plot_all(field_history, analytical_solution):
 #                                                                     expected_value_half)
 
 
-@pytest.mark.parametrize(["filename", "bc", "bc_parameter_function", "bc_params"],
-                         [("sine", "sine", lambda T: 10, (0,)),
-                          ("laser", "laser", lambda T: T / 25, (1, 2)),
+@pytest.mark.parametrize(["filename", "bc"],
+                         [("sine", BoundaryCondition.WaveBC),
+                          ("envelope", BoundaryCondition.EnvelopeBC),
+                          ("laser", BoundaryCondition.LaserBC),
                           ])
-def test_wave_propagation(filename, bc, bc_parameter_function, bc_params):
-    run = wave_propagation(filename, bc, bc_parameter_function, bc_params)
+def test_wave_propagation(filename, bc):
+    run = wave_propagation(filename, bc)
     assert run.grid.grid_energy_history.mean() > 0, plotting(run, show=show_on_fail, save=False, animate=True)
 
-@pytest.mark.parametrize(["filename", "bc", "bc_parameter_function", "bc_params", "polarization_angle"],
-                         [("sine_polarized", "sine", lambda T: 10, (0,), np.pi/4),
-                          ("laser_polarized", "laser", lambda T: T / 25, (1, 2), np.pi/3),
+
+@pytest.mark.parametrize(["filename", "bc"],
+                         [("sine", BoundaryCondition.WaveBC),
+                          ("envelope", BoundaryCondition.EnvelopeBC),
+                          ("laser", BoundaryCondition.LaserBC),
                           ])
-def test_polarization_orthogonality(filename, bc, bc_parameter_function, bc_params, polarization_angle):
-    run = wave_propagation(filename, bc, bc_parameter_function, bc_params, polarization_angle, save_data=False)
+def test_polarization_orthogonality(filename, bc):
+    run = wave_propagation(filename, bc)
     angles = ((run.grid.electric_field_history[:,:,1:] * run.grid.magnetic_field_history).sum(axis=(1,2)))
     assert np.isclose(angles, 0).all(), "Polarization is not orthogonal!"

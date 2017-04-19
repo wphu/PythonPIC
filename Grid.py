@@ -3,9 +3,9 @@
 import numpy as np
 import scipy.fftpack as fft
 
-import algorithms_grid
-import algorithms_interpolate
+import BoundaryCondition
 import FieldSolver
+import algorithms_interpolate
 
 
 class Grid:
@@ -13,7 +13,7 @@ class Grid:
     """
 
     def __init__(self, L: float = 2 * np.pi, NG: int = 32, epsilon_0: float = 1, NT: float = 1, c: float = 1,
-                 dt: float = 1, n_species: int = 1, solver=FieldSolver.FourierSolver, bc=None,
+                 dt: float = 1, n_species: int = 1, solver=FieldSolver.FourierSolver, bc=BoundaryCondition.PeriodicBC,
                  bc_params=(1,), polarization_angle: float = 0.0):
         """
         :param float L: grid length, in nondimensional units
@@ -56,28 +56,9 @@ class Grid:
         self.k = 2 * np.pi * fft.fftfreq(NG, self.dx)
         self.k[0] = 0.0001
         self.k_plot = self.k[:int(NG / 2)]
+
         self.solver = solver
-        # if solver == "fourier":
-        #     self.init_solver = self.initial_solve_fourier
-        #     self.solve = self.solve_fourier
-        #     self.apply_bc = self.apply_bc_fourier
-        # elif solver == "buneman":
-        #     self.init_solver = self.initial_buneman
-        #     self.solve = self.solve_buneman
-        #     self.apply_bc = self.apply_bc_buneman
-        # else:
-        #     assert False, "need a solver!"
-
-        self.bc_params = bc_params
-
-        if bc:
-            self.apply_bc = self.apply_bc_buneman
-        else:
-            self.apply_bc = lambda x: None
-        if bc == "sine":
-            self.bc_function = algorithms_grid.sine_boundary_condition
-        elif bc == "laser":
-            self.bc_function = algorithms_grid.laser_boundary_condition
+        self.bc_function = bc.field_bc
 
     def init_solver(self):
         return self.solver.init_solver(self)
@@ -95,16 +76,10 @@ class Grid:
         """
         return self.epsilon_0 * (self.electric_field ** 2).sum() * 0.5 * self.dx
 
-
-
-    def apply_bc_fourier(self, i):
-        pass
-
-    def apply_bc_buneman(self, i):
-        angle_vector = np.array([np.cos(self.polarization_angle), np.sin(self.polarization_angle)], dtype=float)
-        angle_vector2 = np.array([np.cos(self.polarization_angle + np.pi/2), np.sin(self.polarization_angle + np.pi/2)], dtype=float)
-        self.electric_field[0, 1] = self.bc_function(i * self.dt, *self.bc_params)# * angle_vector
-        # self.magnetic_field[0, :] = self.bc_function(i * self.dt, *self.bc_params) / self.c * angle_vector2
+    def apply_bc(self, i):
+        bc_value = self.bc_function(i * self.dt)
+        if bc_value:
+            self.electric_field[0, 1] = bc_value
 
     def gather_charge(self, list_species, i=0):
         self.charge_density[:] = 0.0
