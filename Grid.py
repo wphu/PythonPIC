@@ -94,9 +94,10 @@ class Grid:
             self.current_density[1:-1] += gathered_current
 
     def electric_field_function(self, xp):
-        # TODO: this only takes x right now
-        return algorithms_interpolate.interpolateField(xp, self.electric_field[1:-1, 0], self.x,
-                                                       self.dx)  # OPTIMIZE: this is probably slow
+        result = np.zeros((xp.size, 3))
+        for i in range(3):
+            result[:, i] = algorithms_interpolate.interpolateField(xp, self.electric_field[1:-1, i], self.x, self.dx)
+        return result
 
     def save_field_values(self, i):
         """Update the i-th set of field values, without those gathered from interpolation (charge\current)"""

@@ -2,7 +2,7 @@
 # coding=utf-8
 import numpy as np
 
-from algorithms_pusher import leapfrog_push
+from algorithms_pusher import boris_push
 
 MAX_SAVED_PARTICLES = int(1e4)
 
@@ -18,7 +18,7 @@ class Species:
     NT: int, number of time steps (for diagnostics)
     """
 
-    def __init__(self, q, m, N, name=None, NT=1, scaling=1):
+    def __init__(self, q, m, N, name=None, NT=1, scaling=1, pusher=boris_push):
         r"""
         :param float q: particle charge
         :param float m: particle mass
@@ -51,8 +51,9 @@ class Species:
         self.velocity_std_history = np.zeros((NT, 3))
         self.alive_history = np.zeros((NT, self.saved_particles), dtype=bool)
         self.kinetic_energy_history = np.zeros(NT)
+        self.pusher = pusher
 
-    def init_push(self, electric_field_function, dt):
+    def init_push(self, electric_field_function, dt, B=lambda x: np.zeros((x.size, 3))):
         r"""
         Initializes particles for Leapfrog pushing.
         Same as `leapfrog_push`, except
@@ -65,11 +66,10 @@ class Species:
         """
 
         E = electric_field_function(self.x[self.alive])
-        _, self.v[self.alive], energy = leapfrog_push(self.x[self.alive], self.v[self.alive], E, self.q, self.m,
-                                                      -dt * 0.5)
+        _, self.v[self.alive], energy = self.pusher(self, E, -dt * 0.5, B(self.x[self.alive]))
         return energy
 
-    def push(self, electric_field_function, dt):
+    def push(self, electric_field_function, dt, B=lambda x: np.zeros((x.size, 3))):
         r"""
         Leapfrog pusher for particles.
 
@@ -79,21 +79,8 @@ class Species:
         """
 
         E = electric_field_function(self.x[self.alive])
-        self.x[self.alive], self.v[self.alive], energy = leapfrog_push(self.x[self.alive], self.v[self.alive], E,
-                                                                       self.q, self.m, dt)
+        self.x[self.alive], self.v[self.alive], energy = self.pusher(self, E, dt, B(self.x[self.alive]))
         return energy
-
-    def return_to_bounds(self, L):
-        """
-        Moves particles back into the grid via modulo division. Works in-place.
-        :param L: length of grid
-        """
-        self.x %= L
-
-    def kill_particles_outside_bounds(self, L):
-        self.alive = (0 < self.x) * (self.x < L)
-        self.x[~self.alive] = -1
-        self.v[~self.alive] = 0
 
     """POSITION INITIALIZATION"""
 

@@ -3,32 +3,28 @@
 import numpy as np
 
 
-# import numba
-
-def leapfrog_push(x, v, E, q, m, dt):
-    v_new = v.copy()
-    dv = E * q / m * dt
-    v_new[:, 0] += dv
-    energy = v * v_new * (0.5 * m)
-    return x + v_new[:, 0] * dt, v_new, energy
+def leapfrog_push(species, E, dt, *args):
+    v_new = species.v[species.alive].copy()
+    dv = E * species.q / species.m * dt
+    v_new += dv
+    energy = species.v[species.alive] * v_new * (0.5 * species.m)
+    return species.x + v_new[:, 0] * dt, v_new, energy
 
 
-def boris_push(x, v, E, B, q, m, dt):
+def boris_push(species, E, dt, B):
     # add half electric impulse to v(t-dt/2)
-    vminus = v + q * E / m * dt * 0.5
+    vminus = species.v + species.q * E / species.m * dt * 0.5
 
     # rotate to add magnetic field
-    t = -B * q / m * dt * 0.5
+    t = -B * species.q / species.m * dt * 0.5
     s = 2 * t / (1 + t * t)
 
     vprime = vminus + np.cross(vminus, t)  # TODO: axis?
     vplus = vminus + np.cross(vprime, s)
-    v_new = vplus + q * E / m * dt * 0.5
+    v_new = vplus + species.q * E / species.m * dt * 0.5
 
-    x += v_new[:, 0] * dt
-
-    energy = v * v_new * (0.5 * m)
-    return x + v_new[:, 0] * dt, v_new, energy
+    energy = species.v * v_new * (0.5 * species.m)
+    return species.x + v_new[:, 0] * dt, v_new, energy
 
 
 # @numba.njit() # OPTIMIZE: add numba to this algorithm

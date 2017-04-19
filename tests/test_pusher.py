@@ -1,18 +1,23 @@
 # coding=utf-8
 import matplotlib.pyplot as plt
 import numpy as np
+import pytest
 
+import algorithms_pusher
 from Species import Species
 from helper_functions import l2_test
 
 
-def test_constant_field(plotting=False):
-    s = Species(1, 1, 1)
-    # s.x = np.array([0], dtype=float)
+@pytest.mark.parametrize(["pusher"], [
+    [algorithms_pusher.leapfrog_push],
+    [algorithms_pusher.boris_push],
+    ])
+def test_constant_field(pusher, plotting=False):
+    s = Species(1, 1, 1, pusher=pusher)
     print(s.x)
 
     def uniform_field(x):
-        return np.ones_like(x)
+        return np.ones((1, 3), dtype=float)
 
     t, dt = np.linspace(0, 10, 200, retstep=True, endpoint=False)
     x_analytical = 0.5 * t ** 2 + 0
