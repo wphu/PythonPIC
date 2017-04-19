@@ -6,6 +6,7 @@ import time
 import h5py
 import numpy as np
 
+import BoundaryCondition
 from Grid import Grid
 from Species import Species
 from helper_functions import git_version, Constants
@@ -28,6 +29,7 @@ class Simulation:
                  constants: Constants,
                  grid: Grid,
                  list_species,
+                 boundary_condition = BoundaryCondition.PeriodicBC,
                  run_date=time.ctime(),
                  git_version=git_version(),
                  filename=time.strftime("%Y-%m-%d_%H-%M-%S.hdf5"),
@@ -47,6 +49,7 @@ class Simulation:
         self.list_species = list_species
         self.field_energy = np.zeros(NT)
         self.total_energy = np.zeros(NT)
+        self.boundary_condition = boundary_condition
         self.constants = constants
         self.dt = dt
         self.filename = filename
@@ -88,10 +91,7 @@ class Simulation:
             species.save_particle_values(i)
             kinetic_energy = species.push(self.grid.electric_field_function, self.dt).sum()
             # OPTIMIZE: remove this sum if it's not necessary (kinetic energy histogram?)
-            if periodic:
-                species.return_to_bounds(self.grid.L)
-            else:
-                species.kill_particles_outside_bounds(self.grid.L)
+            self.boundary_condition.particle_bc(species, self.grid.L)
             species.kinetic_energy_history[i] = kinetic_energy
             total_kinetic_energy += kinetic_energy
         self.grid.apply_bc(i)

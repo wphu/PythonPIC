@@ -2,6 +2,7 @@
 # coding=utf-8
 import numpy as np
 
+import BoundaryCondition
 import FieldSolver
 import plotting
 from Grid import Grid
@@ -37,7 +38,7 @@ def wave_propagation(filename,
     Initial polarization is {polarization_angle/np.pi * 180} degrees
     """
 
-    run = Simulation(NT, dt, Constants(c, epsilon_0), grid, [], filename=filename, title=description)
+    run = Simulation(NT, dt, Constants(c, epsilon_0), grid, [], boundary_condition=BoundaryCondition.LaserBC, filename=filename, title=description)
     run.grid_species_initialization()
     run.run(save_data)
     return run
