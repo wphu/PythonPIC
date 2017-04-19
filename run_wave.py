@@ -2,6 +2,7 @@
 # coding=utf-8
 import numpy as np
 
+import FieldSolver
 import plotting
 from Grid import Grid
 from Simulation import Simulation
@@ -26,7 +27,7 @@ def wave_propagation(filename,
     c = 1
     dt = dx / c
     NT = np.ceil(T / dt).astype(int)
-    grid = Grid(L, NG, epsilon_0, NT, dt=dt, n_species=0, solver="buneman", bc=bc,
+    grid = Grid(L, NG, epsilon_0, NT, dt=dt, n_species=0, solver=FieldSolver.BunemanSolver, bc=bc,
                 bc_params=(bc_parameter_function(T), *bc_params), polarization_angle=polarization_angle)
     alpha = c * dt / grid.dx
     print(f"alpha is {alpha}")

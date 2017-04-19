@@ -5,6 +5,7 @@ import scipy.fftpack as fft
 
 import algorithms_grid
 import algorithms_interpolate
+import FieldSolver
 
 
 class Grid:
@@ -12,7 +13,7 @@ class Grid:
     """
 
     def __init__(self, L: float = 2 * np.pi, NG: int = 32, epsilon_0: float = 1, NT: float = 1, c: float = 1,
-                 dt: float = 1, n_species: int = 1, solver="fourier", bc="sine",
+                 dt: float = 1, n_species: int = 1, solver=FieldSolver.FourierSolver, bc=None,
                  bc_params=(1,), polarization_angle: float = 0.0):
         """
         :param float L: grid length, in nondimensional units
@@ -55,22 +56,33 @@ class Grid:
         self.k = 2 * np.pi * fft.fftfreq(NG, self.dx)
         self.k[0] = 0.0001
         self.k_plot = self.k[:int(NG / 2)]
-        if solver == "fourier":
-            self.init_solver = self.initial_solve_fourier
-            self.solve = self.solve_fourier
-            self.apply_bc = self.apply_bc_fourier
-        elif solver == "buneman":
-            self.init_solver = self.initial_buneman
-            self.solve = self.solve_buneman
-            self.apply_bc = self.apply_bc_buneman
-        else:
-            assert False, "need a solver!"
+        self.solver = solver
+        # if solver == "fourier":
+        #     self.init_solver = self.initial_solve_fourier
+        #     self.solve = self.solve_fourier
+        #     self.apply_bc = self.apply_bc_fourier
+        # elif solver == "buneman":
+        #     self.init_solver = self.initial_buneman
+        #     self.solve = self.solve_buneman
+        #     self.apply_bc = self.apply_bc_buneman
+        # else:
+        #     assert False, "need a solver!"
 
         self.bc_params = bc_params
+        if bc:
+            self.apply_bc = self.apply_bc_buneman
+        else:
+            self.apply_bc = lambda x: None
         if bc == "sine":
             self.bc_function = algorithms_grid.sine_boundary_condition
         elif bc == "laser":
             self.bc_function = algorithms_grid.laser_boundary_condition
+
+    def init_solver(self):
+        return self.solver.init_solver(self)
+
+    def solve(self):
+        return self.solver.solve(self)
 
     def direct_energy_calculation(self):
         r"""
@@ -82,18 +94,7 @@ class Grid:
         """
         return self.epsilon_0 * (self.electric_field ** 2).sum() * 0.5 * self.dx
 
-    def solve_fourier(self, neutralize=True):
-        r"""
-        Solves
-        :return float energy:
-        """
-        self.electric_field[1:-1, 0], self.energy_per_mode = algorithms_grid.PoissonSolver(
-            self.charge_density[1:-1], self.k, self.NG, epsilon_0=self.epsilon_0, neutralize=neutralize
-            )
-        return self.energy_per_mode.sum() / (self.NG / 2)  # * 8 * np.pi * self.k[1]**2
 
-    def initial_solve_fourier(self):
-        self.solve_fourier()
 
     def apply_bc_fourier(self, i):
         pass
@@ -103,14 +104,6 @@ class Grid:
         angle_vector2 = np.array([np.cos(self.polarization_angle + np.pi/2), np.sin(self.polarization_angle + np.pi/2)], dtype=float)
         self.electric_field[0, 1] = self.bc_function(i * self.dt, *self.bc_params)# * angle_vector
         # self.magnetic_field[0, :] = self.bc_function(i * self.dt, *self.bc_params) / self.c * angle_vector2
-
-    def initial_buneman(self):
-        self.solve_fourier()
-
-    def solve_buneman(self):
-        self.electric_field, self.magnetic_field, self.energy_per_mode = algorithms_grid.BunemanWaveSolver(
-            self.electric_field, self.magnetic_field, self.current_density, self.dt, self.dx, self.c, self.epsilon_0)
-        return self.energy_per_mode
 
     def gather_charge(self, list_species, i=0):
         self.charge_density[:] = 0.0
