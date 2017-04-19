@@ -13,14 +13,12 @@ class Grid:
     """
 
     def __init__(self, L: float = 2 * np.pi, NG: int = 32, epsilon_0: float = 1, NT: float = 1, c: float = 1,
-                 dt: float = 1, n_species: int = 1, solver=FieldSolver.FourierSolver, bc=BoundaryCondition.PeriodicBC,
-                 bc_params=(1,), polarization_angle: float = 0.0):
+                 dt: float = 1, n_species: int = 1, solver=FieldSolver.FourierSolver, bc=BoundaryCondition.PeriodicBC):
         """
         :param float L: grid length, in nondimensional units
         :param int NG: number of grid cells
         :param float epsilon_0: the physical constant
         :param int NT: number of timesteps for history tracking purposes
-        :param float polarization_angle: angle of polarization at left boundary, in radians
         """
         self.x, self.dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
         self.dt = dt
@@ -49,8 +47,6 @@ class Grid:
 
         self.solver_string = solver
         self.bc_string = bc
-
-        self.polarization_angle = polarization_angle
 
         # specific to Poisson solver but used also elsewhere, for plotting # TODO: clear this part up
         self.k = 2 * np.pi * fft.fftfreq(NG, self.dx)
