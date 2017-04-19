@@ -6,10 +6,9 @@ import time
 import h5py
 import numpy as np
 
-from Constants import Constants
 from Grid import Grid
 from Species import Species
-from helper_functions import git_version
+from helper_functions import git_version, Constants
 
 
 class Simulation:
@@ -72,6 +71,8 @@ class Simulation:
     def iteration(self, i: int, periodic: bool = True):
         """
 
+        :param periodic: is the simulation periodic? (affects boundary conditions)
+        :type periodic: bool
         :param int i: iteration number
         Runs an iteration step
         1. saves field values

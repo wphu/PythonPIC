@@ -23,9 +23,9 @@ class Species:
         :param float q: particle charge
         :param float m: particle mass
         :param int N: total number of species particles
-        :param int scaling: number of particles per superparticle
         :param str name: name of particle set
         :param int NT: number of time steps (for history saving)
+        :param int scaling: number of particles per superparticle
         """
         self.q = q*scaling
         self.m = m*scaling

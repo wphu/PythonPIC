@@ -43,6 +43,7 @@
           <option value="int.sum" />
           <option value="float.__getitem__" />
           <option value="int.__getitem__" />
+          <option value="tests.test_scatter.test_nonuniform_current_deposition" />
         </list>
       </option>
     </inspection_tool>

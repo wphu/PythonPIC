@@ -4,7 +4,7 @@ import numpy as np
 
 from Grid import Grid
 from Species import Species
-from algorithms_grid import charge_density_deposition
+from algorithms_interpolate import charge_density_deposition
 
 
 def test_sine_perturbation_effect(amplitude=0.001):
@@ -212,5 +212,3 @@ def test_boundaries(plotting=False):
 #     # plt.show()
 
 
-if __name__ == "__main__":
-    test_nonuniform_current_deposition(True)

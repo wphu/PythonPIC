@@ -2,11 +2,10 @@
 # coding=utf-8
 from numpy import pi
 
-from Constants import Constants
 from Grid import Grid
 from Simulation import Simulation
 from Species import Species
-from helper_functions import plotting_parser
+from helper_functions import plotting_parser, Constants
 from plotting import plotting
 
 

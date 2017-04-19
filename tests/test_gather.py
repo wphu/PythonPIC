@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
-from algorithms_grid import interpolateField
+from algorithms_interpolate import interpolateField
 from helper_functions import l2_test
 
 

@@ -3,11 +3,10 @@
 import numpy as np
 
 import plotting
-from Constants import Constants
 from Grid import Grid
 from Simulation import Simulation
 from Species import Species
-from helper_functions import plotting_parser
+from helper_functions import plotting_parser, Constants
 
 
 def two_stream_instability(filename,

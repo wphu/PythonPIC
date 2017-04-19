@@ -2,6 +2,7 @@
 # coding=utf-8
 import argparse
 import subprocess
+from collections import namedtuple
 
 import numpy as np
 
@@ -60,7 +61,7 @@ def get_dominant_mode(S):
     """
     Calculates the dominant mode from energy oscillations
     :param Simulation S: simulation object
-    :type S: Simulation
+    :type S: Simulation.Simulation
     :return: number of dominant mode
     :rtype: int
     """
@@ -81,3 +82,4 @@ def did_it_thermalize(S):
 
 colors = "brgyc"
 directions = "xyz"
+Constants = namedtuple('Constants', ['c', 'epsilon_0'])

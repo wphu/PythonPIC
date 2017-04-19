@@ -4,6 +4,7 @@ import numpy as np
 import scipy.fftpack as fft
 
 import algorithms_grid
+import algorithms_interpolate
 
 
 class Grid:
@@ -11,7 +12,7 @@ class Grid:
     """
 
     def __init__(self, L: float = 2 * np.pi, NG: int = 32, epsilon_0: float = 1, NT: float = 1, c: float = 1,
-                 dt: float = 1, n_species: int = 1, solver="poisson", bc="sine",
+                 dt: float = 1, n_species: int = 1, solver="fourier", bc="sine",
                  bc_params=(1,), polarization_angle: float = 0.0):
         """
         :param float L: grid length, in nondimensional units
@@ -54,19 +55,14 @@ class Grid:
         self.k = 2 * np.pi * fft.fftfreq(NG, self.dx)
         self.k[0] = 0.0001
         self.k_plot = self.k[:int(NG / 2)]
-        if solver == "direct":
-            self.init_solver = self.initial_leapfrog
-            self.solve = self.solve_leapfrog
-            self.apply_bc = self.leapfrog_bc
-            self.previous_field = np.zeros_like(self.electric_field)
-        elif solver == "poisson":  # TODO: this should be named Fourier
-            self.init_solver = self.initial_poisson
-            self.solve = self.solve_poisson
-            self.apply_bc = self.poisson_bc
+        if solver == "fourier":
+            self.init_solver = self.initial_solve_fourier
+            self.solve = self.solve_fourier
+            self.apply_bc = self.apply_bc_fourier
         elif solver == "buneman":
             self.init_solver = self.initial_buneman
             self.solve = self.solve_buneman
-            self.apply_bc = self.poisson_bc
+            self.apply_bc = self.apply_bc_buneman
         else:
             assert False, "need a solver!"
 
@@ -86,7 +82,7 @@ class Grid:
         """
         return self.epsilon_0 * (self.electric_field ** 2).sum() * 0.5 * self.dx
 
-    def solve_poisson(self, neutralize=True):
+    def solve_fourier(self, neutralize=True):
         r"""
         Solves
         :return float energy:
@@ -96,34 +92,22 @@ class Grid:
             )
         return self.energy_per_mode.sum() / (self.NG / 2)  # * 8 * np.pi * self.k[1]**2
 
-    def initial_poisson(self):
-        self.solve_poisson()
+    def initial_solve_fourier(self):
+        self.solve_fourier()
 
-    def poisson_bc(self, i):
+    def apply_bc_fourier(self, i):
         pass
 
-    def leapfrog_bc(self, i):
+    def apply_bc_buneman(self, i):
         angle_vector = np.array([np.cos(self.polarization_angle), np.sin(self.polarization_angle)], dtype=float)
         angle_vector2 = np.array([np.cos(self.polarization_angle + np.pi/2), np.sin(self.polarization_angle + np.pi/2)], dtype=float)
-        self.electric_field[0, 1:] = self.bc_function(i * self.dt, *self.bc_params) * angle_vector
-        self.magnetic_field[0, :] = self.bc_function(i * self.dt, *self.bc_params) / self.c * angle_vector2
+        self.electric_field[0, 1] = self.bc_function(i * self.dt, *self.bc_params)# * angle_vector
+        # self.magnetic_field[0, :] = self.bc_function(i * self.dt, *self.bc_params) / self.c * angle_vector2
 
     def initial_buneman(self):
-        self.solve_poisson()
+        self.solve_fourier()
 
     def solve_buneman(self):
-        self.electric_field = algorithms_grid.BunemanSolver(self.electric_field, self.current_density, self.dt,
-                                                            self.epsilon_0)
-        return self.direct_energy_calculation()
-
-    def initial_leapfrog(self):
-        self.previous_field[1:-1, 0] = algorithms_grid.LeapfrogWaveInitial(self.electric_field[:, 0],
-                                                                           np.zeros_like(self.electric_field[:, 0]),
-                                                                           self.c,
-                                                                           self.dx,
-                                                                           self.dt)
-
-    def solve_leapfrog(self):
         self.electric_field, self.magnetic_field, self.energy_per_mode = algorithms_grid.BunemanWaveSolver(
             self.electric_field, self.magnetic_field, self.current_density, self.dt, self.dx, self.c, self.epsilon_0)
         return self.energy_per_mode
@@ -131,23 +115,23 @@ class Grid:
     def gather_charge(self, list_species, i=0):
         self.charge_density[:] = 0.0
         for i_species, species in enumerate(list_species):
-            gathered_density = algorithms_grid.charge_density_deposition(self.x, self.dx, species.x[species.alive],
-                                                                         species.q)
+            gathered_density = algorithms_interpolate.charge_density_deposition(self.x, self.dx, species.x[species.alive],
+                                                                                species.q)
             self.charge_density_history[i, :, i_species] = gathered_density
             self.charge_density[1:-1] += gathered_density
 
     def gather_current(self, list_species, i=0):
         self.current_density[:] = 0.0
         for i_species, species in enumerate(list_species):
-            gathered_current = algorithms_grid.current_density_deposition(self.x, self.dx, species.x, species.q,
-                                                                               species.v)
+            gathered_current = algorithms_interpolate.current_density_deposition(self.x, self.dx, species.x, species.q,
+                                                                                 species.v)
             self.current_density_history[i, :, :, i_species] = gathered_current
             self.current_density[1:-1] += gathered_current
 
     def electric_field_function(self, xp):
         # TODO: this only takes x right now
-        return algorithms_grid.interpolateField(xp, self.electric_field[1:-1, 0], self.x,
-                                                self.dx)  # OPTIMIZE: this is probably slow
+        return algorithms_interpolate.interpolateField(xp, self.electric_field[1:-1, 0], self.x,
+                                                       self.dx)  # OPTIMIZE: this is probably slow
 
     def save_field_values(self, i):
         """Update the i-th set of field values, without those gathered from interpolation (charge\current)"""
