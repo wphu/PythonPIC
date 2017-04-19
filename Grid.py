@@ -69,6 +69,7 @@ class Grid:
         #     assert False, "need a solver!"
 
         self.bc_params = bc_params
+
         if bc:
             self.apply_bc = self.apply_bc_buneman
         else:
@@ -185,46 +186,3 @@ class Grid:
         result *= self.epsilon_0 == other.epsilon_0
         return result
 
-
-# class RelativisticGrid(Grid):
-#     def __init__(self, L=2 * np.pi, NG=32, epsilon_0=1, c=1, NT=1):
-#         super().__init__(L, NG, epsilon_0, NT)
-#         self.c = c
-#         self.dt = self.dx / c
-#         self.Jyplus = np.zeros_like(self.x)
-#         self.Jyminus = np.zeros_like(self.x)
-#         self.Fplus = np.zeros_like(self.x)
-#         self.Fminus = np.zeros_like(self.x)
-#         self.Ey_history = np.zeros((NT, self.NG))
-#         self.Bz_history = np.zeros((NT, self.NG))
-#         self.current_density_history = np.zeros((NT, self.NG, 3))
-#
-#     # TODO: implement LPIC-style field solver
-#
-#     def iterate_EM_field(self):
-#         """
-#         calculate Fplus, Fminus in next iteration based on their previous
-#         values
-#
-#         assumes fixed left ([0]) boundary condition
-#
-#         F_plus(n+1, j) = F_plus(n, j) - 0.25 * dt * (Jyminus(n, j-1) + Jplus(n, j))
-#         F_minus(n+1, j) = F_minus(n, j) - 0.25 * dt * (Jyminus(n, j+1) - Jplus(n, j))
-#
-#         TODO: check viability of laser BC
-#         take average of last term instead at last point instead
-#         """
-#
-#         # TODO: get laser boundary condition from Birdsall
-#         self.Fminus[-1] = self.Fminus[-2] - 0.25 * self.dt * (self.Jyplus[0] - self.Jyminus[-1])
-#
-#     def unroll_EyBz(self):
-#         return self.Fplus + self.Fminus, self.Fplus - self.Fminus
-#
-#     def apply_laser_BC(self, B0, E0):
-#         self.Fplus[0] = (E0 + B0) / 2
-#         self.Fminus[0] = (E0 - B0) / 2
-
-
-if __name__ == "__main__":
-    pass
