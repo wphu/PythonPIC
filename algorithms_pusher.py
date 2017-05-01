@@ -64,30 +64,38 @@ def rotation_matrix(t: np.ndarray, s: np.ndarray, n: int) -> np.ndarray:
 
 
 # @numba.njit()
-def rela_boris_push(x: np.ndarray, v: np.ndarray, E: np.ndarray, B: np.ndarray, q: float, m: float, dt: float,
+def rela_boris_push(species, E: np.ndarray, dt: float, B: np.ndarray,
                     c: float = 1):
     """
     relativistic Boris pusher
     """
-    vminus = v + q * E / m * dt * 0.5  # eq. 21 LPIC
-    n = x.size
+    vminus = species.v + species.q * E / species.m * dt * 0.5 # eq. 21 LPIC
     gamma_n = np.sqrt(1 + ((vminus / c) ** 2).sum(axis=1, keepdims=True))  # below eq 22 LPIC
 
     # rotate to add magnetic field
-    t = B * q * dt / (2 * m * gamma_n)  # above eq 23 LPIC
+    t = B * species.q * dt / (2 * species.m * gamma_n)  # above eq 23 LPIC
     s = 2 * t / (1 + t * t)
 
-    rot = rotation_matrix(t, s, n)
+    rot = rotation_matrix(t, s, species.N)
 
     vplus = np.einsum('ijk,ik->ij', rot, vminus)
-    # import ipdb; ipdb.set_trace()
-
-    v_new = vplus + q * E / m * dt * 0.5
+    v_new = vplus + species.q * E / species.m * dt * 0.5
 
     # TODO: check correctness of relativistic kinetic energy calculation
-    energy = 0.5 * m * (v * v_new).sum(axis=0)
+    energy = 0.5 * species.m * (species.v * v_new).sum(axis=0)
     gamma_new = np.sqrt(1 + ((vminus / c) ** 2).sum(axis=1))
-    # import ipdb; ipdb.set_trace()
-
-    x_new = x + v_new[:, 0] / gamma_new * dt
+    x_new = species.x + v_new[:, 0] / gamma_new * dt
     return x_new, v_new, energy
+
+if __name__ == "__main__":
+    x = np.ones(10)
+    v = np.ones((3, 10))
+    E = np.zeros_like(v)
+    B = np.zeros_like(E)
+    q = 1
+    m = 1
+    dt = 1
+    dx = 1
+    c = 4
+
+    xn, vn, e = rela_boris_push(x, v, E, B, q, m, dt, c)

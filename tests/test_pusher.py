@@ -11,30 +11,31 @@ from helper_functions import l2_test
 @pytest.mark.parametrize(["pusher"], [
     [algorithms_pusher.leapfrog_push],
     [algorithms_pusher.boris_push],
+    [algorithms_pusher.rela_boris_push],
     ])
 def test_constant_field(pusher, plotting=False):
-    s = Species(1, 1, 1, pusher=pusher)
-    print(s.x)
+    t, dt = np.linspace(0, 10, 200, retstep=True, endpoint=False)
+    s = Species(1, 1, 1, pusher=pusher, NT = t.size)
 
     def uniform_field(x):
         return np.ones((1, 3), dtype=float)
 
-    t, dt = np.linspace(0, 10, 200, retstep=True, endpoint=False)
     x_analytical = 0.5 * t ** 2 + 0
-    x_data = []
+    s.init_push(uniform_field, dt)
     for i in range(t.size):
-        x_data.append(s.x[0])
+        s.save_particle_values(i)
         s.push(uniform_field, dt)
-    x_data = np.array(x_data)
-    print(x_analytical - x_data)
+    print(s.position_history.shape, x_analytical.shape)
+    print(x_analytical - s.position_history)
 
     def plot():
         fig, (ax1, ax2) = plt.subplots(2, sharex=True)
+        fig.suptitle(pusher)
         ax1.plot(t, x_analytical, "b-", label="analytical result")
-        ax1.plot(t, x_data, "ro--", label="simulation result")
+        ax1.plot(t, s.position_history, "ro--", label="simulation result")
         ax1.legend()
 
-        ax2.plot(t, x_data - x_analytical, label="difference")
+        ax2.plot(t, s.position_history[:,0] - x_analytical, label="difference")
         ax2.legend()
 
         ax2.set_xlabel("t")
@@ -46,9 +47,15 @@ def test_constant_field(pusher, plotting=False):
     if plotting:
         plot()
 
-    assert l2_test(x_analytical, x_data), plot()
+    assert l2_test(x_analytical, s.position_history[:,0]), plot()
 
-
+#@pytest.mark.parametrize(["E0"], [[1]])
+#def test_x2(E0):
+#    def Efield(x):
+#        return -E0 * (x-L/2)
+#    def Bfield(x):
+#        return B0*np.array((0,0,1))
+    
 # def test_boris_pusher():
 #     import matplotlib.pyplot as plt
 #     from mpl_toolkits.mplot3d import Axes3D
@@ -125,4 +132,5 @@ def test_constant_field(pusher, plotting=False):
 #     assert l2_test(x_analytical, x_data), plot()
 
 if __name__ == "__main__":
-    test_constant_field()
+    #test_constant_field(algorithms_pusher.rela_boris_push)
+    test_constant_field(algorithms_pusher.boris_push)
