@@ -2,6 +2,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
+import functools
 
 import algorithms_pusher
 from Species import Species
@@ -11,14 +12,13 @@ from helper_functions import l2_test
 @pytest.mark.parametrize(["pusher"], [
     [algorithms_pusher.leapfrog_push],
     [algorithms_pusher.boris_push],
-    [algorithms_pusher.rela_boris_push],
     ])
 def test_constant_field(pusher, plotting=False):
     t, dt = np.linspace(0, 10, 200, retstep=True, endpoint=False)
     s = Species(1, 1, 1, pusher=pusher, NT = t.size)
 
     def uniform_field(x):
-        return np.ones((1, 3), dtype=float)
+        return np.array([[1,0,0]], dtype=float)
 
     x_analytical = 0.5 * t ** 2 + 0
     s.init_push(uniform_field, dt)
@@ -48,6 +48,45 @@ def test_constant_field(pusher, plotting=False):
         plot()
 
     assert l2_test(x_analytical, s.position_history[:,0]), plot()
+
+@pytest.mark.parametrize(["pusher"], [
+    [algorithms_pusher.rela_boris_push_lpic],
+    [algorithms_pusher.rela_boris_push_bl],
+    ])
+def test_relativistic_constant_field(pusher, plotting=False):
+    t, dt = np.linspace(0, 100, 2000, retstep=True, endpoint=False)
+    s = Species(1, 1, 1, pusher=pusher, NT = t.size)
+
+    def uniform_field(x):
+        return np.array([[1,0,0]], dtype=float)
+
+    v_analytical = (0.5 * (1 + (1-4*t*t)**0.5))**0.5
+    s.init_push(uniform_field, dt)
+    for i in range(t.size):
+        s.save_particle_values(i)
+        s.push(uniform_field, dt)
+
+    def plot():
+        fig, (ax1, ax2) = plt.subplots(2, sharex=True)
+        fig.suptitle(pusher)
+        ax1.plot(t, v_analytical, "b-", label="analytical result")
+        ax1.plot(t, s.velocity_history[:,0,0], "ro--", label="simulation result")
+        ax1.legend()
+
+        ax2.plot(t, s.velocity_history[:,0,0] - v_analytical, label="difference")
+        ax2.legend()
+
+        ax2.set_xlabel("t")
+        ax1.set_ylabel("v")
+        ax2.set_ylabel("delta v")
+        plt.show()
+        return None
+
+    if plotting:
+        plot()
+
+    assert (s.velocity_history  < 1).all(), plot()
+    #TODO: assert l2_test(v_analytical, s.velocity_history[:,:,0]), plot()
 
 #@pytest.mark.parametrize(["E0"], [[1]])
 #def test_x2(E0):
@@ -132,5 +171,4 @@ def test_constant_field(pusher, plotting=False):
 #     assert l2_test(x_analytical, x_data), plot()
 
 if __name__ == "__main__":
-    #test_constant_field(algorithms_pusher.rela_boris_push)
-    test_constant_field(algorithms_pusher.boris_push)
+    test_relativistic_constant_field(algorithms_pusher.rela_boris_push_lpic)

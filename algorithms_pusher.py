@@ -1,6 +1,7 @@
 """mathematical algorithms for the particle pusher, Leapfrog and Boris"""
 # coding=utf-8
 import numpy as np
+import functools
 
 
 def leapfrog_push(species, E, dt, *args):
@@ -62,30 +63,49 @@ def rotation_matrix(t: np.ndarray, s: np.ndarray, n: int) -> np.ndarray:
     result[:, 1, 2] = sz * ty
     return result
 
+def gamma(v, c):
+    return np.sqrt(1 - ((v / c) ** 2).sum(axis=1, keepdims=True))  # below eq 22 LPIC
+
+def lpic_solve(t, s, N, uminus):
+    rot = rotation_matrix(t, s, N) # array of shape (3,3) for each of N_particles, so (N_particles, 3, 3)
+    uplus = np.einsum('ijk,ik->ij', rot, uminus)
+    return uplus
+
+def bl_solve(t, s, N, uminus):
+    # u' = u- + u- x t 
+    uprime = uminus + np.cross(uminus, t)
+    # v+ = u- + u' x s
+    uplus = uminus + np.cross(uprime, s)
+    return uplus
 
 # @numba.njit()
 def rela_boris_push(species, E: np.ndarray, dt: float, B: np.ndarray,
-                    c: float = 1):
+                    c: float = 1, solve=lpic_solve):
     """
     relativistic Boris pusher
     """
-    vminus = species.v + species.q * E / species.m * dt * 0.5 # eq. 21 LPIC
-    gamma_n = np.sqrt(1 + ((vminus / c) ** 2).sum(axis=1, keepdims=True))  # below eq 22 LPIC
+    u = species.v * gamma(species.v, c)
+    half_force = species.q * E / species.m * dt * 0.5 # eq. 21 LPIC # array of shape (N_particles, 3)
+    # add first half of electric force
+    uminus = u + half_force 
 
     # rotate to add magnetic field
-    t = B * species.q * dt / (2 * species.m * gamma_n)  # above eq 23 LPIC
+    t = B * species.q * dt / (2 * species.m * gamma(uminus, c))  # above eq 23 LPIC
     s = 2 * t / (1 + t * t)
+    uplus = solve(t, s, species.N, uminus)
 
-    rot = rotation_matrix(t, s, species.N)
-
-    vplus = np.einsum('ijk,ik->ij', rot, vminus)
-    v_new = vplus + species.q * E / species.m * dt * 0.5
+    # add second half of electric force
+    u_new = uplus + half_force
 
     # TODO: check correctness of relativistic kinetic energy calculation
+ #   import ipdb; ipdb.set_trace()
+    v_new = u_new / gamma(u_new, c)
     energy = 0.5 * species.m * (species.v * v_new).sum(axis=0)
-    gamma_new = np.sqrt(1 + ((vminus / c) ** 2).sum(axis=1))
-    x_new = species.x + v_new[:, 0] / gamma_new * dt
+    x_new = species.x + v_new[:, 0] * dt
     return x_new, v_new, energy
+
+rela_boris_push_bl = functools.partial(rela_boris_push, solve=bl_solve)
+rela_boris_push_lpic = functools.partial(rela_boris_push, solve=lpic_solve)
 
 if __name__ == "__main__":
     x = np.ones(10)
