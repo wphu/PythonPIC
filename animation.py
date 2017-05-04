@@ -96,11 +96,11 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
         field_axes = current_axes[j].twinx()
         field_axes.set_xlim(0, S.grid.L)
         electric_field_plots.append(
-            field_axes.plot(S.grid.x, S.grid.electric_field_history[0, :, j], "k.-", alpha=0.7, label=f"$E_{directions[j]}$")[0])
+            field_axes.plot(S.grid.x, S.grid.electric_field_history[0, 1:-1, j], "k.-", alpha=0.7, label=f"$E_{directions[j]}$")[0])
 
         if j > 0:
             magnetic_field_plots.append(
-                field_axes.plot(S.grid.x, S.grid.magnetic_field_history[0, :, j-1], "m.-", alpha=0.7, label=f"$B_{directions[j]}$")[0])
+                field_axes.plot(S.grid.x, S.grid.magnetic_field_history[0, 1:-1, j-1], "m.-", alpha=0.7, label=f"$B_{directions[j]}$")[0])
         # TODO: add magnetic field
         field_axes.set_ylabel(r"Fields $E$, $B$", color='k')
         field_axes.tick_params('y', colors='k')
@@ -176,9 +176,9 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
         for i_species in range(S.grid.n_species):
             charge_plots[i_species].set_data(S.grid.x, S.grid.charge_density_history[i, :, i_species])
         for j in range(3):
-            electric_field_plots[j].set_data(S.grid.x, S.grid.electric_field_history[i, :, j])
+            electric_field_plots[j].set_data(S.grid.x, S.grid.electric_field_history[i, 1:-1, j])
             if j > 0:
-                magnetic_field_plots[j-1].set_data(S.grid.x, S.grid.magnetic_field_history[i, :, j-1])
+                magnetic_field_plots[j-1].set_data(S.grid.x, S.grid.magnetic_field_history[i, 1:-1, j-1])
 
             for i_species, species, histogram, bin_array in zip(range(S.grid.n_species), S.list_species, histograms,
                                                                 bin_arrays):

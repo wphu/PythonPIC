@@ -12,7 +12,7 @@ class Grid:
 
     def __init__(self, L: float = 2 * np.pi, NG: int = 32, epsilon_0: float = 1, NT: float = 1, c: float = 1,
                  dt: float = 1, n_species: int = 1, solver="poisson", bc="sine",
-                 bc_params=(1,), polarization_angle: float = 0.0):
+                 bc_params=(1,)):
         """
         :param float L: grid length, in nondimensional units
         :param int NG: number of grid cells
@@ -38,8 +38,8 @@ class Grid:
 
         self.charge_density_history = np.zeros((NT, self.NG, n_species))
         self.current_density_history = np.zeros((NT, self.NG, 3, n_species))
-        self.electric_field_history = np.zeros((NT, self.NG, 3))
-        self.magnetic_field_history = np.zeros((NT, self.NG, 2))
+        self.electric_field_history = np.zeros((NT, self.NG+2, 3))
+        self.magnetic_field_history = np.zeros((NT, self.NG+2, 2))
 
         self.energy_per_mode_history = np.zeros(
             (NT, int(self.NG / 2)))  # OPTIMIZE: get this from efield_history?
@@ -48,7 +48,6 @@ class Grid:
         self.solver_string = solver
         self.bc_string = bc
 
-        self.polarization_angle = polarization_angle
 
         # specific to Poisson solver but used also elsewhere, for plotting # TODO: clear this part up
         self.k = 2 * np.pi * fft.fftfreq(NG, self.dx)
@@ -103,10 +102,23 @@ class Grid:
         pass
 
     def leapfrog_bc(self, i):
-        angle_vector = np.array([np.cos(self.polarization_angle), np.sin(self.polarization_angle)], dtype=float)
-        angle_vector2 = np.array([np.cos(self.polarization_angle + np.pi/2), np.sin(self.polarization_angle + np.pi/2)], dtype=float)
-        self.electric_field[0, 1:] = self.bc_function(i * self.dt, *self.bc_params) * angle_vector
-        self.magnetic_field[0, :] = self.bc_function(i * self.dt, *self.bc_params) / self.c * angle_vector2
+        angle = 30
+        shift = 90
+        initial_condition = self.bc_function(i * self.dt, *self.bc_params)
+        # set Fplus
+        self.electric_field[0, 1] = initial_condition * np.cos(angle * np. pi / 180)
+        self.magnetic_field[0, 1] = initial_condition / self.c * np.cos(angle * np.pi / 180)
+        # set Gminus
+        self.electric_field[0, 2] = initial_condition * np.sin(angle * np.pi / 180)
+        self.magnetic_field[0, 0] = -initial_condition / self.c * np.sin(angle * np.pi / 180)
+
+        # angle = 30
+        # shift=90
+        # omega, _ = self.bc_params
+        # t = i * self.dt
+        # x, y = algorithms_grid.elliptical_boundary_condition(i*self.dt, *self.bc_params)
+        # self.electric_field[0,1:] = x, y
+        # self.magnetic_field[0,:] = -y, x
 
     def initial_buneman(self):
         self.solve_poisson()
@@ -151,8 +163,8 @@ class Grid:
 
     def save_field_values(self, i):
         """Update the i-th set of field values, without those gathered from interpolation (charge\current)"""
-        self.electric_field_history[i] = self.electric_field[1:-1]
-        self.magnetic_field_history[i] = self.magnetic_field[1:-1]
+        self.electric_field_history[i] = self.electric_field
+        self.magnetic_field_history[i] = self.magnetic_field
         self.energy_per_mode_history[i] = self.energy_per_mode
         self.grid_energy_history[i] = self.energy_per_mode.sum() / (self.NG / 2)
 

@@ -1,6 +1,8 @@
 """Tests the Leapfrog wave PDE solver"""
 # coding=utf-8
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.animation import FuncAnimation
 import numpy as np
 import pytest
 
@@ -114,14 +116,71 @@ def plot_all(field_history, analytical_solution):
                           ("laser", "laser", lambda T: T / 25, (1, 2)),
                           ])
 def test_wave_propagation(filename, bc, bc_parameter_function, bc_params):
-    run = wave_propagation(filename, bc, bc_parameter_function, bc_params)
+    run = wave_propagation(filename, bc, bc_parameter_function, bc_params, save_data=False)
     assert run.grid.grid_energy_history.mean() > 0, plotting(run, show=show_on_fail, save=False, animate=True)
 
-@pytest.mark.parametrize(["filename", "bc", "bc_parameter_function", "bc_params", "polarization_angle"],
-                         [("sine_polarized", "sine", lambda T: 10, (0,), np.pi/4),
-                          ("laser_polarized", "laser", lambda T: T / 25, (1, 2), np.pi/3),
+@pytest.mark.parametrize(["filename", "bc", "bc_parameter_function", "bc_params"],
+                         [("sine_polarized", "sine", lambda T: 10, (0,)),
+                          ("laser_polarized", "laser", lambda T: T / 25, (1, 2)),
                           ])
-def test_polarization_orthogonality(filename, bc, bc_parameter_function, bc_params, polarization_angle):
-    run = wave_propagation(filename, bc, bc_parameter_function, bc_params, polarization_angle, save_data=False)
+def test_polarization_orthogonality(filename, bc, bc_parameter_function, bc_params, plotting=False):
+    # run = wave_propagation(filename, bc, bc_parameter_function, bc_params, polarization_angle, save_data=False)
+    run = wave_propagation(filename, bc, bc_parameter_function, bc_params, save_data=False)
     angles = ((run.grid.electric_field_history[:,:,1:] * run.grid.magnetic_field_history).sum(axis=(1,2)))
+
+    if plotting:
+        i = int(run.NT-1)
+        fig = plt.figure(figsize=(15,8))
+        ax = fig.add_subplot(131, projection='3d')
+        # ax = fig.add_subplot(111, projection='3d')
+        electric, = ax.plot(run.grid.x, run.grid.electric_field_history[i,1:-1,1], run.grid.electric_field_history[i,1:-1,2], "b-", label="E")
+        magnetic, = ax.plot(run.grid.x, run.grid.magnetic_field_history[i,1:-1,0], run.grid.magnetic_field_history[i,1:-1,1], "g-", label="B")
+        electric_bc, = ax.plot([0], run.grid.electric_field_history[i,0,1], run.grid.electric_field_history[i,0,2], "bo", label="E boundary")
+        magnetic_bc, = ax.plot([0], run.grid.magnetic_field_history[i,0,0], run.grid.magnetic_field_history[i,0,1], "go", label="B boundary")
+        ax.plot(run.grid.x, np.zeros_like(run.grid.x), np.zeros_like(run.grid.x), "k--")
+        ax.legend()
+        ax.set_xlabel("x")
+        ax.set_ylabel("y")
+        ax.set_zlabel("z")
+        # ax.view_init(0,0)
+        title = ax.set_title(f"{i}/{run.NT}")
+
+        Fplus = 0.5 * (run.grid.electric_field_history[:, 1:-1, 1] + run.grid.c * run.grid.magnetic_field_history[:, 1:-1, 1]) # 0.5 * (E_y + cB_z)
+        Fminus = 0.5 * (run.grid.electric_field_history[:, 1:-1, 1] - run.grid.c * run.grid.magnetic_field_history[:, 1:-1, 1]) # 0.5 * (E_y - cB_z)
+        Gplus = 0.5 * (run.grid.electric_field_history[:, 1:-1, 2] + run.grid.c * run.grid.magnetic_field_history[:, 1:-1, 0]) # 0.5 * (E_z + cB_y)
+        Gminus = 0.5 * (run.grid.electric_field_history[:, 1:-1, 2] - run.grid.c * run.grid.magnetic_field_history[:, 1:-1, 0]) # 0.5 * (E_z - cB_y)
+
+        ax2 = fig.add_subplot(132)
+        ax3 = fig.add_subplot(133)
+        Fplus_plot, = ax2.plot(run.grid.x, Fplus[i], label="Fplus")
+        Fminus_plot, = ax2.plot(run.grid.x, Fminus[i], label="Fminus")
+        Gplus_plot, = ax2.plot(run.grid.x, Gplus[i], label="Gplus")
+        Gminus_plot, = ax2.plot(run.grid.x, Gminus[i], label="Gminus")
+        angles_plot, = ax3.plot(angles, label="angles")
+        ax2.legend(loc='upper right')
+        ax3.legend(loc='upper right')
+
+        def animate(i):
+            electric.set_data(run.grid.x, run.grid.electric_field_history[i,1:-1,1])
+            electric.set_3d_properties(run.grid.electric_field_history[i,1:-1,2])
+            magnetic.set_data(run.grid.x, run.grid.magnetic_field_history[i,1:-1,0])
+            magnetic.set_3d_properties(run.grid.magnetic_field_history[i,1:-1,1])
+            magnetic_bc.set_data(0, run.grid.magnetic_field_history[i,0,0])
+            magnetic_bc.set_3d_properties(run.grid.magnetic_field_history[i,0,1])
+            electric_bc.set_data(0, run.grid.electric_field_history[i,0,1])
+            electric_bc.set_3d_properties(run.grid.electric_field_history[i,0,2])
+            Fplus_plot.set_ydata(Fplus[i])
+            Fminus_plot.set_ydata(Fminus[i])
+            Gplus_plot.set_ydata(Gplus[i])
+            Gminus_plot.set_ydata(Gminus[i])
+            title.set_text(f"{i}/{run.NT}")
+            return [electric, magnetic, electric_bc, magnetic_bc, Fplus_plot, Fminus_plot, Gplus_plot, Gminus_plot, title]
+            # return [electric, magnetic, title]
+        timestep = np.log(run.NT).astype(int)
+        # anim = FuncAnimation(fig, animate, range(0, run.NT, timestep), interval=50)
+        # anim.save("laser.mp4")
+        plt.show()
     assert np.isclose(angles, 0).all(), "Polarization is not orthogonal!"
+
+if __name__ == '__main__':
+    test_polarization_orthogonality("sine_polarized", "sine", lambda T: 5, (0,), plotting=True)

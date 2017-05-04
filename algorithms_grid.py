@@ -3,6 +3,7 @@
 import numpy as np
 from scipy import fftpack as fft
 
+
 def charge_density_deposition(x, dx, x_particles, particle_charge):
     """scatters charge from particles to grid
     uses linear interpolation
@@ -116,12 +117,11 @@ def BunemanSolver(field, current, dt, epsilon_0):
     return result
 
 
-
 def LeapfrogWaveInitial(field, derivative, c, dx, dt):
     alpha = abs(c * dt / dx)
     field_first = dt * derivative[1:-1] + \
-                        field[1:-1] * (1 - alpha ** 2) + \
-                        0.5 * alpha ** 2 * (field[:-2] + field[2:])
+                  field[1:-1] * (1 - alpha ** 2) + \
+                  0.5 * alpha ** 2 * (field[:-2] + field[2:])
     return field_first
 
 
@@ -146,26 +146,28 @@ def LeapfrogWaveSolver(field_current, field_previous, c, dx, dt, epsilon_0=1):
 
 def BunemanWaveSolver(electric_field, magnetic_field, current, dt, dx, c, epsilon_0):
     # dt = dx/c
-    Fplus = 0.5 * (electric_field[:, 1] + c * magnetic_field[:, 1])
-    Fminus = 0.5 * (electric_field[:, 1] - c * magnetic_field[:, 1])
-    Gplus = 0.5 * (electric_field[:, 2] + c * magnetic_field[:, 0])
-    Gminus = 0.5 * (electric_field[:, 2] - c * magnetic_field[:, 0])
+    Fplus = 0.5 * (electric_field[:, 1] + c * magnetic_field[:, 1]) # 0.5 * (E_y + cB_z)
+    Fminus = 0.5 * (electric_field[:, 1] - c * magnetic_field[:, 1]) # 0.5 * (E_y - cB_z)
+    Gplus = 0.5 * (electric_field[:, 2] + c * magnetic_field[:, 0]) # 0.5 * (E_z + cB_y)
+    Gminus = 0.5 * (electric_field[:, 2] - c * magnetic_field[:, 0]) # 0.5 * (E_z - cB_y)
 
+    # TODO: verify the index on current here
+    # right going
     Fplus[1:] = Fplus[:-1] - 0.5 * dt * (current[:-1, 1]) / epsilon_0
-    Fminus[:-1] = Fminus[1:] - 0.5 * dt * (current[1:, 1]) / epsilon_0  # TODO: verify the index on current here
     Gplus[1:] = Gplus[:-1] - 0.5 * dt * (current[:-1, 2]) / epsilon_0
-    Gminus[:-1] = Gminus[1:] - 0.5 * dt * (current[1:, 2]) / epsilon_0  # TODO: verify the index on current here
+    # left going
+    Fminus[:-1] = Fminus[1:] - 0.5 * dt * (current[1:, 1]) / epsilon_0
+    Gminus[:-1] = Gminus[1:] - 0.5 * dt * (current[1:, 2]) / epsilon_0
 
-    new_electric_field = np.zeros_like(electric_field)
-    new_magnetic_field = np.zeros_like(magnetic_field)
+    new_electric_field = np.copy(electric_field)
+    new_magnetic_field = np.copy(magnetic_field)
 
-    new_electric_field[:, 1] = Fplus + Fminus
-    new_electric_field[:, 2] = Gplus + Gminus
-    new_magnetic_field[:, 0] = (Gplus - Gminus) / c
-    new_magnetic_field[:, 1] = (Fplus - Fminus) / c
+    new_electric_field[:, 1] = Fplus + Fminus # E_y
+    new_electric_field[:, 2] = Gplus + Gminus # E_z
+    new_magnetic_field[:, 0] = (Gplus - Gminus) / c # B_y
+    new_magnetic_field[:, 1] = (Fplus - Fminus) / c # B_z
 
-
-    new_electric_field[:,0] = electric_field[:, 0] - dt / epsilon_0 * current[:,0] # TODO: verify indices here
+    new_electric_field[:, 0] = electric_field[:, 0] - dt / epsilon_0 * current[:, 0]  # TODO: verify indices here
     electric_energy = 0.5 * epsilon_0 * dx * (new_electric_field ** 2).sum()
     magnetic_energy = 0.5 * dx * (new_magnetic_field ** 2).sum()
     return new_electric_field, new_magnetic_field, electric_energy + magnetic_energy
@@ -178,3 +180,6 @@ def laser_boundary_condition(t, t_0, tau_e, n, *args):
 def sine_boundary_condition(t, omega, *args):
     return np.sin(omega * t)
 
+def elliptical_boundary_condition(t, omega, *args):
+    angle = omega * t
+    return np.cos(omega * t), np.sin(omega*t)
