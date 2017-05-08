@@ -1,7 +1,8 @@
 """mathematical algorithms for the particle pusher, Leapfrog and Boris"""
+import functools
+
 # coding=utf-8
 import numpy as np
-import functools
 
 
 def leapfrog_push(species, E, dt, *args):
@@ -63,8 +64,13 @@ def rotation_matrix(t: np.ndarray, s: np.ndarray, n: int) -> np.ndarray:
     result[:, 1, 2] = sz * ty
     return result
 
-def gamma(v, c):
-    return np.sqrt(1 - ((v / c) ** 2).sum(axis=1, keepdims=True))  # below eq 22 LPIC
+
+def gamma_from_v(v, c):
+    return 1 / np.sqrt(1 - ((v ** 2).sum(axis=1, keepdims=True)) / c ** 2)  # below eq 22 LPIC
+
+
+def gamma_from_u(u, c):
+    return np.sqrt(1 + ((u ** 2).sum(axis=1, keepdims=True) / c ** 2))
 
 def lpic_solve(t, s, N, uminus):
     rot = rotation_matrix(t, s, N) # array of shape (3,3) for each of N_particles, so (N_particles, 3, 3)
@@ -84,13 +90,13 @@ def rela_boris_push(species, E: np.ndarray, dt: float, B: np.ndarray,
     """
     relativistic Boris pusher
     """
-    u = species.v * gamma(species.v, c)
+    u = species.v * gamma_from_v(species.v, c)
     half_force = species.q * E / species.m * dt * 0.5 # eq. 21 LPIC # array of shape (N_particles, 3)
     # add first half of electric force
     uminus = u + half_force 
 
     # rotate to add magnetic field
-    t = B * species.q * dt / (2 * species.m * gamma(uminus, c))  # above eq 23 LPIC
+    t = B * species.q * dt / (2 * species.m * gamma_from_u(uminus, c))  # above eq 23 LPIC
     s = 2 * t / (1 + t * t)
     uplus = solve(t, s, species.N, uminus)
 
@@ -99,7 +105,7 @@ def rela_boris_push(species, E: np.ndarray, dt: float, B: np.ndarray,
 
     # TODO: check correctness of relativistic kinetic energy calculation
  #   import ipdb; ipdb.set_trace()
-    v_new = u_new / gamma(u_new, c)
+    v_new = u_new / gamma_from_u(u_new, c)
     energy = 0.5 * species.m * (species.v * v_new).sum(axis=0)
     x_new = species.x + v_new[:, 0] * dt
     return x_new, v_new, energy

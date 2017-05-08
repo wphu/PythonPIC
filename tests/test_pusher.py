@@ -2,11 +2,28 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
-import functools
 
 import algorithms_pusher
 from Species import Species
 from helper_functions import l2_test
+
+
+def plot(pusher, t, analytical_result, simulation_result,
+         message="Difference between analytical and simulated results!"):
+    fig, (ax1, ax2) = plt.subplots(2, sharex=True)
+    fig.suptitle(pusher)
+    ax1.plot(t, analytical_result, "b-", label="analytical result")
+    ax1.plot(t, simulation_result, "ro--", label="simulation result")
+    ax1.legend()
+
+    ax2.plot(t, simulation_result - analytical_result, label="difference")
+    ax2.legend()
+
+    ax2.set_xlabel("t")
+    ax1.set_ylabel("result")
+    ax2.set_ylabel("difference")
+    plt.show()
+    return message
 
 
 @pytest.mark.parametrize(["pusher"], [
@@ -25,68 +42,37 @@ def test_constant_field(pusher, plotting=False):
     for i in range(t.size):
         s.save_particle_values(i)
         s.push(uniform_field, dt)
-    print(s.position_history.shape, x_analytical.shape)
-    print(x_analytical - s.position_history)
-
-    def plot():
-        fig, (ax1, ax2) = plt.subplots(2, sharex=True)
-        fig.suptitle(pusher)
-        ax1.plot(t, x_analytical, "b-", label="analytical result")
-        ax1.plot(t, s.position_history, "ro--", label="simulation result")
-        ax1.legend()
-
-        ax2.plot(t, s.position_history[:,0] - x_analytical, label="difference")
-        ax2.legend()
-
-        ax2.set_xlabel("t")
-        ax1.set_ylabel("x")
-        ax2.set_ylabel("delta x")
-        plt.show()
-        return None
 
     if plotting:
         plot()
 
-    assert l2_test(x_analytical, s.position_history[:,0]), plot()
+    assert l2_test(x_analytical, s.position_history[:, 0]), plot(pusher, t, x_analytical, s.position_history[:, 0])
 
 @pytest.mark.parametrize(["pusher"], [
     [algorithms_pusher.rela_boris_push_lpic],
     [algorithms_pusher.rela_boris_push_bl],
     ])
 def test_relativistic_constant_field(pusher, plotting=False):
-    t, dt = np.linspace(0, 100, 2000, retstep=True, endpoint=False)
-    s = Species(1, 1, 1, pusher=pusher, NT = t.size)
+    t, dt = np.linspace(0, 10, 2000, retstep=True, endpoint=False)
+    s = Species(1, 1, 5, pusher=pusher, NT=t.size)
 
     def uniform_field(x):
         return np.array([[1,0,0]], dtype=float)
 
-    v_analytical = (0.5 * (1 + (1-4*t*t)**0.5))**0.5
+    v_analytical = (t - dt / 2) / np.sqrt((t - dt / 2) ** 2 + 1)
     s.init_push(uniform_field, dt)
     for i in range(t.size):
         s.save_particle_values(i)
         s.push(uniform_field, dt)
 
-    def plot():
-        fig, (ax1, ax2) = plt.subplots(2, sharex=True)
-        fig.suptitle(pusher)
-        ax1.plot(t, v_analytical, "b-", label="analytical result")
-        ax1.plot(t, s.velocity_history[:,0,0], "ro--", label="simulation result")
-        ax1.legend()
-
-        ax2.plot(t, s.velocity_history[:,0,0] - v_analytical, label="difference")
-        ax2.legend()
-
-        ax2.set_xlabel("t")
-        ax1.set_ylabel("v")
-        ax2.set_ylabel("delta v")
-        plt.show()
-        return None
 
     if plotting:
         plot()
 
-    assert (s.velocity_history  < 1).all(), plot()
-    #TODO: assert l2_test(v_analytical, s.velocity_history[:,:,0]), plot()
+    assert (s.velocity_history < 1).all(), plot(pusher, t, v_analytical, s.velocity_history[:, 0, 0],
+                                                f"Velocity went over c! Max velocity: {s.velocity_history.max()}")
+    assert l2_test(v_analytical, s.velocity_history[:, 0, 0]), plot(pusher, t, v_analytical,
+                                                                    s.velocity_history[:, 0, 0], )
 
 #@pytest.mark.parametrize(["E0"], [[1]])
 #def test_x2(E0):
