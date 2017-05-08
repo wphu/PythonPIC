@@ -6,7 +6,7 @@ from collections import namedtuple
 
 import numpy as np
 
-show_on_fail = False
+show_on_fail = True
 
 
 def l2_norm(reference: np.ndarray, test: np.ndarray) -> float:

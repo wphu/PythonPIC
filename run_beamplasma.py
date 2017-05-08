@@ -19,9 +19,9 @@ def weakbeam_instability(filename,
                          N_plasma=2048,
                          L=2 * np.pi,
                          epsilon_0=1,
-                         push_amplitude=0.01,
+                         push_amplitude=0.0001,
                          push_mode=1,
-                         v0=1.0,
+                         v0=0.01,
                          vrandom=0,
                          save_data: bool = True,
                          ):
@@ -50,14 +50,14 @@ def weakbeam_instability(filename,
     plasma = Species(particle_charge, particle_mass, N_plasma, "plasma", NT, scaling(N_plasma))
     beam = Species(particle_charge, particle_mass, N_beam, "beam2", NT, scaling(N_plasma))
     total_negative_charge = particle_charge * (N_plasma + N_beam)
-    N_protons = 100
-    q_protons = -total_negative_charge/N_protons
-    proton_mass = 1e10
+    # N_protons = 100
+    # q_protons = -total_negative_charge/N_protons
+    # proton_mass = 1e16
     beam.v[:, 0] = v0
     plasma.v[:, 0] = 0
-    background = Species(q_protons, proton_mass, N_protons, "protons", NT, scaling(N_plasma))
-    background.v[:,:] = 0
-    list_species = [beam, plasma, background]
+    # background = Species(q_protons, proton_mass, N_protons, "protons", NT, scaling(N_plasma))
+    # background.v[:,:] = 0
+    list_species = [beam, plasma]  # , background]
     grid = Grid(L=L, NG=NG, NT=NT, n_species=len(list_species))
     for i, species in enumerate(list_species):
         species.distribute_uniformly(L, 0.5 * grid.dx * i)

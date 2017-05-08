@@ -78,8 +78,8 @@ def test_leapfrog_instability(dt):
     N_electrons = 1024
     NG = 64
     qmratio = -1
-
-    S = cold_plasma_oscillations(f"CO_LEAPFROG", qmratio=qmratio, plasma_frequency=plasma_frequency, NG=NG,
+    NT = 900
+    S = cold_plasma_oscillations(f"CO_LEAPFROG", NT=NT, qmratio=qmratio, plasma_frequency=plasma_frequency, NG=NG,
                                  N_electrons=N_electrons, push_mode=push_mode, save_data=False, dt=dt)
     energy_final_to_initial = S.total_energy[-1] / S.total_energy[0]
     assert energy_final_to_initial > 100, (f"Energy gain: {energy_final_to_initial}",
