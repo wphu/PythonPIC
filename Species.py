@@ -2,7 +2,7 @@
 # coding=utf-8
 import numpy as np
 
-from algorithms_pusher import boris_push
+from algorithms_pusher import rela_boris_push_bl as rela_boris_push
 
 MAX_SAVED_PARTICLES = int(1e4)
 
@@ -18,7 +18,7 @@ class Species:
     NT: int, number of time steps (for diagnostics)
     """
 
-    def __init__(self, q, m, N, name=None, NT=1, scaling=1, pusher=boris_push):
+    def __init__(self, q, m, N, name=None, NT=1, scaling=1, c=1, pusher=rela_boris_push):
         r"""
         :param float q: particle charge
         :param float m: particle mass
@@ -34,6 +34,7 @@ class Species:
         self.x = np.zeros(N, dtype=float)
         self.v = np.zeros((N, 3), dtype=float)
         self.alive = np.ones(N, dtype=bool)
+        self.c = c
         if name:
             self.name = name
         else:

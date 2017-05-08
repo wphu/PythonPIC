@@ -97,11 +97,13 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
         field_axes = current_axes[j].twinx()
         field_axes.set_xlim(0, S.grid.L)
         electric_field_plots.append(
-            field_axes.plot(S.grid.x, S.grid.electric_field_history[0, :, j], "k.-", alpha=0.7, label=f"$E_{directions[j]}$")[0])
+            field_axes.plot(S.grid.x, S.grid.electric_field_history[0, :, j], "k.-", alpha=0.7,
+                            label=f"$E_{directions[j]}$")[0])
 
         if j > 0:
             magnetic_field_plots.append(
-                field_axes.plot(S.grid.x, S.grid.magnetic_field_history[0, :, j-1], "m.-", alpha=0.7, label=f"$B_{directions[j]}$")[0])
+                field_axes.plot(S.grid.x, S.grid.magnetic_field_history[0, :, j - 1], "m.-", alpha=0.7,
+                                label=f"$B_{directions[j]}$")[0])
         field_axes.set_ylabel(r"Fields $E$, $B$", color='k')
         field_axes.tick_params('y', colors='k')
         field_axes.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
@@ -162,12 +164,13 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
         for j in range(3):
             electric_field_plots[j].set_data([], [])
             if j > 0:
-                magnetic_field_plots[j-1].set_data([], [])
+                magnetic_field_plots[j - 1].set_data([], [])
             for i, species, histogram in zip(range(S.grid.n_species), S.list_species, histograms):
                 phase_dots[species.name].set_data([], [])
                 current_plots[3 * i + j].set_data([], [])
                 histogram.set_data([], [])
-        return [*current_plots, *charge_plots, *electric_field_plots, *magnetic_field_plots, freq_plot, *phase_dots.values(), iteration]
+        return [*current_plots, *charge_plots, *electric_field_plots, *magnetic_field_plots, freq_plot,
+                *phase_dots.values(), iteration]
 
     def animate(i):
         """draws the i-th frame of the simulation"""
@@ -178,7 +181,7 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
         for j in range(3):
             electric_field_plots[j].set_data(S.grid.x, S.grid.electric_field_history[i, :, j])
             if j > 0:
-                magnetic_field_plots[j-1].set_data(S.grid.x, S.grid.magnetic_field_history[i, :, j-1])
+                magnetic_field_plots[j - 1].set_data(S.grid.x, S.grid.magnetic_field_history[i, :, j - 1])
 
             for i_species, species, histogram, bin_array in zip(range(S.grid.n_species), S.list_species, histograms,
                                                                 bin_arrays):
@@ -188,7 +191,8 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
                                                                          i_species])
                 histogram.set_data(*velocity_histogram_data(species.velocity_history[i], bin_array))
 
-        return [*current_plots, *charge_plots, *electric_field_plots, *magnetic_field_plots, freq_plot, *histograms, *phase_dots.values(),
+        return [*current_plots, *charge_plots, *electric_field_plots, *magnetic_field_plots, freq_plot, *histograms,
+                *phase_dots.values(),
                 iteration]
 
     animation_object = anim.FuncAnimation(fig, animate, interval=100, frames=np.arange(0, S.NT, int(np.log10(S.NT))),

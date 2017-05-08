@@ -8,9 +8,10 @@ from helper_functions import l2_norm, l2_test
 
 DEBUG = False
 
+
 @pytest.mark.parametrize(["NG", "L"], [
     (128, 1),
-    (128, 2*np.pi)
+    (128, 2 * np.pi)
     ])
 def test_PoissonSolver(NG, L, debug=DEBUG):
     g = Grid(L, NG)
@@ -39,6 +40,7 @@ def test_PoissonSolver(NG, L, debug=DEBUG):
         plots()
     field_correct = np.isclose(g.electric_field, field).all()
     assert field_correct, plots()
+
 
 # def test_PoissonSolver_complex(debug=DEBUG):
 #     L = 1

@@ -30,12 +30,12 @@ def plot(pusher, t, analytical_result, simulation_result,
     [algorithms_pusher.leapfrog_push],
     [algorithms_pusher.boris_push],
     ])
-def test_constant_field(pusher, plotting=False):
+def test_constant_field(pusher):
     t, dt = np.linspace(0, 10, 200, retstep=True, endpoint=False)
-    s = Species(1, 1, 1, pusher=pusher, NT = t.size)
+    s = Species(1, 1, 1, pusher=pusher, NT=t.size)
 
     def uniform_field(x):
-        return np.array([[1,0,0]], dtype=float)
+        return np.array([[1, 0, 0]], dtype=float)
 
     x_analytical = 0.5 * t ** 2 + 0
     s.init_push(uniform_field, dt)
@@ -43,21 +43,19 @@ def test_constant_field(pusher, plotting=False):
         s.save_particle_values(i)
         s.push(uniform_field, dt)
 
-    if plotting:
-        plot()
-
     assert l2_test(x_analytical, s.position_history[:, 0]), plot(pusher, t, x_analytical, s.position_history[:, 0])
+
 
 @pytest.mark.parametrize(["pusher"], [
     [algorithms_pusher.rela_boris_push_lpic],
     [algorithms_pusher.rela_boris_push_bl],
     ])
-def test_relativistic_constant_field(pusher, plotting=False):
+def test_relativistic_constant_field(pusher):
     t, dt = np.linspace(0, 10, 2000, retstep=True, endpoint=False)
     s = Species(1, 1, 5, pusher=pusher, NT=t.size)
 
     def uniform_field(x):
-        return np.array([[1,0,0]], dtype=float)
+        return np.array([[1, 0, 0]], dtype=float)
 
     v_analytical = (t - dt / 2) / np.sqrt((t - dt / 2) ** 2 + 1)
     s.init_push(uniform_field, dt)
@@ -65,22 +63,19 @@ def test_relativistic_constant_field(pusher, plotting=False):
         s.save_particle_values(i)
         s.push(uniform_field, dt)
 
-
-    if plotting:
-        plot()
-
     assert (s.velocity_history < 1).all(), plot(pusher, t, v_analytical, s.velocity_history[:, 0, 0],
                                                 f"Velocity went over c! Max velocity: {s.velocity_history.max()}")
     assert l2_test(v_analytical, s.velocity_history[:, 0, 0]), plot(pusher, t, v_analytical,
                                                                     s.velocity_history[:, 0, 0], )
 
-#@pytest.mark.parametrize(["E0"], [[1]])
-#def test_x2(E0):
+
+# @pytest.mark.parametrize(["E0"], [[1]])
+# def test_x2(E0):
 #    def Efield(x):
 #        return -E0 * (x-L/2)
 #    def Bfield(x):
 #        return B0*np.array((0,0,1))
-    
+
 # def test_boris_pusher():
 #     import matplotlib.pyplot as plt
 #     from mpl_toolkits.mplot3d import Axes3D

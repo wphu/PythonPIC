@@ -53,5 +53,5 @@ def test_twostream(filename, plasma_frequency, NT, dt, N_electrons, NG, qmratio,
                              ("laser6_polarized", "laser", lambda t: t / 25, (1, 6), 2*np.pi/3),
                              ])
 def test_wave_propagation(filename, bc, bc_parameter_function, bc_params, polarization_angle):
-    s = wave_propagation(filename, bc, bc_parameter_function, bc_params, polarization_angle, save_data=True)
+    s = wave_propagation(filename, bc, bc_parameter_function)
     plotting.plotting(s, show=False, save=True, animate=True)

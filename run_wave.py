@@ -11,12 +11,12 @@ from helper_functions import plotting_parser, Constants
 
 
 def wave_propagation(filename,
-                           bc,
-                           save_data: bool = True,
-                           ):
+                     bc,
+                     save_data: bool = True,
+                     ):
     """Implements wave propagation"""
     filename = f"data_analysis/EMWAVE/{filename}/{filename}.hdf5"
-    T = 20
+    T = 50
     print(f"T is {T}")
     NG = 60
     L = 2 * np.pi
@@ -30,7 +30,7 @@ def wave_propagation(filename,
     print(f"alpha is {alpha}")
     assert alpha <= 1
     description = \
-    f"""Electrostatic wave driven by boundary condition
+        f"""Electrostatic wave driven by boundary condition
     """
 
     run = Simulation(NT, dt, [], grid, Constants(c, epsilon_0), boundary_condition=bc, filename=filename,
@@ -38,6 +38,7 @@ def wave_propagation(filename,
     run.grid_species_initialization()
     run.run(save_data)
     return run
+
 
 if __name__ == '__main__':
     show, save, animate = plotting_parser("Wave propagation")

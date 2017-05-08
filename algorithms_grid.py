@@ -58,10 +58,7 @@ def BunemanWaveSolver(electric_field, magnetic_field, current, dt, dx, c, epsilo
     new_magnetic_field[:, 1] = (Gplus - Gminus) / c
     new_magnetic_field[:, 2] = (Fplus - Fminus) / c
 
-
-    new_electric_field[:,0] = electric_field[:, 0] - dt / epsilon_0 * current[:,0] # TODO: verify indices here
+    new_electric_field[:, 0] = electric_field[:, 0] - dt / epsilon_0 * current[:, 0]  # TODO: verify indices here
     electric_energy = 0.5 * epsilon_0 * dx * (new_electric_field ** 2).sum()
     magnetic_energy = 0.5 * dx * (new_magnetic_field ** 2).sum()
     return new_electric_field, new_magnetic_field, electric_energy + magnetic_energy
-
-

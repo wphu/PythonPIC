@@ -8,6 +8,7 @@ import numpy as np
 
 show_on_fail = False
 
+
 def l2_norm(reference: np.ndarray, test: np.ndarray) -> float:
     """
     Calculates relative L-2 norm for accuracy testing
