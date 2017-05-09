@@ -90,14 +90,15 @@ class Species:
 
     """POSITION INITIALIZATION"""
 
-    def distribute_uniformly(self, Lx: float, shift: float = 0):
+    def distribute_uniformly(self, Lx: float, shift: float = 0, start_moat=0, end_moat=0):
         """
         Distribute uniformly on grid.
 
         :param Lx: grid size
         :param shift: displace all particles right by this distance
         """
-        self.x = (np.linspace(Lx / self.N / 1e10, Lx, self.N, endpoint=False) + shift * self.N / Lx / 10) % Lx  # Type:
+        self.x = (np.linspace(start_moat + Lx / self.N * 1e-10, Lx - end_moat, self.N,
+                              endpoint=False) + shift * self.N / Lx / 10) % Lx  # Type:
 
     def sinusoidal_position_perturbation(self, amplitude: float, mode: int, L: float):
         """
