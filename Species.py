@@ -2,6 +2,7 @@
 # coding=utf-8
 import numpy as np
 
+import helper_functions
 from algorithms_pusher import rela_boris_push_bl as rela_boris_push
 
 MAX_SAVED_PARTICLES = int(1e4)
@@ -31,6 +32,8 @@ class Species:
         self.m = m*scaling
         self.N = int(N)
         self.NT = NT
+        self.save_every_n_iterations = helper_functions.calculate_particle_iter_step(NT)
+        self.saved_iterations = helper_functions.calculate_particle_snapshots(NT)
         self.x = np.zeros(N, dtype=float)
         self.v = np.zeros((N, 3), dtype=float)
         self.alive = np.ones(N, dtype=bool)
@@ -46,12 +49,12 @@ class Species:
             self.saved_particles = self.N
             self.save_every_n_particle = 1
 
-        self.position_history = np.zeros((NT, self.saved_particles))
-        self.velocity_history = np.zeros((NT, self.saved_particles, 3))
-        self.velocity_mean_history = np.zeros((NT, 3))
-        self.velocity_std_history = np.zeros((NT, 3))
-        self.alive_history = np.zeros((NT, self.saved_particles), dtype=bool)
-        self.kinetic_energy_history = np.zeros(NT)
+        self.position_history = np.zeros((self.saved_iterations, self.saved_particles))
+        self.velocity_history = np.zeros((self.saved_iterations, self.saved_particles, 3))
+        self.velocity_mean_history = np.zeros((self.saved_iterations, 3))
+        self.velocity_std_history = np.zeros((self.saved_iterations, 3))
+        self.alive_history = np.zeros((self.saved_iterations, self.saved_particles), dtype=bool)
+        self.kinetic_energy_history = np.zeros(self.saved_iterations)
         self.pusher = pusher
 
     def init_push(self, electric_field_function, dt, magnetic_field_function=lambda x: np.zeros((x.size, 3))):
@@ -137,10 +140,12 @@ class Species:
 
     def save_particle_values(self, i: int):
         """Update the i-th set of particle values"""
-        self.position_history[i] = self.x[::self.save_every_n_particle]
-        self.velocity_history[i] = self.v[::self.save_every_n_particle]
-        self.velocity_mean_history[i] = self.v[self.alive].mean(axis=0)
-        self.velocity_std_history[i] = self.v[self.alive].std(axis=0)
+        if helper_functions.is_this_saved_iteration(i, self.save_every_n_iterations):
+            index = helper_functions.convert_global_to_particle_iter(i, self.save_every_n_iterations)
+            self.position_history[index] = self.x[::self.save_every_n_particle]
+            self.velocity_history[index] = self.v[::self.save_every_n_particle]
+            self.velocity_mean_history[index] = self.v[self.alive].mean(axis=0)
+            self.velocity_std_history[index] = self.v[self.alive].std(axis=0)
 
     def save_to_h5py(self, species_data):
         """
@@ -183,4 +188,5 @@ class Species:
         return f"Species(q={self.q:.4f},m={self.m:.4f},N={self.N},name=\"{self.name}\",NT={self.NT})"
 
     def __str__(self):
-        return f"{self.N} {self.name} with q = {self.q:.4f}, m = {self.m:.4f}, {self.NT} history steps "
+        return f"{self.N} {self.name} with q = {self.q:.4f}, m = {self.m:.4f}, {self.saved_iterations} saved history " \
+               f"steps "

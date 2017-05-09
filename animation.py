@@ -4,6 +4,7 @@ import matplotlib.animation as anim
 import matplotlib.pyplot as plt
 import numpy as np
 
+import helper_functions
 from helper_functions import colors, directions
 
 
@@ -161,7 +162,6 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
         iteration.set_text("Iteration: ")
         freq_plot.set_data([], [])
         for i in range(S.grid.n_species):
-            print(i, S.grid.n_species)
             charge_plots[i].set_data([], [])
         for j in range(3):
             electric_field_plots[j].set_data([], [])
@@ -187,17 +187,22 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
 
             for i_species, species, histogram, bin_array in zip(range(S.grid.n_species), S.list_species, histograms,
                                                                 bin_arrays):
-                phase_dots[species.name].set_data(species.position_history[i, :], species.velocity_history[i, :, 0])
-                current_plots[S.grid.n_species * j + i_species].set_data(S.grid.x,
-                                                                         S.grid.current_density_history[i, :, j,
-                                                                         i_species])
-                histogram.set_data(*velocity_histogram_data(species.velocity_history[i], bin_array))
+                if helper_functions.is_this_saved_iteration(i, species.save_every_n_iterations):
+                    index = helper_functions.convert_global_to_particle_iter(i, species.save_every_n_iterations)
+                    phase_dots[species.name].set_data(species.position_history[index, :],
+                                                      species.velocity_history[index, :, 0])
+                    current_plots[S.grid.n_species * j + i_species].set_data(S.grid.x,
+                                                                             S.grid.current_density_history[index, :, j,
+                                                                             i_species])
+                    histogram.set_data(*velocity_histogram_data(species.velocity_history[index], bin_array))
 
         return [*current_plots, *charge_plots, *electric_field_plots, *magnetic_field_plots, freq_plot, *histograms,
                 *phase_dots.values(),
                 iteration]
 
-    animation_object = anim.FuncAnimation(fig, animate, interval=100, frames=np.arange(0, S.NT, int(np.log2(S.NT))),
+    animation_object = anim.FuncAnimation(fig, animate, interval=100,
+                                          frames=np.arange(0, S.NT, helper_functions.calculate_particle_iter_step(S.NT),
+                                                           dtype=int),
                                           blit=True, init_func=init)
     if videofile_name:
         print(f"Saving animation to {videofile_name}")

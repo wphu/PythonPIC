@@ -52,8 +52,8 @@ def temperature_time_plot(S, axis, twinaxis=True):
     fontP = FontProperties()
     fontP.set_size('small')
 
-    t = np.arange(S.NT) * S.dt
     for species in S.list_species:
+        t = np.arange(S.NT / species.save_every_n_iterations, dtype=int) * S.dt * species.save_every_n_iterations
         meanv = species.velocity_history.mean(axis=1)
         meanv2 = (species.velocity_history ** 2).mean(axis=1)
         temperature = meanv2 - meanv ** 2
@@ -73,7 +73,8 @@ def temperature_time_plot(S, axis, twinaxis=True):
 
 def energy_time_plots(S, axis):
     for species in S.list_species:
-        axis.plot(np.arange(S.NT) * S.dt, species.kinetic_energy_history, ".-",
+        t = np.arange(S.NT / species.save_every_n_iterations, dtype=int) * S.dt * species.save_every_n_iterations
+        axis.plot(t, species.kinetic_energy_history, ".-",
                   label="Kinetic energy: {}".format(species.name), alpha=0.3)
     axis.plot(np.arange(S.NT) * S.dt, S.grid.grid_energy_history, ".-", label="Field energy (Fourier)",
               alpha=0.5)
@@ -92,7 +93,8 @@ def energy_time_plots(S, axis):
 
 def velocity_distribution_plots(S, axis, i=0):
     for species in S.list_species:
-        axis.hist(species.velocity_history[i, :, 0], bins=50, alpha=0.5, label=species.name)
+        index = i // species.save_every_n_iterations
+        axis.hist(species.velocity_history[index, :, 0], bins=50, alpha=0.5, label=species.name)
     axis.set_title("Velocity distribution at iteration %d" % i)
     axis.grid()
     if S.grid.n_species > 1:
@@ -127,8 +129,8 @@ def phase_trajectories(S, axis, all=False):
 
 
 def velocity_time_plots(S, axis):
-    t = np.arange(S.NT)*S.dt
     for s in S.list_species:
+        t = np.arange(S.NT / s.save_every_n_iterations, dtype=int) * S.dt * s.save_every_n_iterations
         for i in range(3):
             mean = s.velocity_mean_history[:, i]
             std = s.velocity_std_history[:, i]

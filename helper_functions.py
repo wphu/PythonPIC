@@ -2,8 +2,8 @@
 # coding=utf-8
 import argparse
 import subprocess
-from collections import namedtuple
 import warnings
+from collections import namedtuple
 
 import numpy as np
 
@@ -41,6 +41,15 @@ def git_version() -> str:
     """
     return subprocess.check_output(['git', 'describe', '--always']).decode()[:-1]
 
+
+def calculate_particle_iter_step(NT):
+    # return int(np.log2(NT))
+    return int(np.sqrt(NT))
+
+
+def calculate_particle_snapshots(NT):
+    return int(NT / calculate_particle_iter_step(NT)) + 1
+
 def plasma_parameter(N_particles, N_grid, dx):
     return (N_particles / N_grid) * dx
 
@@ -56,14 +65,21 @@ def check_plasma_parameter(N_particles, N_grid, dx):
 
 
 def check_pusher_stability(plasma_frequency, dt):
-    if plasma_frequency * dt > 1:
-        warnings.warn(f"dt {dt} too high relative to plasma frequency {plasma_frequency}! Pusher may be unstable!")
+    if plasma_frequency * dt < 2:
+        print(f"Pusher seems stable with dt * plasma frequency = {dt * plasma_frequency:.2e} < 2.")
     else:
-        print(f"Pusher seems stable with dt * plasma frequency = {dt * plasma_frequency:.2e} < 1.")
+        warnings.warn(f"dt {dt} too high relative to plasma frequency {plasma_frequency}! Pusher may be unstable!")
 
 def calculate_NT(T, dt):
     return int(T/dt)+1
 
+
+def is_this_saved_iteration(i, save_every_n_iterations):
+    return i % save_every_n_iterations == 0
+
+
+def convert_global_to_particle_iter(i, save_every_n_iterations):
+    return i // save_every_n_iterations
 def plotting_parser(description):
     """
     Parses flags for showing or animating plots
@@ -107,3 +123,8 @@ def did_it_thermalize(S):
 colors = "brgyc"
 directions = "xyz"
 Constants = namedtuple('Constants', ['c', 'epsilon_0'])
+
+if __name__ == '__main__':
+    NT = 100
+    print(calculate_particle_snapshots(NT))
+    print(np.arange(0, NT, calculate_particle_iter_step(NT)).size)

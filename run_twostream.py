@@ -2,12 +2,12 @@
 # coding=utf-8
 import numpy as np
 
+import helper_functions
 import plotting
 from Grid import Grid
 from Simulation import Simulation
 from Species import Species
 from helper_functions import plotting_parser, Constants
-import helper_functions
 
 
 def stability_condition(k0, v0, w0):
@@ -76,12 +76,12 @@ def two_stream_instability(filename,
 if __name__ == '__main__':
     show, save, animate = plotting_parser("Two stream instability")
     simulations = [
-        # plotting.plotting(two_stream_instability("TS1",
-        #                        NG=64,
-        #                        N_electrons=512,
-        #                        T=300 * 5 * 0.2,
-        #                        plasma_frequency = 0.05/4,
-        #                        ), show=show, alpha=0.5, save=save, animate=animate),
+        plotting.plotting(two_stream_instability("TS1",
+                                                 NG=64,
+                                                 N_electrons=512,
+                                                 T=300 * 0.2,
+                                                 plasma_frequency=0.05 / 4,
+                                                 ), show=show, alpha=0.5, save=save, animate=animate),
         plotting.plotting(two_stream_instability("TS2",
                                NG=64,
                                N_electrons=512,

@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 import algorithms_pusher
+import helper_functions
 from Species import Species
 from helper_functions import l2_test
 
@@ -31,15 +32,18 @@ def plot(pusher, t, analytical_result, simulation_result,
     [algorithms_pusher.boris_push],
     ])
 def test_constant_field(pusher):
-    t, dt = np.linspace(0, 10, 200, retstep=True, endpoint=False)
-    s = Species(1, 1, 1, pusher=pusher, NT=t.size)
+    T = 10
+    dt = 10 / 200
+    NT = helper_functions.calculate_NT(T, dt)
+    s = Species(1, 1, 1, pusher=pusher, NT=NT)
+    t = np.arange(0, T, dt * s.save_every_n_iterations) - dt / 2
 
     def uniform_field(x):
         return np.array([[1, 0, 0]], dtype=float)
 
     x_analytical = 0.5 * t ** 2 + 0
     s.init_push(uniform_field, dt)
-    for i in range(t.size):
+    for i in range(NT):
         s.save_particle_values(i)
         s.push(uniform_field, dt)
 
@@ -51,15 +55,18 @@ def test_constant_field(pusher):
     [algorithms_pusher.rela_boris_push_bl],
     ])
 def test_relativistic_constant_field(pusher):
-    t, dt = np.linspace(0, 10, 2000, retstep=True, endpoint=False)
-    s = Species(1, 1, 5, pusher=pusher, NT=t.size)
+    T = 10
+    dt = 10 / 200
+    NT = helper_functions.calculate_NT(T, dt)
+    s = Species(1, 1, 1, pusher=pusher, NT=NT)
+    t = np.arange(0, T, dt * s.save_every_n_iterations) - dt / 2
 
     def uniform_field(x):
         return np.array([[1, 0, 0]], dtype=float)
 
     v_analytical = (t - dt / 2) / np.sqrt((t - dt / 2) ** 2 + 1)
     s.init_push(uniform_field, dt)
-    for i in range(t.size):
+    for i in range(NT):
         s.save_particle_values(i)
         s.push(uniform_field, dt)
 

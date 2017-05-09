@@ -7,6 +7,7 @@ import h5py
 import numpy as np
 
 import BoundaryCondition
+import helper_functions
 from Grid import Grid
 from Species import Species
 from helper_functions import git_version, Constants
@@ -82,8 +83,10 @@ class Simulation:
             species.save_particle_values(i)
             kinetic_energy = species.push(self.grid.electric_field_function, self.dt).sum()
             # OPTIMIZE: remove this sum if it's not necessary (kinetic energy histogram?)
+            # TODO: WHY THE HELL IS THIS LINE BELOW HERE AND NOT IN SPECIES
             self.boundary_condition.particle_bc(species, self.grid.L)
-            species.kinetic_energy_history[i] = kinetic_energy
+            index = helper_functions.convert_global_to_particle_iter(i, species.save_every_n_iterations)
+            species.kinetic_energy_history[index] = kinetic_energy
             total_kinetic_energy += kinetic_energy
         self.grid.apply_bc(i)
         self.grid.gather_charge(self.list_species, i)
