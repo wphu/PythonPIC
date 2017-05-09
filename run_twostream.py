@@ -74,7 +74,7 @@ def two_stream_instability(filename,
     return run
 
 
-if __name__ == '__main__':
+def main():
     show, save, animate = plotting_parser("Two stream instability")
     simulations = [
         plotting.plotting(two_stream_instability("TS1",
@@ -114,3 +114,7 @@ if __name__ == '__main__':
 
     for s in simulations:
         plotting.plotting(s, show=show, alpha=0.5, save=save, animate=animate)
+
+
+if __name__ == '__main__':
+    main()

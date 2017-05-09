@@ -40,7 +40,7 @@ def wave_propagation(filename,
     return run
 
 
-if __name__ == '__main__':
+def main():
     show, save, animate = plotting_parser("Wave propagation")
     for filename, boundary_function in zip(["Wave", "Envelope", "Laser"],
                                            [BoundaryCondition.NonPeriodicBC(
@@ -52,3 +52,7 @@ if __name__ == '__main__':
                                             ]):
         s = wave_propagation(filename, boundary_function)
         plotting.plotting(s, show=show, alpha=0.5, save=save, animate=animate)
+
+
+if __name__ == "__main__":
+    main()

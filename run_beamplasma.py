@@ -74,7 +74,7 @@ def weakbeam_instability(filename,
     return run
 
 
-if __name__ == '__main__':
+def main():
     np.random.seed(0)
     simulations = [
         weakbeam_instability("BP1",
@@ -84,3 +84,7 @@ if __name__ == '__main__':
     show, save, animate = plotting_parser("Weak beam instability")
     for s in simulations:
         plotting.plotting(s, show=show, alpha=0.5, save=save, animate=animate)
+
+
+if __name__ == '__main__':
+    main()
