@@ -65,6 +65,7 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
     # TODO: 3d animation for transverse fields
     charge_axis.set_xlim(0, S.grid.L)
     charge_axis.set_ylabel(f"Charge density $\\rho$")
+    charge_axis.set_xticks(S.grid.x)
     charge_axis.set_xlabel(r"Position $x$")
     charge_axis.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
     try:
@@ -127,6 +128,7 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
     phase_axes.yaxis.set_label_position("right")
     phase_axes.set_xlabel(r"Particle position $x$")
     phase_axes.set_ylabel(r"Particle velocity $v_x$")
+    phase_axes.set_xticks(S.grid.x)
     phase_axes.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
     phase_axes.grid()
 
@@ -195,7 +197,7 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
                 *phase_dots.values(),
                 iteration]
 
-    animation_object = anim.FuncAnimation(fig, animate, interval=100, frames=np.arange(0, S.NT, int(np.log10(S.NT))),
+    animation_object = anim.FuncAnimation(fig, animate, interval=100, frames=np.arange(0, S.NT, int(np.log2(S.NT))),
                                           blit=True, init_func=init)
     if videofile_name:
         print(f"Saving animation to {videofile_name}")

@@ -7,13 +7,20 @@ from Grid import Grid
 from Simulation import Simulation
 from Species import Species
 from helper_functions import plotting_parser, Constants
+import helper_functions
 
+
+def stability_condition(k0, v0, w0):
+    dimensionless_number = k0 * v0 / w0
+    expected_stability = dimensionless_number > 2 ** -0.5
+    print("k0*v0/w0 is", dimensionless_number, "which means the regime is", "stable" if expected_stability else "unstable")
+    return expected_stability
 
 def two_stream_instability(filename,
                            plasma_frequency=1,
                            qmratio=-1,
-                           dt=0.2,
-                           NT=300,
+                           dt=0.02,
+                           T=300*0.2,
                            NG=32,
                            N_electrons=128,
                            L=2 * np.pi,
@@ -26,6 +33,11 @@ def two_stream_instability(filename,
                            species_2_sign=1):
     """Implements two stream instability from Birdsall and Langdon"""
     print("Running two stream instability")
+
+    helper_functions.check_pusher_stability(plasma_frequency, dt)
+    NT = int(T/dt) +1
+    np.random.seed(0)
+
     particle_mass = 1
     particle_charge = particle_mass * qmratio
     scaling = abs(particle_mass * plasma_frequency ** 2 * L / float(
@@ -34,10 +46,11 @@ def two_stream_instability(filename,
     filename = f"data_analysis/TS/{filename}/{filename}.hdf5"
 
     grid = Grid(L=L, NG=NG, NT=NT, n_species=2)
+    helper_functions.check_plasma_parameter(N_electrons, NG, grid.dx)
     k0 = 2 * np.pi / L
-    w0 = plasma_frequency
-    expected_stability = k0 * v0 / w0 > 2 ** -0.5
-    print("k0*v0/w0 is", k0 * v0 / w0, "which means the regime is", "stable" if expected_stability else "unstable")
+
+    expected_stability = stability_condition(k0, v0, plasma_frequency)
+
     electrons1 = Species(particle_charge, particle_mass, N_electrons, "beam1", NT, scaling)
     electrons2 = Species(species_2_sign * particle_charge, particle_mass, N_electrons, "beam2", NT, scaling)
     electrons1.v[:, 0] = v0
@@ -61,41 +74,41 @@ def two_stream_instability(filename,
 
 
 if __name__ == '__main__':
-    np.random.seed(0)
     show, save, animate = plotting_parser("Two stream instability")
     simulations = [
         # plotting.plotting(two_stream_instability("TS1",
-        #                                          NG=64,
-        #                                          N_electrons=512,
-        #                                          NT=300 * 5
-        #                                          ), show=show, alpha=0.5, save=save, animate=animate),
+        #                        NG=64,
+        #                        N_electrons=512,
+        #                        T=300 * 5 * 0.2,
+        #                        plasma_frequency = 0.05/4,
+        #                        ), show=show, alpha=0.5, save=save, animate=animate),
         plotting.plotting(two_stream_instability("TS2",
-                                                 NG=64,
-                                                 N_electrons=512,
-                                                 plasma_frequency=5,
-                                                 dt=0.2 / 5,
-                                                 NT=300 * 5
-                                                 ), show=show, alpha=0.5, save=save, animate=animate),
-        # plotting.plotting(two_stream_instability("TS3",
-        #                                          NG=64,
-        #                                          N_electrons=1024,
-        #                                          plasma_frequency=10,
-        #                                          dt=0.2 / 5,
-        #                                          NT=300 * 5
-        #                                          ), show=show, alpha=0.5, save=save, animate=animate),
-        # plotting.plotting(two_stream_instability("TSRANDOM1",
-        #                                          NG=64,
-        #                                          N_electrons=1024,
-        #                                          vrandom=1e-2,
-        #                                          ), show=show, alpha=0.5, save=save, animate=animate),
-        # plotting.plotting(two_stream_instability("TSRANDOM2",
-        #                                          NG=64,
-        #                                          N_electrons=1024,
-        #                                          plasma_frequency=5,
-        #                                          dt=0.2 / 5,
-        #                                          NT=300 * 5,
-        #                                          vrandom=1e-2,
-        #                                          ), show=show, alpha=0.5, save=save, animate=animate),
+                               NG=64,
+                               N_electrons=512,
+                               plasma_frequency=5,
+                               dt=0.01 / 5,
+                               T=300 * 3 * 0.2,
+                               ), show=show, alpha=0.5, save=save, animate=animate),
+        plotting.plotting(two_stream_instability("TS3",
+                               NG=64,
+                               N_electrons=1024,
+                               plasma_frequency=10,
+                               dt=0.02 / 10,
+                               T=300 * 5 * 0.2,
+                               ), show=show, alpha=0.5, save=save, animate=animate),
+        plotting.plotting(two_stream_instability("TSRANDOM1",
+                               NG=64,
+                               N_electrons=1024,
+                               vrandom=1e-1,
+                               ), show=show, alpha=0.5, save=save, animate=animate),
+        plotting.plotting(two_stream_instability("TSRANDOM2",
+                               NG=64,
+                               N_electrons=1024,
+                               plasma_frequency=5,
+                               dt=0.2 / 5,
+                               T=300 * 5 * 0.2,
+                               vrandom=1e-1,
+                               ), show=show, alpha=0.5, save=save, animate=animate),
         ]
 
     for s in simulations:

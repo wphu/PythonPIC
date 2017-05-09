@@ -3,6 +3,7 @@
 import argparse
 import subprocess
 from collections import namedtuple
+import warnings
 
 import numpy as np
 
@@ -40,6 +41,28 @@ def git_version() -> str:
     """
     return subprocess.check_output(['git', 'describe', '--always']).decode()[:-1]
 
+def plasma_parameter(N_particles, N_grid, dx):
+    return (N_particles / N_grid) * dx
+
+def cold_plasma_frequency(electron_density, electron_mass = 1, epsilon_0 = 1, electric_charge=1):
+    return (electron_density * electric_charge**2 / electron_mass / epsilon_0)**0.5
+
+def check_plasma_parameter(N_particles, N_grid, dx):
+    pp = plasma_parameter(N_particles, N_grid, dx)
+    if pp < 5:
+        warnings.warn(f"Plasma parameter seems low at {pp:.3f}! Low density plasma.", stacklevel=1)
+    else:
+        print(f"Plasma parameter is {pp:.3f}, which seems okay.")
+
+
+def check_pusher_stability(plasma_frequency, dt):
+    if plasma_frequency * dt > 1:
+        warnings.warn(f"dt {dt} too high relative to plasma frequency {plasma_frequency}! Pusher may be unstable!")
+    else:
+        print(f"Pusher seems stable with dt * plasma frequency = {dt * plasma_frequency:.2e} < 1.")
+
+def calculate_NT(T, dt):
+    return int(T/dt)+1
 
 def plotting_parser(description):
     """
