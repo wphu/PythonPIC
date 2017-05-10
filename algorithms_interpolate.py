@@ -28,7 +28,7 @@ def charge_density_deposition(x, dx, x_particles, particle_charge):
     return charge_hist_to_right + charge_hist_to_left
 
 
-def longitudinal_current_deposition(j_z, x_velocity, x_particles, time, dx, dt, q):
+def longitudinal_current_deposition(j_x, x_velocity, x_particles, time, dx, dt, q):
     """
     :param x_velocity: particle x velocities
     :type x_velocity: ndarray
@@ -44,6 +44,7 @@ def longitudinal_current_deposition(j_z, x_velocity, x_particles, time, dx, dt, 
     :rtype:
     """
 
+    print(j_x, x_velocity, x_particles, time, dx, dt, q)
     epsilon = 1e-4 * dx
     logical_coordinates_n = (x_particles / dx).astype(int)
 
@@ -59,7 +60,7 @@ def longitudinal_current_deposition(j_z, x_velocity, x_particles, time, dx, dt, 
 
     t1 = np.empty_like(x_particles)
     logical_coordinates_depo = logical_coordinates_n.copy()
-    logical_coordinates_depo[case1 | case3] -= 1
+    logical_coordinates_depo[case2 | case4] += 1
     # case1
     t1[case1] = -(x_particles[case1] - (logical_coordinates_n[case1]) * dx) / x_velocity[case1]
     t1[case2] = -(x_particles[case2] - (logical_coordinates_n[case2] + 0.5) * dx) / x_velocity[case2]
@@ -68,12 +69,12 @@ def longitudinal_current_deposition(j_z, x_velocity, x_particles, time, dx, dt, 
     switches_cells = t1 < time
 
     nonswitching_current_contribution = q * x_velocity[~switches_cells]
-    j_z += np.bincount(logical_coordinates_depo[~switches_cells] + 1, nonswitching_current_contribution,
-                       minlength=j_z.size)
+    j_x += np.bincount(logical_coordinates_depo[~switches_cells] + 1, nonswitching_current_contribution,
+                       minlength=j_x.size)
 
     new_time = time - t1
     switching_current_contribution = q * x_velocity[switches_cells] * t1[switches_cells] / dt
-    j_z += np.bincount(logical_coordinates_depo[switches_cells] + 1, switching_current_contribution, minlength=j_z.size)
+    j_x += np.bincount(logical_coordinates_depo[switches_cells] + 1, switching_current_contribution, minlength=j_x.size)
 
     new_locations = np.empty_like(x_particles)
     new_locations[case1] = logical_coordinates_n[case1] * dx - epsilon
@@ -82,7 +83,7 @@ def longitudinal_current_deposition(j_z, x_velocity, x_particles, time, dx, dt, 
     new_locations[case4] = (logical_coordinates_n[case4] + 1) * dx
 
     if switches_cells.any():
-        longitudinal_current_deposition(j_z, x_velocity[switches_cells], new_locations[switches_cells],
+        longitudinal_current_deposition(j_x, x_velocity[switches_cells], new_locations[switches_cells],
                                         new_time[switches_cells], dx, dt, q)
 
 def transversal_current_deposition(j_yz, velocity, x_particles, time, dx, dt, q):
@@ -119,23 +120,38 @@ def transversal_current_deposition(j_yz, velocity, x_particles, time, dx, dt, q)
 
     switches_cells = t1 < time
     w = np.empty_like(x_particles)
-    A = np.empty((x_particles.size, 2), dtype=float)
+    A = np.zeros((x_particles.size, 2), dtype=float)
     case1[:] = particle_in_left_half & switches_cells
     case2[:] = particle_in_left_half & ~switches_cells
     case3[:] = particle_in_right_half & ~switches_cells
     case4[:] = particle_in_right_half & switches_cells
 
     w[case1] = 2.5 - logical_coordinates_n[case1] + (x_particles[case1] + 0.5*x_velocity[case1] * t1[case1]) / dx
-    A[case1 | case4] = q * yz_velocity[case1 | case4] * t1[case1 | case4] / dt
+    if (case1 | case4).any():
+        A[case1 | case4] = q * yz_velocity[case1 | case4] * t1[case1 | case4] / dt
 
     w[case2] = 2.5 - logical_coordinates_n[case2] + (x_particles[case2] + 0.5 * x_velocity[case2] * time[case2]) / dx
-    A[case2 | case3] = q * yz_velocity[case2 | case3] * time[case2 | case3] / dt
+    if (case2 | case3).any():
+        A[case2 | case3] = q * yz_velocity[case2 | case3] * time[case2 | case3] / dt
 
     w[case3] = logical_coordinates_n[case3] - 0.5 - (x_particles[case3] + 0.5 * x_velocity[case3] * time[case3]) / dx
 
     w[case4] = logical_coordinates_n[case4] - 0.5 - (x_particles[case4] + 0.5 * x_velocity[case4] * t1[case4]) / dx
 
-    # j_yz[:,0] += np.
+    j_yz[:,0] += np.bincount(logical_coordinates_n, w*A[:,0], minlength=j_yz[:,1].size)
+    j_yz[:,1] += np.bincount(logical_coordinates_n, w*A[:,1], minlength=j_yz[:,1].size)
+
+    logical_coordinates_depo = logical_coordinates_n.copy()
+    logical_coordinates_depo[particle_in_left_half] -= 1
+    logical_coordinates_depo[particle_in_right_half] += 1
+    j_yz[:,0] += np.bincount(logical_coordinates_depo, (1-w)*(1-A[:,0]), minlength=j_yz[:,1].size)
+    j_yz[:,1] += np.bincount(logical_coordinates_depo, (1-w)*(1-A[:,1]), minlength=j_yz[:,1].size)
+
+    new_time = time - t1
+
+    if switches_cells.any():
+        transversal_current_deposition(j_yz, velocity[switches_cells], s[switches_cells],
+                                      new_time[switches_cells], dx, dt, q)
 
 def current_density_deposition(x, dx, x_particles, particle_charge, velocity):
     """scatters charge from particles to grid
