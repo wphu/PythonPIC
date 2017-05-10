@@ -1,6 +1,7 @@
 # coding=utf-8
 import numpy as np
 import pytest
+import matplotlib.pyplot as plt
 
 from Grid import Grid
 from Species import Species
@@ -37,5 +38,18 @@ def test_longitudinal_deposition(power):
     # plt.show()
 
 
+def test_single_particle_deposition():
+    s = Species(1, 1, 1, "test particle", 1, 1, 1)
+    g = Grid(NG = 9)
+    s.x[:] = g.L/2
+    s.v[:, 0] = -1/3
+    dt = s.c * g.dx
+    plt.scatter(s.x, np.zeros_like(s.x))
+    plt.xticks(g.x)
+    plt.grid()
+    longitudinal_current_deposition(g.current_density[:, 0], s.v[:, 0], s.x, dt, g.dx, dt, s.q)
+    plt.plot(g.x, g.current_density[1:-1, 0])
+    plt.show()
+
 if __name__ == '__main__':
-    test_longitudinal_deposition(7)
+    test_single_particle_deposition()

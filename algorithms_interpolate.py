@@ -57,7 +57,7 @@ def longitudinal_current_deposition(j_z, x_velocity, x_particles, time, dx, dt, 
     case3 = particle_in_right_half & velocity_to_right
     case4 = particle_in_left_half & velocity_to_right
 
-    t1 = np.zeros_like(x_particles)
+    t1 = np.empty_like(x_particles)
     logical_coordinates_depo = logical_coordinates_n.copy()
     logical_coordinates_depo[case1 | case3] -= 1
     # case1
@@ -75,7 +75,7 @@ def longitudinal_current_deposition(j_z, x_velocity, x_particles, time, dx, dt, 
     switching_current_contribution = q * x_velocity[switches_cells] * t1[switches_cells] / dt
     j_z += np.bincount(logical_coordinates_depo[switches_cells] + 1, switching_current_contribution, minlength=j_z.size)
 
-    new_locations = np.zeros_like(x_particles)
+    new_locations = np.empty_like(x_particles)
     new_locations[case1] = logical_coordinates_n[case1] * dx - epsilon
     new_locations[case2] = (logical_coordinates_n[case2] + 0.5) * dx - epsilon
     new_locations[case3] = (logical_coordinates_n[case3] + 0.5) * dx
@@ -85,15 +85,57 @@ def longitudinal_current_deposition(j_z, x_velocity, x_particles, time, dx, dt, 
         longitudinal_current_deposition(j_z, x_velocity[switches_cells], new_locations[switches_cells],
                                         new_time[switches_cells], dx, dt, q)
 
+def transversal_current_deposition(j_yz, velocity, x_particles, time, dx, dt, q):
+    x_velocity = velocity[:, 0]
+    yz_velocity = velocity[:, 1:]
 
-        # j_z += np.bincount
-        # current_contribution[~switches_cells] =
-        # current_contribution[switches_cells & case1] = longitudinal_current_deposition(x_velocity[switches_cells &
-        # case1]                                                                                  )
+    epsilon = 1e-4 * dx
+    logical_coordinates_n = (x_particles / dx).astype(int)
+    particle_in_left_half = x_particles / dx - logical_coordinates_n <= 0.5
+    particle_in_right_half = ~particle_in_left_half
 
+    # stationary_x_particle = np.isclose(x_velocity, 0)
+    velocity_to_left = x_velocity < 0
+    velocity_to_right = ~velocity_to_left
 
+    t1 = np.empty_like(x_particles)
+    s = np.empty_like(x_particles)
 
-        # case a: x_velocity < 0 && (i-1)dz <= x_particles < (i-0.5)
+    case1 = particle_in_left_half & velocity_to_left
+    t1[case1] = - (x_particles[case1] - logical_coordinates_n[case1] * dx) / x_velocity[case1]
+    s[case1] = logical_coordinates_n[case1] * dx - epsilon
+
+    case2 = particle_in_left_half & velocity_to_right
+    t1[case2] = ((logical_coordinates_n[case2] + 0.5) * dx - x_particles[case2])/x_velocity[case2]
+    s[case2] = (logical_coordinates_n[case2] + 0.5) * dx
+
+    case3 = particle_in_right_half & velocity_to_right
+    t1[case3] = ((logical_coordinates_n[case3] + 1) * dx - x_particles[case3])/x_velocity[case3]
+    s[case3] = (logical_coordinates_n[case3] + 1) * dx
+
+    case4 = particle_in_right_half & velocity_to_left
+    t1[case4] = -(x_particles[case4] - (logical_coordinates_n[case4] + 0.5) * dx)/x_velocity[case4]
+    s[case4] = (logical_coordinates_n[case4] + 0.5)*dx - epsilon
+
+    switches_cells = t1 < time
+    w = np.empty_like(x_particles)
+    A = np.empty((x_particles.size, 2), dtype=float)
+    case1[:] = particle_in_left_half & switches_cells
+    case2[:] = particle_in_left_half & ~switches_cells
+    case3[:] = particle_in_right_half & ~switches_cells
+    case4[:] = particle_in_right_half & switches_cells
+
+    w[case1] = 2.5 - logical_coordinates_n[case1] + (x_particles[case1] + 0.5*x_velocity[case1] * t1[case1]) / dx
+    A[case1 | case4] = q * yz_velocity[case1 | case4] * t1[case1 | case4] / dt
+
+    w[case2] = 2.5 - logical_coordinates_n[case2] + (x_particles[case2] + 0.5 * x_velocity[case2] * time[case2]) / dx
+    A[case2 | case3] = q * yz_velocity[case2 | case3] * time[case2 | case3] / dt
+
+    w[case3] = logical_coordinates_n[case3] - 0.5 - (x_particles[case3] + 0.5 * x_velocity[case3] * time[case3]) / dx
+
+    w[case4] = logical_coordinates_n[case4] - 0.5 - (x_particles[case4] + 0.5 * x_velocity[case4] * t1[case4]) / dx
+
+    # j_yz[:,0] += np.
 
 def current_density_deposition(x, dx, x_particles, particle_charge, velocity):
     """scatters charge from particles to grid
