@@ -40,11 +40,13 @@ def test_longitudinal_deposition(power):
 
 
 def test_single_particle_deposition():
-    s = Species(1, 1, 1, "test particle", 1, 1, 1)
-    g = Grid(NG = 8)
-    s.x[:] = (g.NG / 2 + 0.5001)*g.dx
-    # s.v[:, 0] = +1/3
+    s = Species(1, 1, 2, "test particle", 1, 1, 1)
+    g = Grid(NG = 16)
+    s.x[0] = (12 + 0.5001)*g.dx
+    s.x[1] = (4 + 0.5001)*g.dx
+    # s.x[1] = (4)*g.dx
     s.v[:, 0] = 1e-3
+    s.v[1, 0] *= -1
     s.v[:, 1] = +1
     s.v[:, 2] = -1
     dt = s.c * g.dx
@@ -53,7 +55,9 @@ def test_single_particle_deposition():
     plt.grid()
     longitudinal_current_deposition(g.current_density[:, 0], s.v[:, 0], s.x, dt, g.dx, dt, s.q)
     transversal_current_deposition(g.current_density[:, 1:], s.v, s.x, dt*np.ones_like(s.x), g.dx, dt, s.q)
-    plt.plot(g.x, g.current_density[1:-1, :])
+    for i, label in {0:'x', 1:'y', 2:'z'}.items():
+        plt.plot(g.x, g.current_density[1:-1, i], alpha=0.7, linewidth=i+3, label=f"j{label}")
+    plt.legend()
     plt.show()
 
 if __name__ == '__main__':
