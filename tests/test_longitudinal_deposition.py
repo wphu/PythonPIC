@@ -40,24 +40,37 @@ def test_longitudinal_deposition(power):
 
 
 def test_single_particle_deposition():
-    s = Species(1, 1, 2, "test particle", 1, 1, 1)
-    g = Grid(NG = 16)
-    s.x[0] = (12 + 0.5001)*g.dx
-    s.x[1] = (4 + 0.5001)*g.dx
-    # s.x[1] = (4)*g.dx
-    s.v[:, 0] = 1e-3
-    s.v[1, 0] *= -1
+    s = Species(1, 1, 4, "test particle", 1, 1, 1)
+    g = Grid(NG = 16, L=16)
+
+    s.x[:] = np.array([1 + 0.49, 5 + 0.49, 8 + 0.51, 13 + 0.51]) * g.dx
+    s.v[:, 0] = np.array([1, -1, 1, -1], dtype=float)
+
     s.v[:, 1] = +1
     s.v[:, 2] = -1
     dt = s.c * g.dx
-    plt.scatter(s.x, np.zeros_like(s.x))
-    plt.xticks(g.x)
-    plt.grid()
+    fig, ax = plt.subplots()
+    pax = ax.twinx()
+    pax.scatter(s.x, s.x)
+    new_positions = s.x + s.v[:,0] * dt
+    pax.scatter(s.x, new_positions)
+    for xn, xnp, v in zip(s.x, new_positions, s.v[:,0]):
+        print(xn, xnp, v)
+        pax.annotate(f"{xn} to {xnp}, v {v}", (xn, xnp), (0, 0), arrowprops={'arrowstyle':'->'}) 
+    ax.set_xticks(np.arange(0, g.L, g.dx/2))
+    ax.grid()
     longitudinal_current_deposition(g.current_density[:, 0], s.v[:, 0], s.x, dt, g.dx, dt, s.q)
-    transversal_current_deposition(g.current_density[:, 1:], s.v, s.x, dt*np.ones_like(s.x), g.dx, dt, s.q)
-    for i, label in {0:'x', 1:'y', 2:'z'}.items():
-        plt.plot(g.x, g.current_density[1:-1, i], alpha=0.7, linewidth=i+3, label=f"j{label}")
-    plt.legend()
+    #transversal_current_deposition(g.current_density[:, 1:], s.v, s.x, dt*np.ones_like(s.x), g.dx, dt, s.q)
+    ax.plot(g.x, g.current_density[1:-1, 0], "go-", alpha=0.7, linewidth=3, label=f"jx")
+    ax.legend()
+
+    #plt.figure()
+    #plt.scatter(s.x, np.zeros_like(s.x))
+    #plt.xticks(g.x)
+    #plt.grid()
+    #for i, label in {1:'y', 2:'z'}.items():
+    #    plt.plot(g.x, g.current_density[1:-1, i], alpha=0.7, linewidth=i+3, label=f"j{label}")
+    #plt.legend()
     plt.show()
 
 if __name__ == '__main__':
