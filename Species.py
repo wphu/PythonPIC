@@ -191,3 +191,15 @@ class Species:
     def __str__(self):
         return f"{self.N} {self.name} with q = {self.q:.4f}, m = {self.m:.4f}, {self.saved_iterations} saved history " \
                f"steps "
+
+class Particle(Species):
+    def __init__(self, x, vx, vy=0, vz=0, q=1, m=1, name="Test particle", NT=1, c=1, pusher=rela_boris_push):
+        super().__init__(q, m, 1, name, NT, 1, c, pusher)
+        self.x[:] = x
+        self.v[:,0] = vx
+        self.v[:,1] = vy
+        self.v[:,2] = vz
+
+if __name__ == '__main__':
+    p = Particle(1, 3, 4, -5, name="test particle")
+    print(p)
