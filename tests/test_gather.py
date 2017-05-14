@@ -79,7 +79,7 @@ def test_periodic(field, plotting=False):
     assert l2_test(interpolated, analytical), plot()
 
 
-@pytest.mark.parametrize("power", range(2, 3))
+@pytest.mark.parametrize("power", range(2, 6))
 def test_single_particle(power, plotting=False):
     """tests interpolation of field to particles:
         at cell boundary
