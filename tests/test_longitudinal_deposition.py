@@ -4,7 +4,7 @@ import pytest
 import matplotlib.pyplot as plt
 
 from Grid import Grid
-from Species import Species
+from Species import Species, Particle
 from algorithms_interpolate import longitudinal_current_deposition, transversal_current_deposition
 
 
@@ -39,30 +39,55 @@ def test_longitudinal_deposition(power):
     plt.show()
 
 
-def test_single_particle_deposition():
-    s = Species(1, 1, 4, "test particle", 1, 1, 1)
-    g = Grid(NG = 16, L=16)
-
-    s.x[:] = np.array([1 + 0.49, 5 + 0.49, 8 + 0.51, 13 + 0.51]) * g.dx
-    s.v[:, 0] = np.array([1, -1, 1, -1], dtype=float)
-
-    s.v[:, 1] = +1
-    s.v[:, 2] = -1
+def test_single_particle_longitudinal_deposition(s):
+    g = Grid(NG = 7, L=7)
+    s.x *= g.dx
     dt = s.c * g.dx
-    fig, ax = plt.subplots()
-    pax = ax.twinx()
-    pax.scatter(s.x, s.x)
-    new_positions = s.x + s.v[:,0] * dt
-    pax.scatter(s.x, new_positions)
-    for xn, xnp, v in zip(s.x, new_positions, s.v[:,0]):
-        print(xn, xnp, v)
-        pax.annotate(f"{xn} to {xnp}, v {v}", (xn, xnp), (0, 0), arrowprops={'arrowstyle':'->'}) 
-    ax.set_xticks(np.arange(0, g.L, g.dx/2))
-    ax.grid()
-    longitudinal_current_deposition(g.current_density[:, 0], s.v[:, 0], s.x, dt, g.dx, dt, s.q)
-    #transversal_current_deposition(g.current_density[:, 1:], s.v, s.x, dt*np.ones_like(s.x), g.dx, dt, s.q)
-    ax.plot(g.x, g.current_density[1:-1, 0], "go-", alpha=0.7, linewidth=3, label=f"jx")
-    ax.legend()
+    g.current_density[...] = 0
+    longitudinal_current_deposition(g.current_density[:, 0], s.v[:, 0], s.x, dt*np.ones_like(s.x), g.dx, dt, s.q)
+    # transversal_current_deposition(g.current_density[:, 1:], s.v, s.x, dt*np.ones_like(s.x), g.dx, dt, s.q)
+    collected_longitudinal_weights = g.current_density[:,0].sum()/s.v[0,0]
+    # collected_transversal_weights = g.current_density[:,1:].sum()/s.v[0,0]
+    def plot_longitudinal():
+        fig, ax = plt.subplots()
+        ax.scatter(s.x, 0)
+        new_positions = s.x + s.v[:,0] * dt
+        title = f"x0: {s.x[0]} v: {s.v[0,0]} x1: {new_positions[0]} w: {collected_longitudinal_weights}"
+        ax.annotate(title, xy=(new_positions[0], 0), xytext=(s.x[0], 0.3),
+                arrowprops=dict(facecolor='black', shrink=0.05, linewidth=0.5), horizontalalignment='right')
+        ax.set_xticks(g.x)
+        ax.set_xticks(np.arange(0, g.L, g.dx/2), minor=True)
+        ax.grid(which='minor', alpha=0.3)
+        ax.grid(which='major', alpha=0.7)
+        ax.set_title(title)
+        ax.scatter(new_positions, 0)
+        ax.plot(g.x, g.current_density[1:-1, 0], "go-", alpha=0.7, linewidth=3, label=f"jx")
+        ax.legend()
+        plt.show()
+        return title + " instead of 1"
+
+    def plot_transversal():
+        fig, ax = plt.subplots()
+        ax.scatter(s.x, 0)
+        new_positions = s.x + s.v[:,0] * dt
+        title = f'{s.x[0]} to {new_positions[0]}, v={s.v[0,0]}'
+        ax.annotate(title, xy=(new_positions[0], 0), xytext=(s.x[0], 0.3),
+                    arrowprops=dict(facecolor='black', shrink=0.05, linewidth=0.5), horizontalalignment='right')
+        ax.set_xticks(g.x)
+        ax.set_xticks(np.arange(0, g.L, g.dx/2), minor=True)
+        ax.grid(which='minor', alpha=0.3)
+        ax.grid(which='major', alpha=0.7)
+        ax.set_title(title)
+        ax.scatter(new_positions, 0, "r")
+        ax.plot(g.x, g.current_density[1:-1, 1:], "o-", alpha=0.7, linewidth=3, label=f"jx")
+        ax.legend()
+        plt.show()
+        return f"x0: {s.x[0]}\t v: {s.v[0,0]}\t x1: {new_positions[0]}\t w: {collected_longitudinal_weights} instead of 1.0"
+
+    # plot_longitudinal()
+    assert np.isclose(collected_longitudinal_weights, 1), plot_longitudinal()
+    # print(collected_transversal_weights)
+    # assert np.isclose()
 
     #plt.figure()
     #plt.scatter(s.x, np.zeros_like(s.x))
@@ -71,8 +96,10 @@ def test_single_particle_deposition():
     #for i, label in {1:'y', 2:'z'}.items():
     #    plt.plot(g.x, g.current_density[1:-1, i], alpha=0.7, linewidth=i+3, label=f"j{label}")
     #plt.legend()
-    plt.show()
 
 if __name__ == '__main__':
-    test_single_particle_deposition()
-    # test_longitudinal_deposition(7)
+    test_single_particle_longitudinal_deposition(Particle(3.01, 0.5, 1, -1))
+
+    for position in (3.01, 3.25, 3.49, 3.51, 3.99):
+        for velocity in (0.01, 1, -0.01, -1):
+            test_single_particle_longitudinal_deposition(Particle(position, velocity, 1, -1))

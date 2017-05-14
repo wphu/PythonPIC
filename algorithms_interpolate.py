@@ -68,12 +68,16 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, time, dx, dt, 
     t1[case4] = ((logical_coordinates_n[case4] + 1.5) * dx - x_particles[case4]) / x_velocity[case4]
     switches_cells = t1 < time
 
-    nonswitching_current_contribution = q * x_velocity[~switches_cells]
-    j_x += np.bincount(logical_coordinates_depo[~switches_cells] + 1, nonswitching_current_contribution,
-                       minlength=j_x.size)
+
+    if (~switches_cells).any():
+        nonswitching_current_contribution = q * x_velocity[~switches_cells] * time[~switches_cells]
+        # print(f"nonswitching {nonswitching_current_contribution}")
+        j_x += np.bincount(logical_coordinates_depo[~switches_cells] + 1, nonswitching_current_contribution,
+                            minlength=j_x.size)
 
     new_time = time - t1
     switching_current_contribution = q * x_velocity[switches_cells] * t1[switches_cells] / dt
+    # print(f"switching {switching_current_contribution}")
     j_x += np.bincount(logical_coordinates_depo[switches_cells] + 1, switching_current_contribution, minlength=j_x.size)
 
     new_locations = np.empty_like(x_particles)
@@ -83,13 +87,14 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, time, dx, dt, 
     new_locations[case4] = (logical_coordinates_n[case4] + 0.5) * dx
 
     if switches_cells.any():
+        # print(f"Switching at {switches_cells}")
         longitudinal_current_deposition(j_x, x_velocity[switches_cells], new_locations[switches_cells],
                                         new_time[switches_cells], dx, dt, q)
 
 def transversal_current_deposition(j_yz, velocity, x_particles, time, dx, dt, q):
-    print(x_particles, time)
     x_velocity = velocity[:, 0]
     yz_velocity = velocity[:, 1:]
+    print(f"x0: {x_particles}\t v: {velocity}\t x1: {x_particles + velocity[:,0]*time} \t time: {time}")
 
     epsilon = 1e-4 * dx
     logical_coordinates_n = (x_particles / dx).astype(int)
@@ -118,6 +123,15 @@ def transversal_current_deposition(j_yz, velocity, x_particles, time, dx, dt, q)
 
     t1[case4] = -(x_particles[case4] - (logical_coordinates_n[case4] + 0.5) * dx)/x_velocity[case4]
     s[case4] = (logical_coordinates_n[case4] + 0.5)*dx - epsilon
+
+    #debug
+    cases = np.zeros_like(x_particles, dtype=int)
+    cases[case1] = 1
+    cases[case2] = 2
+    cases[case3] = 3
+    cases[case4] = 4
+    print("cases", cases)
+    print("t1", t1)
 
     switches_cells = t1 < time
     w = np.empty_like(x_particles)
