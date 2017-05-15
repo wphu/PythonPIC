@@ -8,12 +8,12 @@ from Species import Particle, Species
 from algorithms_interpolate import longitudinal_current_deposition, transversal_current_deposition, current_deposition
 
 
-@pytest.fixture(params=(3.01, 3.25, 3.49, 3.51, 3.99))
+@pytest.fixture(params=np.arange(3, 4, 0.1))
 def _position(request):
     return request.param
 
 
-@pytest.fixture(params=(0.01, 1, -0.01, -1))
+@pytest.fixture(params=np.arange(-0.9, 1, 0.4))
 def _velocity(request):
     return request.param
 
@@ -95,11 +95,13 @@ def test_multiple_particles_deposition(_position, _velocity):
     print(positions)
     for position in positions:
         s = Particle(position, _velocity, 1, -1)
+        print(f"\n======PARTICLE AT {position}=======")
         print(s)
         print(s.x)
         print(s.v)
         longitudinal_current_deposition(g.current_density[:, 0], s.v[:, 0], s.x, dt * np.ones_like(s.x), g.dx, dt, s.q)
         transversal_current_deposition(g.current_density[:, 1:], s.v, s.x, dt * np.ones_like(s.x), g.dx, dt, s.q)
+        # print(g.current_density)
 
     collected_weights = g.current_density.sum(axis=0) / s.v[0, :]
 
@@ -109,11 +111,13 @@ def test_multiple_particles_deposition(_position, _velocity):
     s.v[:,0] = _velocity
     s.v[:,1] = 1
     s.v[:,2] = -1
+    print("\n\n======TWO PARTICLES=======")
     print(s)
     print(s.x)
     print(s.v)
     longitudinal_current_deposition(g2.current_density[:, 0], s.v[:, 0], s.x, dt * np.ones_like(s.x), g2.dx, dt, s.q)
     transversal_current_deposition(g2.current_density[:, 1:], s.v, s.x, dt * np.ones_like(s.x), g2.dx, dt, s.q)
+    # print(g2.current_density)
     collected_weights2 = g2.current_density.sum(axis=0) / s.v[0, :]
     label = {0:'x', 1:'y', 2:'z'}
     def plot():

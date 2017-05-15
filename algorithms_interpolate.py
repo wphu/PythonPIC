@@ -99,16 +99,14 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, time, dx, dt, 
 def transversal_current_deposition(j_yz, velocity, x_particles, time, dx, dt, q):
     # TODO: optimize this algorithm
     x_velocity = velocity[:, 0]
-    yz_velocity = velocity[:, 1:]
-    # new_positions = x_particles + velocity[:,0] * time
-    # print(f"x0: {x_particles}\t v: {velocity}\t x1: {new_positions} \t time: {time}")
+    y_velocity = velocity[:, 1]
+    z_velocity = velocity[:, 2]
 
-    epsilon = 1e-6 * dx
+    epsilon = 1e-10 * dx
     logical_coordinates_n = (x_particles / dx).astype(int)
     particle_in_left_half = x_particles / dx - logical_coordinates_n < 0.5
     particle_in_right_half = ~particle_in_left_half
 
-    # stationary_x_particle = np.isclose(x_velocity, 0)
     velocity_to_left = x_velocity < 0
     velocity_to_right = ~velocity_to_left
 
@@ -133,26 +131,45 @@ def transversal_current_deposition(j_yz, velocity, x_particles, time, dx, dt, q)
     time_in_this_iteration = time.copy()
     time_in_this_iteration[switches_cells] = t1[switches_cells]
 
-    j_contribution = q * yz_velocity / dt * time_in_this_iteration
+    jy_contribution = q * y_velocity / dt * time_in_this_iteration
+    jz_contribution = q * z_velocity / dt * time_in_this_iteration
+
     sign = particle_in_left_half.astype(int) * 2 - 1
     distance_to_current_cell_center = (logical_coordinates_n + 0.5) * dx - x_particles
     s0 = (1 - sign * distance_to_current_cell_center / dx)
     change_in_coverage = sign * x_velocity * time_in_this_iteration / dx
     s1 = s0 + change_in_coverage
     w = 0.5 * (s0 + s1)
-    # assert w <= 1, f"w {w} > 1"
-    # assert w >= 0.5, f"w {w} < 0.5"
-    # assert 1-w <= 0.5, f"1-w {1-w} > 0.5"
-    # assert 1-w >= 0, f"1-w {1-w} < 0"
-
-    j_yz[:, 0] += np.bincount(logical_coordinates_n + 1, w * j_contribution[:, 0], minlength=j_yz[:, 1].size)
-    j_yz[:, 1] += np.bincount(logical_coordinates_n + 1, w * j_contribution[:, 1], minlength=j_yz[:, 1].size)
 
     logical_coordinates_depo = logical_coordinates_n.copy()
     logical_coordinates_depo[particle_in_left_half] -= 1
     logical_coordinates_depo[particle_in_right_half] += 1
-    j_yz[:, 0] += np.bincount(logical_coordinates_depo + 1, (1 - w) * j_contribution[:, 0], minlength=j_yz[:, 1].size)
-    j_yz[:, 1] += np.bincount(logical_coordinates_depo + 1, (1 - w) * j_contribution[:, 1], minlength=j_yz[:, 1].size)
+
+    y_contribution_to_current_cell = w * jy_contribution
+    y_contribution_to_next_cell = (1-w) * jy_contribution
+    z_contribution_to_current_cell = w * jz_contribution
+    z_contribution_to_next_cell = (1-w) * jz_contribution
+
+    # assert (w <= 1).all(), f"w {w} > 1"
+    # assert (w >= 0.5).all(), f"w {w} < 0.5"
+    # assert (1-w <= 0.5).all(), f"1-w {1-w} > 0.5"
+    # assert (1-w >= 0).all(), f"1-w {1-w} < 0"
+    # if (~switches_cells).all():
+    #     print(f"x0: {x_particles}\t v: {velocity}\t x1: {s} \t time: {time_in_this_iteration}")
+    #     print("====J contribution=====")
+    #     print(logical_coordinates_depo)
+    #     print("y", y_contribution_to_current_cell)
+    #     print("z", z_contribution_to_current_cell)
+    #     print("to current cell:", logical_coordinates_n)
+    #     print("y", y_contribution_to_next_cell)
+    #     print("z", y_contribution_to_next_cell)
+    #     print("to cell:", logical_coordinates_depo)
+
+    j_yz[:, 0] += np.bincount(logical_coordinates_n + 1, y_contribution_to_current_cell, minlength=j_yz[:, 1].size)
+    j_yz[:, 1] += np.bincount(logical_coordinates_n + 1, z_contribution_to_current_cell, minlength=j_yz[:, 1].size)
+
+    j_yz[:, 0] += np.bincount(logical_coordinates_depo + 1, y_contribution_to_next_cell, minlength=j_yz[:, 1].size)
+    j_yz[:, 1] += np.bincount(logical_coordinates_depo + 1, z_contribution_to_next_cell, minlength=j_yz[:, 1].size)
 
     if switches_cells.any():
         transversal_current_deposition(j_yz, velocity[switches_cells], s[switches_cells],
