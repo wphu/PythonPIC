@@ -8,6 +8,9 @@ import helper_functions
 from Species import Species
 from helper_functions import l2_test
 
+@pytest.fixture(params=[1, 2, 3, 10, 100])
+def _N(request):
+    return request.param
 
 def plot(pusher, t, analytical_result, simulation_result,
          message="Difference between analytical and simulated results!"):
@@ -31,11 +34,11 @@ def plot(pusher, t, analytical_result, simulation_result,
     [algorithms_pusher.leapfrog_push],
     [algorithms_pusher.boris_push],
     ])
-def test_constant_field(pusher):
+def test_constant_field(pusher, _N):
     T = 10
     dt = 10 / 200
     NT = helper_functions.calculate_NT(T, dt)
-    s = Species(1, 1, 1, pusher=pusher, NT=NT)
+    s = Species(1, 1, _N, pusher=pusher, NT=NT)
     t = np.arange(0, T, dt * s.save_every_n_iterations) - dt / 2
 
     def uniform_field(x):
@@ -50,15 +53,16 @@ def test_constant_field(pusher):
     assert l2_test(x_analytical, s.position_history[:, 0]), plot(pusher, t, x_analytical, s.position_history[:, 0])
 
 
+
 @pytest.mark.parametrize(["pusher"], [
     [algorithms_pusher.rela_boris_push_lpic],
     [algorithms_pusher.rela_boris_push_bl],
     ])
-def test_relativistic_constant_field(pusher):
+def test_relativistic_constant_field(pusher, _N):
     T = 10
     dt = 10 / 200
     NT = helper_functions.calculate_NT(T, dt)
-    s = Species(1, 1, 1, pusher=pusher, NT=NT)
+    s = Species(1, 1, _N, pusher=pusher, NT=NT)
     t = np.arange(0, T, dt * s.save_every_n_iterations) - dt / 2
 
     def uniform_field(x):
