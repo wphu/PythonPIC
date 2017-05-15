@@ -4,8 +4,8 @@ import numpy as np
 import pytest
 
 from Grid import Grid
-from Species import Particle
-from algorithms_interpolate import longitudinal_current_deposition, transversal_current_deposition
+from Species import Particle, Species
+from algorithms_interpolate import longitudinal_current_deposition, transversal_current_deposition, current_deposition
 
 
 @pytest.fixture(params=(3.01, 3.25, 3.49, 3.51, 3.99))
@@ -17,11 +17,10 @@ def _position(request):
 def _velocity(request):
     return request.param
 
-
 def test_single_particle_longitudinal_deposition(_position, _velocity):
     g = Grid(NG=7, L=7)
     s = Particle(_position * g.dx, _velocity)
-    dt = s.c * g.dx
+    dt = g.dx / s.c
     g.current_density[...] = 0
     # current_deposition(g, s, dt)
     longitudinal_current_deposition(g.current_density[:, 0], s.v[:, 0], s.x, dt * np.ones_like(s.x), g.dx, dt, s.q)
@@ -51,7 +50,7 @@ def test_single_particle_longitudinal_deposition(_position, _velocity):
 def test_single_particle_transversal_deposition(_position, _velocity):
     g = Grid(NG=7, L=7)
     s = Particle(_position * g.dx, _velocity, 1, -1)
-    dt = s.c * g.dx
+    dt = g.dx / s.c
     new_positions = s.x + s.v[:, 0] * dt
     g.current_density[...] = 0
     print("\n\n=====Start run===")
@@ -83,8 +82,56 @@ def test_single_particle_transversal_deposition(_position, _velocity):
         plt.show()
         return title + " instead of 1"
 
-    assert np.isclose(collected_transversal_weights, 1).all(), plot_transversal()
+    assert np.allclose(collected_transversal_weights, 1), plot_transversal()
     assert np.isclose(total_sum_currents, 0), (plot_transversal(), f"Currents do not zero out at {total_sum_currents}")
+
+def test_multiple_particles_deposition(_position, _velocity):
+    NG = 7
+    L = NG
+    g = Grid(NG=NG, L=L)
+    c = 1
+    dt = g.dx / c
+    positions = [_position * g.dx, (L - _position * g.dx) % L]
+    print(positions)
+    for position in positions:
+        s = Particle(position, _velocity, 1, -1)
+        print(s)
+        print(s.x)
+        print(s.v)
+        longitudinal_current_deposition(g.current_density[:, 0], s.v[:, 0], s.x, dt * np.ones_like(s.x), g.dx, dt, s.q)
+        transversal_current_deposition(g.current_density[:, 1:], s.v, s.x, dt * np.ones_like(s.x), g.dx, dt, s.q)
+
+    collected_weights = g.current_density.sum(axis=0) / s.v[0, :]
+
+    g2 = Grid(NG=NG, L=L)
+    s= Species(1, 1, 2)
+    s.x[:] = positions
+    s.v[:,0] = _velocity
+    s.v[:,1] = 1
+    s.v[:,2] = -1
+    print(s)
+    print(s.x)
+    print(s.v)
+    longitudinal_current_deposition(g2.current_density[:, 0], s.v[:, 0], s.x, dt * np.ones_like(s.x), g2.dx, dt, s.q)
+    transversal_current_deposition(g2.current_density[:, 1:], s.v, s.x, dt * np.ones_like(s.x), g2.dx, dt, s.q)
+    collected_weights2 = g2.current_density.sum(axis=0) / s.v[0, :]
+    label = {0:'x', 1:'y', 2:'z'}
+    def plot():
+        fig, (ax1, ax2) = plt.subplots(2)
+        plt.suptitle(f"x: {positions}, vx: {_velocity}")
+        for i in range(3):
+            ax1.plot(g.x, g.current_density[1:-1,i],alpha = (3-i)/3, lw=1+i, label=f"1 {label[i]}")
+            ax1.plot(g.x, g2.current_density[1:-1,i],alpha = (3-i)/3, lw=1+i, label=f"2 {label[i]}")
+            ax2.plot(g.x, (g.current_density - g2.current_density)[1:-1, i],alpha = (3-i)/3, lw=1+i, label=f"1 - 2 {label[i]}")
+        for ax in [ax1, ax2]:
+            ax.scatter(s.x, np.zeros_like(s.x))
+            ax.legend(loc='lower right')
+            ax.set_xticks(g.x)
+            ax.grid()
+        fig.savefig(f"data_analysis/deposition/{_position:.2f}_{_velocity:.2f}.png")
+    assert np.allclose(g.current_density, g2.current_density), ("Currents don't match!", plot())
+    assert np.allclose(collected_weights, collected_weights2), "Weights don't match!"
+
 
 
 if __name__ == '__main__':
