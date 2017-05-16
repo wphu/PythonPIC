@@ -43,6 +43,7 @@ def plot(pusher, t, analytical_result, simulation_result,
     for ax in [ax1, ax2]:
         ax.grid()
         ax.legend()
+        ax.set_xticks(t)
     plt.show()
     return message
 
@@ -96,7 +97,6 @@ def test_relativistic_magnetic_field(_rela_pusher, _N, _v0):
     NT = helper_functions.calculate_NT(T, dt)
     s = Species(1, 1, _N, pusher=_rela_pusher, NT=NT)
     t = np.arange(0, T, dt * s.save_every_n_iterations) - dt / 2
-    print(s.v, _v0)
     s.v[:,1] = _v0
 
     def uniform_magnetic_field(x):
@@ -117,6 +117,32 @@ def test_relativistic_magnetic_field(_rela_pusher, _N, _v0):
     assert np.allclose(s.velocity_history[:, 0, 1], vy_analytical, atol=atol, rtol=rtol),\
         plot(_rela_pusher, t, vy_analytical, s.velocity_history[:, 0, 1], )
 
+
+@pytest.mark.parametrize("E0", np.linspace(-10,10, 10))
+def test_relativistic_harmonic_oscillator(_rela_pusher, _N, E0):
+    E0 = 1
+    T = 10
+    omega = 2 * np.pi / T
+    dt = T / 200
+    NT = helper_functions.calculate_NT(T, dt)
+    s = Species(1, 1, _N, pusher=_rela_pusher, NT=NT)
+    t = np.arange(0, T, dt * s.save_every_n_iterations) - dt / 2
+
+    t_s = t - dt/2
+    v_analytical = E0 * s.c * s.q * np.sin(omega * t_s) / np.sqrt((E0 * s.q * np.sin(omega * t_s))**2 + (s.m * omega * s.c)**2)
+
+    def electric_field(x, t):
+        return np.array([[1, 0, 0]], dtype=float) * E0 * np.cos(omega * t)
+
+    s.init_push(lambda x: electric_field(x, 0), dt)
+    for i in range(NT):
+        s.save_particle_values(i)
+        s.push(lambda x: electric_field(x, i * dt), dt)
+
+    assert (s.velocity_history < 1).all(), plot(_rela_pusher, t, v_analytical, s.velocity_history[:, 0, 0],
+                                                f"Velocity went over c! Max velocity: {s.velocity_history.max()}")
+    assert np.allclose(s.velocity_history[:, 0, 0], v_analytical, atol=atol, rtol=rtol), \
+        plot(_rela_pusher, t, v_analytical, s.velocity_history[:, 0, 0], )
 
 
 # @pytest.mark.parametrize(["E0"], [[1]])
