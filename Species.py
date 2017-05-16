@@ -1,10 +1,11 @@
 """Class representing a group of particles"""
 # coding=utf-8
 import numpy as np
+import scipy.integrate
 
 import helper_functions
 from algorithms_pusher import rela_boris_push_bl as rela_boris_push
-
+import algorithms_density_profiles
 MAX_SAVED_PARTICLES = int(1e4)
 
 
@@ -99,6 +100,13 @@ class Species:
         """
         self.x = (np.linspace(start_moat + Lx / self.N * 1e-10, Lx - end_moat, self.N,
                               endpoint=False) + shift * self.N / Lx / 10) % Lx  # Type:
+
+    def distribute_nonuniformly(self, L, moat_length, ramp_length, plasma_length, resolution_increase = 1000, profile = "linear"):
+        dense_x = np.linspace(0, L, self.N * resolution_increase)
+        y = algorithms_density_profiles.FDENS(dense_x, moat_length, ramp_length, plasma_length, self.N, profile)
+        integrated = scipy.integrate.cumtrapz(y, dense_x, initial=0).astype(int)
+        indices = np.diff(integrated) == 1
+        self.x = dense_x[:-1][indices]
 
     def sinusoidal_position_perturbation(self, amplitude: float, mode: int, L: float):
         """
