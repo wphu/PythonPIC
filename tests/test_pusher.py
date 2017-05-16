@@ -8,8 +8,23 @@ import helper_functions
 from Species import Species
 from helper_functions import l2_test
 
+atol = 1e-1
+rtol = 1e-4
+
 @pytest.fixture(params=[1, 2, 3, 10, 100])
 def _N(request):
+    return request.param
+
+@pytest.fixture(params=[algorithms_pusher.leapfrog_push, algorithms_pusher.boris_push])
+def _pusher(request):
+    return request.param
+
+@pytest.fixture(params=[algorithms_pusher.rela_boris_push_lpic, algorithms_pusher.rela_boris_push_bl])
+def _rela_pusher(request):
+    return request.param
+
+@pytest.fixture(params=np.linspace(0.1, 0.9, 10))
+def _v0(request):
     return request.param
 
 def plot(pusher, t, analytical_result, simulation_result,
@@ -18,51 +33,46 @@ def plot(pusher, t, analytical_result, simulation_result,
     fig.suptitle(pusher)
     ax1.plot(t, analytical_result, "b-", label="analytical result")
     ax1.plot(t, simulation_result, "ro--", label="simulation result")
-    ax1.legend()
 
-    ax2.plot(t, simulation_result - analytical_result, label="difference")
-    ax2.legend()
+    ax2.plot(t, np.abs(simulation_result - analytical_result), label="difference")
+    ax2.plot(t, np.ones_like(t) * (atol + rtol * np.abs(analytical_result)))
 
     ax2.set_xlabel("t")
     ax1.set_ylabel("result")
     ax2.set_ylabel("difference")
+    for ax in [ax1, ax2]:
+        ax.grid()
+        ax.legend()
     plt.show()
     return message
 
 
-@pytest.mark.parametrize(["pusher"], [
-    [algorithms_pusher.leapfrog_push],
-    [algorithms_pusher.boris_push],
-    ])
-def test_constant_field(pusher, _N):
+def test_constant_field(_pusher, _N):
     T = 10
     dt = 10 / 200
     NT = helper_functions.calculate_NT(T, dt)
-    s = Species(1, 1, _N, pusher=pusher, NT=NT)
+    s = Species(1, 1, _N, pusher=_pusher, NT=NT)
     t = np.arange(0, T, dt * s.save_every_n_iterations) - dt / 2
 
     def uniform_field(x):
         return np.array([[1, 0, 0]], dtype=float)
 
-    x_analytical = 0.5 * t ** 2 + 0
+    x_analytical = 0.5 * (t+dt/2) ** 2 + 0
     s.init_push(uniform_field, dt)
     for i in range(NT):
         s.save_particle_values(i)
         s.push(uniform_field, dt)
 
-    assert l2_test(x_analytical, s.position_history[:, 0]), plot(pusher, t, x_analytical, s.position_history[:, 0])
+    assert np.allclose(s.position_history[:, 0], x_analytical, atol=atol, rtol=rtol), \
+        plot(_rela_pusher, t, x_analytical, s.position_history[:, 0])
 
 
 
-@pytest.mark.parametrize(["pusher"], [
-    [algorithms_pusher.rela_boris_push_lpic],
-    [algorithms_pusher.rela_boris_push_bl],
-    ])
-def test_relativistic_constant_field(pusher, _N):
+def test_relativistic_constant_field(_rela_pusher, _N):
     T = 10
     dt = 10 / 200
     NT = helper_functions.calculate_NT(T, dt)
-    s = Species(1, 1, _N, pusher=pusher, NT=NT)
+    s = Species(1, 1, _N, pusher=_rela_pusher, NT=NT)
     t = np.arange(0, T, dt * s.save_every_n_iterations) - dt / 2
 
     def uniform_field(x):
@@ -74,10 +84,39 @@ def test_relativistic_constant_field(pusher, _N):
         s.save_particle_values(i)
         s.push(uniform_field, dt)
 
-    assert (s.velocity_history < 1).all(), plot(pusher, t, v_analytical, s.velocity_history[:, 0, 0],
+    assert (s.velocity_history < 1).all(), plot(_rela_pusher, t, v_analytical, s.velocity_history[:, 0, 0],
                                                 f"Velocity went over c! Max velocity: {s.velocity_history.max()}")
-    assert l2_test(v_analytical, s.velocity_history[:, 0, 0]), plot(pusher, t, v_analytical,
-                                                                    s.velocity_history[:, 0, 0], )
+    assert np.allclose(s.velocity_history[:, 0, 0], v_analytical, atol=atol, rtol=rtol), \
+        plot(_rela_pusher, t, v_analytical, s.velocity_history[:, 0, 0], )
+
+def test_relativistic_magnetic_field(_rela_pusher, _N, _v0):
+    B0 = 1
+    T = 10
+    dt = T / 200
+    NT = helper_functions.calculate_NT(T, dt)
+    s = Species(1, 1, _N, pusher=_rela_pusher, NT=NT)
+    t = np.arange(0, T, dt * s.save_every_n_iterations) - dt / 2
+    print(s.v, _v0)
+    s.v[:,1] = _v0
+
+    def uniform_magnetic_field(x):
+        return np.array([[0, 0, B0]], dtype=float)
+
+    def uniform_electric_field(x):
+        return np.zeros(3, dtype=float)
+
+    gamma = algorithms_pusher.gamma_from_v(s.v, s.c)[0]
+    vy_analytical = _v0 * np.cos(s.q * B0 * (t - dt/2) / (s.m * gamma))
+
+    s.init_push(uniform_electric_field, dt, uniform_magnetic_field)
+    for i in range(NT):
+        s.save_particle_values(i)
+        s.push(uniform_electric_field, dt, uniform_magnetic_field)
+    assert (s.velocity_history < 1).all(), plot(_rela_pusher, t, vy_analytical, s.velocity_history[:, 0, 1],
+                                                f"Velocity went over c! Max velocity: {s.velocity_history.max()}")
+    assert np.allclose(s.velocity_history[:, 0, 1], vy_analytical, atol=atol, rtol=rtol),\
+        plot(_rela_pusher, t, vy_analytical, s.velocity_history[:, 0, 1], )
+
 
 
 # @pytest.mark.parametrize(["E0"], [[1]])
