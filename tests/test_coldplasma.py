@@ -53,16 +53,16 @@ def test_heavy_protons(proton_mass):
     proton_frequency = plasma_frequency / proton_mass ** 0.5
     proton_scaling = abs(proton_mass * proton_frequency ** 2 * L / float(
         proton_mass * N_electrons * epsilon_0))
-    print(proton_frequency, proton_scaling)
+    # print(proton_frequency, proton_scaling)
     protons = Species(N=N_electrons, q=proton_charge, m=proton_mass, name="protons", NT=NT, scaling=proton_scaling)
 
     S = cold_plasma_oscillations(f"CO_TWO_SPECIES_{proton_mass}", qmratio=qmratio, plasma_frequency=plasma_frequency,
                                  NG=NG,
                                  N_electrons=N_electrons, push_mode=push_mode, save_data=False, protons=protons)
-    for s in S.list_species:
-        print(f"{s.name}: DV = {s.velocity_history.max() - s.velocity_history.min()}")
+    # for s in S.list_species:
+    #     print(f"{s.name}: DV = {s.velocity_history.max() - s.velocity_history.min()}")
     velocity_ranges = {s.name: s.velocity_history.max() - s.velocity_history.min() for s in S.list_species}
-    print(velocity_ranges)
+    # print(velocity_ranges)
     velocity_ratio = velocity_ranges['electrons'] / velocity_ranges['protons']
     assert np.isclose(velocity_ratio, proton_mass, rtol=1e-3), (
         f"velocity range ratio is {velocity_ratio}", plotting(S, show=show_on_fail, save=False, animate=True))

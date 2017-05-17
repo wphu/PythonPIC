@@ -5,7 +5,7 @@ import pytest
 
 from Grid import Grid
 from Species import Particle, Species
-from algorithms_interpolate import longitudinal_current_deposition, transversal_current_deposition, current_deposition
+from algorithms_interpolate import longitudinal_current_deposition, transversal_current_deposition
 
 
 @pytest.fixture(params=np.arange(3, 4, 0.2))
@@ -147,7 +147,7 @@ def test_many_particles_deposition(N, _velocity):
     s.v[:,1] = 1
     s.v[:,2] = -1
     dt = g.dx / s.c
-    current_deposition(g, s, dt)
+    g.gather_current([s], dt)
     collected_weights = g.current_density.sum(axis=0) / s.v[0, :]
     label = {0:'x', 1:'y', 2:'z'}
     def plot():

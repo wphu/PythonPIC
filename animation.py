@@ -53,15 +53,11 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
     fig.subplots_adjust(top=0.81, bottom=0.08, left=0.15, right=0.95,
                         wspace=.25, hspace=0.6)  # TODO: remove particle windows if there are no particles
 
-    charge_plots = []
     current_plots = []
     electric_field_plots = []
     magnetic_field_plots = []
 
-    for i, species in enumerate(S.list_species):
-        charge_plots.append(
-            charge_axis.plot(S.grid.x, S.grid.charge_density_history[0, :, i], ".-", label=f"{species.name} $\\rho$",
-                             color=colors[i], alpha=0.8)[0])
+    charge_plot, = charge_axis.plot(S.grid.x, S.grid.charge_density_history[0, :], ".-", alpha=0.8)
 
     # TODO: 3d animation for transverse fields
     charge_axis.set_xlim(0, S.grid.L)
@@ -78,10 +74,9 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
     charge_axis.grid()
     charge_axis.legend(loc='lower left')
     for j in range(3):
-        for i, species in enumerate(S.list_species):
-            current_plots.append(current_axes[j].plot(S.grid.x, S.grid.current_density_history[0, :, j, i], ".-",
-                                                      color=colors[i], alpha=0.9,
-                                                      label=f"{species.name} $j_{directions[j]}$")[0])
+        current_plots.append(current_axes[j].plot(S.grid.x, S.grid.current_density_history[0, :, j], ".-",
+                                                  alpha=0.9,
+                                                  label=fr"$j_{directions[j]}$")[0])
         current_axes[j].set_xlim(0, S.grid.L)
         current_axes[j].set_ylabel(f"Current density $j_{directions[j]}$", color='b')
         current_axes[j].tick_params('y', colors='b')
@@ -161,25 +156,23 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
         """initializes animation window for faster drawing"""
         iteration.set_text("Iteration: ")
         freq_plot.set_data([], [])
-        for i in range(S.grid.n_species):
-            charge_plots[i].set_data([], [])
+        charge_plot.set_data([], [])
         for j in range(3):
             electric_field_plots[j].set_data([], [])
             if j > 0:
                 magnetic_field_plots[j - 1].set_data([], [])
             for i, species, histogram in zip(range(S.grid.n_species), S.list_species, histograms):
                 phase_dots[species.name].set_data([], [])
-                current_plots[3 * i + j].set_data([], [])
                 histogram.set_data([], [])
-        return [*current_plots, *charge_plots, *electric_field_plots, *magnetic_field_plots, freq_plot,
+            current_plots[j].set_data([], [])
+        return [*current_plots, charge_plot, *electric_field_plots, *magnetic_field_plots, freq_plot,
                 *phase_dots.values(), iteration]
 
     def animate(i):
         """draws the i-th frame of the simulation"""
         freq_plot.set_data(S.grid.k_plot, S.grid.energy_per_mode_history[i])
         iteration.set_text(f"Iteration: {i}/{S.NT}\nTime: {i*S.dt:.3g}/{S.NT*S.dt:.3g}")
-        for i_species in range(S.grid.n_species):
-            charge_plots[i_species].set_data(S.grid.x, S.grid.charge_density_history[i, :, i_species])
+        charge_plot.set_data(S.grid.x, S.grid.charge_density_history[i, :])
         for j in range(3):
             electric_field_plots[j].set_data(S.grid.x, S.grid.electric_field_history[i, :, j])
             if j > 0:
@@ -191,12 +184,10 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
                     index = helper_functions.convert_global_to_particle_iter(i, species.save_every_n_iterations)
                     phase_dots[species.name].set_data(species.position_history[index, :],
                                                       species.velocity_history[index, :, 0])
-                    current_plots[S.grid.n_species * j + i_species].set_data(S.grid.x,
-                                                                             S.grid.current_density_history[index, :, j,
-                                                                             i_species])
                     histogram.set_data(*velocity_histogram_data(species.velocity_history[index], bin_array))
+            current_plots[j].set_data(S.grid.x, S.grid.current_density_history[i, :, j])
 
-        return [*current_plots, *charge_plots, *electric_field_plots, *magnetic_field_plots, freq_plot, *histograms,
+        return [*current_plots, charge_plot, *electric_field_plots, *magnetic_field_plots, freq_plot, *histograms,
                 *phase_dots.values(),
                 iteration]
 

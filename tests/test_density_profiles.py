@@ -35,3 +35,4 @@ def test_density(_fraction, _second_fraction, _profile):
         return warn
     assert (s.x > moat_length).all(), plot(minimal_warn)
     assert (s.x <= moat_length + plasma_length).all(), plot(maximal_warn)
+

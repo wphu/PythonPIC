@@ -6,6 +6,7 @@ import scipy.fftpack as fft
 import BoundaryCondition
 import FieldSolver
 import algorithms_interpolate
+from algorithms_interpolate import longitudinal_current_deposition, transversal_current_deposition
 
 
 class Grid:
@@ -36,8 +37,8 @@ class Grid:
         self.epsilon_0 = epsilon_0
         self.n_species = n_species
 
-        self.charge_density_history = np.zeros((NT, self.NG, n_species))
-        self.current_density_history = np.zeros((NT, self.NG, 3, n_species))
+        self.charge_density_history = np.zeros((NT, self.NG))
+        self.current_density_history = np.zeros((NT, self.NG, 3))
         self.electric_field_history = np.zeros((NT, self.NG, 3))
         self.magnetic_field_history = np.zeros((NT, self.NG, 2))
 
@@ -75,20 +76,22 @@ class Grid:
             self.electric_field[0, 1] = bc_value
 
     def gather_charge(self, list_species, i=0):
-        self.charge_density[:] = 0.0
-        for i_species, species in enumerate(list_species):
+        self.charge_density[...] = 0.0
+        for species in list_species:
             gathered_density = algorithms_interpolate.charge_density_deposition(self.x, self.dx, species.x[species.alive],
                                                                                 species.q)
-            self.charge_density_history[i, :, i_species] = gathered_density
+            self.charge_density_history[i, :] = gathered_density
             self.charge_density[1:-1] += gathered_density
 
-    def gather_current(self, list_species, i=0):
-        self.current_density[:] = 0.0
-        for i_species, species in enumerate(list_species):
-            gathered_current = algorithms_interpolate.current_density_deposition(self.x, self.dx, species.x, species.q,
-                                                                                 species.v)
-            self.current_density_history[i, :, :, i_species] = gathered_current
-            self.current_density[1:-1] += gathered_current
+    def gather_current(self, list_species, dt, i=0):
+        self.current_density[...] = 0.0
+        for species in list_species:
+            time_array = np.ones(species.N) * dt
+            longitudinal_current_deposition(self.current_density[:, 0], species.v[:, 0], species.x, time_array, self.dx, dt,
+                                            species.q)
+            transversal_current_deposition(self.current_density[:, 1:], species.v, species.x, time_array, self.dx, dt,
+                                           species.q)
+        self.current_density_history[i, :, :] = self.current_density[1:-1]
 
     def electric_field_function(self, xp):
         result = np.zeros((xp.size, 3))
