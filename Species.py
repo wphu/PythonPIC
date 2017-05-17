@@ -103,10 +103,8 @@ class Species:
 
     def distribute_nonuniformly(self, L, moat_length, ramp_length, plasma_length, resolution_increase = 1000, profile = "linear"):
         dense_x = np.linspace(0, L, self.N * resolution_increase)
-        y = algorithms_density_profiles.FDENS(dense_x, moat_length, ramp_length, plasma_length, self.N, profile)
-        integrated = scipy.integrate.cumtrapz(y, dense_x, initial=0).astype(int)
-        indices = np.diff(integrated) == 1
-        self.x = dense_x[:-1][indices]
+        self.x = algorithms_density_profiles.generate(dense_x, algorithms_density_profiles.FDENS, moat_length, ramp_length,
+                                             plasma_length, self.N, profile)
 
     def sinusoidal_position_perturbation(self, amplitude: float, mode: int, L: float):
         """

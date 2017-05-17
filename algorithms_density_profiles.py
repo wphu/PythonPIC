@@ -22,3 +22,11 @@ def FDENS(x, moat_left, ramp_length, plasma_length, N, func='linear'):
     result[region3] = normalization
     return result
 
+
+
+def generate(dense_range, func, *function_params):
+    y = func(dense_range, *function_params)
+    integrated = scipy.integrate.cumtrapz(y, dense_range, initial=0).astype(int)
+    indices = np.diff(integrated) == 1
+    return dense_range[:-1][indices]
+
