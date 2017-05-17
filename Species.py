@@ -1,11 +1,11 @@
 """Class representing a group of particles"""
 # coding=utf-8
 import numpy as np
-import scipy.integrate
 
+import algorithms_density_profiles
 import helper_functions
 from algorithms_pusher import rela_boris_push_bl as rela_boris_push
-import algorithms_density_profiles
+
 MAX_SAVED_PARTICLES = int(1e4)
 
 
@@ -29,8 +29,8 @@ class Species:
         :param int NT: number of time steps (for history saving)
         :param int scaling: number of particles per superparticle
         """
-        self.q = q*scaling
-        self.m = m*scaling
+        self.q = q * scaling
+        self.m = m * scaling
         self.N = int(N)
         self.NT = NT
         self.save_every_n_iterations = helper_functions.calculate_particle_iter_step(NT)
@@ -101,10 +101,12 @@ class Species:
         self.x = (np.linspace(start_moat + Lx / self.N * 1e-10, Lx - end_moat, self.N,
                               endpoint=False) + shift * self.N / Lx / 10) % Lx  # Type:
 
-    def distribute_nonuniformly(self, L, moat_length, ramp_length, plasma_length, resolution_increase = 1000, profile = "linear"):
+    def distribute_nonuniformly(self, L, moat_length, ramp_length, plasma_length, resolution_increase=1000,
+                                profile="linear"):
         dense_x = np.linspace(0, L, self.N * resolution_increase)
-        self.x = algorithms_density_profiles.generate(dense_x, algorithms_density_profiles.FDENS, moat_length, ramp_length,
-                                             plasma_length, self.N, profile)
+        self.x = algorithms_density_profiles.generate(dense_x, algorithms_density_profiles.FDENS, moat_length,
+                                                      ramp_length,
+                                                      plasma_length, self.N, profile)
 
     def sinusoidal_position_perturbation(self, amplitude: float, mode: int, L: float):
         """
@@ -198,13 +200,16 @@ class Species:
         return f"{self.N} {self.name} with q = {self.q:.4f}, m = {self.m:.4f}, {self.saved_iterations} saved history " \
                f"steps "
 
+
 class Particle(Species):
     def __init__(self, x, vx, vy=0, vz=0, q=1, m=1, name="Test particle", NT=1, c=1, pusher=rela_boris_push):
+        # noinspection PyArgumentEqualDefault
         super().__init__(q, m, 1, name, NT, 1, c, pusher)
         self.x[:] = x
-        self.v[:,0] = vx
-        self.v[:,1] = vy
-        self.v[:,2] = vz
+        self.v[:, 0] = vx
+        self.v[:, 1] = vy
+        self.v[:, 2] = vz
+
 
 if __name__ == '__main__':
     p = Particle(1, 3, 4, -5, name="test particle")

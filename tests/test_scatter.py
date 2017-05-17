@@ -108,7 +108,6 @@ def test_boundaries(plotting=False):
         plot()
     assert np.isclose(charge_density, analytical_charge_density).all(), plot()
 
-
 # def test_uniform_current_deposition(plotting=False):
 #     """
 #      N particles
@@ -210,5 +209,3 @@ def test_boundaries(plotting=False):
 #
 #     plt.show()
 #     # plt.show()
-
-

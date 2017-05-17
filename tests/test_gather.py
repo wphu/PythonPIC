@@ -95,6 +95,7 @@ def test_single_particle(power, plotting=False):
 
     def electric_field_function(x):
         return x ** power
+
     electric_field = electric_field_function(x)
 
     interpolated = interpolateField(x_particles, electric_field, x, dx)

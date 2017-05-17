@@ -51,6 +51,7 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, time, dx, dt, 
 
     # print(j_x, x_velocity, x_particles, time, dx, dt, q)
     epsilon = 1e-6 * dx
+    # noinspection PyUnresolvedReferences
     logical_coordinates_n = (x_particles / dx).astype(int)
 
     particle_in_left_half = x_particles / dx - logical_coordinates_n <= 0.5
@@ -134,6 +135,7 @@ def transversal_current_deposition(j_yz, velocity, x_particles, time, dx, dt, q)
     jy_contribution = q * y_velocity / dt * time_in_this_iteration
     jz_contribution = q * z_velocity / dt * time_in_this_iteration
 
+    # noinspection PyUnresolvedReferences
     sign = particle_in_left_half.astype(int) * 2 - 1
     distance_to_current_cell_center = (logical_coordinates_n + 0.5) * dx - x_particles
     s0 = (1 - sign * distance_to_current_cell_center / dx)
@@ -146,9 +148,9 @@ def transversal_current_deposition(j_yz, velocity, x_particles, time, dx, dt, q)
     logical_coordinates_depo[particle_in_right_half] += 1
 
     y_contribution_to_current_cell = w * jy_contribution
-    y_contribution_to_next_cell = (1-w) * jy_contribution
+    y_contribution_to_next_cell = (1 - w) * jy_contribution
     z_contribution_to_current_cell = w * jz_contribution
-    z_contribution_to_next_cell = (1-w) * jz_contribution
+    z_contribution_to_next_cell = (1 - w) * jz_contribution
 
     # assert (w <= 1).all(), f"w {w} > 1"
     # assert (w >= 0.5).all(), f"w {w} < 0.5"
@@ -218,5 +220,5 @@ def interpolateField(x_particles, scalar_field, x, dx):
     NG = scalar_field.size
     right_fractions = x_particles / dx - logical_coordinates
     field = (1 - right_fractions) * scalar_field[logical_coordinates] + \
-            (right_fractions) * scalar_field[(logical_coordinates + 1) % NG]
+            right_fractions * scalar_field[(logical_coordinates + 1) % NG]
     return field

@@ -66,4 +66,3 @@ def test_nonlinear_regime_beam_instability(NG, N_electrons, plasma_frequency):
 #                            )
 #
 #     # TEST: finish this
-

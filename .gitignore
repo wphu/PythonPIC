@@ -1,5 +1,5 @@
 .cache
 data_analysis
 *.swp
-**/.idea/workspace.xml
+.idea
 *__pycache__*

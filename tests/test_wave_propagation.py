@@ -31,10 +31,10 @@ def plot_all(field_history, analytical_solution):
 
 
 @pytest.mark.parametrize(["filename", "bc"],
-                         [("sine", BoundaryCondition.NonPeriodicBC(BoundaryCondition.Laser(1, 10, 3).laser_wave)),
+                         [("sine", BoundaryCondition.non_periodic_bc(BoundaryCondition.Laser(1, 10, 3).laser_wave)),
                           ("envelope",
-                           BoundaryCondition.NonPeriodicBC(BoundaryCondition.Laser(1, 10, 3).laser_envelope)),
-                          ("laser", BoundaryCondition.NonPeriodicBC(BoundaryCondition.Laser(1, 10, 3).laser_pulse)),
+                           BoundaryCondition.non_periodic_bc(BoundaryCondition.Laser(1, 10, 3).laser_envelope)),
+                          ("laser", BoundaryCondition.non_periodic_bc(BoundaryCondition.Laser(1, 10, 3).laser_pulse)),
                           ])
 def test_wave_propagation(filename, bc):
     run = wave_propagation(filename, bc)
@@ -42,10 +42,10 @@ def test_wave_propagation(filename, bc):
 
 
 @pytest.mark.parametrize(["filename", "bc"],
-                         [("sine", BoundaryCondition.NonPeriodicBC(BoundaryCondition.Laser(1, 10, 3).laser_wave)),
+                         [("sine", BoundaryCondition.non_periodic_bc(BoundaryCondition.Laser(1, 10, 3).laser_wave)),
                           ("envelope",
-                           BoundaryCondition.NonPeriodicBC(BoundaryCondition.Laser(1, 10, 3).laser_envelope)),
-                          ("laser", BoundaryCondition.NonPeriodicBC(BoundaryCondition.Laser(1, 10, 3).laser_pulse)),
+                           BoundaryCondition.non_periodic_bc(BoundaryCondition.Laser(1, 10, 3).laser_envelope)),
+                          ("laser", BoundaryCondition.non_periodic_bc(BoundaryCondition.Laser(1, 10, 3).laser_pulse)),
                           ])
 def test_polarization_orthogonality(filename, bc):
     run = wave_propagation(filename, bc)

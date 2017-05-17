@@ -78,7 +78,8 @@ class Grid:
     def gather_charge(self, list_species, i=0):
         self.charge_density[...] = 0.0
         for species in list_species:
-            gathered_density = algorithms_interpolate.charge_density_deposition(self.x, self.dx, species.x[species.alive],
+            gathered_density = algorithms_interpolate.charge_density_deposition(self.x, self.dx,
+                                                                                species.x[species.alive],
                                                                                 species.q)
             self.charge_density_history[i, :] = gathered_density
             self.charge_density[1:-1] += gathered_density
@@ -87,7 +88,8 @@ class Grid:
         self.current_density[...] = 0.0
         for species in list_species:
             time_array = np.ones(species.N) * dt
-            longitudinal_current_deposition(self.current_density[:, 0], species.v[:, 0], species.x, time_array, self.dx, dt,
+            longitudinal_current_deposition(self.current_density[:, 0], species.v[:, 0], species.x, time_array, self.dx,
+                                            dt,
                                             species.q)
             transversal_current_deposition(self.current_density[:, 1:], species.v, species.x, time_array, self.dx, dt,
                                            species.q)
@@ -152,5 +154,3 @@ class Grid:
         self.energy_per_mode_history = grid_data["energy per mode"][
             ...]  # OPTIMIZE: this can be calculated during analysis
         self.grid_energy_history = grid_data["grid energy"][...]
-
-

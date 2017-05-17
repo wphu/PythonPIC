@@ -1,3 +1,4 @@
+# coding=utf-8
 import run_beamplasma
 import run_coldplasma
 import run_twostream

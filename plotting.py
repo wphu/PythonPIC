@@ -11,7 +11,7 @@ import static_plots
 directory = "data_analysis/"
 
 
-def plotting(file, show: bool = True, save: bool = False, animate: bool = True, lines: bool = False, alpha: float = 1):
+def plotting(file, show: bool = True, save: bool = False, animate: bool = True, alpha: float = 1):
     """
     Runs visual analysis on saved hdf5 file. Currently runs:
     * energy vs time plot
@@ -36,7 +36,8 @@ def plotting(file, show: bool = True, save: bool = False, animate: bool = True, 
     print(S)
     if animate:
         # noinspection PyUnusedLocal
-        anim = animation.animation(S, S.filename.replace(".hdf5", ".mp4") if save else None, lines, alpha=alpha)  # this needs name due to matplotlib.animation
+        # this needs name due to matplotlib.animation
+        anim = animation.animation(S, S.filename.replace(".hdf5", ".mp4") if save else None, alpha=alpha)
     if show:
         plt.show()
     else:
@@ -53,4 +54,4 @@ if __name__ == "__main__":
     if args.filename[-5:] != ".hdf5":
         args.filename += ".hdf5"
 
-    plotting(args.filename, show=True, save=args.save, lines=args.lines)
+    plotting(args.filename, show=True, save=args.save)

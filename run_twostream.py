@@ -13,14 +13,16 @@ from helper_functions import plotting_parser, Constants
 def stability_condition(k0, v0, w0):
     dimensionless_number = k0 * v0 / w0
     expected_stability = dimensionless_number > 2 ** -0.5
-    print("k0*v0/w0 is", dimensionless_number, "which means the regime is", "stable" if expected_stability else "unstable")
+    print(f"k0*v0/w0 is {dimensionless_number} which means the regime is "
+          f"{'stable' if expected_stability else 'unstable'}")
     return expected_stability
+
 
 def two_stream_instability(filename,
                            plasma_frequency=1,
                            qmratio=-1,
                            dt=0.02,
-                           T=300*0.2,
+                           T=300 * 0.2,
                            NG=32,
                            N_electrons=128,
                            L=2 * np.pi,
@@ -35,7 +37,7 @@ def two_stream_instability(filename,
     print("Running two stream instability")
 
     helper_functions.check_pusher_stability(plasma_frequency, dt)
-    NT = helper_functions.calculate_NT(T, dt)
+    NT = helper_functions.calculate_number_timesteps(T, dt)
     print(f"{NT} iterations to go.")
     np.random.seed(0)
 
@@ -80,36 +82,19 @@ def main():
         plotting.plotting(two_stream_instability("TS1",
                                                  NG=64,
                                                  N_electrons=512,
-                                                 T=300 * 0.2,
                                                  plasma_frequency=0.05 / 4,
                                                  ), show=show, alpha=0.5, save=save, animate=animate),
-        plotting.plotting(two_stream_instability("TS2",
-                                                 NG=64,
-                                                 N_electrons=512,
-                                                 plasma_frequency=1,
-                                                 dt=0.03 / 5,
-                                                 T=300 * 3 * 0.2,
-                                                 ), show=show, alpha=0.5, save=save, animate=animate),
-        plotting.plotting(two_stream_instability("TS3",
-                                                 NG=64,
-                                                 N_electrons=1024,
-                                                 plasma_frequency=1,
-                                                 dt=0.01 / 3,
-                                                 T=300 * 3 * 0.2,
-                                                 ), show=show, alpha=0.5, save=save, animate=animate),
+        plotting.plotting(two_stream_instability("TS2", NG=64, N_electrons=512, dt=0.03 / 5, T=300 * 3 * 0.2),
+                          show=show, alpha=0.5, save=save, animate=animate),
+        plotting.plotting(two_stream_instability("TS3", NG=64, N_electrons=1024, dt=0.01 / 3, T=300 * 3 * 0.2),
+                          show=show, alpha=0.5, save=save, animate=animate),
         plotting.plotting(two_stream_instability("TSRANDOM1",
-                               NG=64,
-                               N_electrons=1024,
-                               vrandom=1e-1,
-                               ), show=show, alpha=0.5, save=save, animate=animate),
-        plotting.plotting(two_stream_instability("TSRANDOM2",
                                                  NG=64,
                                                  N_electrons=1024,
-                                                 plasma_frequency=1,
-                                                 dt=0.2 / 5,
-                                                 T=300 * 5 * 0.2,
                                                  vrandom=1e-1,
                                                  ), show=show, alpha=0.5, save=save, animate=animate),
+        plotting.plotting(two_stream_instability("TSRANDOM2", NG=64, N_electrons=1024, dt=0.2 / 5, T=300 * 5 * 0.2,
+                                                 vrandom=1e-1), show=show, alpha=0.5, save=save, animate=animate),
         ]
 
     for s in simulations:

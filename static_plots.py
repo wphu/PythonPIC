@@ -135,7 +135,7 @@ def velocity_time_plots(S, axis):
             mean = s.velocity_mean_history[:, i]
             std = s.velocity_std_history[:, i]
             axis.plot(t, mean, "-", color=colors[i], label=f"{s.name} $v_{directions[i]}$", alpha=1)
-            axis.fill_between(t, mean-std, mean+std, color=colors[i], alpha=0.3)
+            axis.fill_between(t, mean - std, mean + std, color=colors[i], alpha=0.3)
     axis.set_xlabel(r"Time $t$")
     axis.set_ylabel(r"Velocity $v$")
     if S.grid.n_species > 1:
@@ -170,8 +170,8 @@ def static_plots(S, filename=False):
 if __name__ == "__main__":
     import Simulation
 
-    S = Simulation.load_data("data_analysis/TS2/TS2.hdf5")
-    static_plots(S)
-    S = Simulation.load_data("data_analysis/TS1/TS1.hdf5")
-    static_plots(S)
+    Sim = Simulation.load_data("data_analysis/TS2/TS2.hdf5")
+    static_plots(Sim)
+    Sim2 = Simulation.load_data("data_analysis/TS1/TS1.hdf5")
+    static_plots(Sim2)
     plt.show()

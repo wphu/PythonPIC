@@ -23,7 +23,7 @@ def velocity_histogram_data(arr, bins):
     return bin_center, bin_height
 
 
-def animation(S, videofile_name=None, lines=False, alpha=1):
+def animation(S, videofile_name=None, alpha=1):
     """ animates the simulation, showing:
     * grid charge vs grid position
     * grid electric field vs grid position
@@ -104,15 +104,14 @@ def animation(S, videofile_name=None, lines=False, alpha=1):
         field_axes.set_ylabel(r"Fields $E$, $B$", color='k')
         field_axes.tick_params('y', colors='k')
         field_axes.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
-        maxE = np.max(np.abs(S.grid.electric_field_history))
-        maxB = np.max(np.abs(S.grid.magnetic_field_history))
-        maxfield = max([maxE, maxB])
+        max_e = np.max(np.abs(S.grid.electric_field_history))
+        max_b = np.max(np.abs(S.grid.magnetic_field_history))
+        maxfield = max([max_e, max_b])
         field_axes.set_ylim(-maxfield, maxfield)
         field_axes.grid()
         field_axes.legend(loc='upper right')
 
     phase_dots = {}
-    phase_lines = {}
     for i, species in enumerate(S.list_species):
         phase_dots[species.name], = phase_axes.plot([], [], colors[i] + ".", alpha=alpha)
     try:

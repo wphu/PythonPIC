@@ -20,7 +20,7 @@ def wave_propagation(filename,
     print(f"T is {T}")
     NG = 60
     L = 2 * np.pi
-    dx = L / (NG)
+    dx = L / NG
     epsilon_0 = 1
     c = 1
     dt = dx / c
@@ -43,11 +43,11 @@ def wave_propagation(filename,
 def main():
     show, save, animate = plotting_parser("Wave propagation")
     for filename, boundary_function in zip(["Wave", "Envelope", "Laser"],
-                                           [BoundaryCondition.NonPeriodicBC(
+                                           [BoundaryCondition.non_periodic_bc(
                                                BoundaryCondition.Laser(1, 10, 3).laser_wave),
-                                            BoundaryCondition.NonPeriodicBC(
+                                            BoundaryCondition.non_periodic_bc(
                                                 BoundaryCondition.Laser(1, 10, 3).laser_envelope),
-                                            BoundaryCondition.NonPeriodicBC(
+                                            BoundaryCondition.non_periodic_bc(
                                                 BoundaryCondition.Laser(1, 10, 3).laser_pulse),
                                             ]):
         s = wave_propagation(filename, boundary_function)

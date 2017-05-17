@@ -49,7 +49,7 @@ def weakbeam_instability(filename,
 
     plasma = Species(particle_charge, particle_mass, N_plasma, "plasma", NT, scaling(N_plasma))
     beam = Species(particle_charge, particle_mass, N_beam, "beam2", NT, scaling(N_plasma))
-    total_negative_charge = particle_charge * (N_plasma + N_beam)
+    # total_negative_charge = particle_charge * (N_plasma + N_beam)
     # N_protons = 100
     # q_protons = -total_negative_charge/N_protons
     # proton_mass = 1e16

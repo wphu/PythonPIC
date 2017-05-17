@@ -6,14 +6,6 @@ import functools
 import numpy as np
 
 
-def leapfrog_push(species, E, dt, *args):
-    v_new = species.v[species.alive].copy()
-    dv = E * species.q / species.m * dt
-    v_new += dv
-    energy = species.v[species.alive] * v_new * (0.5 * species.m)
-    return species.x + v_new[:, 0] * dt, v_new, energy
-
-
 def boris_push(species, E, dt, B):
     # add half electric impulse to v(t-dt/2)
     vminus = species.v + species.q * E / species.m * dt * 0.5
@@ -90,7 +82,7 @@ def bl_solve(t, s, N, uminus):
 
 # @numba.njit()
 def rela_boris_push(species, E: np.ndarray, dt: float, B: np.ndarray,
-                    c: float = 1, solve=lpic_solve):
+                    solve=lpic_solve):
     """
     relativistic Boris pusher
     """

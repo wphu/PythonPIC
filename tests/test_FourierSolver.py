@@ -13,11 +13,13 @@ DEBUG = False
 def _NG(request):
     return request.param
 
-@pytest.fixture(params=(1, 2 * np.pi, 10*np.pi, 1000))
+
+@pytest.fixture(params=(1, 2 * np.pi, 10 * np.pi, 1000))
 def _L(request):
     return request.param
 
-@pytest.fixture(params=(1, 2 * np.pi, 10*np.pi, 1000))
+
+@pytest.fixture(params=(1, 2 * np.pi, 10 * np.pi, 1000))
 def _test_charge_density(request):
     return request.param
 
