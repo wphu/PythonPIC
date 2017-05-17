@@ -5,6 +5,8 @@ import functools
 # coding=utf-8
 import numpy as np
 
+from pythonpic.algorithms.helper_functions import gamma_from_v, gamma_from_u
+
 
 def boris_push(species, E, dt, B):
     # add half electric impulse to v(t-dt/2)
@@ -56,14 +58,6 @@ def rotation_matrix(t: np.ndarray, s: np.ndarray, n: int) -> np.ndarray:
     result[:, 2, 1] = sy * tz
     result[:, 1, 2] = sz * ty
     return result
-
-
-def gamma_from_v(v, c):
-    return 1 / np.sqrt(1 - ((v ** 2).sum(axis=1, keepdims=True)) / c ** 2)  # below eq 22 LPIC
-
-
-def gamma_from_u(u, c):
-    return np.sqrt(1 + ((u ** 2).sum(axis=1, keepdims=True) / c ** 2))
 
 
 def lpic_solve(t, s, N, uminus):

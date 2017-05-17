@@ -110,7 +110,7 @@ def test_relativistic_magnetic_field(_rela_pusher, _N_particles, _v0):
     def uniform_electric_field(x):
         return np.zeros(3, dtype=float)
 
-    gamma = particle_push.gamma_from_v(s.v, s.c)[0]
+    gamma = helper_functions.gamma_from_v(s.v, s.c)[0]
     vy_analytical = _v0 * np.cos(s.q * B0 * (t - dt / 2) / (s.m * gamma))
 
     s.init_push(uniform_electric_field, dt, uniform_magnetic_field)

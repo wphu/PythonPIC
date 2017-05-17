@@ -128,3 +128,11 @@ def did_it_thermalize(S):
 colors = "brgyc"
 directions = "xyz"
 Constants = namedtuple('Constants', ['c', 'epsilon_0'])
+
+
+def gamma_from_v(v, c):
+    return 1 / np.sqrt(1 - ((v ** 2).sum(axis=1, keepdims=True)) / c ** 2)  # below eq 22 LPIC
+
+
+def gamma_from_u(u, c):
+    return np.sqrt(1 + ((u ** 2).sum(axis=1, keepdims=True) / c ** 2))

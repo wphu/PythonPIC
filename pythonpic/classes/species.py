@@ -144,6 +144,13 @@ class Species:
         """
         self.v[:, axis] += np.random.normal(scale=std, size=self.N)
 
+    def init_velocity_maxwellian(self, T, resolution_increase = 1000):
+        thermal_velocity = 1
+        dense_p = np.linspace(0, 4 * thermal_velocity, self.N/4 * 1000)
+
+        # TODO: WORK IN PROGRESS
+        self.v = result
+
     """ DATA ACCESS """
 
     def save_particle_values(self, i: int):
