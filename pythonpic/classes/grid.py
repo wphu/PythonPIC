@@ -79,8 +79,8 @@ class Grid:
             gathered_density = field_interpolation.charge_density_deposition(self.x, self.dx,
                                                                              species.x[species.alive],
                                                                              species.q)
-            self.charge_density_history[i, :] = gathered_density
             self.charge_density[1:-1] += gathered_density
+        self.charge_density_history[i, :] = self.charge_density[1:-1]
 
     def gather_current(self, list_species, dt, i=0):
         self.current_density[...] = 0.0
@@ -149,6 +149,6 @@ class Grid:
         self.current_density_history = grid_data['current'][...]
         self.electric_field_history = grid_data['Efield'][...]
         self.magnetic_field_history = grid_data['Bfield'][...]
-        self.energy_per_mode_history = grid_data["energy per mode"][
-            ...]  # OPTIMIZE: this can be calculated during analysis
+        # OPTIMIZE: this can be calculated during analysis
+        self.energy_per_mode_history = grid_data["energy per mode"][...]
         self.grid_energy_history = grid_data["grid energy"][...]

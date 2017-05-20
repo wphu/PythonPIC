@@ -2,10 +2,10 @@
 # coding=utf-8
 import numpy as np
 
-from pythonpic.algorithms import helper_functions
+from pythonpic.algorithms import helper_functions, BoundaryCondition
 from pythonpic.algorithms.helper_functions import plotting_parser, Constants
 from pythonpic.classes.grid import Grid
-from pythonpic.classes.simulation import Simulation
+from pythonpic.classes.simulation import Simulation, load_data
 from pythonpic.classes.species import Species
 from pythonpic.visualization import plotting
 
@@ -53,7 +53,8 @@ maximum_electron_concentration = 5.24e27 # TODO: this is a crutch
 
 npic = 1.048e25 # m^-3
 
-n_macroparticles = 75000
+# n_macroparticles = 75000
+n_macroparticles = 20000
 
 scaling = npic # TODO: what should be the proper value here?
 
@@ -67,18 +68,32 @@ def laser(filename):
     protons = Species(electric_charge, proton_mass, n_macroparticles, "protons", NT, scaling)
     list_species = [electrons, protons]
 
+    # bc = BoundaryCondition.non_periodic_bc(BoundaryCondition.Laser(laser_wavelength, dt*100, impulse_duration, c=lightspeed).laser_pulse)
+
     for species in list_species:
+        print(f"Distributing {species.name} nonuniformly.")
         species.distribute_nonuniformly(length, moat_length_left_side, preplasma_length, main_plasma_length)
 
     description = "The big one"
 
     run = Simulation(NT, dt, list_species, grid, Constants(lightspeed, epsilon_zero), filename=filename, title=description)
+    print("Simulation prepared.")
     run.grid_species_initialization()
+    print("Grid\species interactions initialized."
+          "May Guod have mercy upon your soul."
+          "Beginning simulation.")
     run.run(save_data=True)
+    print("Well, that's it, then.")
     return run
 
 def main():
-    s = laser("Laser1")
+    run = True
+    if run:
+        s = laser("Laser1")
+    else:
+        filename = "Laser1"
+        filename=f"data_analysis/laser-shield/{filename}/{filename}.hdf5"
+        s = load_data(filename)
     plotting.plots(s, show=True, animate=True)
 
 if __name__ == '__main__':

@@ -107,6 +107,8 @@ class Simulation:
         """
         start_time = time.time()
         for i in range(self.NT):
+            if i % (self.NT // 100) == 0:
+                print(f"{i}/{self.NT} iterations ({i/self.NT*100:.0f}%) done!")
             self.iteration(i)
         runtime = time.time() - start_time
 
