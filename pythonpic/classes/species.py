@@ -43,8 +43,12 @@ class Species:
         else:
             self.name = "q{}m{}N{}".format(q, m, N)
         if self.N >= MAX_SAVED_PARTICLES:
-            self.saved_particles = MAX_SAVED_PARTICLES
-            self.save_every_n_particle = self.N // MAX_SAVED_PARTICLES
+            self.save_every_n_particle = (self.N // MAX_SAVED_PARTICLES)
+            self.saved_particles = self.N // self.save_every_n_particle
+            print(f"Too many macro{name} to save them all! N: {self.N}, so we're saving every "
+                  f"{self.save_every_n_particle}th one and we're going to have "
+                  f"{self.saved_particles}"
+                  f" of them")
         else:
             self.saved_particles = self.N
             self.save_every_n_particle = 1
@@ -102,10 +106,11 @@ class Species:
 
     def distribute_nonuniformly(self, L, moat_length, ramp_length, plasma_length, resolution_increase=1000,
                                 profile="linear"):
-        dense_x = np.linspace(0, L, self.N * resolution_increase)
+        dense_x = np.linspace(moat_length*0.95, (moat_length + plasma_length)*1.05, self.N * resolution_increase)
         self.x = density_profiles.generate(dense_x, density_profiles.FDENS, moat_length,
                                            ramp_length,
                                            plasma_length, self.N, profile)
+        # print(self.x.size - self.N)
 
     def sinusoidal_position_perturbation(self, amplitude: float, mode: int, L: float):
         """
