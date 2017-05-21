@@ -27,8 +27,6 @@ def _profile(request):
 @pytest.fixture(scope='module')
 def test_density_helper(_fraction, _second_fraction, _profile, _N):
 
-    _fraction = 0.25
-    _second_fraction = 0.25
     g = Grid(100, 100)
     s = Species(1, 1, _N, "particles")
 

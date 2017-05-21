@@ -1,7 +1,6 @@
 # coding=utf-8
 import numpy as np
 import scipy.integrate
-
 from pythonpic.algorithms import helper_functions
 profiles = {"linear": lambda x: x,
             "quadratic": lambda x: x ** 2,
@@ -13,8 +12,7 @@ def FDENS(x, moat_left, ramp_length, plasma_length, N, func='linear'):
     rectangle_area = (plasma_length - ramp_length)
     modified_func = lambda x_value: func((x_value - moat_left) / ramp_length)
     ramp_area, _ = scipy.integrate.quad(modified_func, moat_left, moat_left + ramp_length)
-    # triangle_area = 0.5 * ramp_length
-    normalization = N / (rectangle_area + ramp_area)
+    normalization = (N+0.1) / (rectangle_area + ramp_area) # N + 0.1 due to non-exact float calculations
     result = np.zeros_like(x)
     region1 = x < moat_left
     region2 = (x < moat_left + ramp_length) & ~region1
@@ -35,6 +33,9 @@ def relativistic_maxwellian(v, N, c, m, T):
 def generate(dense_range, func, *function_params):
     y = func(dense_range, *function_params)
     integrated = scipy.integrate.cumtrapz(y, dense_range, initial=0).astype(int)
-    indices = np.diff(integrated) == 1
+    diffs = np.diff(integrated)
+
+    assert (diffs <= 1).all(), "There's two particles in a cell! Increase resolution."
+    indices = diffs == 1
     print(f"sum of indices: {indices.sum()}")
     return dense_range[:-1][indices]

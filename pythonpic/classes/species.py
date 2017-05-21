@@ -110,7 +110,6 @@ class Species:
         self.x = density_profiles.generate(dense_x, density_profiles.FDENS, moat_length,
                                            ramp_length,
                                            plasma_length, self.N, profile)
-        # print(self.x.size - self.N)
 
     def sinusoidal_position_perturbation(self, amplitude: float, mode: int, L: float):
         """
