@@ -2,6 +2,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
+from matplotlib import pyplot as plt
+
+from ..algorithms.field_interpolation import charge_density_deposition
 from ..classes import Particle, Species, Grid
 
 from ..algorithms.field_interpolation import longitudinal_current_deposition, transversal_current_deposition

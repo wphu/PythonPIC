@@ -4,8 +4,7 @@ import numpy as np
 import pytest
 
 from ..algorithms.field_interpolation import interpolateField
-from ..algorithms.helper_functions import l2_test
-
+from ..classes import Grid, Species
 
 @pytest.mark.parametrize("power", range(6))
 def test_poly(power, plotting=False):
@@ -14,7 +13,6 @@ def test_poly(power, plotting=False):
     L = 1
 
     x, dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
-    # charge_density = np.zeros_like(x)
 
     N = 128
     x_particles = np.linspace(0, L, N, endpoint=False)
@@ -33,7 +31,7 @@ def test_poly(power, plotting=False):
         x_plot = np.linspace(0, L, NG_plot, endpoint=False)
         electric_field_plot = electric_field_function(x_plot)
         plt.plot(x_plot, electric_field_plot, lw=5)
-        plt.plot(x, electric_field)
+        plt.plot(x[region_before_last_point], electric_field[region_before_last_point])
         plt.plot(x_particles, interpolated, "go-")
         plt.vlines(x, electric_field.min(), electric_field.max())
         plt.show()
@@ -42,8 +40,7 @@ def test_poly(power, plotting=False):
     if plotting:
         plot()
 
-    assert l2_test(analytical[region_before_last_point], interpolated[region_before_last_point]), plot()
-    # charge_density = charge_density_deposition(x, dx, x_particles, particle_charge)
+    assert np.allclose(analytical[region_before_last_point], interpolated[region_before_last_point], atol=1e-2, rtol=1e-2), plot()
 
 
 @pytest.mark.parametrize("field", [lambda x: np.sin(2 * np.pi * x), lambda x: np.cos(2 * np.pi * x)])
@@ -76,7 +73,7 @@ def test_periodic(field, plotting=False):
     if plotting:
         plot()
 
-    assert l2_test(interpolated, analytical), plot()
+    assert np.allclose(interpolated, analytical, atol=1e-2, rtol=1e-2), plot()
 
 
 @pytest.mark.parametrize("power", range(2, 6))
@@ -89,30 +86,28 @@ def test_single_particle(power, plotting=False):
     """
     NG = 16
     L = 1
-
-    x, dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
-    x_particles = np.array([x[3], x[6] + dx / 2, x[9] + 0.75 * dx, x[-1] + dx / 2])
+    g = Grid(NG=NG, L=L)
+    s = Species(1, 1, 4)
 
     def electric_field_function(x):
         return x ** power
 
-    electric_field = electric_field_function(x)
+    electric_field = electric_field_function(g.x)
 
-    interpolated = interpolateField(x_particles, electric_field, x, dx)
-    analytical = electric_field_function(x_particles)
-    analytical[-1] = (electric_field[0] + electric_field[-1]) / 2
+    interpolated = interpolateField(s.x, electric_field, g.x, g.dx)
+    analytical = electric_field_function(s.x)
+    # analytical[-1] = (electric_field[0] + electric_field[-1]) / 2
 
     def plot():
-        plt.plot(x, electric_field)
-        plt.plot(x_particles, interpolated, "go-")
-        plt.vlines(x, electric_field.min(), electric_field.max())
+        plt.plot(s.x, interpolated, "go-")
+        plt.vlines(g.x, electric_field.min(), electric_field.max())
         plt.show()
         return "poly test failed for power = {}".format(power)
 
     if plotting:
         plot()
 
-    assert l2_test(analytical, interpolated), plot()
+    assert np.allclose(analytical, interpolated), plot()
 
 
 if __name__ == "__main__":

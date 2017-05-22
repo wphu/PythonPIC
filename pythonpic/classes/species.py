@@ -19,7 +19,7 @@ class Species:
     NT: int, number of time steps (for diagnostics)
     """
 
-    def __init__(self, q, m, N, name=None, NT=1, scaling=1, c=1, pusher=rela_boris_push):
+    def __init__(self, q, m, N, name="particles", NT=1, scaling=1, c=1, pusher=rela_boris_push):
         r"""
         :param float q: particle charge
         :param float m: particle mass
@@ -38,10 +38,7 @@ class Species:
         self.v = np.zeros((N, 3), dtype=float)
         self.alive = np.ones(N, dtype=bool)
         self.c = c
-        if name:
-            self.name = name
-        else:
-            self.name = "q{}m{}N{}".format(q, m, N)
+        self.name = name
         if self.N >= MAX_SAVED_PARTICLES:
             self.save_every_n_particle = (self.N // MAX_SAVED_PARTICLES)
             self.saved_particles = self.N // self.save_every_n_particle

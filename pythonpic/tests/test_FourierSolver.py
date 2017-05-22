@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
-from ..algorithms.helper_functions import l2_norm, l2_test
+from ..algorithms.helper_functions import l2_norm
 from ..classes import Grid
 
 DEBUG = False
@@ -49,8 +49,7 @@ def test_PoissonSolver(_NG, _L, debug=DEBUG):
 
     if debug:
         plots()
-    field_correct = np.isclose(g.electric_field, field).all()
-    assert field_correct, plots()
+    assert np.allclose(g.electric_field, field), plots()
 
 
 # def test_PoissonSolver_complex(debug=DEBUG):
@@ -148,9 +147,9 @@ def test_PoissonSolver_energy_sine(_NG, debug=DEBUG):
     if debug:
         plots()
 
-    energy_correct = l2_test(energy_fourier, energy_direct)
+    energy_correct = np.allclose(energy_fourier, energy_direct)
     assert energy_correct, plots()
-    field_correct = l2_test(g.electric_field[1:-1, 0], anal_field[indices_in_denser_grid][:, 0])
+    field_correct = np.allclose(g.electric_field[1:-1, 0], anal_field[indices_in_denser_grid][:, 0])
     assert field_correct, plots()
 
 
