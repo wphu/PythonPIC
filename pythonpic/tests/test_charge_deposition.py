@@ -5,25 +5,6 @@ from ..classes import Grid, Species
 
 from ..algorithms.field_interpolation import charge_density_deposition
 
-
-def test_sine_perturbation_effect(amplitude=0.001):
-    g = Grid(L=1)
-    particles = Species(1, 1, 128)
-    particles.distribute_uniformly(g.L)
-    particles.sinusoidal_position_perturbation(amplitude, 1, g.L)
-
-    g.gather_charge([particles])
-
-    def plots():
-        plt.hist(particles.x, bins=g.x)
-        plt.plot(g.x, g.charge_density, "bo-", label="scattered")
-        plt.vlines(g.x, 3, 5)
-        plt.plot(particles.x, np.ones(128) * 4, "ro")
-        plt.show()
-    # TODO: fix this
-    assert True, plots()
-
-
 def test_single_particle(plotting=False):
     NG = 8
     L = 1
