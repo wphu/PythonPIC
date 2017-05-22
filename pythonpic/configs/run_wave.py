@@ -19,20 +19,17 @@ def wave_propagation(filename,
     print(f"T is {T}")
     NG = 60
     L = 2 * np.pi
-    dx = L / NG
     epsilon_0 = 1
     c = 1
-    dt = dx / c
-    NT = np.ceil(T / dt).astype(int)
-    grid = Grid(L, NG, epsilon_0, NT, dt=dt, n_species=0, solver=FieldSolver.BunemanSolver, bc=bc)
-    alpha = c * dt / grid.dx
+    grid = Grid(L, NG, epsilon_0, T=T, solver=FieldSolver.BunemanSolver, bc=bc)
+    alpha = c * grid.dt / grid.dx
     print(f"alpha is {alpha}")
     assert alpha <= 1
     description = \
         f"""Electrostatic wave driven by boundary condition
     """
 
-    run = Simulation(NT, dt, [], grid, Constants(c, epsilon_0), boundary_condition=bc, filename=filename,
+    run = Simulation(grid.NT, grid.dt, [], grid, Constants(c, epsilon_0), boundary_condition=bc, filename=filename,
                      title=description)
     run.grid_species_initialization()
     run.run(save_data)

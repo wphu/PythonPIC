@@ -12,8 +12,7 @@ from pythonpic.visualization.plotting import plots
 def cold_plasma_oscillations(filename,
                              plasma_frequency=1,
                              qmratio=-1,
-                             dt: float = 0.2,
-                             NT: int = 150,
+                             T: float = 150,
                              NG: int = 32,
                              N_electrons: int = 128,
                              L: float = 2 * pi,
@@ -49,8 +48,10 @@ def cold_plasma_oscillations(filename,
     scaling = abs(particle_mass * plasma_frequency ** 2 * L / float(
         particle_charge * N_electrons * epsilon_0))
 
+    grid = Grid(L, NG, epsilon_0, T = T)
+
     list_species = [
-        Species(N=N_electrons, q=particle_charge, m=particle_mass, name="electrons", NT=NT, scaling=scaling),
+        Species(N=N_electrons, q=particle_charge, m=particle_mass, name="electrons", NT = grid.NT, dt = grid.dt, scaling=scaling),
         ]
     for name, value in kwargs.items():
         if type(value) == Species:
@@ -59,12 +60,11 @@ def cold_plasma_oscillations(filename,
     for species in list_species:
         species.distribute_uniformly(L)
         species.sinusoidal_position_perturbation(push_amplitude, push_mode, L)
-    grid = Grid(L, NG, epsilon_0, NT, n_species=len(list_species))
 
     description = f"Cold plasma oscillations\nposition initial condition perturbed by sinusoidal oscillation mode " \
                   f"{push_mode} excited with amplitude {push_amplitude}\n"
 
-    run = Simulation(NT, dt, list_species, grid, Constants(c, epsilon_0), filename=filename, title=description)
+    run = Simulation(grid.NT, grid.dt, list_species, grid, Constants(c, epsilon_0), filename=filename, title=description)
     run.grid_species_initialization()
     run.run(save_data)
     return run

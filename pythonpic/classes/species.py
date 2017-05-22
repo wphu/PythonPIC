@@ -19,7 +19,7 @@ class Species:
     NT: int, number of time steps (for diagnostics)
     """
 
-    def __init__(self, q, m, N, name="particles", NT=1, scaling=1, c=1, pusher=rela_boris_push):
+    def __init__(self, q, m, N, dt=1, name="particles", NT=1, T=None, scaling=1, c=1, pusher=rela_boris_push):
         r"""
         :param float q: particle charge
         :param float m: particle mass
@@ -31,7 +31,10 @@ class Species:
         self.q = q * scaling
         self.m = m * scaling
         self.N = int(N)
-        self.NT = NT
+
+        self.dt = dt
+        self.NT = helper_functions.calculate_number_timesteps(T, dt) if (T and dt) else NT
+
         self.save_every_n_iterations = helper_functions.calculate_particle_iter_step(NT)
         self.saved_iterations = helper_functions.calculate_particle_snapshots(NT)
         self.x = np.zeros(N, dtype=float)
@@ -55,10 +58,10 @@ class Species:
         self.velocity_mean_history = np.zeros((self.saved_iterations, 3))
         self.velocity_std_history = np.zeros((self.saved_iterations, 3))
         self.alive_history = np.zeros((self.saved_iterations, self.saved_particles), dtype=bool)
-        self.kinetic_energy_history = np.zeros(self.saved_iterations)
+        self.kinetic_energy_history = np.zeros(self.NT)
         self.pusher = pusher
 
-    def init_push(self, electric_field_function, dt, magnetic_field_function=lambda x: np.zeros((x.size, 3))):
+    def init_push(self, electric_field_function, magnetic_field_function=lambda x: np.zeros((x.size, 3))):
         r"""
         Initializes particles for Leapfrog pushing.
         Same as `leapfrog_push`, except
@@ -72,10 +75,10 @@ class Species:
 
         E = electric_field_function(self.x[self.alive])
         B = magnetic_field_function(self.x[self.alive])
-        _, self.v[self.alive], energy = self.pusher(self, E, -dt * 0.5, B)
+        _, self.v[self.alive], energy = self.pusher(self, E, -self.dt * 0.5, B)
         return energy
 
-    def push(self, electric_field_function, dt, magnetic_field_function=lambda x: np.zeros((x.size, 3))):
+    def push(self, electric_field_function, magnetic_field_function=lambda x: np.zeros((x.size, 3))):
         r"""
         Leapfrog pusher for particles.
 
@@ -86,7 +89,7 @@ class Species:
 
         E = electric_field_function(self.x[self.alive])
         B = magnetic_field_function(self.x[self.alive])
-        self.x[self.alive], self.v[self.alive], energy = self.pusher(self, E, dt, B)
+        self.x[self.alive], self.v[self.alive], energy = self.pusher(self, E, self.dt, B)
         return energy
 
     """POSITION INITIALIZATION"""
@@ -209,9 +212,9 @@ class Species:
 
 
 class Particle(Species):
-    def __init__(self, x, vx, vy=0, vz=0, q=1, m=1, name="Test particle", NT=1, c=1, pusher=rela_boris_push):
+    def __init__(self, x, vx, vy=0, vz=0, q=1, m=1, name="Test particle", NT=1, T=None, dt=None, c=1, pusher=rela_boris_push):
         # noinspection PyArgumentEqualDefault
-        super().__init__(q, m, 1, name, NT, 1, c, pusher)
+        super().__init__(q, m, 1, dt, name, NT, T=T, c=c, pusher=pusher)
         self.x[:] = x
         self.v[:, 0] = vx
         self.v[:, 1] = vy

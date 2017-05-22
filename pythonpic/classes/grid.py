@@ -3,7 +3,7 @@
 import numpy as np
 import scipy.fftpack as fft
 
-from ..algorithms import field_interpolation, FieldSolver, BoundaryCondition
+from ..algorithms import field_interpolation, helper_functions, FieldSolver, BoundaryCondition
 from ..algorithms.field_interpolation import longitudinal_current_deposition, transversal_current_deposition
 
 
@@ -12,7 +12,7 @@ class Grid:
     """
 
     def __init__(self, L: float = 2 * np.pi, NG: int = 32, epsilon_0: float = 1, NT: float = 1, c: float = 1,
-                 dt: float = 1, n_species: int = 1, solver=FieldSolver.FourierSolver, bc=BoundaryCondition.PeriodicBC):
+                 dt: float = 1, T=None, solver=FieldSolver.FourierSolver, bc=BoundaryCondition.PeriodicBC):
         """
         :param float L: grid length, in nondimensional units
         :param int NG: number of grid cells
@@ -20,34 +20,39 @@ class Grid:
         :param int NT: number of timesteps for history tracking purposes
         """
         self.x, self.dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
-        self.dt = dt
         self.charge_density = np.zeros(NG + 2)
         self.current_density = np.zeros((NG + 2, 3))
         self.electric_field = np.zeros((NG + 2, 3))
         self.magnetic_field = np.zeros((NG + 2, 3))
         self.energy_per_mode = np.zeros(int(NG / 2))
 
+        self.dt = self.dx / c
+        if T:
+            self.NT = helper_functions.calculate_number_timesteps(T, dt)
+        elif NT:
+            self.NT = NT
+        else:
+            raise ValueError("Cannot build time data")
+
         self.L = L
-        self.NG = int(NG)
-        self.NT = NT
+        self.NG = NG
 
         self.c = c
         self.epsilon_0 = epsilon_0
-        self.n_species = n_species
 
-        self.charge_density_history = np.zeros((NT, self.NG))
-        self.current_density_history = np.zeros((NT, self.NG, 3))
-        self.electric_field_history = np.zeros((NT, self.NG, 3))
-        self.magnetic_field_history = np.zeros((NT, self.NG, 2))
+        self.charge_density_history = np.zeros((self.NT, self.NG))
+        self.current_density_history = np.zeros((self.NT, self.NG, 3))
+        self.electric_field_history = np.zeros((self.NT, self.NG, 3))
+        self.magnetic_field_history = np.zeros((self.NT, self.NG, 2))
 
         self.energy_per_mode_history = np.zeros(
-            (NT, int(self.NG / 2)))  # OPTIMIZE: get this from efield_history?
-        self.grid_energy_history = np.zeros(NT)  # OPTIMIZE: get this from efield_history
+            (self.NT, int(self.NG / 2)))  # OPTIMIZE: get this from efield_history?
+        self.grid_energy_history = np.zeros(self.NT)  # OPTIMIZE: get this from efield_history
 
         # specific to Poisson solver but used also elsewhere, for plots # TODO: clear this part up
-        self.k = 2 * np.pi * fft.fftfreq(NG, self.dx)
+        self.k = 2 * np.pi * fft.fftfreq(self.NG, self.dx)
         self.k[0] = 0.0001
-        self.k_plot = self.k[:int(NG / 2)]
+        self.k_plot = self.k[:int(self.NG / 2)]
 
         self.solver = solver
         self.bc_function = bc.field_bc

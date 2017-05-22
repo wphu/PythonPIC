@@ -30,7 +30,8 @@ def git_version() -> str:
 
 
 def calculate_particle_iter_step(NT):
-    return int(np.sqrt(NT))
+    result = int(np.sqrt(NT))
+    return result if result >1 else 1
 
 
 def calculate_particle_snapshots(NT):

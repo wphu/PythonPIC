@@ -21,7 +21,6 @@ def stability_condition(k0, v0, w0):
 def two_stream_instability(filename,
                            plasma_frequency=1,
                            qmratio=-1,
-                           dt=0.02,
                            T=300 * 0.2,
                            NG=32,
                            N_electrons=128,
@@ -35,10 +34,9 @@ def two_stream_instability(filename,
                            species_2_sign=1):
     """Implements two stream instability from Birdsall and Langdon"""
     print("Running two stream instability")
+    grid = Grid(L=L, NG=NG, T=T)
 
-    helper_functions.check_pusher_stability(plasma_frequency, dt)
-    NT = helper_functions.calculate_number_timesteps(T, dt)
-    print(f"{NT} iterations to go.")
+    helper_functions.check_pusher_stability(plasma_frequency, grid.dt)
     np.random.seed(0)
 
     particle_mass = 1
@@ -48,14 +46,13 @@ def two_stream_instability(filename,
 
     filename = f"data_analysis/TS/{filename}/{filename}.hdf5"
 
-    grid = Grid(L=L, NG=NG, NT=NT, n_species=2)
     helper_functions.check_plasma_parameter(N_electrons * scaling, NG, grid.dx)
     k0 = 2 * np.pi / L
 
     expected_stability = stability_condition(k0, v0, plasma_frequency)
 
-    electrons1 = Species(particle_charge, particle_mass, N_electrons, "beam1", NT, scaling)
-    electrons2 = Species(species_2_sign * particle_charge, particle_mass, N_electrons, "beam2", NT, scaling)
+    electrons1 = Species(particle_charge, particle_mass, N_electrons, grid.dt, "beam1", grid.NT, scaling=scaling)
+    electrons2 = Species(species_2_sign * particle_charge, particle_mass, N_electrons, grid.dt, "beam2", grid.NT, scaling=scaling)
     electrons1.v[:, 0] = v0
     electrons2.v[:, 0] = -v0
     list_species = [electrons1, electrons2]
@@ -69,7 +66,7 @@ def two_stream_instability(filename,
         description += f" + thermal $v_1$ of standard dev. {vrandom:.2f}"
 
     description += f" ({'stable' if expected_stability else 'unstable'}).\n"
-    run = Simulation(NT, dt, list_species, grid, Constants(1, epsilon_0), filename=filename, title=description)
+    run = Simulation(grid.NT, grid.dt, list_species, grid, Constants(1, epsilon_0), filename=filename, title=description)
     # REFACTOR: add initial condition values to Simulation object
     run.grid_species_initialization()
     run.run(save_data)
@@ -84,16 +81,16 @@ def main():
                                               N_electrons=512,
                                               plasma_frequency=0.05 / 4,
                                               ), show=show, alpha=0.5, save=save, animate=animate),
-        plotting.plots(two_stream_instability("TS2", NG=64, N_electrons=512, dt=0.03 / 5, T=300 * 3 * 0.2),
+        plotting.plots(two_stream_instability("TS2", NG=64, N_electrons=512, T=300 * 3 * 0.2),
                        show=show, alpha=0.5, save=save, animate=animate),
-        plotting.plots(two_stream_instability("TS3", NG=64, N_electrons=1024, dt=0.01 / 3, T=300 * 3 * 0.2),
+        plotting.plots(two_stream_instability("TS3", NG=64, N_electrons=1024, T=300 * 3 * 0.2),
                        show=show, alpha=0.5, save=save, animate=animate),
         plotting.plots(two_stream_instability("TSRANDOM1",
                                               NG=64,
                                               N_electrons=1024,
                                               vrandom=1e-1,
                                               ), show=show, alpha=0.5, save=save, animate=animate),
-        plotting.plots(two_stream_instability("TSRANDOM2", NG=64, N_electrons=1024, dt=0.2 / 5, T=300 * 5 * 0.2,
+        plotting.plots(two_stream_instability("TSRANDOM2", NG=64, N_electrons=1024, T=300 * 5 * 0.2,
                                               vrandom=1e-1), show=show, alpha=0.5, save=save, animate=animate),
         ]
 

@@ -160,7 +160,7 @@ def animation(S, videofile_name=None, alpha=1):
             electric_field_plots[j].set_data([], [])
             if j > 0:
                 magnetic_field_plots[j - 1].set_data([], [])
-            for i, species, histogram in zip(range(S.grid.n_species), S.list_species, histograms):
+            for i, species, histogram in zip(range(len(S.list_species)), S.list_species, histograms):
                 phase_dots[species.name].set_data([], [])
                 histogram.set_data([], [])
             current_plots[j].set_data([], [])
@@ -177,7 +177,7 @@ def animation(S, videofile_name=None, alpha=1):
             if j > 0:
                 magnetic_field_plots[j - 1].set_data(S.grid.x, S.grid.magnetic_field_history[i, :, j - 1])
 
-            for i_species, species, histogram, bin_array in zip(range(S.grid.n_species), S.list_species, histograms,
+            for i_species, species, histogram, bin_array in zip(range(len(S.list_species)), S.list_species, histograms,
                                                                 bin_arrays):
                 if helper_functions.is_this_saved_iteration(i, species.save_every_n_iterations):
                     index = helper_functions.convert_global_to_particle_iter(i, species.save_every_n_iterations)

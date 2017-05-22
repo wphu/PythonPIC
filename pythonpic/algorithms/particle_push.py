@@ -20,7 +20,7 @@ def boris_push(species, E, dt, B):
     vplus = vminus + np.cross(vprime, s)
     v_new = vplus + species.q * E / species.m * dt * 0.5
 
-    energy = species.v * v_new * (0.5 * species.m)
+    energy = (species.v * v_new * (0.5 * species.m)).sum()
     return species.x + v_new[:, 0] * dt, v_new, energy
 
 
@@ -97,7 +97,7 @@ def rela_boris_push(species, E: np.ndarray, dt: float, B: np.ndarray,
     #   import ipdb; ipdb.set_trace()
     final_gamma = gamma_from_u(u_new, species.c)
     v_new = u_new / final_gamma
-    energy = (final_gamma - 1) * species.m * species.c ** 2
+    energy = ((final_gamma - 1) * species.m * species.c ** 2).sum()
     x_new = species.x + v_new[:, 0] * dt
     return x_new, v_new, energy
 

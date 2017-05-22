@@ -36,6 +36,7 @@ class Simulation:
 
         self.NT = NT
         self.dt = dt
+        self.t = np.arange(self.NT) * self.dt
         self.grid = grid
         self.list_species = list_species
         self.field_energy = np.zeros(NT)
@@ -60,7 +61,7 @@ class Simulation:
         self.grid.init_solver()
         self.grid.apply_bc(0)
         for species in self.list_species:
-            species.init_push(self.grid.electric_field_function, self.dt)
+            species.init_push(self.grid.electric_field_function, self.grid.magnetic_field_function)
 
     def iteration(self, i: int, periodic: bool = True):
         """
@@ -80,12 +81,10 @@ class Simulation:
         total_kinetic_energy = 0  # accumulate over species
         for species in self.list_species:
             species.save_particle_values(i)
-            kinetic_energy = species.push(self.grid.electric_field_function, self.dt).sum()
-            # OPTIMIZE: remove this sum if it's not necessary (kinetic energy histogram?)
+            kinetic_energy = species.push(self.grid.electric_field_function, self.grid.magnetic_field_function)
             # TODO: WHY THE HELL IS THIS LINE BELOW HERE AND NOT IN SPECIES
             self.boundary_condition.particle_bc(species, self.grid.L)
-            index = helper_functions.convert_global_to_particle_iter(i, species.save_every_n_iterations)
-            species.kinetic_energy_history[index] = kinetic_energy
+            species.kinetic_energy_history[i] = kinetic_energy
             total_kinetic_energy += kinetic_energy
         self.grid.apply_bc(i)
         self.grid.gather_charge(self.list_species, i)

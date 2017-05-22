@@ -22,9 +22,7 @@ def test_linear_regime_beam_stability(NG, N_electrons):
 
 @pytest.mark.parametrize(["NG", "N_electrons", "plasma_frequency"], [
     (64, 1024, 1),
-    (128, 2048, 1),
-    (64, 1024, 1),
-    (64, 1024, 1),
+    # (64, int(2**13), 1),
     ])
 def test_nonlinear_regime_beam_instability(NG, N_electrons, plasma_frequency):
     run_name = f"TS_NONLINEAR_{NG}_{N_electrons}_{plasma_frequency}"
@@ -32,8 +30,7 @@ def test_nonlinear_regime_beam_instability(NG, N_electrons, plasma_frequency):
                                NG=NG,
                                N_electrons=N_electrons,
                                plasma_frequency=plasma_frequency,
-                               dt=0.2 / 2,
-                               T=300 * 0.2 * 3,
+                               T=300 * 3,
                                save_data=False,
                                )
     assert did_it_thermalize(S).all(), plots(S, show=show_on_fail, save=False, animate=True)
