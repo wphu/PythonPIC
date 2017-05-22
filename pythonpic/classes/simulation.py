@@ -56,7 +56,7 @@ class Simulation:
         3. initializes pusher via a step back
         """
         self.grid.gather_charge(self.list_species)
-        # self.grid.gather_current(self.list_species, self.dt)
+        self.grid.gather_current(self.list_species, self.dt)
         self.grid.init_solver()
         self.grid.apply_bc(0)
         for species in self.list_species:

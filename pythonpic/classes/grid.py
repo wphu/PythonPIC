@@ -89,8 +89,8 @@ class Grid:
             longitudinal_current_deposition(self.current_density[:, 0], species.v[:, 0], species.x, time_array, self.dx,
                                             dt,
                                             species.q)
-            transversal_current_deposition(self.current_density[:, 1:], species.v, species.x, time_array, self.dx, dt,
-                                           species.q)
+            # transversal_current_deposition(self.current_density[:, 1:], species.v, species.x, time_array, self.dx, dt,
+            #                                species.q)
         self.current_density_history[i, :, :] = self.current_density[1:-1]
 
     def electric_field_function(self, xp):
