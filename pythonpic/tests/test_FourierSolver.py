@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
-from pythonpic.algorithms.helper_functions import l2_norm, l2_test
-from pythonpic.classes.grid import Grid
+from ..algorithms.helper_functions import l2_norm, l2_test
+from ..classes import Grid
 
 DEBUG = False
 

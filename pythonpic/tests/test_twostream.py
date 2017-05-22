@@ -1,9 +1,9 @@
 # coding=utf-8
 import pytest
 
-from pythonpic.algorithms.helper_functions import did_it_thermalize, show_on_fail
-from pythonpic.configs.run_twostream import two_stream_instability
-from pythonpic.visualization.plotting import plots
+from ..algorithms.helper_functions import did_it_thermalize, show_on_fail
+from ..configs.run_twostream import two_stream_instability
+from ..visualization.plotting import plots
 
 
 @pytest.mark.parametrize(["NG", "N_electrons"], [

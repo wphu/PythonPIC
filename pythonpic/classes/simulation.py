@@ -6,10 +6,10 @@ import time
 import h5py
 import numpy as np
 
-from pythonpic.algorithms import helper_functions, BoundaryCondition
-from pythonpic.algorithms.helper_functions import git_version, Constants
-from pythonpic.classes.grid import Grid
-from pythonpic.classes.species import Species
+from ..algorithms import helper_functions, BoundaryCondition
+from ..algorithms.helper_functions import git_version, Constants
+from .grid import Grid
+from .species import Species
 
 
 class Simulation:
@@ -94,12 +94,13 @@ class Simulation:
         self.grid.grid_energy_history[i] = fourier_field_energy
         self.total_energy[i] = total_kinetic_energy + fourier_field_energy
 
-    def run(self, save_data: bool = True) -> float:
+    def run(self, save_data: bool = True, verbose = False) -> float:
         """
         Run n iterations of the simulation, saving data as it goes.
         Parameters
         ----------
         save_data (bool): Whether or not to save the data
+        verbose (bool): Whether or not to print out progress
 
         Returns
         -------
@@ -107,7 +108,7 @@ class Simulation:
         """
         start_time = time.time()
         for i in range(self.NT):
-            if i % (self.NT // 100) == 0:
+            if verbose and i % (self.NT // 100) == 0:
                 print(f"{i}/{self.NT} iterations ({i/self.NT*100:.0f}%) done!")
             self.iteration(i)
         runtime = time.time() - start_time

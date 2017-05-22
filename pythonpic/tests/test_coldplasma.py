@@ -3,11 +3,10 @@
 import numpy as np
 import pytest
 
-import pythonpic
-from pythonpic.algorithms.helper_functions import get_dominant_mode, show_on_fail
-from pythonpic.classes.species import Species
-from pythonpic.configs.run_coldplasma import cold_plasma_oscillations
-from pythonpic.visualization.plotting import plots
+from ..algorithms.helper_functions import get_dominant_mode, show_on_fail
+from ..classes.species import Species
+from ..configs.run_coldplasma import cold_plasma_oscillations
+from ..visualization.plotting import plots
 
 
 @pytest.mark.parametrize("push_mode", range(1, 32, 3))

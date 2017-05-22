@@ -4,9 +4,9 @@ import matplotlib.animation as anim
 import matplotlib.pyplot as plt
 import numpy as np
 
-from pythonpic.algorithms import helper_functions
-from pythonpic.algorithms.helper_functions import colors, directions
-from pythonpic.classes import simulation
+from ..algorithms import helper_functions
+from ..algorithms.helper_functions import colors, directions
+from ..classes import simulation
 
 
 # formatter = matplotlib.ticker.ScalarFormatter(useMathText=True, useOffset=False)

@@ -2,20 +2,20 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pytest
-from pythonpic.classes.species import Species
+from ..classes import Species
 
-from pythonpic.algorithms import density_profiles
-from pythonpic.classes.grid import Grid
+from ..algorithms import density_profiles
+from ..classes import Grid
 
 
-@pytest.fixture(params=np.linspace(0.01, 0.5, 4), scope='module')
+@pytest.fixture(params=np.linspace(0.01, 0.5, 3), scope='module')
 def _fraction(request):
     return request.param
 
 
 _second_fraction = _fraction
 
-@pytest.fixture(params=np.linspace(1000, 15000, 5, dtype=int), scope='module')
+@pytest.fixture(params=np.linspace(1000, 15000, 3, dtype=int), scope='module')
 def _N(request):
     return request.param
 

@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
-from pythonpic.algorithms import particle_push, helper_functions
-from pythonpic.classes.species import Species
+from ..algorithms import particle_push, helper_functions
+from ..classes import Species
 
 atol = 1e-1
 rtol = 1e-4

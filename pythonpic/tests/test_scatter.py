@@ -1,10 +1,9 @@
 # coding=utf-8
 import matplotlib.pyplot as plt
 import numpy as np
-from pythonpic.classes.species import Species
+from ..classes import Grid, Species
 
-from pythonpic.algorithms.field_interpolation import charge_density_deposition
-from pythonpic.classes.grid import Grid
+from ..algorithms.field_interpolation import charge_density_deposition
 
 
 def test_sine_perturbation_effect(amplitude=0.001):

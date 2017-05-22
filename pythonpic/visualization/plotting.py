@@ -4,9 +4,9 @@ import argparse
 
 import matplotlib.pyplot as plt
 
-from pythonpic.classes import simulation
-from pythonpic.visualization import animation
-from pythonpic.visualization import static_plots
+from ..classes import simulation
+from ..visualization import animation
+from ..visualization import static_plots
 
 directory = "data_analysis/"
 

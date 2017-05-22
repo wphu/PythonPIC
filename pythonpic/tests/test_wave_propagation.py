@@ -4,10 +4,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
-from pythonpic.algorithms import BoundaryCondition
-from pythonpic.algorithms.helper_functions import show_on_fail
-from pythonpic.configs.run_wave import wave_propagation
-from pythonpic.visualization.plotting import plots
+from ..algorithms import BoundaryCondition
+from ..algorithms.helper_functions import show_on_fail
+from ..configs.run_wave import wave_propagation
+from ..visualization.plotting import plots
 
 
 def plot_all(field_history, analytical_solution):

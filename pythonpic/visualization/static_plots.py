@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import gridspec
 
-from pythonpic.algorithms.helper_functions import directions, colors
+from ..algorithms.helper_functions import directions, colors
 
 
 def static_plot_window(S, N, M):

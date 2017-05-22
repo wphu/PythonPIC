@@ -2,10 +2,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pytest
-from pythonpic.classes.species import Particle, Species
+from ..classes import Particle, Species, Grid
 
-from pythonpic.algorithms.field_interpolation import longitudinal_current_deposition, transversal_current_deposition
-from pythonpic.classes.grid import Grid
+from ..algorithms.field_interpolation import longitudinal_current_deposition, transversal_current_deposition
 
 
 @pytest.fixture(params=np.arange(3, 4, 0.2))

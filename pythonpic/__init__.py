@@ -1,5 +1,9 @@
 """A work in progress particle-in-cell code written in Python, optimized for speed as well as readability."""
 
+from . import classes
+from . import algorithms
+from . import visualization
+from . import configs
 import sys
 import warnings
 

@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
-from pythonpic.algorithms.field_interpolation import interpolateField
-from pythonpic.algorithms.helper_functions import l2_test
+from ..algorithms.field_interpolation import interpolateField
+from ..algorithms.helper_functions import l2_test
 
 
 @pytest.mark.parametrize("power", range(6))

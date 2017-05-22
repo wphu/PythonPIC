@@ -2,8 +2,8 @@
 # coding=utf-8
 import numpy as np
 
-from pythonpic.algorithms import density_profiles, helper_functions
-from pythonpic.algorithms.particle_push import rela_boris_push_bl as rela_boris_push
+from ..algorithms import density_profiles, helper_functions
+from ..algorithms.particle_push import rela_boris_push_bl as rela_boris_push
 
 MAX_SAVED_PARTICLES = int(1e4)
 
@@ -118,7 +118,7 @@ class Species:
             dx = amplitude * cos(2 * mode * pi * x / L)xk
 
         :param float amplitude: Amplitude of perturbation
-        :param int mode: which mode is excited
+        :param int mode: which mode is excited/home/dominik/Inzynierka/pythonpic/pythonpic/tests/__init__.py
         :param float L: grid length
         :return:
         """

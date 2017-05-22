@@ -3,8 +3,8 @@
 import numpy as np
 import scipy.fftpack as fft
 
-from pythonpic.algorithms import field_interpolation, FieldSolver, BoundaryCondition
-from pythonpic.algorithms.field_interpolation import longitudinal_current_deposition, transversal_current_deposition
+from ..algorithms import field_interpolation, FieldSolver, BoundaryCondition
+from ..algorithms.field_interpolation import longitudinal_current_deposition, transversal_current_deposition
 
 
 class Grid:
