@@ -20,7 +20,7 @@ def test_sine_perturbation_effect(amplitude=0.001):
         plt.vlines(g.x, 3, 5)
         plt.plot(particles.x, np.ones(128) * 4, "ro")
         plt.show()
-
+    # TODO: fix this
     assert True, plots()
 
 
@@ -28,6 +28,7 @@ def test_single_particle(plotting=False):
     NG = 8
     L = 1
     x, dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
+    # TODO: gridify
 
     q = 1
 
@@ -51,12 +52,13 @@ def test_single_particle(plotting=False):
 
     if plotting:
         plot()
-    assert np.isclose(charge_density, analytical_charge_density).all(), plot()
+    assert np.allclose(charge_density, analytical_charge_density), plot()
 
 
 def test_constant_density(plotting=False):
     NG = 8
     L = 1
+    # TODO: gridify
     x, dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
 
     q = 1
@@ -78,13 +80,14 @@ def test_constant_density(plotting=False):
 
     if plotting:
         plot()
-    assert np.isclose(charge_density, analytical_charge_density).all(), plot()
+    assert np.allclose(charge_density, analytical_charge_density), plot()
 
 
 def test_boundaries(plotting=False):
     NG = 8
     L = 1
     x, dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
+    # TODO: gridify
 
     q = 1
 

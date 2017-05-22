@@ -37,5 +37,4 @@ def generate(dense_range, func, *function_params):
 
     assert (diffs <= 1).all(), "There's two particles in a cell! Increase resolution."
     indices = diffs == 1
-    print(f"sum of indices: {indices.sum()}")
     return dense_range[:-1][indices]
