@@ -155,6 +155,7 @@ class Simulation:
         return result_string  # REFACTOR: add information from config file (run_coldplasma...)
 
 
+# class PostprocessedSimulation # TODO
 def load_data(filename: str) -> Simulation:
     """Create a Simulation object from a hdf5 file"""
     with h5py.File(filename, "r") as f:

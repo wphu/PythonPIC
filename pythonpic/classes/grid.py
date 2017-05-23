@@ -27,7 +27,8 @@ class Frame():
         self.NT = helper_functions.calculate_number_timesteps(T, dt)
 
 class Grid(Frame):
-    """Object representing the grid on which charges and fields are computed
+    """
+    Object representing the grid on which charges and fields are computed
     """
 
     def __init__(self, T: float, L: float, NG: int, c: float = 1, epsilon_0: float = 1, bc=BoundaryCondition.PeriodicBC,
@@ -166,19 +167,27 @@ class Grid(Frame):
                                  data=self.energy_per_mode_history)  # OPTIMIZE: do these in post production
         grid_data.create_dataset(name="grid energy", dtype=float, data=self.grid_energy_history)
 
-    def load_from_h5py(self, grid_data):
+class PostprocessedGrid(Grid):
+    """
+    Object representing the grid, with post-simulation computation and visualization capabilities.
+    """
+    def __init__(self, grid_data):
         """
-        Loads all grid data from h5py file
-        grid_data: h5py group in premade hdf5 file
+        Builds a grid and runs computation on it.
+        Parameters
+        ----------
+        grid_data: path to grid_data in open h5py file
         """
         self.NG = grid_data.attrs['NGrid']
         self.L = grid_data.attrs['L']
         self.epsilon_0 = grid_data.attrs['epsilon_0']
         self.NT = grid_data['rho'].shape[0]
+        # TODO: call super()
 
         # OPTIMIZE: check whether these might not be able to be loaded partially for animation...?
         self.x = grid_data['x'][...]
         self.dx = self.x[1] - self.x[0]
+        self.x_current = self.x + self.dx / 2
         self.charge_density_history = grid_data['rho'][...]
         self.current_density_history = grid_data['current'][...]
         self.electric_field_history = grid_data['Efield'][...]
@@ -186,4 +195,3 @@ class Grid(Frame):
         # OPTIMIZE: this can be calculated during analysis
         self.energy_per_mode_history = grid_data["energy per mode"][...]
         self.grid_energy_history = grid_data["grid energy"][...]
-
