@@ -19,7 +19,7 @@ class Species:
     NT: int, number of time steps (for diagnostics)
     """
 
-    def __init__(self, q, m, N, dt=1, name="particles", NT=1, T=None, scaling=1, c=1, pusher=rela_boris_push):
+    def __init__(self, q, m, N, dt=1, name="particles", NT=1, scaling=1, c=1, pusher=rela_boris_push):
         r"""
         :param float q: particle charge
         :param float m: particle mass
@@ -33,7 +33,7 @@ class Species:
         self.N = int(N)
 
         self.dt = dt
-        self.NT = helper_functions.calculate_number_timesteps(T, dt) if (T and dt) else NT
+        self.NT = NT
 
         self.save_every_n_iterations = helper_functions.calculate_particle_iter_step(NT)
         self.saved_iterations = helper_functions.calculate_particle_snapshots(NT)
@@ -123,7 +123,10 @@ class Species:
         :return:
         """
         self.x += amplitude * np.cos(2 * mode * np.pi * self.x / L)
-        self.x %= L  # ensure boundaries
+        self.x %= L  # ensure boundaries # TODO: this will not work with non-periodic boundary conditions
+
+    def random_position_perturbation(self, std: float):
+        self.x += np.random.normal(scale=std, size=self.N)
 
     """VELOCITY INITIALIZATION"""
 

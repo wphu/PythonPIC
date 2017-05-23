@@ -6,12 +6,11 @@ import scipy.fftpack as fft
 from ..algorithms import field_interpolation, helper_functions, FieldSolver, BoundaryCondition
 from ..algorithms.field_interpolation import longitudinal_current_deposition, transversal_current_deposition
 
-
 class Grid:
     """Object representing the grid on which charges and fields are computed
     """
 
-    def __init__(self, L: float = 2 * np.pi, NG: int = 32, epsilon_0: float = 1, NT: float = 1, c: float = 1,
+    def __init__(self, L: float = 2 * np.pi, NG: int = 32, epsilon_0: float = 1, c: float = 1,
                  dt: float = 1, T=None, solver=FieldSolver.FourierSolver, bc=BoundaryCondition.PeriodicBC):
         """
         :param float L: grid length, in nondimensional units
@@ -29,8 +28,6 @@ class Grid:
         self.dt = self.dx / c
         if T:
             self.NT = helper_functions.calculate_number_timesteps(T, dt)
-        elif NT:
-            self.NT = NT
         else:
             raise ValueError("Cannot build time data")
 

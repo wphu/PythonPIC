@@ -61,11 +61,10 @@ scaling = npic # TODO: what should be the proper value here?
 def laser(filename):
     filename=f"data_analysis/laser-shield/{filename}/{filename}.hdf5"
     dt = spatial_step / lightspeed
-    NT = helper_functions.calculate_number_timesteps(total_time, dt)
-    grid = Grid(L=length, NG=number_cells, NT=NT, n_species=2)
+    grid = Grid(L=length, NG=number_cells, T = total_time)
 
-    electrons = Species(-electric_charge, electron_rest_mass, n_macroparticles, "electrons", NT, scaling)
-    protons = Species(electric_charge, proton_mass, n_macroparticles, "protons", NT, scaling)
+    electrons = Species(-electric_charge, electron_rest_mass, n_macroparticles, grid.dt, "electrons", grid.NT, scaling, lightspeed)
+    protons = Species(electric_charge, proton_mass, n_macroparticles, grid.dt, "protons", grid.NT, scaling, lightspeed)
     list_species = [electrons, protons]
 
     # bc = BoundaryCondition.non_periodic_bc(BoundaryCondition.Laser(laser_wavelength, dt*100, impulse_duration, c=lightspeed).laser_pulse)
@@ -73,10 +72,11 @@ def laser(filename):
     for species in list_species:
         print(f"Distributing {species.name} nonuniformly.")
         species.distribute_nonuniformly(length, moat_length_left_side, preplasma_length, main_plasma_length)
+        species.random_position_perturbation(grid.L / grid.NG / 1000)
 
     description = "The big one"
 
-    run = Simulation(NT, dt, list_species, grid, Constants(lightspeed, epsilon_zero), filename=filename, title=description)
+    run = Simulation(grid.NT, dt, list_species, grid, Constants(lightspeed, epsilon_zero), filename=filename, title=description)
     print("Simulation prepared.")
     run.grid_species_initialization()
     print("Grid\species interactions initialized."
