@@ -35,6 +35,9 @@ def two_stream_instability(filename,
     """Implements two stream instability from Birdsall and Langdon"""
     print("Running two stream instability")
     grid = Grid(T=T, L=L, NG=NG, epsilon_0=epsilon_0)
+    print(f"plasma frequency: {plasma_frequency}")
+    print(f"timestep: {grid.dt}")
+    print(f"iloczyn: {plasma_frequency * grid.dt}")
 
     helper_functions.check_pusher_stability(plasma_frequency, grid.dt)
     np.random.seed(0)
@@ -67,6 +70,7 @@ def two_stream_instability(filename,
 
     description += f" ({'stable' if expected_stability else 'unstable'}).\n"
     run = Simulation(grid, list_species, filename=filename, title=description)
+    print(run)
     # REFACTOR: add initial condition values to Simulation object
     run.grid_species_initialization()
     run.run(save_data)
@@ -77,25 +81,27 @@ def main():
     show, save, animate = plotting_parser("Two stream instability")
     simulations = [
         plotting.plots(two_stream_instability("TS1",
-                                              NG=64,
-                                              N_electrons=512,
+                                              NG=512,
+                                              N_electrons=4096,
                                               plasma_frequency=0.05 / 4,
                                               ), show=show, alpha=0.5, save=save, animate=animate),
-        plotting.plots(two_stream_instability("TS2", NG=64, N_electrons=512, T=300 * 3 * 0.2),
-                       show=show, alpha=0.5, save=save, animate=animate),
-        plotting.plots(two_stream_instability("TS3", NG=64, N_electrons=1024, T=300 * 3 * 0.2),
-                       show=show, alpha=0.5, save=save, animate=animate),
-        plotting.plots(two_stream_instability("TSRANDOM1",
-                                              NG=64,
-                                              N_electrons=1024,
-                                              vrandom=1e-1,
+        plotting.plots(two_stream_instability("TS2",
+                                              NG=512,
+                                              N_electrons=4096,
+                                              plasma_frequency=0.05,
                                               ), show=show, alpha=0.5, save=save, animate=animate),
-        plotting.plots(two_stream_instability("TSRANDOM2", NG=64, N_electrons=1024, T=300 * 5 * 0.2,
-                                              vrandom=1e-1), show=show, alpha=0.5, save=save, animate=animate),
+        # plotting.plots(two_stream_instability("TS2", NG=64, N_electrons=512, T=300 * 3 * 0.2),
+        #                show=show, alpha=0.5, save=save, animate=animate),
+        # plotting.plots(two_stream_instability("TS3", NG=64, N_electrons=1024, T=300 * 3 * 0.2),
+        #                show=show, alpha=0.5, save=save, animate=animate),
+        # plotting.plots(two_stream_instability("TSRANDOM1",
+        #                                       NG=64,
+        #                                       N_electrons=1024,
+        #                                       vrandom=1e-1,
+        #                                       ), show=show, alpha=0.5, save=save, animate=animate),
+        # plotting.plots(two_stream_instability("TSRANDOM2", NG=64, N_electrons=1024, T=300 * 5 * 0.2,
+        #                                       vrandom=1e-1), show=show, alpha=0.5, save=save, animate=animate),
         ]
-
-    for s in simulations:
-        plotting.plots(s, show=show, alpha=0.5, save=save, animate=animate)
 
 
 if __name__ == '__main__':

@@ -45,6 +45,7 @@ class Species:
         self.saved_iterations = helper_functions.calculate_particle_snapshots(grid.NT)
         self.x = np.zeros(N, dtype=float)
         self.v = np.zeros((N, 3), dtype=float)
+        self.energy = self.kinetic_energy()
         self.alive = np.ones(N, dtype=bool)
         self.c = grid.c
         self.name = name
@@ -64,8 +65,11 @@ class Species:
         self.velocity_mean_history = np.zeros((self.saved_iterations, 3))
         self.velocity_std_history = np.zeros((self.saved_iterations, 3))
         self.alive_history = np.zeros((self.saved_iterations, self.saved_particles), dtype=bool)
-        self.kinetic_energy_history = np.zeros(self.NT)
+        self.kinetic_energy_history = np.zeros(self.NT+1)
         self.pusher = pusher
+
+    def kinetic_energy(self):
+        return 0.5 * self.m * np.sum(self.v**2) # TODO: make this relativistic
 
     def init_push(self, electric_field_function, magnetic_field_function=lambda x: np.zeros((x.size, 3))):
         r"""
@@ -81,8 +85,8 @@ class Species:
 
         E = electric_field_function(self.x[self.alive])
         B = magnetic_field_function(self.x[self.alive])
-        _, self.v[self.alive], energy = self.pusher(self, E, -self.dt * 0.5, B)
-        return energy
+        _, self.v[self.alive], self.energy = self.pusher(self, E, -self.dt * 0.5, B)
+        return self.energy
 
     def push(self, electric_field_function, magnetic_field_function=lambda x: np.zeros((x.size, 3))):
         r"""
@@ -92,11 +96,12 @@ class Species:
         :param float dt: original time step
         :return float energy: (N,) size array of particle kinetic energies calculated at half time step
         """
+        # TODO: this should maybe take grid instead of functions
 
         E = electric_field_function(self.x[self.alive])
         B = magnetic_field_function(self.x[self.alive])
-        self.x[self.alive], self.v[self.alive], energy = self.pusher(self, E, self.dt, B)
-        return energy
+        self.x[self.alive], self.v[self.alive], self.energy = self.pusher(self, E, self.dt, B)
+        return self.energy
 
     """POSITION INITIALIZATION"""
 
@@ -174,6 +179,7 @@ class Species:
             self.velocity_history[index] = self.v[::self.save_every_n_particle]
             self.velocity_mean_history[index] = self.v[self.alive].mean(axis=0)
             self.velocity_std_history[index] = self.v[self.alive].std(axis=0)
+        self.kinetic_energy_history[i] = self.energy
 
     def save_to_h5py(self, species_data):
         """
@@ -216,7 +222,7 @@ class Species:
         return f"Species(q={self.q:.4f},m={self.m:.4f},N={self.N},name=\"{self.name}\",NT={self.NT})"
 
     def __str__(self):
-        return f"{self.N} {self.scaling}-{self.name} with q = {self.q:.4f}, m = {self.m:.4f}, {self.saved_iterations} saved history " \
+        return f"{self.N} {self.scaling:.2e}-{self.name} with q = {self.q:.2e}, m = {self.m:.2e}, {self.saved_iterations} saved history " \
                f"steps over {self.NT} iterations"
 
 

@@ -23,7 +23,7 @@ class Simulation:
     title : str
     """
     def __init__(self, grid: Grid, list_species, run_date=time.ctime(), git_ver=git_version(),
-                 filename=time.strftime("%Y-%m-%d_%H-%M-%S.hdf5"), title=""):
+                 filename=time.strftime("%Y-%m-%d_%H-%M-%S.hdf5"), boundary_condition=BoundaryCondition.PeriodicBC, title=""):
         self.NT = grid.NT
         self.dt = grid.dt
         self.t = np.arange(self.NT) * self.dt
@@ -31,7 +31,7 @@ class Simulation:
         self.list_species = list_species
         self.field_energy = np.zeros(self.NT)
         self.total_energy = np.zeros(self.NT)
-        self.boundary_condition = grid.bc_function
+        self.boundary_condition = boundary_condition
         self.constants = Constants(grid.c, grid.epsilon_0)
         self.filename = filename
         self.title = title
@@ -70,11 +70,8 @@ class Simulation:
         total_kinetic_energy = 0  # accumulate over species
         for species in self.list_species:
             species.save_particle_values(i)
-            kinetic_energy = species.push(self.grid.electric_field_function, self.grid.magnetic_field_function)
-            # TODO: WHY THE HELL IS THIS LINE BELOW HERE AND NOT IN SPECIES
+            total_kinetic_energy += species.push(self.grid.electric_field_function, self.grid.magnetic_field_function)
             self.boundary_condition.particle_bc(species, self.grid.L)
-            species.kinetic_energy_history[i] = kinetic_energy
-            total_kinetic_energy += kinetic_energy
         self.grid.apply_bc(i)
         self.grid.gather_charge(self.list_species)
         # self.grid.gather_current(self.list_species)
@@ -135,7 +132,7 @@ class Simulation:
     def __str__(self, *args, **kwargs):
         result_string = f"""
         {self.title} simulation ({os.path.basename(self.filename)}) containing {self.NT} iterations with time step {
-        self.dt}
+        self.dt:.3e}
         Done on {self.run_date} from git version {self.git_version}
         {self.grid.NG}-cell grid of length {self.grid.L:.2f}. Epsilon zero = {self.constants.epsilon_0}, 
         c = {self.constants.epsilon_0}""".lstrip()
