@@ -155,7 +155,7 @@ def test_many_particles_deposition(N, _velocity):
     s.v[:, 1] = 1
     s.v[:, 2] = -1
     dt = g.dx / s.c
-    g.gather_current([s], dt)
+    g.gather_current([s])
     collected_weights = g.current_density.sum(axis=0) / s.v[0, :]
     label = {0: 'x', 1: 'y', 2: 'z'}
 

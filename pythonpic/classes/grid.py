@@ -92,18 +92,18 @@ class TimelessGrid(Frame):
         for species in list_species:
             gathered_density = field_interpolation.charge_density_deposition(self.x, self.dx,
                                                                              species.x[species.alive],
-                                                                             species.q)
+                                                                             species.eff_q)
             self.charge_density[1:-1] += gathered_density
 
-    def gather_current(self, list_species, dt):
+    def gather_current(self, list_species):
         self.current_density[...] = 0.0
         for species in list_species:
-            time_array = np.ones(species.N) * dt
-            longitudinal_current_deposition(self.current_density[:, 0], species.v[:, 0], species.x, time_array, self.dx,
-                                            dt,
-                                            species.q)
-            transversal_current_deposition(self.current_density[:, 1:], species.v, species.x, time_array, self.dx, dt,
-                                           species.q)
+            time_array = np.ones(species.N) * self.dt
+            longitudinal_current_deposition(self.current_density[:, 0], species.v[:, 0], species.x, time_array.copy(), self.dx,
+                                            self.dt,
+                                            species.eff_q)
+            transversal_current_deposition(self.current_density[:, 1:], species.v, species.x, time_array, self.dx, self.dt,
+                                           species.eff_q)
 
     def electric_field_function(self, xp):
         result = np.zeros((xp.size, 3))
