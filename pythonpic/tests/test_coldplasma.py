@@ -3,14 +3,15 @@
 import numpy as np
 import pytest
 
-from ..algorithms.helper_functions import get_dominant_mode, show_on_fail
-from ..classes.species import Species
+from ..algorithms.helper_functions import get_dominant_mode
 from ..configs.run_coldplasma import cold_plasma_oscillations
 from ..visualization.plotting import plots
 
+show, save, animate = False, True, False
 
 @pytest.mark.parametrize("push_mode", range(1, 32, 3))
 def test_linear_dominant_mode(push_mode):
+    """In the linear mode the """
     plasma_frequency = 1
     N_electrons = 1024
     NG = 64
@@ -22,21 +23,35 @@ def test_linear_dominant_mode(push_mode):
     calculated_dominant_mode = get_dominant_mode(S)
     assert calculated_dominant_mode == push_mode, (
         f"got {calculated_dominant_mode} instead of {push_mode}",
-        plots(S, show=show_on_fail, save=False, animate=True))
+        plots(S, show=show, save=False, animate=True))
     return S
 
 
-@pytest.mark.parametrize(["N_electrons", "expected_dominant_mode", "push_amplitude"],
-                         [(32, 7, 0), (33, 1, 0), (32, 1, 1e-6)])
-def test_kaiser_wilhelm(N_electrons, expected_dominant_mode, push_amplitude):
+@pytest.mark.parametrize(["N_electrons", "push_amplitude"],
+                         [(256, 1e-6), (256, 1e-9)])
+def test_kaiser_wilhelm_instability_avoidance(N_electrons, push_amplitude):
     """aliasing effect with particles exactly at or close to grid nodes.
     Particles exactly on grid nodes cause excitation of high modes.
     Even a slight push prevents that."""
-    S = cold_plasma_oscillations(f"CO_KW_{N_electrons}{'_PUSH' if push_amplitude != 0 else ''}", save_data=False,
-                                 N_electrons=N_electrons, NG=16,
+    S = cold_plasma_oscillations(f"CO_KWI_STABLE_{N_electrons}_PUSH_{push_amplitude}", save_data=False,
+                                 N_electrons=N_electrons, NG=256,
+                                 T = 200,
+                                 push_mode = 1,
                                  push_amplitude=push_amplitude)
-    show, save, animate = False, False, True
-    assert get_dominant_mode(S) == expected_dominant_mode, plots(S, show=show_on_fail, save=save, animate=animate)
+    assert get_dominant_mode(S) == 1, plots(S, show=show, save=save, animate=animate)
+
+
+@pytest.mark.parametrize("N", [128, 256])
+def test_kaiser_wilhelm_instability(N):
+    __doc__ = test_kaiser_wilhelm_instability_avoidance.__doc__
+    S = cold_plasma_oscillations(f"CO_KWI_UNSTABLE_{N}", save_data=False,
+                                 N_electrons=N, NG=N,
+                                 T = 200,
+                                 push_amplitude=0
+                                 )
+    assert get_dominant_mode(S) > 5, plots(S, show=show, save=save, animate=animate)
+
+
 
 
 
