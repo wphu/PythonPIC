@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from ..algorithms import particle_push, helper_functions
-from ..classes import Species
+from ..classes import Species, TimelessGrid, Frame
 
 atol = 1e-1
 rtol = 1e-4
@@ -55,7 +55,8 @@ def test_constant_field(_pusher, _N_particles):
     T = 10
     dt = 10 / 200
     NT = helper_functions.calculate_number_timesteps(T, dt)
-    s = Species(1, 1, _N_particles, dt, pusher=_pusher, NT=NT)
+    g = Frame(dt, 1, 1, NT)
+    s = Species(1, 1, _N_particles, g, pusher=_pusher)
     t = np.arange(0, T, dt * s.save_every_n_iterations) - dt / 2
 
     def uniform_field(x):
@@ -76,7 +77,8 @@ def test_relativistic_constant_field(_rela_pusher, _N_particles):
     T = 10
     dt = 10 / 200
     NT = helper_functions.calculate_number_timesteps(T, dt)
-    s = Species(1, 1, _N_particles, dt, pusher=_rela_pusher, NT=NT)
+    g = Frame(dt, 1, 1, NT)
+    s = Species(1, 1, _N_particles, g, pusher=_rela_pusher)
     t = np.arange(0, T, dt * s.save_every_n_iterations) - dt / 2
 
     def uniform_field(x):
@@ -100,7 +102,8 @@ def test_relativistic_magnetic_field(_rela_pusher, _N_particles, _v0):
     T = 10
     dt = T / 200
     NT = helper_functions.calculate_number_timesteps(T, dt)
-    s = Species(1, 1, _N_particles, dt, pusher=_rela_pusher, NT=NT)
+    g = Frame(dt, 1, 1, NT)
+    s = Species(1, 1, _N_particles, g, pusher=_rela_pusher)
     t = np.arange(0, T, dt * s.save_every_n_iterations) - dt / 2
     s.v[:, 1] = _v0
 
@@ -131,7 +134,8 @@ def test_relativistic_harmonic_oscillator(_rela_pusher, _N_particles, E0):
     omega = 2 * np.pi / T
     dt = T / 200
     NT = helper_functions.calculate_number_timesteps(T, dt)
-    s = Species(1, 1, _N_particles, dt, pusher=_rela_pusher, NT=NT)
+    g = Frame(dt, 1, 1, NT)
+    s = Species(1, 1, _N_particles, g, pusher=_rela_pusher)
     t = np.arange(0, T, dt * s.save_every_n_iterations) - dt / 2
 
     t_s = t - dt / 2

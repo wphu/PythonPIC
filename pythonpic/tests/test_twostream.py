@@ -7,8 +7,8 @@ from ..visualization.plotting import plots
 
 
 @pytest.mark.parametrize(["NG", "N_electrons"], [
-    (64, 512),
-    (128, 1024),
+    (200, 5000),
+    (400, 10000),
     ])
 def test_linear_regime_beam_stability(NG, N_electrons):
     run_name = f"TS_LINEAR_{NG}_{N_electrons}"

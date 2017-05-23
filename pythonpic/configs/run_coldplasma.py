@@ -51,7 +51,7 @@ def cold_plasma_oscillations(filename,
     grid = Grid(T=T, L=L, NG=NG, epsilon_0=epsilon_0)
 
     list_species = [
-        Species(N=N_electrons, q=particle_charge, m=particle_mass, name="electrons", NT = grid.NT, dt = grid.dt, scaling=scaling),
+        Species(N=N_electrons, q=particle_charge, m=particle_mass, grid=grid, name="electrons", scaling=scaling),
         ]
     for name, value in kwargs.items():
         if type(value) == Species:

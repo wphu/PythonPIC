@@ -34,7 +34,7 @@ def two_stream_instability(filename,
                            species_2_sign=1):
     """Implements two stream instability from Birdsall and Langdon"""
     print("Running two stream instability")
-    grid = Grid(T=T, L=L, NG=NG)
+    grid = Grid(T=T, L=L, NG=NG, epsilon_0=epsilon_0)
 
     helper_functions.check_pusher_stability(plasma_frequency, grid.dt)
     np.random.seed(0)
@@ -51,8 +51,8 @@ def two_stream_instability(filename,
 
     expected_stability = stability_condition(k0, v0, plasma_frequency)
 
-    electrons1 = Species(particle_charge, particle_mass, N_electrons, grid.dt, "beam1", grid.NT, scaling=scaling)
-    electrons2 = Species(species_2_sign * particle_charge, particle_mass, N_electrons, grid.dt, "beam2", grid.NT, scaling=scaling)
+    electrons1 = Species(particle_charge, particle_mass, N_electrons, grid, "beam1", scaling=scaling)
+    electrons2 = Species(species_2_sign * particle_charge, particle_mass, N_electrons, grid, "beam2", scaling=scaling)
     electrons1.v[:, 0] = v0
     electrons2.v[:, 0] = -v0
     list_species = [electrons1, electrons2]

@@ -18,13 +18,18 @@ def plots(file, show: bool = True, save: bool = False, animate: bool = True, alp
     * electrostatic energy per mode vs time
     * temperature vs time
     * spectral analysis
+    Parameters
+    ----------
+    file : str or simulation.Simulation
+    show : bool
+        
+    save : bool
+    animate : bool
+    alpha : float
 
+    Returns
+    -------
 
-    :param str file: hdf5 file location
-    :param bool show: True if you want to show the plots right after creating
-    :param bool save: True if you want to save the plots
-    :param bool animate: True if you want to display/save animation
-    :param float alpha: [0, 1] phaseplot dot opacity
     """
     if type(file) == simulation.Simulation:
         S = file

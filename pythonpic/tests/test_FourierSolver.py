@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from ..algorithms.helper_functions import l2_norm
-from ..classes import Grid
+from ..classes import TimelessGrid
 
 DEBUG = False
 
@@ -25,7 +25,7 @@ def _test_charge_density(request):
 
 
 def test_PoissonSolver(_NG, _L, debug=DEBUG):
-    g = Grid(_L, _NG)
+    g = TimelessGrid(_L, _NG)
     charge_density = (2 * np.pi / _L) ** 2 * np.sin(2 * g.x * np.pi / _L)
     field = np.zeros((_NG + 2, 3))
     field[1:-1, 0] = -2 * np.pi / _L * np.cos(2 * np.pi * g.x / _L)
@@ -65,7 +65,7 @@ def test_PoissonSolver(_NG, _L, debug=DEBUG):
 #         x * 6 * np.pi) + (20 * np.pi)**2 * 0.1 * np.sin(x * 20 * np.pi)) * epsilon_0
 #
 #     NG = 32
-#     g = Grid(L, NG, epsilon_0)
+#     g = Frame(L, NG, epsilon_0)
 #     # indices_in_denser_grid = np.searchsorted(x, g.x)
 #     g.charge_density = charge_density_anal(g.x)
 #     energy_fourier = g.solve_fourier()
@@ -113,7 +113,7 @@ def test_PoissonSolver_energy_sine(_NG, debug=DEBUG):
 
     charge_density_anal = ((2 * np.pi) ** 2 * np.sin(x * 2 * np.pi))
 
-    g = Grid(_L, _NG, epsilon_0)
+    g = TimelessGrid(_L, _NG, epsilon_0)
     indices_in_denser_grid = np.searchsorted(x, g.x)
     g.charge_density[1:-1] = charge_density_anal[indices_in_denser_grid]  # / resolution_increase
 
@@ -162,7 +162,7 @@ def test_PoissonSolver_sheets(_NG, _L, debug=DEBUG, _test_charge_density=1):
     region2 = (_L * 5 / 8 < x) * (x < _L * 6 / 8)
     charge_density[region1] = _test_charge_density
     charge_density[region2] = -_test_charge_density
-    g = Grid(_L, _NG, epsilon_0)
+    g = TimelessGrid(_L, _NG, epsilon_0)
     g.charge_density[1:-1] = charge_density
     g.solve()
 
@@ -204,7 +204,7 @@ def test_PoissonSolver_ramp(_NG, _L, debug=DEBUG):
     a = 1
 
     # noinspection PyArgumentEqualDefault
-    g = Grid(_L, _NG, epsilon_0=1)
+    g = TimelessGrid(_L, _NG, epsilon_0=1)
     g.charge_density[1:-1] = a * g.x
     g.solve()
     field = a * (g.x - _L / 2) ** 2 / 2

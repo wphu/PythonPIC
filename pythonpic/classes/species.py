@@ -9,25 +9,28 @@ MAX_SAVED_PARTICLES = int(1e4)
 
 
 class Species:
-    """Object representing a species of particles: ions, electrons, or simply
-    a group of particles with a particular (nyeh) initial velocity distribution.
-
-    q: float, particle charge
-    m: float, particle mass
-    N: int, total number of particles in species
-    name: string, ID of particles
-    NT: int, number of time steps (for diagnostics)
     """
+    Object representing a species of particles: ions, electrons, or simply
+    a group of particles with a particular initial velocity distribution.
 
+    Parameters
+    ----------
+    q : float
+        particle charge
+    m : float
+        particle mass
+    N : int
+        number of macroparticles
+    grid : Grid or Frame
+        parent grid
+    name : str
+        name of group
+    scaling : float
+        number of particles per macroparticle
+    pusher : function 
+        particle push algorithm
+    """
     def __init__(self, q, m, N, grid, name="particles", scaling=1, pusher=rela_boris_push):
-        r"""
-        :param float q: particle charge
-        :param float m: particle mass
-        :param int N: total number of species particles
-        :param str name: name of particle set
-        :param int NT: number of time steps (for history saving)
-        :param int scaling: number of particles per superparticle
-        """
         self.q = q
         self.m = m
         self.N = int(N)
@@ -218,9 +221,34 @@ class Species:
 
 
 class Particle(Species):
-    def __init__(self, x, vx, vy=0, vz=0, q=1, m=1, name="Test particle", NT=1, T=None, dt=None, c=1, pusher=rela_boris_push):
+    """
+    A helper class for quick creation of a single particle for test purposes.
+    Parameters
+    ----------
+    grid : Grid or Frame
+        parent grid
+    x : float
+        position
+    vx : float
+        x velocity
+    vy : float
+        y velocity
+    vz : float 
+        z velocity
+    q : float
+        particle charge
+    m : float
+        particle mass
+    name : str
+        name of group
+    scaling : float
+        number of particles per macroparticle
+    pusher : function 
+        particle push algorithm
+    """
+    def __init__(self, grid, x, vx, vy=0, vz=0, q=1, m=1, name="Test particle", scaling=1, pusher=rela_boris_push):
         # noinspection PyArgumentEqualDefault
-        super().__init__(q, m, 1, dt, name, NT, T=T, c=c, pusher=pusher)
+        super().__init__(q, m, 1, grid, name, scaling = scaling, pusher=pusher)
         self.x[:] = x
         self.v[:, 0] = vx
         self.v[:, 1] = vy

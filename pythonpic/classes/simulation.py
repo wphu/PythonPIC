@@ -76,7 +76,7 @@ class Simulation:
             2. 2. pushes particles forward
 
         """
-        self.grid.save_field_values(i)  # OPTIMIZE: is this necessary with what happens after loop
+        self.grid.save_field_values(i)  # TODO: is this the right place, or after loop?
 
         total_kinetic_energy = 0  # accumulate over species
         for species in self.list_species:
@@ -87,8 +87,8 @@ class Simulation:
             species.kinetic_energy_history[i] = kinetic_energy
             total_kinetic_energy += kinetic_energy
         self.grid.apply_bc(i)
-        self.grid.gather_charge(self.list_species, i)
-        # self.grid.gather_current(self.list_species, i)
+        self.grid.gather_charge(self.list_species)
+        # self.grid.gather_current(self.list_species)
         fourier_field_energy = self.grid.solve()
         self.grid.grid_energy_history[i] = fourier_field_energy
         self.total_energy[i] = total_kinetic_energy + fourier_field_energy
