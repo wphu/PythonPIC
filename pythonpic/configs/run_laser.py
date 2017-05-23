@@ -61,10 +61,10 @@ scaling = npic # TODO: what should be the proper value here?
 def laser(filename):
     filename=f"data_analysis/laser-shield/{filename}/{filename}.hdf5"
     dt = spatial_step / lightspeed
-    grid = Grid(L=length, NG=number_cells, T = total_time)
+    grid = Grid(T=total_time, L=length, NG=number_cells, c = lightspeed, epsilon_0 = epsilon_zero)
 
-    electrons = Species(-electric_charge, electron_rest_mass, n_macroparticles, grid.dt, "electrons", grid.NT, scaling, lightspeed)
-    protons = Species(electric_charge, proton_mass, n_macroparticles, grid.dt, "protons", grid.NT, scaling, lightspeed)
+    electrons = Species(-electric_charge, electron_rest_mass, n_macroparticles, grid, "electrons", scaling)
+    protons = Species(electric_charge, proton_mass, n_macroparticles, grid, "protons", scaling)
     list_species = [electrons, protons]
 
     # bc = BoundaryCondition.non_periodic_bc(BoundaryCondition.Laser(laser_wavelength, dt*100, impulse_duration, c=lightspeed).laser_pulse)
@@ -82,7 +82,7 @@ def laser(filename):
     print("Grid\species interactions initialized."
           "May Guod have mercy upon your soul."
           "Beginning simulation.")
-    run.run(save_data=True)
+    run.run(save_data=True, verbose=True)
     print("Well, that's it, then.")
     return run
 

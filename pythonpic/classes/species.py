@@ -19,7 +19,7 @@ class Species:
     NT: int, number of time steps (for diagnostics)
     """
 
-    def __init__(self, q, m, N, dt=1, name="particles", NT=1, scaling=1, c=1, pusher=rela_boris_push):
+    def __init__(self, q, m, N, grid, name="particles", scaling=1, pusher=rela_boris_push):
         r"""
         :param float q: particle charge
         :param float m: particle mass
@@ -28,19 +28,22 @@ class Species:
         :param int NT: number of time steps (for history saving)
         :param int scaling: number of particles per superparticle
         """
-        self.q = q * scaling
-        self.m = m * scaling
+        self.q = q
+        self.m = m
         self.N = int(N)
+        self.scaling = scaling
+        self.eff_q = q * scaling
+        self.eff_m = m * scaling
 
-        self.dt = dt
-        self.NT = NT
+        self.dt = grid.dt
+        self.NT = grid.NT
 
-        self.save_every_n_iterations = helper_functions.calculate_particle_iter_step(NT)
-        self.saved_iterations = helper_functions.calculate_particle_snapshots(NT)
+        self.save_every_n_iterations = helper_functions.calculate_particle_iter_step(grid.NT)
+        self.saved_iterations = helper_functions.calculate_particle_snapshots(grid.NT)
         self.x = np.zeros(N, dtype=float)
         self.v = np.zeros((N, 3), dtype=float)
         self.alive = np.ones(N, dtype=bool)
-        self.c = c
+        self.c = grid.c
         self.name = name
         if self.N >= MAX_SAVED_PARTICLES:
             self.save_every_n_particle = (self.N // MAX_SAVED_PARTICLES)
@@ -151,12 +154,12 @@ class Species:
         """
         self.v[:, axis] += np.random.normal(scale=std, size=self.N)
 
-    def init_velocity_maxwellian(self, T, resolution_increase = 1000):
-        thermal_velocity = 1
-        dense_p = np.linspace(0, 4 * thermal_velocity, self.N/4 * 1000)
-
-        # TODO: WORK IN PROGRESS
-        self.v = result
+    # def init_velocity_maxwellian(self, T, resolution_increase = 1000):
+    #     thermal_velocity = 1
+    #     dense_p = np.linspace(0, 4 * thermal_velocity, self.N/4 * 1000)
+    #
+    #     # TODO: WORK IN PROGRESS
+    #     self.v = result
 
     """ DATA ACCESS """
 
@@ -210,8 +213,8 @@ class Species:
         return f"Species(q={self.q:.4f},m={self.m:.4f},N={self.N},name=\"{self.name}\",NT={self.NT})"
 
     def __str__(self):
-        return f"{self.N} {self.name} with q = {self.q:.4f}, m = {self.m:.4f}, {self.saved_iterations} saved history " \
-               f"steps "
+        return f"{self.N} {self.scaling}-{self.name} with q = {self.q:.4f}, m = {self.m:.4f}, {self.saved_iterations} saved history " \
+               f"steps over {self.NT} iterations"
 
 
 class Particle(Species):

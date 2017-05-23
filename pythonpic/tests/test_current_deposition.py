@@ -21,7 +21,7 @@ def _velocity(request):
 
 
 def test_single_particle_longitudinal_deposition(_position, _velocity):
-    g = Grid(NG=7, L=7)
+    g = Grid(L=7, NG=7)
     s = Particle(_position * g.dx, _velocity)
     dt = g.dx / s.c
     g.current_density[...] = 0
@@ -51,7 +51,7 @@ def test_single_particle_longitudinal_deposition(_position, _velocity):
 
 
 def test_single_particle_transversal_deposition(_position, _velocity):
-    g = Grid(NG=7, L=7)
+    g = Grid(L=7, NG=7)
     s = Particle(_position * g.dx, _velocity, 1, -1)
     dt = g.dx / s.c
     new_positions = s.x + s.v[:, 0] * dt
@@ -92,7 +92,7 @@ def test_single_particle_transversal_deposition(_position, _velocity):
 def test_two_particles_deposition(_position, _velocity):
     NG = 7
     L = NG
-    g = Grid(NG=NG, L=L)
+    g = Grid(L=L, NG=NG)
     c = 1
     dt = g.dx / c
     positions = [_position * g.dx, (L - _position * g.dx) % L]
@@ -109,7 +109,7 @@ def test_two_particles_deposition(_position, _velocity):
 
     collected_weights = g.current_density.sum(axis=0) / np.array([_velocity, 1, -1], dtype=float)
 
-    g2 = Grid(NG=NG, L=L)
+    g2 = Grid(L=L, NG=NG)
     s = Species(1, 1, 2)
     s.x[:] = positions
     s.v[:, 0] = _velocity
@@ -148,7 +148,7 @@ def test_two_particles_deposition(_position, _velocity):
 def test_many_particles_deposition(N, _velocity):
     NG = 10
     L = NG
-    g = Grid(NG=NG, L=L)
+    g = Grid(L=L, NG=NG)
     s = Species(1.0 / N, 1, N)
     s.distribute_uniformly(L, 1e-6, 2 * g.dx, 2 * g.dx)
     s.v[:, 0] = _velocity

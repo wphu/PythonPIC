@@ -10,17 +10,17 @@ from pythonpic.algorithms.helper_functions import gamma_from_v, gamma_from_u
 
 def boris_push(species, E, dt, B):
     # add half electric impulse to v(t-dt/2)
-    vminus = species.v + species.q * E / species.m * dt * 0.5
+    vminus = species.v + species.eff_q * E / species.eff_m * dt * 0.5
 
     # rotate to add magnetic field
-    t = -B * species.q / species.m * dt * 0.5
+    t = -B * species.eff_q / species.eff_m * dt * 0.5
     s = 2 * t / (1 + t * t)
 
     vprime = vminus + np.cross(vminus, t)  # TODO: axis?
     vplus = vminus + np.cross(vprime, s)
-    v_new = vplus + species.q * E / species.m * dt * 0.5
+    v_new = vplus + species.eff_q * E / species.eff_m * dt * 0.5
 
-    energy = (species.v * v_new * (0.5 * species.m)).sum()
+    energy = (species.v * v_new * (0.5 * species.eff_m)).sum()
     return species.x + v_new[:, 0] * dt, v_new, energy
 
 
@@ -81,12 +81,12 @@ def rela_boris_push(species, E: np.ndarray, dt: float, B: np.ndarray,
     relativistic Boris pusher
     """
     u = species.v * gamma_from_v(species.v, species.c)
-    half_force = species.q * E / species.m * dt * 0.5  # eq. 21 LPIC # array of shape (N_particles, 3)
+    half_force = species.eff_q * E / species.eff_m * dt * 0.5  # eq. 21 LPIC # array of shape (N_particles, 3)
     # add first half of electric force
     uminus = u + half_force
 
     # rotate to add magnetic field
-    t = B * species.q * dt / (2 * species.m * gamma_from_u(uminus, species.c))  # above eq 23 LPIC
+    t = B * species.eff_q * dt / (2 * species.eff_m * gamma_from_u(uminus, species.c))  # above eq 23 LPIC
     s = 2 * t / (1 + t * t)
     uplus = solve(t, s, species.N, uminus)
 
@@ -97,7 +97,7 @@ def rela_boris_push(species, E: np.ndarray, dt: float, B: np.ndarray,
     #   import ipdb; ipdb.set_trace()
     final_gamma = gamma_from_u(u_new, species.c)
     v_new = u_new / final_gamma
-    energy = ((final_gamma - 1) * species.m * species.c ** 2).sum()
+    energy = ((final_gamma - 1) * species.eff_m * species.c ** 2).sum()
     x_new = species.x + v_new[:, 0] * dt
     return x_new, v_new, energy
 

@@ -21,7 +21,7 @@ def wave_propagation(filename,
     L = 2 * np.pi
     epsilon_0 = 1
     c = 1
-    grid = Grid(L, NG, epsilon_0, T=T, solver=FieldSolver.BunemanSolver, bc=bc)
+    grid = Grid(T=T, L=L, NG=NG, epsilon_0=epsilon_0, bc=bc, solver=FieldSolver.BunemanSolver)
     alpha = c * grid.dt / grid.dx
     print(f"alpha is {alpha}")
     assert alpha <= 1

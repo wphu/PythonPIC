@@ -58,7 +58,7 @@ def weakbeam_instability(filename,
     # background = Species(q_protons, proton_mass, N_protons, "protons", NT, scaling(N_plasma))
     # background.v[:,:] = 0
     list_species = [beam, plasma]  # , background]
-    grid = Grid(L=L, NG=NG, NT=NT, n_species=len(list_species))
+    grid = Grid(L=L, NG=NG)
     for i, species in enumerate(list_species):
         species.distribute_uniformly(L, 0.5 * grid.dx * i)
         species.sinusoidal_position_perturbation(push_amplitude, push_mode, grid.L)

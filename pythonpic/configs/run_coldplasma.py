@@ -48,7 +48,7 @@ def cold_plasma_oscillations(filename,
     scaling = abs(particle_mass * plasma_frequency ** 2 * L / float(
         particle_charge * N_electrons * epsilon_0))
 
-    grid = Grid(L, NG, epsilon_0, T = T)
+    grid = Grid(T=T, L=L, NG=NG, epsilon_0=epsilon_0)
 
     list_species = [
         Species(N=N_electrons, q=particle_charge, m=particle_mass, name="electrons", NT = grid.NT, dt = grid.dt, scaling=scaling),

@@ -166,7 +166,7 @@ def load_data(filename: str) -> Simulation:
 
         grid_data = f['grid']
         NG = grid_data.attrs['NGrid']
-        grid = Grid(NT=NT, NG=NG)
+        grid = Grid(L=NT, NG=NG)
         grid.load_from_h5py(grid_data)
 
         all_species = []

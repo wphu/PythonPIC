@@ -6,12 +6,45 @@ import scipy.fftpack as fft
 from ..algorithms import field_interpolation, helper_functions, FieldSolver, BoundaryCondition
 from ..algorithms.field_interpolation import longitudinal_current_deposition, transversal_current_deposition
 
-class Grid:
+class Frame():
+    """
+    A mock grid with only constants
+    """
+    def __init__(self, dt: float, T: float, c: float, epsilon_0: float, ):
+        """
+        
+        Parameters
+        ----------
+        c : speed of light
+        epsilon_0 : electric permittivity of vacuum
+        dt : time step
+        T : total length of simulation
+        """
+        self.c = c
+        self.epsilon_0 = epsilon_0
+        self.dt = dt
+        self.T = T
+        self.NT = helper_functions.calculate_number_timesteps(T, dt)
+
+class Grid(Frame):
     """Object representing the grid on which charges and fields are computed
     """
 
-    def __init__(self, L: float = 2 * np.pi, NG: int = 32, epsilon_0: float = 1, c: float = 1,
-                 dt: float = 1, T=None, solver=FieldSolver.FourierSolver, bc=BoundaryCondition.PeriodicBC):
+    def __init__(self, T: float, L: float, NG: int, c: float = 1, epsilon_0: float = 1, bc=BoundaryCondition.PeriodicBC,
+                 solver=FieldSolver.FourierSolver):
+        """
+        
+        Parameters
+        ----------
+        T : total runtime of the simulation
+        L : total length of simulation area
+        NG : number of grid cells
+        c : speed of light
+        epsilon_0 : electric permittivity of vacuum
+        bc : boundary condition
+        solver : field solver
+        """
+
         """
         :param float L: grid length, in nondimensional units
         :param int NG: number of grid cells
@@ -19,17 +52,16 @@ class Grid:
         :param int NT: number of timesteps for history tracking purposes
         """
         self.x, self.dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
+
+        self.dt = self.dx / c
+        self.T = T
+        super().__init__(self.dt, self.T, c, epsilon_0)
+
         self.charge_density = np.zeros(NG + 2)
         self.current_density = np.zeros((NG + 2, 3))
         self.electric_field = np.zeros((NG + 2, 3))
         self.magnetic_field = np.zeros((NG + 2, 3))
         self.energy_per_mode = np.zeros(int(NG / 2))
-
-        self.dt = self.dx / c
-        if T:
-            self.NT = helper_functions.calculate_number_timesteps(T, dt)
-        else:
-            raise ValueError("Cannot build time data")
 
         self.L = L
         self.NG = NG
@@ -154,3 +186,4 @@ class Grid:
         # OPTIMIZE: this can be calculated during analysis
         self.energy_per_mode_history = grid_data["energy per mode"][...]
         self.grid_energy_history = grid_data["grid energy"][...]
+

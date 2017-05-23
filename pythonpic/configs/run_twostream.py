@@ -34,7 +34,7 @@ def two_stream_instability(filename,
                            species_2_sign=1):
     """Implements two stream instability from Birdsall and Langdon"""
     print("Running two stream instability")
-    grid = Grid(L=L, NG=NG, T=T)
+    grid = Grid(T=T, L=L, NG=NG)
 
     helper_functions.check_pusher_stability(plasma_frequency, grid.dt)
     np.random.seed(0)

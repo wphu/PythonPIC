@@ -86,7 +86,7 @@ def test_single_particle(power, plotting=False):
     """
     NG = 16
     L = 1
-    g = Grid(NG=NG, L=L)
+    g = Grid(L=L, NG=NG)
     s = Species(1, 1, 4)
 
     def electric_field_function(x):
