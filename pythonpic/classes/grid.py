@@ -99,10 +99,9 @@ class TimelessGrid(Frame):
         self.current_density[...] = 0.0
         for species in list_species:
             time_array = np.ones(species.N) * self.dt
-            longitudinal_current_deposition(self.current_density[:, 0], species.v[:, 0], species.x, time_array.copy(), self.dx,
-                                            self.dt,
+            longitudinal_current_deposition(self.current_density[:, 0], species.v[:, 0], species.x, self.dx, self.dt,
                                             species.eff_q)
-            transversal_current_deposition(self.current_density[:, 1:], species.v, species.x, time_array, self.dx, self.dt,
+            transversal_current_deposition(self.current_density[:, 1:], species.v, species.x, self.dx, self.dt,
                                            species.eff_q)
 
     def electric_field_function(self, xp):

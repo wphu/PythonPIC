@@ -20,13 +20,19 @@ def _velocity(request):
     return request.param
 
 
+@pytest.fixture(params=(True, False))
+def _truefalse(request):
+    return request.param
+
+_truefalse2 = _truefalse
+
 def test_single_particle_longitudinal_deposition(_position, _velocity):
     g = TimelessGrid(L=7, NG=7)
     s = Particle(g, _position * g.dx, _velocity)
     dt = g.dx / s.c
     g.current_density[...] = 0
     # current_deposition(g, s, dt)
-    longitudinal_current_deposition(g.current_density[:, 0], s.v[:, 0], s.x, dt * np.ones_like(s.x), g.dx, dt, s.q)
+    longitudinal_current_deposition(g.current_density[:, 0], s.v[:, 0], s.x, g.dx, dt, s.q)
     collected_longitudinal_weights = g.current_density[:, 0].sum() / s.v[0, 0]
 
     def plot_longitudinal():
@@ -58,7 +64,7 @@ def test_single_particle_transversal_deposition(_position, _velocity):
     g.current_density[...] = 0
     print("\n\n=====Start run===")
     # current_deposition(g, s, dt)
-    transversal_current_deposition(g.current_density[:, 1:], s.v, s.x, dt * np.ones_like(s.x), g.dx, dt, s.q)
+    transversal_current_deposition(g.current_density[:, 1:], s.v, s.x, g.dx, dt, s.q)
     total_currents = g.current_density[:, 1:].sum(axis=0) / s.v[0, 1:]
     total_sum_currents = g.current_density[:, 1:].sum()
     x_velocity = s.v[0, 0]
@@ -89,7 +95,7 @@ def test_single_particle_transversal_deposition(_position, _velocity):
     assert np.isclose(total_sum_currents, 0), (plot_transversal(), f"Currents do not zero out at {total_sum_currents}")
 
 
-def test_two_particles_deposition(_position, _velocity):
+def test_two_particles_deposition(_position, _velocity, _truefalse, _truefalse2):
     NG = 7
     L = NG
     g = TimelessGrid(L=L, NG=NG)
@@ -103,8 +109,10 @@ def test_two_particles_deposition(_position, _velocity):
         # print(s)
         # print(s.x)
         # print(s.v)
-        longitudinal_current_deposition(g.current_density[:, 0], s.v[:, 0], s.x, dt * np.ones_like(s.x), g.dx, dt, s.q)
-        transversal_current_deposition(g.current_density[:, 1:], s.v, s.x, dt * np.ones_like(s.x), g.dx, dt, s.q)
+        if _truefalse:
+            longitudinal_current_deposition(g.current_density[:, 0], s.v[:, 0], s.x, g.dx, dt, s.q)
+        if _truefalse2:
+            transversal_current_deposition(g.current_density[:, 1:], s.v, s.x, g.dx, dt, s.q)
         # print(g.current_density)
 
     collected_weights = g.current_density.sum(axis=0) / np.array([_velocity, 1, -1], dtype=float)
@@ -119,8 +127,10 @@ def test_two_particles_deposition(_position, _velocity):
     # print(s)
     # print(s.x)
     # print(s.v)
-    longitudinal_current_deposition(g2.current_density[:, 0], s.v[:, 0], s.x, dt * np.ones_like(s.x), g2.dx, dt, s.q)
-    transversal_current_deposition(g2.current_density[:, 1:], s.v, s.x, dt * np.ones_like(s.x), g2.dx, dt, s.q)
+    if _truefalse:
+        longitudinal_current_deposition(g2.current_density[:, 0], s.v[:, 0], s.x, g2.dx, dt, s.q)
+    if _truefalse2:
+        transversal_current_deposition(g2.current_density[:, 1:], s.v, s.x, g2.dx, dt, s.q)
     # print(g2.current_density)
     collected_weights2 = g2.current_density.sum(axis=0) / s.v[0, :]
     label = {0: 'x', 1: 'y', 2: 'z'}

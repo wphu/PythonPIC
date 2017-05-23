@@ -29,40 +29,67 @@ def charge_density_deposition(x, dx, x_particles, particle_charge):
     return charge_hist_to_right + charge_hist_to_left
 
 
-def longitudinal_current_deposition(j_x, x_velocity, x_particles, time, dx, dt, q):
+def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q):
     """
-    :param dt: simulation time step
-    :type dt: float
-    :param j_x: x current array
-    :type j_x: ndarray
-    :param x_velocity: particle x velocities
-    :type x_velocity: ndarray
-    :param x_particles: particle locations
-    :type x_particles: ndarray
-    :param time: dt by default
-    :type time: float
-    :param dx: grid size
-    :type dx: float
-    :param q: particle charge
-    :type q: float
-    :return: 
-    :rtype:
-    """
+    
+    Parameters
+    ----------
+    j_x : ndarray
+        current in x direction
+    x_velocity : ndarray
+        x velocity
+    x_particles : ndarray
+        x position
+    dx : float
+        grid cell size
+    dt : float
+        timestep
+    q : float
+        charge to deposit. for `Species`, this is `eff_q`
 
+    Returns
+    -------
+
+    """
+    print("Longitudinal current deposition")
     active = np.ones_like(x_particles, dtype=bool)
+    time = np.ones_like(x_particles) * dt
+    epsilon = dx * 1e-9
+    counter = 0
+    actives = []
     while active.any():
-        x_particles = x_particles[active]
-        x_velocity = x_velocity[active]
-        time = time[active]
+        counter += 1
+        actives.append(active.sum())
+        if counter > 4:
+            # import matplotlib.pyplot as plt
+            # plt.plot(actives)
+            # plt.show()
+            raise Exception("Infinite recurrence!")
+
         # print(j_x, x_velocity, x_particles, time, dx, dt, q)
-        epsilon = 1e-6 * dx
         # noinspection PyUnresolvedReferences
         logical_coordinates_n = (x_particles / dx).astype(int)
+        # logical_coordinates_n2 = (x_particles // dx).astype(int)
+        # results = [logical_coordinates_n, logical_coordinates_n2]
+        # labels = ["/", "//", "floor_divide"]
+        # def plot():
+        #     import matplotlib.pyplot as plt
+        #     for r, lab in zip(results, labels):
+        #         plt.plot(r,  label=lab, alpha=0.5)
+        #     plt.legend()
+        #     plt.show()
+        # for r1 in results:
+        #     for r2 in results:
+        #         if r2 is not r1:
+        #             assert np.allclose(r1, r2), plot()
+        #             # assert (r1 == r2).all()
 
         particle_in_left_half = x_particles / dx - logical_coordinates_n <= 0.5
-        particle_in_right_half = ~particle_in_left_half
+        # TODO: what happens when particle is at center
+        particle_in_right_half = x_particles / dx - logical_coordinates_n > 0.5
         velocity_to_left = x_velocity < 0
-        velocity_to_right = ~velocity_to_left
+        velocity_to_right = x_velocity > 0
+        # TODO: what happens when x_velocity == 0
 
         case1 = particle_in_left_half & velocity_to_left
         case2 = particle_in_right_half & velocity_to_left
@@ -70,8 +97,6 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, time, dx, dt, 
         case4 = particle_in_left_half & velocity_to_right
 
         t1 = np.empty_like(x_particles)
-        logical_coordinates_depo = logical_coordinates_n.copy()
-        logical_coordinates_depo[case2 | case3] += 1
         # case1
         t1[case1] = -(x_particles[case1] - (logical_coordinates_n[case1]) * dx) / x_velocity[case1]
         t1[case2] = -(x_particles[case2] - (logical_coordinates_n[case2] + 0.5) * dx) / x_velocity[case2]
@@ -79,42 +104,72 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, time, dx, dt, 
         t1[case4] = ((logical_coordinates_n[case4] + 1.5) * dx - x_particles[case4]) / x_velocity[case4]
         switches_cells = t1 < time
 
+        logical_coordinates_depo = logical_coordinates_n.copy()
+        logical_coordinates_depo[case2 | case3] += 1
         if (~switches_cells).any():
             nonswitching_current_contribution = q * x_velocity[~switches_cells] * time[~switches_cells]
-            # print(f"nonswitching {nonswitching_current_contribution}")
             j_x += np.bincount(logical_coordinates_depo[~switches_cells] + 1, nonswitching_current_contribution,
                                minlength=j_x.size)
 
         new_time = time - t1
-        switching_current_contribution = q * x_velocity[switches_cells] * t1[switches_cells] / dt
-        # print(f"switching {switching_current_contribution}")
-        j_x += np.bincount(logical_coordinates_depo[switches_cells] + 1, switching_current_contribution, minlength=j_x.size)
+        if switches_cells.any():
+            switching_current_contribution = q * x_velocity[switches_cells] * t1[switches_cells] / dt
+            j_x += np.bincount(logical_coordinates_depo[switches_cells] + 1, switching_current_contribution, minlength=j_x.size)
 
         new_locations = np.empty_like(x_particles)
-        new_locations[case1] = logical_coordinates_n[case1] * dx - epsilon
+        new_locations[case1] = (logical_coordinates_n[case1]) * dx - epsilon
         new_locations[case2] = (logical_coordinates_n[case2] + 0.5) * dx - epsilon
-        new_locations[case3] = (logical_coordinates_n[case3] + 1) * dx
-        new_locations[case4] = (logical_coordinates_n[case4] + 0.5) * dx
+        new_locations[case3] = (logical_coordinates_n[case3] + 1) * dx + epsilon
+        new_locations[case4] = (logical_coordinates_n[case4] + 0.5) * dx + epsilon
+        print(counter,
+              dx,
+              active.sum(),
+              case1.sum() / active.sum(),
+              x_particles,
+              logical_coordinates_n,
+              new_locations,
+              # logical_coordinates_n - x_particles/dx,
+              # (x_particles - logical_coordinates_n * dx)/dx,
+              # (new_locations - logical_coordinates_n * dx)/dx,
+              t1,
+              x_velocity*new_time/dx,
+              new_time/dt,
+              new_time*x_velocity,
+              x_particles - new_locations,
+              )
 
         active = switches_cells
-        time = new_time
-        x_particles = new_locations
+        x_particles = new_locations[active]
+        x_velocity = x_velocity[active]
+        time = new_time[active]
+        active = np.ones_like(x_particles, dtype=bool)
+    print("finished logitudinal")
 
 
-def transversal_current_deposition(j_yz, velocity, x_particles, time, dx, dt, q):
+def transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
     # TODO: optimize this algorithm
 
+    print("Transversal deposition")
+    epsilon = 1e-10 * dx
+    time = np.ones_like(x_particles) * dt
     active = np.ones_like(x_particles, dtype=bool)
+    counter = 0
+    actives = []
     while active.any():
+        if counter > 4:
+            # import matplotlib.pyplot as plt
+            # plt.plot(actives)
+            # plt.show()
+            raise Exception("Infinite recurrence!")
+        print(active.sum())
         velocity = velocity[active]
-        x_particles = x_particles[active]
-        time = time[active]
-
         x_velocity = velocity[:, 0]
         y_velocity = velocity[:, 1]
         z_velocity = velocity[:, 2]
+        x_particles = x_particles[active]
+        time = time[active]
 
-        epsilon = 1e-10 * dx
+
         logical_coordinates_n = (x_particles / dx).astype(int)
         particle_in_left_half = x_particles / dx - logical_coordinates_n < 0.5
         particle_in_right_half = ~particle_in_left_half
@@ -130,11 +185,11 @@ def transversal_current_deposition(j_yz, velocity, x_particles, time, dx, dt, q)
         case3 = particle_in_right_half & velocity_to_right
         case4 = particle_in_right_half & velocity_to_left
         t1[case1] = - (x_particles[case1] - logical_coordinates_n[case1] * dx) / x_velocity[case1]
-        s[case1] = logical_coordinates_n[case1] * dx - epsilon
+        s[case1] = logical_coordinates_n[case1] * dx
         t1[case2] = ((logical_coordinates_n[case2] + 0.5) * dx - x_particles[case2]) / x_velocity[case2]
-        s[case2] = (logical_coordinates_n[case2] + 0.5) * dx
+        s[case2] = (logical_coordinates_n[case2] + 0.5) * dx + epsilon
         t1[case3] = ((logical_coordinates_n[case3] + 1) * dx - x_particles[case3]) / x_velocity[case3]
-        s[case3] = (logical_coordinates_n[case3] + 1) * dx
+        s[case3] = (logical_coordinates_n[case3] + 1) * dx + epsilon
         t1[case4] = -(x_particles[case4] - (logical_coordinates_n[case4] + 0.5) * dx) / x_velocity[case4]
         s[case4] = (logical_coordinates_n[case4] + 0.5) * dx - epsilon
 
