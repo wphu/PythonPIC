@@ -76,7 +76,7 @@ def laser(filename):
 
     description = "The big one"
 
-    run = Simulation(grid.NT, dt, list_species, grid, Constants(lightspeed, epsilon_zero), filename=filename, title=description)
+    run = Simulation(grid, list_species, filename=filename, title=description)
     print("Simulation prepared.")
     run.grid_species_initialization()
     print("Grid\species interactions initialized."

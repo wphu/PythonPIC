@@ -11,39 +11,28 @@ from ..algorithms.helper_functions import git_version, Constants
 from .grid import Grid
 from .species import Species
 
-
 class Simulation:
     """Contains data from one run of the simulation:
-    NT: number of iterations
-    NGrid: Number of points on the grid
-    NParticle: Number of particles (one species right now)
-    L: Length of the simulation domain
-    epsilon_0: the physical constant
-    particle_positions, velocities: shape (NT, NParticle) numpy arrays of historical particle data
-    charge_density, electric_field: shape (NT, NGrid) numpy arrays of historical grid data
+    Parameters
+    ----------
+    grid : Grid
+    list_species : list
+    run_date : str
+    git_ver : str
+    filename : str
+    title : str
     """
-
-    def __init__(self, NT, dt, list_species, grid: Grid, constants: Constants = Constants(1, 1),
-                 boundary_condition=BoundaryCondition.PeriodicBC, run_date=time.ctime(), git_ver=git_version(),
+    def __init__(self, grid: Grid, list_species, run_date=time.ctime(), git_ver=git_version(),
                  filename=time.strftime("%Y-%m-%d_%H-%M-%S.hdf5"), title=""):
-        """
-        :param NT:
-        :param dt:
-        :param constants:
-        :param grid:
-        :param list_species:
-        """
-
-        self.NT = NT
-        self.dt = dt
+        self.NT = grid.NT
+        self.dt = grid.dt
         self.t = np.arange(self.NT) * self.dt
         self.grid = grid
         self.list_species = list_species
-        self.field_energy = np.zeros(NT)
-        self.total_energy = np.zeros(NT)
-        self.boundary_condition = boundary_condition
-        self.constants = constants
-        self.dt = dt
+        self.field_energy = np.zeros(self.NT)
+        self.total_energy = np.zeros(self.NT)
+        self.boundary_condition = grid.bc_function
+        self.constants = Constants(grid.c, grid.epsilon_0)
         self.filename = filename
         self.title = title
         self.git_version = git_ver
@@ -178,8 +167,7 @@ def load_data(filename: str) -> Simulation:
             all_species.append(species)
         run_date = f.attrs['run_date']
         git_version = f.attrs['git_version']
-    S = Simulation(NT, dt, all_species, grid, Constants(epsilon_0=grid.epsilon_0, c=1), run_date, git_version,
-                   filename=filename, title=title)
+    S = Simulation(grid, all_species, git_version, filename=filename, title=title)
 
     S.total_energy = total_energy
 

@@ -64,7 +64,7 @@ def cold_plasma_oscillations(filename,
     description = f"Cold plasma oscillations\nposition initial condition perturbed by sinusoidal oscillation mode " \
                   f"{push_mode} excited with amplitude {push_amplitude}\n"
 
-    run = Simulation(grid.NT, grid.dt, list_species, grid, Constants(c, epsilon_0), filename=filename, title=description)
+    run = Simulation(grid, list_species, filename=filename, title=description)
     run.grid_species_initialization()
     run.run(save_data)
     return run

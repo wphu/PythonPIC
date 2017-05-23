@@ -68,7 +68,7 @@ def weakbeam_instability(filename,
     if vrandom:
         description += f" + thermal $v_1$ of standard dev. {vrandom:.2f}"
     description += "\n"
-    run = Simulation(NT, dt, list_species, grid, Constants(1, epsilon_0), filename=filename, title=description)
+    run = Simulation(grid, list_species, filename=filename, title=description)
     run.grid_species_initialization()
     run.run(save_data)
     return run
