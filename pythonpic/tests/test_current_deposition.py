@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 from matplotlib import pyplot as plt
 
-from ..algorithms.field_interpolation import charge_density_deposition
+from ..configs import two_stream_instability
 from ..classes import Particle, Species, TimelessGrid
 
 from ..algorithms.field_interpolation import longitudinal_current_deposition, transversal_current_deposition
@@ -180,6 +180,15 @@ def test_many_particles_deposition(N, _velocity):
         fig.savefig(f"data_analysis/deposition/multiple_{N}_{_velocity:.2f}.png")
 
     assert np.allclose(collected_weights, 1), ("Weights don't match!", plot())
+
+
+def test_twostream():
+    S = two_stream_instability("TS_CURRENT",
+                               NG=512,
+                               N_electrons=4096,
+                               plasma_frequency=0.05 / 4,
+                               )
+
 
 
 if __name__ == '__main__':

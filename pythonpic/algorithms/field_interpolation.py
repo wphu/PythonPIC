@@ -121,22 +121,24 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q):
         new_locations[case2] = (logical_coordinates_n[case2] + 0.5) * dx - epsilon
         new_locations[case3] = (logical_coordinates_n[case3] + 1) * dx + epsilon
         new_locations[case4] = (logical_coordinates_n[case4] + 0.5) * dx + epsilon
-        print(counter,
-              dx,
-              active.sum(),
-              case1.sum() / active.sum(),
-              x_particles,
-              logical_coordinates_n,
-              new_locations,
-              # logical_coordinates_n - x_particles/dx,
-              # (x_particles - logical_coordinates_n * dx)/dx,
-              # (new_locations - logical_coordinates_n * dx)/dx,
-              t1,
-              x_velocity*new_time/dx,
-              new_time/dt,
-              new_time*x_velocity,
-              x_particles - new_locations,
-              )
+        if counter > 2:
+            print(counter,
+                  dx,
+                  active.sum(),
+                  case1.sum() / active.sum(),
+                  x_particles,
+                  logical_coordinates_n,
+                  new_locations,
+                  # logical_coordinates_n - x_particles/dx,
+                  # (x_particles - logical_coordinates_n * dx)/dx,
+                  # (new_locations - logical_coordinates_n * dx)/dx,
+                  t1,
+                  x_velocity*new_time/dx,
+                  new_time/dt,
+                  new_time*x_velocity,
+                  x_particles - new_locations,
+                  "\n\n"
+                  )
 
         active = switches_cells
         x_particles = new_locations[active]
@@ -156,6 +158,7 @@ def transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
     counter = 0
     actives = []
     while active.any():
+        counter += 1
         if counter > 4:
             # import matplotlib.pyplot as plt
             # plt.plot(actives)
@@ -185,7 +188,7 @@ def transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
         case3 = particle_in_right_half & velocity_to_right
         case4 = particle_in_right_half & velocity_to_left
         t1[case1] = - (x_particles[case1] - logical_coordinates_n[case1] * dx) / x_velocity[case1]
-        s[case1] = logical_coordinates_n[case1] * dx
+        s[case1] = logical_coordinates_n[case1] * dx - epsilon
         t1[case2] = ((logical_coordinates_n[case2] + 0.5) * dx - x_particles[case2]) / x_velocity[case2]
         s[case2] = (logical_coordinates_n[case2] + 0.5) * dx + epsilon
         t1[case3] = ((logical_coordinates_n[case3] + 1) * dx - x_particles[case3]) / x_velocity[case3]
@@ -239,6 +242,24 @@ def transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
         j_yz[:, 0] += np.bincount(logical_coordinates_depo + 1, y_contribution_to_next_cell, minlength=j_yz[:, 1].size)
         j_yz[:, 1] += np.bincount(logical_coordinates_depo + 1, z_contribution_to_next_cell, minlength=j_yz[:, 1].size)
 
+        if counter > 2:
+            print(counter,
+                  dx,
+                  active.sum(),
+                  case1.sum() / active.sum(),
+                  x_particles, # the first array in there
+                  logical_coordinates_n,
+                  s,
+                  # logical_coordinates_n - x_particles/dx,
+                  # (x_particles - logical_coordinates_n * dx)/dx,
+                  # (new_locations - logical_coordinates_n * dx)/dx,
+                  t1,
+                  x_velocity*time_overflow/dx,
+                  time_overflow/dt,
+                  time_overflow*x_velocity,
+                  x_particles - time_overflow,
+                  "\n\n"
+                  )
         active = switches_cells
         time = time_overflow
         x_particles = s

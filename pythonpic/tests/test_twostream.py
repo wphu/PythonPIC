@@ -7,6 +7,14 @@ from ..configs.run_twostream import two_stream_instability
 from ..visualization.plotting import plots
 
 
+def test_finish():
+    S = two_stream_instability("TS_FINISH",
+                               NG=512,
+                               N_electrons=4096,
+                               plasma_frequency=0.05 / 4,
+                               )
+    assert True # if it gets here, we didn't error during the simulation
+
 @pytest.mark.parametrize(["NG", "N_electrons"], [
     (200, 5000),
     (400, 10000),
