@@ -6,6 +6,7 @@ import scipy.fftpack as fft
 from ..algorithms import field_interpolation, helper_functions, FieldSolver, BoundaryCondition
 from ..algorithms.field_interpolation import longitudinal_current_deposition, transversal_current_deposition
 
+
 class Frame:
     """
     Parameters
@@ -72,6 +73,10 @@ class TimelessGrid(Frame):
         self.k[0] = 0.0001
         self.k_plot = self.k[:int(self.NG / 2)]
         self.periodic = True
+        if self.periodic:
+            self.gather_function = field_interpolation.periodic_charge_density_deposition
+        else:
+            self.gather_function = field_interpolation.charge_density_deposition
 
     def init_solver(self):
         return self.solver.init_solver(self)
@@ -92,13 +97,11 @@ class TimelessGrid(Frame):
     def gather_charge(self, list_species):
         self.charge_density[...] = 0.0
         for species in list_species:
-            gathered_density = field_interpolation.charge_density_deposition(self.x, self.dx,
-                                                                             species.x[species.alive],
-                                                                             species.eff_q)
+            gathered_density = self.gather_function(self.x, self.dx,
+                                                    species.x[species.alive],
+                                                    species.eff_q)
 
             self.charge_density += gathered_density
-        if self.periodic:
-            self.charge_density[0] += self.charge_density[-1]
 
     def gather_current(self, list_species):
         self.current_density_x[...] = 0.0

@@ -28,6 +28,11 @@ def charge_density_deposition(x, dx, x_particles, particle_charge):
     charge_hist_to_left = np.bincount(logical_coordinates, charge_to_left, minlength=x.size+1)
     return charge_hist_to_right + charge_hist_to_left
 
+def periodic_charge_density_deposition(x, dx, x_particles, particle_charge):
+    result = charge_density_deposition(x, dx, x_particles, particle_charge)
+    result[0] += result[-1]
+    return result
+
 def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q):
     """
     
@@ -50,8 +55,8 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q):
     -------
 
     """
-    print("Longitudinal current deposition")
-    active = np.ones_like(x_particles, dtype=bool)
+    # print("Longitudinal current deposition")
+    # active = np.ones_like(x_particles, dtype=bool)
     time = np.ones_like(x_particles) * dt
     epsilon = dx * 1e-9
     counter = 0
@@ -124,43 +129,46 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q):
         new_locations[case2] = (logical_coordinates_n[case2] + 0.5) * dx - epsilon
         new_locations[case3] = (logical_coordinates_n[case3] + 1) * dx + epsilon
         new_locations[case4] = (logical_coordinates_n[case4] + 0.5) * dx + epsilon
-        if counter > 2:
-            string =f"""iteration:\t{counter}
-                  dx: {dx}
-                  number of actives: {active.sum()}
-                  fraction of case1 (in left, to left): {case1.sum() / active.sum()}
-                  fraction of case2 (in right, to left): {case2.sum() / active.sum()}
-                  fraction of case3 (in right, to right): {case3.sum() / active.sum()}
-                  fraction of case4 (in left, to right): {case4.sum() / active.sum()}
-                  x_particles: {x_particles},
-                  indices: {logical_coordinates_n},
-                  new locations: {new_locations},
-                  t1 {t1},
-                  distance to cover in grid cell units: {x_velocity*new_time/dx},
-                  time left in dt units: {new_time/dt},
-                  distance to cover: {new_time*x_velocity},
-                  distance between current and next: {x_particles - new_locations},
-                  \n\n"""
-            modified_string = "\n".join(line.strip() for line in string.splitlines())
-            print(modified_string)
+        # if counter > 2:
+        #     string =f"""iteration:\t{counter}
+        #           dx: {dx}
+        #           number of actives: {active.sum()}
+        #           fraction of case1 (in left, to left): {case1.sum() / active.sum()}
+        #           fraction of case2 (in right, to left): {case2.sum() / active.sum()}
+        #           fraction of case3 (in right, to right): {case3.sum() / active.sum()}
+        #           fraction of case4 (in left, to right): {case4.sum() / active.sum()}
+        #           x_particles: {x_particles},
+        #           indices: {logical_coordinates_n},
+        #           new locations: {new_locations},
+        #           t1 {t1},
+        #           distance to cover in grid cell units: {x_velocity*new_time/dx},
+        #           time left in dt units: {new_time/dt},
+        #           distance to cover: {new_time*x_velocity},
+        #           distance between current and next: {x_particles - new_locations},
+        #           \n\n"""
+        #     modified_string = "\n".join(line.strip() for line in string.splitlines())
+        #     print(modified_string)
 
         active = switches_cells
         x_particles = new_locations[active]
         x_velocity = x_velocity[active]
         time = new_time[active]
         active = np.ones_like(x_particles, dtype=bool)
-    print("finished logitudinal")
+    # print("finished logitudinal")
 
 
 def transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
     # TODO: optimize this algorithm
 
-    print("Transversal deposition")
+    # print("Transversal deposition")
     epsilon = 1e-10 * dx
     time = np.ones_like(x_particles) * dt
-    active = np.ones_like(x_particles, dtype=bool)
     counter = 0
-    actives = []
+    x_velocity = velocity[:, 0]
+    active = x_velocity != 0
+    x_particles = x_particles[active]
+    velocity = velocity[active]
+    time = time[active]
     while active.any():
         counter += 1
         if counter > 4:
@@ -168,7 +176,7 @@ def transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
             # plt.plot(actives)
             # plt.show()
             raise Exception("Infinite recurrence!")
-        print(active.sum())
+        # print(active.sum())
         velocity = velocity[active]
         x_velocity = velocity[:, 0]
         y_velocity = velocity[:, 1]
@@ -177,7 +185,7 @@ def transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
         time = time[active]
 
 
-        logical_coordinates_n = (x_particles / dx).astype(int)
+        logical_coordinates_n = (x_particles // dx).astype(int)
         particle_in_left_half = x_particles / dx - logical_coordinates_n < 0.5
         particle_in_right_half = ~particle_in_left_half
 
@@ -187,6 +195,7 @@ def transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
         t1 = np.empty_like(x_particles)
         s = np.empty_like(x_particles)
 
+        # TODO: prime material for functionifying upon reshuffling algorith which I'm unsure I'm up for
         case1 = particle_in_left_half & velocity_to_left
         case2 = particle_in_left_half & velocity_to_right
         case3 = particle_in_right_half & velocity_to_right
@@ -246,24 +255,42 @@ def transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
         j_yz[:, 0] += np.bincount(logical_coordinates_depo + 2, y_contribution_to_next_cell, minlength=j_yz[:, 1].size)
         j_yz[:, 1] += np.bincount(logical_coordinates_depo + 2, z_contribution_to_next_cell, minlength=j_yz[:, 1].size)
 
-        if counter > 2:
-            print(counter,
-                  dx,
-                  active.sum(),
-                  case1.sum() / active.sum(),
-                  x_particles, # the first array in there
-                  logical_coordinates_n,
-                  s,
-                  # logical_coordinates_n - x_particles/dx,
-                  # (x_particles - logical_coordinates_n * dx)/dx,
-                  # (new_locations - logical_coordinates_n * dx)/dx,
-                  t1,
-                  x_velocity*time_overflow/dx,
-                  time_overflow/dt,
-                  time_overflow*x_velocity,
-                  x_particles - time_overflow,
-                  "\n\n"
-                  )
+        # if counter > 2:
+        #     string =f"""iteration:\t{counter}
+        #           dx: {dx}
+        #           number of actives: {active.sum()}
+        #           fraction of case1 (in left, to left): {case1.sum() / active.sum()}
+        #           fraction of case2 (in left, to right): {case2.sum() / active.sum()}
+        #           fraction of case3 (in right, to right): {case3.sum() / active.sum()}
+        #           fraction of case4 (in right, to left): {case4.sum() / active.sum()}
+        #           x_particles: {x_particles},
+        #           indices: {logical_coordinates_n},
+        #           new locations: {s},
+        #           t1 {t1},
+        #           distance to cover in grid cell units: {x_velocity*time_overflow/dx},
+        #           time left in dt units: {time_overflow/dt},
+        #           distance to cover: {time_overflow*x_velocity},
+        #           distance between current and next: {x_particles - s},
+        #           \n\n"""
+        #     modified_string = "\n".join(line.strip() for line in string.splitlines())
+        #     print(modified_string)
+            # print(counter,
+            #       dx,
+            #       active.sum(),
+            #       case1.sum() / active.sum(),
+            #       x_particles, # the first array in there
+            #       logical_coordinates_n,
+            #       s,
+            #       # logical_coordinates_n - x_particles/dx,
+            #       # (x_particles - logical_coordinates_n * dx)/dx,
+            #       # (new_locations - logical_coordinates_n * dx)/dx,
+            #       t1,
+            #       x_velocity*time_overflow/dx,
+            #       time_overflow/dt,
+            #       time_overflow*x_velocity,
+            #       x_particles - time_overflow,
+            #       "\n\n"
+            #       )
         active = switches_cells
         time = time_overflow
         x_particles = s
