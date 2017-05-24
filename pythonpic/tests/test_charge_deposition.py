@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from ..classes import Grid, Species
 
-from ..algorithms.field_interpolation import charge_density_deposition
+from ..algorithms.field_interpolation import charge_density_deposition, periodic_charge_density_deposition
 
 def test_single_particle(plotting=False):
     NG = 8
@@ -19,9 +19,10 @@ def test_single_particle(plotting=False):
     indices = (x_particles // dx).astype(int)
     print(indices)
 
-    analytical_charge_density = np.array([0., 0., 0., 0.5, 0.5, 0.25, 0.75, 0.])
+    analytical_charge_density = np.array([0., 0., 0., 0.5, 0.5, 0.25, 0.75, 0., 0.])
     charge_density = charge_density_deposition(x, dx, x_particles, q)
-    print("charge density", charge_density)
+    print(f"charge density {charge_density}")
+    print(f"analytical charge density {analytical_charge_density}")
 
     def plot():
         plt.plot(x, charge_density, "bo-", label="scattered")
@@ -48,11 +49,12 @@ def test_constant_density(plotting=False):
     x_particles = np.linspace(0, L, N, endpoint=False)
     analytical_charge_density = x_particles.size * q / L / NG * np.ones_like(x)
 
-    charge_density = charge_density_deposition(x, dx, x_particles, q)
-    print("charge density", charge_density)
+    charge_density = periodic_charge_density_deposition(x, dx, x_particles, q)
+    print(f"charge density {charge_density}")
+    print(f"analytical charge density {analytical_charge_density}")
 
     def plot():
-        plt.plot(x, charge_density, "bo-", label="scattered")
+        plt.plot(x, charge_density[:-1], "bo-", label="scattered")
         plt.plot(x, analytical_charge_density, "go-", label="analytical uniform")
         plt.plot(x_particles, q * 2 / dx * np.ones_like(x_particles), "r*", label="particles")
         plt.legend()
@@ -61,7 +63,7 @@ def test_constant_density(plotting=False):
 
     if plotting:
         plot()
-    assert np.allclose(charge_density, analytical_charge_density), plot()
+    assert np.allclose(charge_density[:-1], analytical_charge_density), plot()
 
 
 def test_boundaries(plotting=False):
@@ -76,11 +78,12 @@ def test_boundaries(plotting=False):
     analytical_charge_density = x_particles.size * q / L
 
     analytical_charge_density = np.array([0.25, 0., 0., 0.5, 0.5, 0., 0., 0.75])
-    charge_density = charge_density_deposition(x, dx, x_particles, q)
-    print("charge density", charge_density)
+    charge_density = periodic_charge_density_deposition(x, dx, x_particles, q)
+    print(f"charge density {charge_density}")
+    print(f"analytical charge density {analytical_charge_density}")
 
     def plot():
-        plt.plot(x, charge_density, "bo-", label="scattered")
+        plt.plot(x, charge_density[:-1], "bo-", label="scattered")
         plt.plot(x, analytical_charge_density, "go-", label="analytical")
         plt.plot(x_particles, q * np.ones_like(x_particles) / x_particles.size, "r*", label="particles")
         plt.legend(loc='best')
@@ -89,7 +92,7 @@ def test_boundaries(plotting=False):
 
     if plotting:
         plot()
-    assert np.isclose(charge_density, analytical_charge_density).all(), plot()
+    assert np.allclose(charge_density[:-1], analytical_charge_density), plot()
 
 # def test_uniform_current_deposition(plots=False):
 #     """

@@ -325,6 +325,8 @@ def transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
 #     return current_hist
 
 
+# TODO: periodic versions of current deposition
+
 def interpolateField(x_particles, scalar_field, x, dx):
     """gathers field from grid to particles
 

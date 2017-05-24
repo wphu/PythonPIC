@@ -29,7 +29,7 @@ def test_PoissonSolver(_NG, _L, debug=DEBUG):
     charge_density = (2 * np.pi / _L) ** 2 * np.sin(2 * g.x * np.pi / _L)
     field = np.zeros((_NG + 2, 3))
     field[1:-1, 0] = -2 * np.pi / _L * np.cos(2 * np.pi * g.x / _L)
-    g.charge_density[1:-1] = charge_density
+    g.charge_density[:-1] = charge_density
     g.solve()
 
     def plots():
@@ -115,7 +115,7 @@ def test_PoissonSolver_energy_sine(_NG, debug=DEBUG):
 
     g = TimelessGrid(_L, _NG, epsilon_0)
     indices_in_denser_grid = np.searchsorted(x, g.x)
-    g.charge_density[1:-1] = charge_density_anal[indices_in_denser_grid]  # / resolution_increase
+    g.charge_density[:-1] = charge_density_anal[indices_in_denser_grid]  # / resolution_increase
 
     energy_fourier = g.solve()
     energy_direct = g.direct_energy_calculation() * resolution_increase
@@ -163,7 +163,7 @@ def test_PoissonSolver_sheets(_NG, _L, debug=DEBUG, _test_charge_density=1):
     charge_density[region1] = _test_charge_density
     charge_density[region2] = -_test_charge_density
     g = TimelessGrid(_L, _NG, epsilon_0)
-    g.charge_density[1:-1] = charge_density
+    g.charge_density[:-1] = charge_density
     g.solve()
 
     def plots():
@@ -205,7 +205,7 @@ def test_PoissonSolver_ramp(_NG, _L, debug=DEBUG):
 
     # noinspection PyArgumentEqualDefault
     g = TimelessGrid(_L, _NG, epsilon_0=1)
-    g.charge_density[1:-1] = a * g.x
+    g.charge_density[:-1] = a * g.x
     g.solve()
     field = a * (g.x - _L / 2) ** 2 / 2
 

@@ -30,10 +30,11 @@ def test_single_particle_longitudinal_deposition(_position, _velocity):
     g = TimelessGrid(L=7, NG=7)
     s = Particle(g, _position * g.dx, _velocity)
     dt = g.dx / s.c
-    g.current_density[...] = 0
+    g.current_density_x[...] = 0
+    g.current_density_yz[...] = 0
     # current_deposition(g, s, dt)
-    longitudinal_current_deposition(g.current_density[:, 0], s.v[:, 0], s.x, g.dx, dt, s.q)
-    collected_longitudinal_weights = g.current_density[:, 0].sum() / s.v[0, 0]
+    longitudinal_current_deposition(g.current_density_x, s.v[:, 0], s.x, g.dx, dt, s.q)
+    collected_longitudinal_weights = g.current_density_x.sum() / s.v[0, 0]
 
     def plot_longitudinal():
         fig, ax = plt.subplots()
@@ -48,7 +49,7 @@ def test_single_particle_longitudinal_deposition(_position, _velocity):
         ax.grid(which='major', alpha=0.7)
         ax.set_title(title)
         ax.scatter(new_positions, 0)
-        ax.plot(g.x, g.current_density[1:-1, 0], "go-", alpha=0.7, linewidth=3, label=f"jx")
+        ax.plot(g.x, g.current_density_x[1:-2], "go-", alpha=0.7, linewidth=3, label=f"jx")
         ax.legend()
         plt.show()
         return title + " instead of 1"
@@ -61,12 +62,13 @@ def test_single_particle_transversal_deposition(_position, _velocity):
     s = Particle(g, _position * g.dx, _velocity, 1, -1)
     dt = g.dx / s.c
     new_positions = s.x + s.v[:, 0] * dt
-    g.current_density[...] = 0
+    g.current_density_x[...] = 0
+    g.current_density_yz[...] = 0
     print("\n\n=====Start run===")
     # current_deposition(g, s, dt)
-    transversal_current_deposition(g.current_density[:, 1:], s.v, s.x, g.dx, dt, s.q)
-    total_currents = g.current_density[:, 1:].sum(axis=0) / s.v[0, 1:]
-    total_sum_currents = g.current_density[:, 1:].sum()
+    transversal_current_deposition(g.current_density_yz, s.v, s.x, g.dx, dt, s.q)
+    total_currents = g.current_density_yz.sum(axis=0) / s.v[0, 1:]
+    total_sum_currents = g.current_density_yz.sum()
     x_velocity = s.v[0, 0]
     collected_transversal_weights = total_currents
     print("total", total_currents)
@@ -110,12 +112,13 @@ def test_two_particles_deposition(_position, _velocity, _truefalse, _truefalse2)
         # print(s.x)
         # print(s.v)
         if _truefalse:
-            longitudinal_current_deposition(g.current_density[:, 0], s.v[:, 0], s.x, g.dx, dt, s.q)
+            longitudinal_current_deposition(g.current_density_x, s.v[:, 0], s.x, g.dx, dt, s.q)
         if _truefalse2:
-            transversal_current_deposition(g.current_density[:, 1:], s.v, s.x, g.dx, dt, s.q)
+            transversal_current_deposition(g.current_density_yz, s.v, s.x, g.dx, dt, s.q)
         # print(g.current_density)
 
-    collected_weights = g.current_density.sum(axis=0) / np.array([_velocity, 1, -1], dtype=float)
+    collected_weights_x = g.current_density_x.sum(axis=0) / _velocity
+    collected_weights_yz = g.current_density_yz.sum(axis=0) / np.array([1, -1], dtype=float)
 
     g2 = TimelessGrid(L=L, NG=NG)
     s = Species(1, 1, 2, g2)
@@ -128,20 +131,26 @@ def test_two_particles_deposition(_position, _velocity, _truefalse, _truefalse2)
     # print(s.x)
     # print(s.v)
     if _truefalse:
-        longitudinal_current_deposition(g2.current_density[:, 0], s.v[:, 0], s.x, g2.dx, dt, s.q)
+        longitudinal_current_deposition(g2.current_density_x, s.v[:, 0], s.x, g2.dx, dt, s.q)
     if _truefalse2:
-        transversal_current_deposition(g2.current_density[:, 1:], s.v, s.x, g2.dx, dt, s.q)
+        transversal_current_deposition(g2.current_density_yz, s.v, s.x, g2.dx, dt, s.q)
     # print(g2.current_density)
-    collected_weights2 = g2.current_density.sum(axis=0) / s.v[0, :]
+    collected_weights_x2 = g2.current_density_x.sum(axis=0) / s.v[0, 0]
+    collected_weights_yz2 = g2.current_density_yz.sum(axis=0) / np.array([1, -1], dtype=float)
     label = {0: 'x', 1: 'y', 2: 'z'}
 
     def plot():
         fig, (ax1, ax2) = plt.subplots(2)
         plt.suptitle(f"x: {positions}, vx: {_velocity}")
-        for i in range(3):
-            ax1.plot(g.x, g.current_density[1:-1, i], alpha=(3 - i) / 3, lw=1 + i, label=f"1 {label[i]}")
-            ax1.plot(g.x, g2.current_density[1:-1, i], alpha=(3 - i) / 3, lw=1 + i, label=f"2 {label[i]}")
-            ax2.plot(g.x, (g.current_density - g2.current_density)[1:-1, i], alpha=(3 - i) / 3, lw=1 + i,
+        i = 0
+        ax1.plot(g.x, g.current_density_x[1:-2], alpha=(3 - i) / 3, lw=1 + i, label=f"1 {label[i]}")
+        ax1.plot(g.x, g2.current_density_x[1:-2], alpha=(3 - i) / 3, lw=1 + i, label=f"2 {label[i]}")
+        ax2.plot(g.x, (g.current_density_x - g2.current_density_x)[1:-2], alpha=(3 - i) / 3, lw=1 + i,
+                 label=f"1 - 2 {label[i]}")
+        for i in range(1, 3):
+            ax1.plot(g.x, g.current_density_yz[2:-2, i-1], alpha=(3 - i) / 3, lw=1 + i, label=f"1 {label[i]}")
+            ax1.plot(g.x, g2.current_density_yz[2:-2, i-1], alpha=(3 - i) / 3, lw=1 + i, label=f"2 {label[i]}")
+            ax2.plot(g.x, (g.current_density_yz - g2.current_density_yz)[2:-2, i-1], alpha=(3 - i) / 3, lw=1 + i,
                      label=f"1 - 2 {label[i]}")
         for ax in [ax1, ax2]:
             ax.scatter(s.x, np.zeros_like(s.x))
@@ -150,8 +159,10 @@ def test_two_particles_deposition(_position, _velocity, _truefalse, _truefalse2)
             ax.grid()
         fig.savefig(f"data_analysis/deposition/{_position:.2f}_{_velocity:.2f}.png")
 
-    assert np.allclose(g.current_density, g2.current_density), ("Currents don't match!", plot())
-    assert np.allclose(collected_weights, collected_weights2), "Weights don't match!"
+    assert np.allclose(g.current_density_x, g2.current_density_x), ("Longitudinal currents don't match!", plot())
+    assert np.allclose(g.current_density_yz, g2.current_density_yz), ("Transversal currents don't match!", plot())
+    assert np.allclose(collected_weights_x, collected_weights_x2), ("Longitudinal weights don't match!", plot())
+    assert np.allclose(collected_weights_yz, collected_weights_yz2), ("Transversal weights don't match!", plot())
 
 
 @pytest.mark.parametrize("N", [100, 1000, 10000])
@@ -166,29 +177,28 @@ def test_many_particles_deposition(N, _velocity):
     s.v[:, 2] = -1
     dt = g.dx / s.c
     g.gather_current([s])
-    collected_weights = g.current_density.sum(axis=0) / s.v[0, :]
+    longitudinal_collected_weights = g.current_density_x.sum(axis=0) / s.v[0, 0]
+    transversal_collected_weights = g.current_density_yz.sum(axis=0) / s.v[0, 1:]
     label = {0: 'x', 1: 'y', 2: 'z'}
 
     def plot():
         fig, ax = plt.subplots()
-        for i in range(3):
-            ax.plot(g.x, g.current_density[1:-1, i], alpha=(3 - i) / 3, lw=1 + i, label=f"{label[i]}")
+        i = 0
+        ax.plot(g.x, g.current_density_x[1:-2, i], alpha=(3 - i) / 3, lw=1 + i, label=f"{label[i]}")
+        ax.scatter(s.x, np.zeros_like(s.x))
+        ax.legend(loc='lower right')
+        ax.set_xticks(g.x)
+        ax.grid()
+        for i in range(1,3):
+            ax.plot(g.x, g.current_density_yz[2:-2, i], alpha=(3 - i) / 3, lw=1 + i, label=f"{label[i]}")
             ax.scatter(s.x, np.zeros_like(s.x))
             ax.legend(loc='lower right')
             ax.set_xticks(g.x)
             ax.grid()
         fig.savefig(f"data_analysis/deposition/multiple_{N}_{_velocity:.2f}.png")
 
-    assert np.allclose(collected_weights, 1), ("Weights don't match!", plot())
-
-
-def test_twostream():
-    S = two_stream_instability("TS_CURRENT",
-                               NG=512,
-                               N_electrons=4096,
-                               plasma_frequency=0.05 / 4,
-                               )
-
+    assert np.allclose(longitudinal_collected_weights, 1), ("Longitudinal weights don't match!", plot())
+    assert np.allclose(transversal_collected_weights, 1), ("Transversal weights don't match!", plot())
 
 
 if __name__ == '__main__':
