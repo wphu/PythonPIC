@@ -72,7 +72,7 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q):
 
         # print(j_x, x_velocity, x_particles, time, dx, dt, q)
         # noinspection PyUnresolvedReferences
-        logical_coordinates_n = (x_particles / dx).astype(int)
+        logical_coordinates_n = (x_particles // dx).astype(int)
         # logical_coordinates_n2 = (x_particles // dx).astype(int)
         # results = [logical_coordinates_n, logical_coordinates_n2]
         # labels = ["/", "//", "floor_divide"]
