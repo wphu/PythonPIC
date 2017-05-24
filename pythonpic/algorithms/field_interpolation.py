@@ -56,6 +56,11 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q):
     epsilon = dx * 1e-9
     counter = 0
     actives = []
+    active = x_velocity != 0
+    x_particles = x_particles[active]
+    x_velocity = x_velocity[active]
+    time = time[active]
+
     while active.any():
         counter += 1
         actives.append(active.sum())
@@ -88,7 +93,6 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q):
         particle_in_right_half = x_particles / dx - logical_coordinates_n > 0.5
         velocity_to_left = x_velocity < 0
         velocity_to_right = x_velocity > 0
-        # TODO: what happens when x_velocity == 0
 
         case1 = particle_in_left_half & velocity_to_left
         case2 = particle_in_right_half & velocity_to_left
@@ -121,23 +125,24 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q):
         new_locations[case3] = (logical_coordinates_n[case3] + 1) * dx + epsilon
         new_locations[case4] = (logical_coordinates_n[case4] + 0.5) * dx + epsilon
         if counter > 2:
-            print(counter,
-                  dx,
-                  active.sum(),
-                  case1.sum() / active.sum(),
-                  x_particles,
-                  logical_coordinates_n,
-                  new_locations,
-                  # logical_coordinates_n - x_particles/dx,
-                  # (x_particles - logical_coordinates_n * dx)/dx,
-                  # (new_locations - logical_coordinates_n * dx)/dx,
-                  t1,
-                  x_velocity*new_time/dx,
-                  new_time/dt,
-                  new_time*x_velocity,
-                  x_particles - new_locations,
-                  "\n\n"
-                  )
+            string =f"""iteration:\t{counter}
+                  dx: {dx}
+                  number of actives: {active.sum()}
+                  fraction of case1 (in left, to left): {case1.sum() / active.sum()}
+                  fraction of case2 (in right, to left): {case2.sum() / active.sum()}
+                  fraction of case3 (in right, to right): {case3.sum() / active.sum()}
+                  fraction of case4 (in left, to right): {case4.sum() / active.sum()}
+                  x_particles: {x_particles},
+                  indices: {logical_coordinates_n},
+                  new locations: {new_locations},
+                  t1 {t1},
+                  distance to cover in grid cell units: {x_velocity*new_time/dx},
+                  time left in dt units: {new_time/dt},
+                  distance to cover: {new_time*x_velocity},
+                  distance between current and next: {x_particles - new_locations},
+                  \n\n"""
+            modified_string = "\n".join(line.strip() for line in string.splitlines())
+            print(modified_string)
 
         active = switches_cells
         x_particles = new_locations[active]
@@ -235,11 +240,11 @@ def transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
         #     print("z", y_contribution_to_next_cell)
         #     print("to cell:", logical_coordinates_depo)
 
-        j_yz[:, 0] += np.bincount(logical_coordinates_n + 1, y_contribution_to_current_cell, minlength=j_yz[:, 1].size)
-        j_yz[:, 1] += np.bincount(logical_coordinates_n + 1, z_contribution_to_current_cell, minlength=j_yz[:, 1].size)
+        j_yz[:, 0] += np.bincount(logical_coordinates_n + 2, y_contribution_to_current_cell, minlength=j_yz[:, 1].size)
+        j_yz[:, 1] += np.bincount(logical_coordinates_n + 2, z_contribution_to_current_cell, minlength=j_yz[:, 1].size)
 
-        j_yz[:, 0] += np.bincount(logical_coordinates_depo + 1, y_contribution_to_next_cell, minlength=j_yz[:, 1].size)
-        j_yz[:, 1] += np.bincount(logical_coordinates_depo + 1, z_contribution_to_next_cell, minlength=j_yz[:, 1].size)
+        j_yz[:, 0] += np.bincount(logical_coordinates_depo + 2, y_contribution_to_next_cell, minlength=j_yz[:, 1].size)
+        j_yz[:, 1] += np.bincount(logical_coordinates_depo + 2, z_contribution_to_next_cell, minlength=j_yz[:, 1].size)
 
         if counter > 2:
             print(counter,

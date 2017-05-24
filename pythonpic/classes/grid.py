@@ -55,7 +55,8 @@ class TimelessGrid(Frame):
         self.epsilon_0 = epsilon_0
 
         self.charge_density = np.zeros(NG + 1)
-        self.current_density = np.zeros((NG + 2, 3))
+        self.current_density_x = np.zeros((NG + 3))
+        self.current_density_yz = np.zeros((NG + 4, 2))
         self.electric_field = np.zeros((NG + 2, 3))
         self.magnetic_field = np.zeros((NG + 2, 3))
         self.energy_per_mode = np.zeros(int(NG / 2))
@@ -100,12 +101,13 @@ class TimelessGrid(Frame):
             self.charge_density[0] += self.charge_density[-1]
 
     def gather_current(self, list_species):
-        self.current_density[...] = 0.0
+        self.current_density_x[...] = 0.0
+        self.current_density_yz[...] = 0.0
         for species in list_species:
             time_array = np.ones(species.N) * self.dt
-            longitudinal_current_deposition(self.current_density[:, 0], species.v[:, 0], species.x, self.dx, self.dt,
+            longitudinal_current_deposition(self.current_density_x, species.v[:, 0], species.x, self.dx, self.dt,
                                             species.eff_q)
-            transversal_current_deposition(self.current_density[:, 1:], species.v, species.x, self.dx, self.dt,
+            transversal_current_deposition(self.current_density_yz, species.v, species.x, self.dx, self.dt,
                                            species.eff_q)
 
     def electric_field_function(self, xp):
@@ -179,7 +181,8 @@ class Grid(TimelessGrid):
     def save_field_values(self, i):
         """Update the i-th set of field values, without those gathered from interpolation (charge\current)"""
         self.charge_density_history[i, :] = self.charge_density[:-1]
-        self.current_density_history[i, :, :] = self.current_density[1:-1]
+        self.current_density_history[i, :, 0] = self.current_density_x[1:-2]
+        self.current_density_history[i, :, 1:] = self.current_density_yz[2:-2]
         self.electric_field_history[i] = self.electric_field[1:-1]
         self.magnetic_field_history[i] = self.magnetic_field[1:-1, 1:]
         self.energy_per_mode_history[i] = self.energy_per_mode
