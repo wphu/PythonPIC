@@ -13,7 +13,7 @@ class Solver:
 
 def solve_fourier(grid, neutralize=True):
     grid.electric_field[1:-1, 0], grid.energy_per_mode = grid_solvers.PoissonSolver(
-        grid.charge_density[1:-1], grid.k, grid.NG, epsilon_0=grid.epsilon_0, neutralize=neutralize
+        grid.charge_density[:-1], grid.k, grid.NG, epsilon_0=grid.epsilon_0, neutralize=neutralize
         )
     return grid.energy_per_mode.sum() / (grid.NG / 2)  # * 8 * np.pi * grid.k[1]**2
 

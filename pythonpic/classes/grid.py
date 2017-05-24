@@ -54,7 +54,7 @@ class TimelessGrid(Frame):
         super().__init__(dt, epsilon_0, c, NT)
         self.epsilon_0 = epsilon_0
 
-        self.charge_density = np.zeros(NG + 2)
+        self.charge_density = np.zeros(NG + 1)
         self.current_density = np.zeros((NG + 2, 3))
         self.electric_field = np.zeros((NG + 2, 3))
         self.magnetic_field = np.zeros((NG + 2, 3))
@@ -70,6 +70,7 @@ class TimelessGrid(Frame):
         self.k = 2 * np.pi * fft.fftfreq(self.NG, self.dx)
         self.k[0] = 0.0001
         self.k_plot = self.k[:int(self.NG / 2)]
+        self.periodic = True
 
     def init_solver(self):
         return self.solver.init_solver(self)
@@ -93,7 +94,10 @@ class TimelessGrid(Frame):
             gathered_density = field_interpolation.charge_density_deposition(self.x, self.dx,
                                                                              species.x[species.alive],
                                                                              species.eff_q)
-            self.charge_density[1:-1] += gathered_density
+
+            self.charge_density += gathered_density
+        if self.periodic:
+            self.charge_density[0] += self.charge_density[-1]
 
     def gather_current(self, list_species):
         self.current_density[...] = 0.0
@@ -174,7 +178,7 @@ class Grid(TimelessGrid):
 
     def save_field_values(self, i):
         """Update the i-th set of field values, without those gathered from interpolation (charge\current)"""
-        self.charge_density_history[i, :] = self.charge_density[1:-1]
+        self.charge_density_history[i, :] = self.charge_density[:-1]
         self.current_density_history[i, :, :] = self.current_density[1:-1]
         self.electric_field_history[i] = self.electric_field[1:-1]
         self.magnetic_field_history[i] = self.magnetic_field[1:-1, 1:]

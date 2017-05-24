@@ -74,7 +74,7 @@ class Simulation:
             self.boundary_condition.particle_bc(species, self.grid.L)
         self.grid.apply_bc(i)
         self.grid.gather_charge(self.list_species)
-        self.grid.gather_current(self.list_species)
+        # self.grid.gather_current(self.list_species)
         fourier_field_energy = self.grid.solve()
         self.grid.grid_energy_history[i] = fourier_field_energy
         self.total_energy[i] = total_kinetic_energy + fourier_field_energy
