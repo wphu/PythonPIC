@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
+from . import on_failure
 from ..algorithms import BoundaryCondition
 from ..algorithms.helper_functions import show_on_fail
 from ..configs.run_wave import wave_propagation
@@ -38,7 +39,7 @@ def plot_all(field_history, analytical_solution):
                           ])
 def test_wave_propagation(filename, bc):
     run = wave_propagation(filename, bc)
-    assert run.grid.grid_energy_history.mean() > 0, plots(run, show=show_on_fail, save=False, animate=True)
+    assert run.grid.grid_energy_history.mean() > 0, plots(run, *on_failure)
 
 
 @pytest.mark.parametrize(["filename", "bc"],

@@ -80,14 +80,12 @@ def plotting_parser(description):
     :param str description: Short program description
     """
     parser = argparse.ArgumentParser(description=description)
-    parser.add_argument("--show", help="Show plots once the run finishes", action="store_true")
-    parser.add_argument("--save", help="Save plots once the run finishes", action="store_true")
-    parser.add_argument("--animate", help="Animate the run", action="store_true")
+    parser.add_argument("--show-static", help="Show plots once the run finishes", action="store_true")
+    parser.add_argument("--save-static", help="Save plots once the run finishes", action="store_true")
+    parser.add_argument("--show-animation", help="Show the animation", action="store_true")
+    parser.add_argument("--save-animation", help="Save the animation", action="store_true")
     args = parser.parse_args()
-    show = args.show
-    save = args.save
-    animate = args.animate
-    return show, save, animate
+    return args.show_static, args.save_static, args.show_animation, args.save_animation
 
 
 def get_dominant_mode(S):

@@ -46,7 +46,7 @@ def main():
                                                 BoundaryCondition.Laser(1, 10, 3).laser_pulse),
                                             ]):
         s = wave_propagation(filename, boundary_function)
-        plotting.plots(s, show=show, alpha=0.5, save=save, animate=animate)
+        plotting.plots(s, show=show, alpha=0.5)
 
 
 if __name__ == "__main__":

@@ -1,6 +1,7 @@
 # coding=utf-8
 import pytest
 
+from . import on_failure
 from ..algorithms.helper_functions import did_it_thermalize, show_on_fail
 from ..configs.run_twostream import two_stream_instability
 from ..visualization.plotting import plots
@@ -17,7 +18,7 @@ def test_linear_regime_beam_stability(NG, N_electrons):
                                N_electrons=N_electrons,
                                save_data=False,
                                )
-    assert (~did_it_thermalize(S)).all(), plots(S, show=show_on_fail, save=False, animate=True)
+    assert (~did_it_thermalize(S)).all(), plots(S, *on_failure)
 
 
 @pytest.mark.parametrize(["NG", "N_electrons", "plasma_frequency"], [
@@ -33,7 +34,7 @@ def test_nonlinear_regime_beam_instability(NG, N_electrons, plasma_frequency):
                                T=300 * 3,
                                save_data=False,
                                )
-    assert did_it_thermalize(S).all(), plots(S, show=show_on_fail, save=False, animate=True)
+    assert did_it_thermalize(S).all(), plots(S, *on_failure)
 
 # @pytest.mark.parametrize(["v0", "NT"], [
 #     (0.1, 450),

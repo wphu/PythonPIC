@@ -7,7 +7,7 @@ from ..algorithms.helper_functions import get_dominant_mode
 from ..configs.run_coldplasma import cold_plasma_oscillations
 from ..visualization.plotting import plots
 
-show, save, animate = False, True, False
+from . import on_failure
 
 @pytest.mark.parametrize("push_mode", range(1, 32, 3))
 def test_linear_dominant_mode(push_mode):
@@ -23,7 +23,7 @@ def test_linear_dominant_mode(push_mode):
     calculated_dominant_mode = get_dominant_mode(S)
     assert calculated_dominant_mode == push_mode, (
         f"got {calculated_dominant_mode} instead of {push_mode}",
-        plots(S, show=show, save=False, animate=True))
+        plots(S, *on_failure))
     return S
 
 
@@ -38,7 +38,7 @@ def test_kaiser_wilhelm_instability_avoidance(N_electrons, push_amplitude):
                                  T = 200,
                                  push_mode = 1,
                                  push_amplitude=push_amplitude)
-    assert get_dominant_mode(S) == 1, plots(S, show=show, save=save, animate=animate)
+    assert get_dominant_mode(S) == 1, plots(S, *on_failure)
 
 
 @pytest.mark.parametrize("N", [128, 256])
@@ -49,7 +49,7 @@ def test_kaiser_wilhelm_instability(N):
                                  T = 200,
                                  push_amplitude=0
                                  )
-    assert get_dominant_mode(S) > 5, plots(S, show=show, save=save, animate=animate)
+    assert get_dominant_mode(S) > 5, plots(S, *on_failure)
 
 
 

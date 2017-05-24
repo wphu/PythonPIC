@@ -24,7 +24,7 @@ def velocity_histogram_data(arr, bins):
     return bin_center, bin_height
 
 
-def animation(S, videofile_name=None, alpha=1):
+def animation(S, save: bool = False, alpha=1):
     """ animates the simulation, showing:
     * grid charge vs grid position
     * grid electric field vs grid position
@@ -194,7 +194,8 @@ def animation(S, videofile_name=None, alpha=1):
                                           frames=np.arange(0, S.NT, helper_functions.calculate_particle_iter_step(S.NT),
                                                            dtype=int),
                                           blit=True, init_func=init)
-    if videofile_name:
+    if save:
+        videofile_name = S.filename.replace(".hdf5", ".png")
         print(f"Saving animation to {videofile_name}")
         animation_object.save(videofile_name, fps=15, writer='ffmpeg', extra_args=['-vcodec', 'libx264'])
         print(f"Saved animation to {videofile_name}")

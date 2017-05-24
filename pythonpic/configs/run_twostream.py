@@ -3,12 +3,11 @@
 import numpy as np
 
 from pythonpic.algorithms import helper_functions
-from pythonpic.algorithms.helper_functions import plotting_parser, Constants
+from pythonpic.algorithms.helper_functions import plotting_parser
 from pythonpic.classes.grid import Grid
 from pythonpic.classes.simulation import Simulation
 from pythonpic.classes.species import Species
-from pythonpic.visualization import plotting
-
+from pythonpic.visualization.plotting import plots
 
 def stability_condition(k0, v0, w0):
     dimensionless_number = k0 * v0 / w0
@@ -78,35 +77,34 @@ def two_stream_instability(filename,
 
 
 def main():
-    show, save, animate = plotting_parser("Two stream instability")
-    simulations = [
-        plotting.plots(two_stream_instability("TS1",
-                                              NG=512,
-                                              N_electrons=4096,
-                                              plasma_frequency=0.05 / 4,
-                                              ), show=show, alpha=0.5, save=save, animate=animate),
-        plotting.plots(two_stream_instability("TS2",
-                                              NG=512,
-                                              N_electrons=4096,
-                                              plasma_frequency=0.05,
-                                              ), show=show, alpha=0.5, save=save, animate=animate),
-        plotting.plots(two_stream_instability("TS3",
-                                              NG=512,
-                                              N_electrons=4096,
-                                              plasma_frequency=0.05*10,
-                                              ), show=show, alpha=0.5, save=save, animate=animate),
-        # plotting.plots(two_stream_instability("TS2", NG=64, N_electrons=512, T=300 * 3 * 0.2),
-        #                show=show, alpha=0.5, save=save, animate=animate),
-        # plotting.plots(two_stream_instability("TS3", NG=64, N_electrons=1024, T=300 * 3 * 0.2),
-        #                show=show, alpha=0.5, save=save, animate=animate),
-        # plotting.plots(two_stream_instability("TSRANDOM1",
-        #                                       NG=64,
-        #                                       N_electrons=1024,
-        #                                       vrandom=1e-1,
-        #                                       ), show=show, alpha=0.5, save=save, animate=animate),
-        # plotting.plots(two_stream_instability("TSRANDOM2", NG=64, N_electrons=1024, T=300 * 5 * 0.2,
-        #                                       vrandom=1e-1), show=show, alpha=0.5, save=save, animate=animate),
-        ]
+    args = plotting_parser("Two stream instability")
+    S = two_stream_instability("TS1",
+                           NG=512,
+                           N_electrons=4096,
+                           plasma_frequency=0.05 / 4,
+                           )
+    plots(S, *args)
+    S = two_stream_instability("TS2",
+                           NG=512,
+                           N_electrons=4096,
+                           plasma_frequency=0.05,
+                           )
+    plots(S, *args)
+    S = two_stream_instability("TS3",
+                           NG=512,
+                           N_electrons=4096,
+                           plasma_frequency=0.05 * 10,
+                           )
+    plots(S, *args)
+    S = two_stream_instability("TSRANDOM1",
+                           NG=512,
+                           N_electrons=4096,
+                           vrandom=1e-1,
+                           )
+    plots(S, *args)
+    S = two_stream_instability("TSRANDOM2", NG=512, N_electrons=4096,
+                           vrandom=1e-1)
+    plots(S, *args)
 
 
 if __name__ == '__main__':

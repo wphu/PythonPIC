@@ -8,7 +8,6 @@ from pythonpic.classes.simulation import Simulation
 from pythonpic.classes.species import Species
 from pythonpic.visualization import plotting
 
-
 def weakbeam_instability(filename,
                          plasma_frequency=1,
                          qmratio=-1,
@@ -75,15 +74,15 @@ def weakbeam_instability(filename,
 
 
 def main():
+    args = plotting_parser("Weak beam instability")
     np.random.seed(0)
     simulations = [
         weakbeam_instability("BP1",
                              ),
         ]
 
-    show, save, animate = plotting_parser("Weak beam instability")
     for s in simulations:
-        plotting.plots(s, show=show, alpha=0.5, save=save, animate=animate)
+        plotting.plots(s, *args, alpha=0.5)
 
 
 if __name__ == '__main__':

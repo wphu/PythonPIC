@@ -71,6 +71,7 @@ def cold_plasma_oscillations(filename,
 
 
 def main():
+    args = plotting_parser("Cold plasma oscillations")
     plasma_frequency = 1
     push_mode = 2
     N_electrons = 1024
@@ -79,8 +80,7 @@ def main():
 
     S = cold_plasma_oscillations(f"CO1", qmratio=qmratio, plasma_frequency=plasma_frequency, NG=NG,
                                  N_electrons=N_electrons, push_mode=push_mode, save_data=False)
-    show, save, animate = plotting_parser("Cold plasma oscillations")
-    plots(S)
+    plots(S, *args)
 
 
 if __name__ == '__main__':
