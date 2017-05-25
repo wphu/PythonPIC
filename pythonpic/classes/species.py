@@ -38,8 +38,11 @@ class Species:
         self.eff_q = q * scaling
         self.eff_m = m * scaling
 
+        self.grid = grid
+        self.particle_bc = grid.particle_bc
         self.dt = grid.dt
         self.NT = grid.NT
+        self.c = grid.c
 
         self.save_every_n_iterations = helper_functions.calculate_particle_iter_step(grid.NT)
         self.saved_iterations = helper_functions.calculate_particle_snapshots(grid.NT)
@@ -47,7 +50,6 @@ class Species:
         self.v = np.zeros((N, 3), dtype=float)
         self.energy = self.kinetic_energy()
         self.alive = np.ones(N, dtype=bool)
-        self.c = grid.c
         self.name = name
         if self.N >= MAX_SAVED_PARTICLES:
             self.save_every_n_particle = (self.N // MAX_SAVED_PARTICLES)
@@ -67,6 +69,9 @@ class Species:
         self.alive_history = np.zeros((self.saved_iterations, self.saved_particles), dtype=bool)
         self.kinetic_energy_history = np.zeros(self.NT+1)
         self.pusher = pusher
+
+    def apply_bc(self):
+        self.particle_bc(self)
 
     def kinetic_energy(self):
         return 0.5 * self.m * np.sum(self.v**2) # TODO: make this relativistic

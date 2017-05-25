@@ -25,6 +25,7 @@ class Frame:
         self.c = c
         self.epsilon_0 = epsilon_0
         self.NT = NT
+        self.particle_bc = lambda *x: None
 
 
 class TimelessGrid(Frame):
@@ -72,15 +73,17 @@ class TimelessGrid(Frame):
         self.k = 2 * np.pi * fft.fftfreq(self.NG, self.dx)
         self.k[0] = 0.0001
         self.k_plot = self.k[:int(self.NG / 2)]
-        self.periodic = True
+        self.periodic = periodic
         if self.periodic:
             self.charge_gather_function = field_interpolation.periodic_charge_density_deposition
             self.current_longitudinal_gather_function = field_interpolation.periodic_longitudinal_current_deposition
             self.current_transversal_gather_function = field_interpolation.periodic_transversal_current_deposition
+            self.particle_bc = BoundaryCondition.return_particles_to_bounds
         else:
             self.charge_gather_function = field_interpolation.charge_density_deposition
             self.current_longitudinal_gather_function = field_interpolation.longitudinal_current_deposition
             self.current_transversal_gather_function = field_interpolation.transversal_current_deposition
+            self.particle_bc = BoundaryCondition.kill_particles_outside_bounds
 
     def init_solver(self):
         return self.solver.init_solver(self)
@@ -161,7 +164,7 @@ class Grid(TimelessGrid):
         :param int NT: number of timesteps for history tracking purposes
         """
 
-        super().__init__(L, NG, c, epsilon_0, bc, solver)
+        super().__init__(L, NG, c, epsilon_0, bc, solver, periodic)
         self.T = T
         self.NT = helper_functions.calculate_number_timesteps(T, self.dt)
 

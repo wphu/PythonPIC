@@ -9,12 +9,12 @@ class BoundaryCondition:
         self.field_bc = field_bc
 
 
-def return_particles_to_bounds(species, L):
-    species.x %= L
+def return_particles_to_bounds(species):
+    species.x %= species.grid.L
 
 
-def kill_particles_outside_bounds(species, L):
-    species.alive = (0 < species.x) * (species.x < L)
+def kill_particles_outside_bounds(species):
+    species.alive = (0 < species.x) * (species.x < species.grid.L)
     species.x[~species.alive] = -1  # TODO: replace with np.nan
     species.v[~species.alive] = 0  # replace with np.nan
 

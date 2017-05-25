@@ -24,10 +24,7 @@ def charge_density_deposition(x, dx, x_particles, particle_charge):
     left_fractions = 1 - right_fractions
     charge_to_right = particle_charge * right_fractions
     charge_to_left = particle_charge * left_fractions
-    try:
-        charge_hist_to_right = np.bincount(logical_coordinates+1, charge_to_right, minlength=x.size+1)
-    except ValueError:
-        import ipdb; ipdb.set_trace()
+    charge_hist_to_right = np.bincount(logical_coordinates+1, charge_to_right, minlength=x.size+1)
     charge_hist_to_left = np.bincount(logical_coordinates, charge_to_left, minlength=x.size+1)
     return charge_hist_to_right + charge_hist_to_left
 

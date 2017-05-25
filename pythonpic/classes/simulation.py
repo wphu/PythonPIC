@@ -71,7 +71,7 @@ class Simulation:
         for species in self.list_species:
             species.save_particle_values(i)
             total_kinetic_energy += species.push(self.grid.electric_field_function, self.grid.magnetic_field_function)
-            self.boundary_condition.particle_bc(species, self.grid.L)
+            species.apply_bc()
         self.grid.apply_bc(i)
         self.grid.gather_charge(self.list_species)
         self.grid.gather_current(self.list_species)

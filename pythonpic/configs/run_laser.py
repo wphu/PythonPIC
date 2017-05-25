@@ -62,7 +62,7 @@ def laser(filename):
     args = plotting_parser("Hydrogen shield")
     filename=f"data_analysis/laser-shield/{filename}/{filename}.hdf5"
     dt = spatial_step / lightspeed
-    grid = Grid(T=total_time, L=length, NG=number_cells, c = lightspeed, epsilon_0 = epsilon_zero)
+    grid = Grid(T=total_time, L=length, NG=number_cells, c = lightspeed, epsilon_0 = epsilon_zero, periodic=False)
 
     electrons = Species(-electric_charge, electron_rest_mass, n_macroparticles, grid, "electrons", scaling)
     protons = Species(electric_charge, proton_mass, n_macroparticles, grid, "protons", scaling)
