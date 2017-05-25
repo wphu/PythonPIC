@@ -38,17 +38,17 @@ def PoissonSolver(rho, k, NG, epsilon_0=1, neutralize=True):
     return field, energy_presum
 
 
-def BunemanWaveSolver(electric_field, magnetic_field, current, dt, dx, c, epsilon_0):
+def BunemanWaveSolver(electric_field, magnetic_field, current_x, current_yz, dt, dx, c, epsilon_0):
     # dt = dx/c
     Fplus = 0.5 * (electric_field[:, 1] + c * magnetic_field[:, 2])
     Fminus = 0.5 * (electric_field[:, 1] - c * magnetic_field[:, 2])
     Gplus = 0.5 * (electric_field[:, 2] + c * magnetic_field[:, 1])
     Gminus = 0.5 * (electric_field[:, 2] - c * magnetic_field[:, 1])
 
-    Fplus[1:] = Fplus[:-1] - 0.5 * dt * (current[:-1, 1]) / epsilon_0
-    Fminus[:-1] = Fminus[1:] - 0.5 * dt * (current[1:, 1]) / epsilon_0  # TODO: verify the index on current here
-    Gplus[1:] = Gplus[:-1] - 0.5 * dt * (current[:-1, 2]) / epsilon_0
-    Gminus[:-1] = Gminus[1:] - 0.5 * dt * (current[1:, 2]) / epsilon_0  # TODO: verify the index on current here
+    Fplus[1:] = Fplus[:-1] - 0.5 * dt * (current_yz[2:-1, 0]) / epsilon_0
+    Fminus[:-1] = Fminus[1:] - 0.5 * dt * (current_yz[1:-2, 0]) / epsilon_0  # TODO: verify the index on current here
+    Gplus[1:] = Gplus[:-1] - 0.5 * dt * (current_yz[2:-1, 1]) / epsilon_0
+    Gminus[:-1] = Gminus[1:] - 0.5 * dt * (current_yz[1:-2, 1]) / epsilon_0  # TODO: verify the index on current here
 
     new_electric_field = np.zeros_like(electric_field)
     new_magnetic_field = np.zeros_like(magnetic_field)
@@ -58,7 +58,7 @@ def BunemanWaveSolver(electric_field, magnetic_field, current, dt, dx, c, epsilo
     new_magnetic_field[:, 1] = (Gplus - Gminus) / c
     new_magnetic_field[:, 2] = (Fplus - Fminus) / c
 
-    new_electric_field[:, 0] = electric_field[:, 0] - dt / epsilon_0 * current[:, 0]  # TODO: verify indices here
+    new_electric_field[:, 0] = electric_field[:, 0] - dt / epsilon_0 * current_x[:-1]  # TODO: verify indices here
     electric_energy = 0.5 * epsilon_0 * dx * (new_electric_field ** 2).sum()
     magnetic_energy = 0.5 * dx * (new_magnetic_field ** 2).sum()
     return new_electric_field, new_magnetic_field, electric_energy + magnetic_energy

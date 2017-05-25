@@ -23,7 +23,7 @@ solve_fourier_neutral = functools.partial(solve_fourier, neutralize=True)
 
 def solve_buneman(grid):
     grid.electric_field, grid.magnetic_field, grid.energy_per_mode = grid_solvers.BunemanWaveSolver(
-        grid.electric_field, grid.magnetic_field, grid.current_density, grid.dt, grid.dx, grid.c, grid.epsilon_0)
+        grid.electric_field, grid.magnetic_field, grid.current_density_x, grid.current_density_yz, grid.dt, grid.dx, grid.c, grid.epsilon_0)
     return grid.energy_per_mode
 
 

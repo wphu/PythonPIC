@@ -2,11 +2,10 @@
 # coding=utf-8
 import numpy as np
 
-from ..algorithms import FieldSolver, BoundaryCondition
-from ..algorithms.helper_functions import plotting_parser, Constants
-from ..classes import Grid
-from ..classes import Simulation
-from ..visualization import plotting
+from pythonpic.algorithms import FieldSolver, BoundaryCondition
+from pythonpic.algorithms.helper_functions import plotting_parser
+from pythonpic.classes import Grid, Simulation
+from pythonpic.visualization import plotting
 
 
 def wave_propagation(filename,
@@ -36,7 +35,7 @@ def wave_propagation(filename,
 
 
 def main():
-    show, save, animate = plotting_parser("Wave propagation")
+    args = plotting_parser("Weak beam instability")
     for filename, boundary_function in zip(["Wave", "Envelope", "Laser"],
                                            [BoundaryCondition.non_periodic_bc(
                                                BoundaryCondition.Laser(1, 10, 3).laser_wave),
@@ -46,7 +45,7 @@ def main():
                                                 BoundaryCondition.Laser(1, 10, 3).laser_pulse),
                                             ]):
         s = wave_propagation(filename, boundary_function)
-        plotting.plots(s, show=show, alpha=0.5)
+        plotting.plots(s, *args, alpha=0.5)
 
 
 if __name__ == "__main__":
