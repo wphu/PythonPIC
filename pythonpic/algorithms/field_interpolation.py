@@ -24,7 +24,10 @@ def charge_density_deposition(x, dx, x_particles, particle_charge):
     left_fractions = 1 - right_fractions
     charge_to_right = particle_charge * right_fractions
     charge_to_left = particle_charge * left_fractions
-    charge_hist_to_right = np.bincount(logical_coordinates+1, charge_to_right, minlength=x.size+1)
+    try:
+        charge_hist_to_right = np.bincount(logical_coordinates+1, charge_to_right, minlength=x.size+1)
+    except ValueError:
+        import ipdb; ipdb.set_trace()
     charge_hist_to_left = np.bincount(logical_coordinates, charge_to_left, minlength=x.size+1)
     return charge_hist_to_right + charge_hist_to_left
 
@@ -156,6 +159,10 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q):
         active = np.ones_like(x_particles, dtype=bool)
     # print("finished logitudinal")
 
+def periodic_longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q):
+    longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q)
+    j_x[-3] += j_x[0]
+    j_x[1:3] += j_x[-2:]
 
 def transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
     # TODO: optimize this algorithm
@@ -295,6 +302,10 @@ def transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
         time = time_overflow
         x_particles = s
 
+def periodic_transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
+    transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q)
+    j_yz[-4:-2] += j_yz[:2]
+    j_yz[2:4] += j_yz[-2:]
 # def current_density_deposition(x, dx, x_particles, particle_charge, velocity):
 #     """scatters charge from particles to grid
 #     uses linear interpolation

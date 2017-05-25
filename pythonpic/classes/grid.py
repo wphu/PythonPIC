@@ -4,7 +4,7 @@ import numpy as np
 import scipy.fftpack as fft
 
 from ..algorithms import field_interpolation, helper_functions, FieldSolver, BoundaryCondition
-from ..algorithms.field_interpolation import longitudinal_current_deposition, transversal_current_deposition
+from ..algorithms.field_interpolation import longitudinal_current_deposition, transversal_current_deposition, periodic_charge_density_deposition, periodic_transversal_current_deposition, periodic_longitudinal_current_deposition
 
 
 class Frame:
@@ -47,7 +47,7 @@ class TimelessGrid(Frame):
         number of timesteps for particle simulations, default 1
     """
     def __init__(self, L: float, NG: int, c: float = 1, epsilon_0: float = 1, bc=BoundaryCondition.PeriodicBC,
-                 solver=FieldSolver.FourierSolver, NT = 1):
+                 solver=FieldSolver.FourierSolver, NT = 1, periodic: bool = True):
 
         self.x, self.dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
 
@@ -74,9 +74,13 @@ class TimelessGrid(Frame):
         self.k_plot = self.k[:int(self.NG / 2)]
         self.periodic = True
         if self.periodic:
-            self.gather_function = field_interpolation.periodic_charge_density_deposition
+            self.charge_gather_function = field_interpolation.periodic_charge_density_deposition
+            self.current_longitudinal_gather_function = field_interpolation.periodic_longitudinal_current_deposition
+            self.current_transversal_gather_function = field_interpolation.periodic_transversal_current_deposition
         else:
-            self.gather_function = field_interpolation.charge_density_deposition
+            self.charge_gather_function = field_interpolation.charge_density_deposition
+            self.current_longitudinal_gather_function = field_interpolation.longitudinal_current_deposition
+            self.current_transversal_gather_function = field_interpolation.transversal_current_deposition
 
     def init_solver(self):
         return self.solver.init_solver(self)
@@ -97,9 +101,9 @@ class TimelessGrid(Frame):
     def gather_charge(self, list_species):
         self.charge_density[...] = 0.0
         for species in list_species:
-            gathered_density = self.gather_function(self.x, self.dx,
-                                                    species.x[species.alive],
-                                                    species.eff_q)
+            gathered_density = self.charge_gather_function(self.x, self.dx,
+                                                           species.x[species.alive],
+                                                           species.eff_q)
 
             self.charge_density += gathered_density
 
@@ -107,10 +111,9 @@ class TimelessGrid(Frame):
         self.current_density_x[...] = 0.0
         self.current_density_yz[...] = 0.0
         for species in list_species:
-            time_array = np.ones(species.N) * self.dt
-            longitudinal_current_deposition(self.current_density_x, species.v[:, 0], species.x, self.dx, self.dt,
+            self.current_longitudinal_gather_function(self.current_density_x, species.v[:, 0], species.x, self.dx, self.dt,
                                             species.eff_q)
-            transversal_current_deposition(self.current_density_yz, species.v, species.x, self.dx, self.dt,
+            self.current_transversal_gather_function(self.current_density_yz, species.v, species.x, self.dx, self.dt,
                                            species.eff_q)
 
     def electric_field_function(self, xp):
@@ -132,7 +135,7 @@ class Grid(TimelessGrid):
 
 
     def __init__(self, T: float, L: float, NG: int, c: float = 1, epsilon_0: float = 1, bc=BoundaryCondition.PeriodicBC,
-                 solver=FieldSolver.FourierSolver):
+                 solver=FieldSolver.FourierSolver, periodic=False):
         """
         
         Parameters

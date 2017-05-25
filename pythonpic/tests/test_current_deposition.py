@@ -184,13 +184,13 @@ def test_many_particles_deposition(N, _velocity):
     def plot():
         fig, ax = plt.subplots()
         i = 0
-        ax.plot(g.x, g.current_density_x[1:-2, i], alpha=(3 - i) / 3, lw=1 + i, label=f"{label[i]}")
+        ax.plot(g.x, g.current_density_x[1:-2], alpha=(3 - i) / 3, lw=1 + i, label=f"{label[i]}")
         ax.scatter(s.x, np.zeros_like(s.x))
         ax.legend(loc='lower right')
         ax.set_xticks(g.x)
         ax.grid()
         for i in range(1,3):
-            ax.plot(g.x, g.current_density_yz[2:-2, i], alpha=(3 - i) / 3, lw=1 + i, label=f"{label[i]}")
+            ax.plot(g.x, g.current_density_yz[2:-2, i-1], alpha=(3 - i) / 3, lw=1 + i, label=f"{label[i]}")
             ax.scatter(s.x, np.zeros_like(s.x))
             ax.legend(loc='lower right')
             ax.set_xticks(g.x)
@@ -200,6 +200,41 @@ def test_many_particles_deposition(N, _velocity):
     assert np.allclose(longitudinal_collected_weights, 1), ("Longitudinal weights don't match!", plot())
     assert np.allclose(transversal_collected_weights, 1), ("Transversal weights don't match!", plot())
 
+@pytest.mark.parametrize("N", [100, 1000, 10000])
+def test_many_particles_periodic_deposition(N, _velocity):
+    NG = 10
+    L = NG
+    g = TimelessGrid(L=L, NG=NG, periodic=True)
+    s = Species(1.0 / N, 1, N, g)
+    s.distribute_uniformly(L)
+    s.v[:, 0] = _velocity
+    s.v[:, 1] = 1
+    s.v[:, 2] = -1
+    dt = g.dx / s.c
+    g.gather_current([s])
+    longitudinal_collected_weights = g.current_density_x[1:-2].sum(axis=0) / s.v[0, 0]
+    transversal_collected_weights = g.current_density_yz[2:-2].sum(axis=0) / s.v[0, 1:]
+    label = {0: 'x', 1: 'y', 2: 'z'}
+
+    def plot():
+        fig, ax = plt.subplots()
+        i = 0
+        fig.suptitle(f"Longitudinal weights: {longitudinal_collected_weights}, transversal: {transversal_collected_weights}")
+        ax.plot(g.x, g.current_density_x[1:-2], alpha=(3 - i) / 3, lw=1 + i, label=f"{label[i]}")
+        ax.scatter(s.x, np.zeros_like(s.x))
+        ax.legend(loc='lower right')
+        ax.set_xticks(g.x)
+        ax.grid()
+        for i in range(1,3):
+            ax.plot(g.x, g.current_density_yz[2:-2, i-1], alpha=(3 - i) / 3, lw=1 + i, label=f"{label[i]}")
+            ax.scatter(s.x, np.zeros_like(s.x))
+            ax.legend(loc='lower right')
+            ax.set_xticks(g.x)
+            ax.grid()
+        fig.savefig(f"data_analysis/deposition/periodic_multiple_{N}_{_velocity:.2f}.png")
+
+    assert np.allclose(longitudinal_collected_weights, 1), ("Longitudinal weights don't match!", plot())
+    assert np.allclose(transversal_collected_weights, 1), ("Transversal weights don't match!", plot())
 
 if __name__ == '__main__':
     test_single_particle_transversal_deposition(3.01, 1)
