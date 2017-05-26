@@ -59,7 +59,6 @@ n_macroparticles = 20000
 scaling = npic # TODO: what should be the proper value here?
 
 def laser(filename):
-    args = plotting_parser("Hydrogen shield")
     filename=f"data_analysis/laser-shield/{filename}/{filename}.hdf5"
     dt = spatial_step / lightspeed
     grid = Grid(T=total_time, L=length, NG=number_cells, c = lightspeed, epsilon_0 = epsilon_zero, periodic=False)
@@ -88,6 +87,7 @@ def laser(filename):
     return run
 
 def main():
+    args = plotting_parser("Hydrogen shield")
     run = True
     if run:
         s = laser("Laser1")
