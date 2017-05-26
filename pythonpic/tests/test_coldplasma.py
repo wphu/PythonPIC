@@ -9,6 +9,26 @@ from ..visualization.plotting import plots
 
 from . import on_failure
 
+@pytest.fixture(scope="module")
+def helper_short_simulation():
+    run_name = "visualization_test"
+    S = cold_plasma_oscillations(run_name, save_data=False)
+    return S
+    
+def test_static_plots(helper_short_simulation):
+    S = helper_short_simulation
+    try:
+        plots(S, False, True, False, False)
+    except:
+        assert False, "Failure on saving static plot"
+
+def test_animation(helper_short_simulation):
+    S = helper_short_simulation
+    try:
+        plots(S, False, False, False, True)
+    except:
+        assert False, "Failure on saving animation"
+
 @pytest.mark.parametrize("push_mode", range(1, 32, 3))
 def test_linear_dominant_mode(push_mode):
     """In the linear mode the """

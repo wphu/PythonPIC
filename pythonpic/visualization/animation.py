@@ -181,8 +181,8 @@ def animation(S, save: bool = False, alpha=1):
                                                                 bin_arrays):
                 if helper_functions.is_this_saved_iteration(i, species.save_every_n_iterations):
                     index = helper_functions.convert_global_to_particle_iter(i, species.save_every_n_iterations)
-                    phase_dots[species.name].set_data(species.position_history[index, :],
-                                                      species.velocity_history[index, :, 0])
+                    phase_dots[species.name].set_data(species.position_history[index, :species.number_alive_history[index]],
+                                                      species.velocity_history[index, :species.number_alive_history[index], 0])
                     histogram.set_data(*velocity_histogram_data(species.velocity_history[index], bin_array))
             current_plots[j].set_data(S.grid.x, S.grid.current_density_history[i, :, j])
 
@@ -195,14 +195,9 @@ def animation(S, save: bool = False, alpha=1):
                                                            dtype=int),
                                           blit=True, init_func=init)
     if save:
-        videofile_name = S.filename.replace(".hdf5", ".png")
+        helper_functions.make_sure_path_exists(S.filename)
+        videofile_name = S.filename.replace(".hdf5", ".mp4")
         print(f"Saving animation to {videofile_name}")
         animation_object.save(videofile_name, fps=15, writer='ffmpeg', extra_args=['-vcodec', 'libx264'])
         print(f"Saved animation to {videofile_name}")
     return animation_object
-
-
-if __name__ == "__main__":
-    S = simulation.load_data("data_analysis/TS2/TS2.hdf5")
-    anim = animation(S, "")
-    plt.show()

@@ -1,8 +1,10 @@
 """various helper functions"""
 # coding=utf-8
+import errno
 import argparse
 import subprocess
 import warnings
+import os
 from collections import namedtuple
 
 import numpy as np
@@ -110,6 +112,12 @@ def did_it_thermalize(S):
     average_velocities = np.array([s.velocity_history[:, :, 0].mean() for s in S.list_species])
     return np.abs((initial_velocities - average_velocities)) > initial_velocity_stds
 
+def make_sure_path_exists(path):
+    try:
+        os.makedirs(os.path.dirname(path))
+    except OSError as exception:
+        if exception.errno != errno.EEXIST:
+            raise
 
 colors = "brgyc"
 directions = "xyz"
