@@ -241,7 +241,8 @@ class PostprocessedGrid(Grid):
         self.charge_density_history = grid_data['rho'][...]
         self.current_density_history = grid_data['current'][...]
         self.electric_field_history = grid_data['Efield'][...]
-        self.magnetic_field_history = grid_data['Bfield'][...]
+        self.magnetic_field_history = np.zeros(grid_data['Bfield'].shape)
+        self.magnetic_field_history[:, :, 1:] = grid_data['Bfield'][...]
         # OPTIMIZE: this can be calculated during analysis
         self.energy_per_mode_history = grid_data["energy per mode"][...]
         self.grid_energy_history = grid_data["grid energy"][...]

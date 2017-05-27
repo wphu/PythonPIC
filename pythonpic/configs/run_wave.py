@@ -9,7 +9,8 @@ from pythonpic.visualization import plotting
 
 
 def wave_propagation(filename,
-                     bc,
+                     bc = BoundaryCondition.non_periodic_bc(
+                                               BoundaryCondition.Laser(1, 10, 3).laser_pulse),
                      save_data: bool = True,
                      ):
     """Implements wave propagation"""
