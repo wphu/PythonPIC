@@ -103,8 +103,10 @@ class VelocityDistributionPlot(Plot):
     def __init__(self, S, ax, v1="v_x"):
         super().__init__(S, ax)
         self.bin_arrays = []
-        # self.values = [phaseplot_values(species)[v1] for species in S.list_species] # TODO BUG see PhasePlot
-        self.values = [species.velocity_history[:, :, 0] for species in S.list_species]
+        self.values = [phaseplot_values(species)[v1] for species in S.list_species]
+        if len(self.values):
+            maxxs = max([np.max(np.abs(v)) for v in self.values])
+            self.ax.set_xlim(-maxxs, maxxs)
         for i, s, v in zip(range(len(S.list_species)), S.list_species, self.values):
             bin_array = np.linspace(v.min(), v.max())
             self.bin_arrays.append(bin_array)
@@ -112,6 +114,7 @@ class VelocityDistributionPlot(Plot):
                 ax.plot(*velocity_histogram_data(v[0], bin_array), colors[i])[0])
         self.ax.set_xlabel(rf"${v1}$")
         self.ax.set_ylabel(r"Number of particles")
+
         if len(self.bin_arrays):
             self.ax.set_xlim(min([bin_array.min() for bin_array in self.bin_arrays]),
                              max([bin_array.max() for bin_array in self.bin_arrays]))
@@ -220,7 +223,7 @@ class TripleCurrentPlot(PlotSet):
         super().__init__(axes, plots)
 
 
-def animation(S, save: bool = False, alpha=1):
+def animation(S, save: bool = False, alpha=1, frame_to_draw="animation"):
     """ animates the simulation, showing:
     * grid charge vs grid position
     * grid electric field vs grid position
@@ -264,27 +267,40 @@ def animation(S, save: bool = False, alpha=1):
                *phase_plot.return_animated(),
                *iteration.return_animated()]  # TODO: optimize this
 
-    def init():
-        """initializes animation window for faster drawing"""
-        for plot in plots:
-            plot.animation_init()
-        return results
-
     def animate(i):
         """draws the i-th frame of the simulation"""
         for plot in plots:
             plot.update(i)
         return results
 
-    # noinspection PyTypeChecker
-    animation_object = anim.FuncAnimation(fig, animate, interval=100,
-                                          frames=np.arange(0, S.NT, helper_functions.calculate_particle_iter_step(S.NT),
-                                                           dtype=int),
-                                          blit=True, init_func=init)
-    if save:
-        helper_functions.make_sure_path_exists(S.filename)
-        videofile_name = S.filename.replace(".hdf5", ".mp4")
-        print(f"Saving animation to {videofile_name}")
-        animation_object.save(videofile_name, fps=15, writer='ffmpeg', extra_args=['-vcodec', 'libx264'])
-        print(f"Saved animation to {videofile_name}")
-    return animation_object
+    if frame_to_draw == "animation":
+        def init():
+            """initializes animation window for faster drawing"""
+            for plot in plots:
+                plot.animation_init()
+            return results
+
+
+        # noinspection PyTypeChecker
+        animation_object = anim.FuncAnimation(fig, animate, interval=100,
+                                              frames=np.arange(0, S.NT, helper_functions.calculate_particle_iter_step(S.NT),
+                                                               dtype=int),
+                                              blit=True, init_func=init)
+        if save:
+            helper_functions.make_sure_path_exists(S.filename)
+            videofile_name = S.filename.replace(".hdf5", ".mp4")
+            print(f"Saving animation to {videofile_name}")
+            animation_object.save(videofile_name, fps=15, writer='ffmpeg', extra_args=['-vcodec', 'libx264'])
+            print(f"Saved animation to {videofile_name}")
+        return animation_object
+    # elif isinstance(list) TODO: allow drawing snapshots
+    elif isinstance(frame_to_draw, int):
+        animate(iteration)
+        if save:
+            helper_functions.make_sure_path_exists(S.filename)
+            file_name = S.filename.replace(".hdf5", ".png")
+            print(f"Saving iteration {iteration} to {file_name}")
+            fig.savefig(file_name)
+        return fig
+    else:
+        raise ValueError("Incorrect frame_to_draw - must be 'animation' or number of iteration to draw.")
