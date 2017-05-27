@@ -15,8 +15,8 @@ def return_particles_to_bounds(species):
 
 def kill_particles_outside_bounds(species):
     species.alive = (0 < species.x) * (species.x < species.grid.L)
-    species.x[~species.alive] = -1  # TODO: replace with np.nan
-    species.v[~species.alive] = 0  # replace with np.nan
+    species.x[~species.alive] = np.nan
+    species.v[~species.alive] = np.nan
 
 
 def apply_bc_buneman(grid, i, bc_function):

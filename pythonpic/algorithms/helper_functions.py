@@ -130,3 +130,28 @@ def gamma_from_v(v, c):
 
 def gamma_from_u(u, c):
     return np.sqrt(1 + ((u ** 2).sum(axis=1, keepdims=True) / c ** 2))
+
+
+epsilon_zero = 8.854e-12 # F/m
+electric_charge = 1.602e-19 # C
+lightspeed = 2.998e8 #m /s
+proton_mass = 1.6726219e-27 #kg
+electron_rest_mass = 9.109e-31 # kg
+
+
+def critical_density(wavelength):
+    """
+    Calculates the critical plasma density:
+    .. math::
+    n_c = m_e \varepsilon_0 * (\frac{2 \pi c}{e \lambda})^2
+
+    Parameters
+    ----------
+    wavelength : in meters
+
+    Returns
+    -------
+
+    """
+    n_c = electron_rest_mass * epsilon_zero * ((2 * np.pi * lightspeed) / (electric_charge * wavelength)) ** 2
+    return n_c

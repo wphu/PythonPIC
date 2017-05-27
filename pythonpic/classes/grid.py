@@ -53,7 +53,7 @@ class TimelessGrid(Frame):
         self.x, self.dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
 
         dt = self.dx / c
-        super().__init__(dt, epsilon_0, c, NT)
+        super().__init__(dt, c, epsilon_0, NT)
         self.epsilon_0 = epsilon_0
 
         self.charge_density = np.zeros(NG + 1)
