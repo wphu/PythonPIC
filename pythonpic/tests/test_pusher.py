@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from ..algorithms import particle_push, helper_functions
-from ..classes import Species, TimelessGrid, Frame
+from ..classes import Species, Frame
 
 atol = 1e-1
 rtol = 1e-4

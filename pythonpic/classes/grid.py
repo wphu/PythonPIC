@@ -4,7 +4,6 @@ import numpy as np
 import scipy.fftpack as fft
 
 from ..algorithms import field_interpolation, helper_functions, FieldSolver, BoundaryCondition
-from ..algorithms.field_interpolation import longitudinal_current_deposition, transversal_current_deposition, periodic_charge_density_deposition, periodic_transversal_current_deposition, periodic_longitudinal_current_deposition
 
 
 class Frame:

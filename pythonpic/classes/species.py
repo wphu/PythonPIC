@@ -84,7 +84,6 @@ class Species:
         b) uses -dt/2
 
         :param electric_field_function: E(x), interpolated from grid
-        :param float dt: original time step.
         :return float energy: (N,) size array of particle kinetic energies calculated at half time step
         """
 

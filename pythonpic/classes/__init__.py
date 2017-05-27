@@ -1,3 +1,4 @@
+# coding=utf-8
 from .grid import Frame, TimelessGrid, Grid, PostprocessedGrid
 from .simulation import Simulation
 from .species import Species, Particle

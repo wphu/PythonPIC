@@ -2,17 +2,18 @@
 # coding=utf-8
 import numpy as np
 
-from pythonpic.algorithms.helper_functions import plotting_parser, Constants
+from pythonpic.algorithms.helper_functions import plotting_parser
 from pythonpic.classes.grid import Grid
 from pythonpic.classes.simulation import Simulation
 from pythonpic.classes.species import Species
 from pythonpic.visualization import plotting
 
+
 def weakbeam_instability(filename,
                          plasma_frequency=1,
                          qmratio=-1,
                          dt=0.2,
-                         NT=300,
+                         T=300 * 0.2,
                          NG=32,
                          N_beam=128,
                          N_plasma=2048,
@@ -44,10 +45,11 @@ def weakbeam_instability(filename,
         return abs(particle_mass * plasma_frequency ** 2 * L / float(
             particle_charge * N * epsilon_0))
 
+    grid = Grid(L=L, NG=NG, T=T)
     filename = f"data_analysis/BP/{filename}/{filename}.hdf5"
 
-    plasma = Species(particle_charge, particle_mass, N_plasma, "plasma", NT, scaling(N_plasma))
-    beam = Species(particle_charge, particle_mass, N_beam, "beam2", NT, scaling(N_plasma))
+    plasma = Species(particle_charge, particle_mass, N_plasma, "plasma", grid.NT, scaling(N_plasma))
+    beam = Species(particle_charge, particle_mass, N_beam, "beam2", grid.NT, scaling(N_plasma))
     # total_negative_charge = particle_charge * (N_plasma + N_beam)
     # N_protons = 100
     # q_protons = -total_negative_charge/N_protons
@@ -57,7 +59,6 @@ def weakbeam_instability(filename,
     # background = Species(q_protons, proton_mass, N_protons, "protons", NT, scaling(N_plasma))
     # background.v[:,:] = 0
     list_species = [beam, plasma]  # , background]
-    grid = Grid(L=L, NG=NG)
     for i, species in enumerate(list_species):
         species.distribute_uniformly(L, 0.5 * grid.dx * i)
         species.sinusoidal_position_perturbation(push_amplitude, push_mode, grid.L)

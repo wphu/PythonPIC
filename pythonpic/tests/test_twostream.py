@@ -2,7 +2,7 @@
 import pytest
 
 from . import on_failure
-from ..algorithms.helper_functions import did_it_thermalize, show_on_fail
+from ..algorithms.helper_functions import did_it_thermalize
 from ..configs.run_twostream import two_stream_instability
 from ..visualization.plotting import plots
 

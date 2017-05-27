@@ -1,3 +1,4 @@
+# coding=utf-8
 from pythonpic.configs import cold_plasma_oscillations, wave_propagation
 from pythonpic.visualization import plotting
 

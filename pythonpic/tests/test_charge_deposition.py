@@ -1,9 +1,9 @@
 # coding=utf-8
 import matplotlib.pyplot as plt
 import numpy as np
-from ..classes import Grid, Species
 
 from ..algorithms.field_interpolation import charge_density_deposition, periodic_charge_density_deposition
+
 
 def test_single_particle(plotting=False):
     NG = 8

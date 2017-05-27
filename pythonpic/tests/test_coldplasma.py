@@ -35,7 +35,6 @@ def test_kaiser_wilhelm_instability_avoidance(N_electrons, push_amplitude):
     S = cold_plasma_oscillations(f"CO_KWI_STABLE_{N_electrons}_PUSH_{push_amplitude}", save_data=False,
                                  N_electrons=N_electrons, NG=256,
                                  T = 200,
-                                 push_mode = 1,
                                  push_amplitude=push_amplitude)
     assert get_dominant_mode(S) == 1, plots(S, *on_failure)
 

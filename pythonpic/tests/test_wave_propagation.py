@@ -6,7 +6,6 @@ import pytest
 
 from . import on_failure
 from ..algorithms import BoundaryCondition
-from ..algorithms.helper_functions import show_on_fail
 from ..configs.run_wave import wave_propagation
 from ..visualization.plotting import plots
 

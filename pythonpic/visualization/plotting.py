@@ -18,19 +18,17 @@ def plots(file,
           save_animation: bool = True,
           alpha: float = 1):
     """
-    Runs visual analysis on saved hdf5 file. Currently runs:
-    * energy vs time plot
-    * electrostatic energy per mode vs time
-    * temperature vs time
-    * spectral analysis
+    Wrapper to run visual analysis on saved hdf5 file. Displays static plots and animations.
+
     Parameters
     ----------
     file : str or simulation.Simulation
-    show : bool
-        
-    save : bool
-    animate : bool
+    show_static : bool
+    save_static : bool
+    show_animation : bool
+    save_animation : bool
     alpha : float
+        Used for opacity in plots
 
     Returns
     -------
@@ -56,8 +54,6 @@ def plots(file,
         else:
             plt.clf()
             plt.close("all")
-    # else:
-    #     raise ValueError("Passed arguments mean you wouldn't show or save anything.")
 
 
 if __name__ == "__main__":
@@ -69,4 +65,4 @@ if __name__ == "__main__":
     if args.filename[-5:] != ".hdf5":
         args.filename += ".hdf5"
 
-    plots(args.filename, show=True)
+    plots(args.filename, True, False, True, False)

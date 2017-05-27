@@ -1,10 +1,9 @@
 # coding=utf-8
 import numpy as np
-import matplotlib.pyplot as plt
 import pytest
-from ..classes import Species
 
 from ..algorithms import density_profiles
+from ..classes import Species
 from ..classes import TimelessGrid
 
 
@@ -28,7 +27,7 @@ def _profile(request):
 def test_density_helper(_fraction, _second_fraction, _profile, _N):
 
     g = TimelessGrid(100, 100)
-    s = Species(1, 1, _N, g, "particles")
+    s = Species(1, 1, _N, g)
 
     moat_length = g.L * _fraction
     ramp_length = g.L * _second_fraction

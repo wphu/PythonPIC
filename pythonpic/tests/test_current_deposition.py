@@ -1,13 +1,10 @@
 # coding=utf-8
-import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 from matplotlib import pyplot as plt
 
-from ..configs import two_stream_instability
-from ..classes import Particle, Species, TimelessGrid
-
 from ..algorithms.field_interpolation import longitudinal_current_deposition, transversal_current_deposition
+from ..classes import Particle, Species, TimelessGrid
 
 
 @pytest.fixture(params=np.arange(3, 4, 0.2))
@@ -88,7 +85,7 @@ def test_single_particle_transversal_deposition(_position, _velocity):
         ax.set_title(title)
         ax.scatter(new_positions, 0)
         for i, label in {1: 'y', 2: 'z'}.items():
-            ax.plot(g.x + 0.5, g.current_density[1:-1, i], "o-", alpha=0.7, linewidth=i + 3, label=f"j{label}")
+            ax.plot(g.x + 0.5, g.current_density_yz[1:-1, i - 1], "o-", alpha=0.7, linewidth=i + 3, label=f"j{label}")
         ax.legend()
         plt.show()
         return title + " instead of 1"

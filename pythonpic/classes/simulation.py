@@ -6,10 +6,11 @@ import time
 import h5py
 import numpy as np
 
-from ..algorithms import helper_functions, BoundaryCondition
-from ..algorithms.helper_functions import git_version, Constants
 from .grid import Grid
 from .species import Species
+from ..algorithms import BoundaryCondition
+from ..algorithms.helper_functions import git_version, Constants
+
 
 class Simulation:
     """Contains data from one run of the simulation:
@@ -149,17 +150,18 @@ def load_data(filename: str) -> Simulation:
 
         NT = f.attrs['NT']
         dt = f.attrs['dt']
+        T = NT * dt
         title = f.attrs['title']
 
         grid_data = f['grid']
         NG = grid_data.attrs['NGrid']
-        grid = Grid(L=NT, NG=NG)
+        grid = Grid(L=NT, NG=NG, T=T)
         grid.load_from_h5py(grid_data)
 
         all_species = []
         for species_group_name in f['species']:
             species_group = f['species'][species_group_name]
-            species = Species(1, 1, 1, NT=NT)
+            species = Species(1, 1, 1, grid)
             species.load_from_h5py(species_group)
             all_species.append(species)
         run_date = f.attrs['run_date']

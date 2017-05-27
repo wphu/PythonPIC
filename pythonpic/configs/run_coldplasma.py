@@ -2,7 +2,7 @@
 # coding=utf-8
 from numpy import pi
 
-from pythonpic.algorithms.helper_functions import plotting_parser, Constants
+from pythonpic.algorithms.helper_functions import plotting_parser
 from pythonpic.classes.grid import Grid
 from pythonpic.classes.simulation import Simulation
 from pythonpic.classes.species import Species
