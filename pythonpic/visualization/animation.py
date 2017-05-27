@@ -1,91 +1,126 @@
 """Animates the simulation to show quantities that change over time"""
 # coding=utf-8
+import itertools
+
 import matplotlib.animation as anim
 import matplotlib.pyplot as plt
 import numpy as np
 
 from ..algorithms import helper_functions
 from ..algorithms.helper_functions import colors, directions
-from ..classes import simulation, Species
 
 
 # formatter = matplotlib.ticker.ScalarFormatter(useMathText=True, useOffset=False)
+class Plot:
+    def __init__(self, S, ax):
+        self.S = S
+        self.ax = ax
+        self.plots = []
 
-def phase_plot(S, phase_axes, alpha):
-    phase_dots = {}
-    maxvs = []
-    for i, species in enumerate(S.list_species):
-        phase_dots[species.name], = phase_axes.plot([], [], colors[i] + ".", alpha=alpha)
-        maxvs.append(max([10 * np.mean(np.abs(species.velocity_history)) for species in S.list_species]))
-    if len(S.list_species) > 0:
-        maxv = max(maxvs)
-        phase_axes.set_ylim(-maxv, maxv)
-    phase_axes.set_xlim(0, S.grid.L)
-    phase_axes.yaxis.set_label_position("right")
-    phase_axes.set_xlabel(r"Particle position $x$")
-    phase_axes.set_ylabel(r"Particle velocity $v_x$")
-    phase_axes.set_xticks(S.grid.x)
-    phase_axes.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
-    phase_axes.grid()
-    return phase_dots
+        self.ax.set_xlim(0, S.grid.L)
+        ax.set_xlabel(r"Position $x$")
+        self.ax.set_xticks(S.grid.x)
+        self.ax.grid()
+        self.ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True,
+                                 useOffset=False)  # TODO axis=both?
+        self.ax.xaxis.set_ticklabels([])
+        self.ax.yaxis.tick_right()
+        self.ax.yaxis.set_label_position("right")
 
-def phase_plot_init(S, phase_dots):
-    for species in S.list_species:
-        phase_dots[species.name].set_data([], [])
+    def animation_init(self):
+        for plot in self.plots:
+            plot.set_data([], [])
 
-def phase_plot_update(S, phase_dots, i):
-    for species in S.list_species:
-        if helper_functions.is_this_saved_iteration(i, species.save_every_n_iterations):
-            index = helper_functions.convert_global_to_particle_iter(i, species.save_every_n_iterations)
-            phase_dots[species.name].set_data(species.position_history[index, species.alive_history[index]],
-                                          species.velocity_history[index, species.alive_history[index], 0])
-
-def spatial_distribution_plot(S, charge_axis):
-    charge_plot, = charge_axis.plot(S.grid.x, S.grid.charge_density_history[0, :], "-", alpha=0.8)
-    charge_axis.set_xlim(0, S.grid.L)
-    charge_axis.set_ylabel(f"Charge density $\\rho$")
-    charge_axis.set_xticks(S.grid.x)
-    charge_axis.set_xlabel(r"Position $x$")
-    charge_axis.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
-    try:
-        mincharge = np.min(S.grid.charge_density_history)
-        maxcharge = np.max(S.grid.charge_density_history)
-        charge_axis.set_ylim(mincharge, maxcharge)
-    except ValueError:
+    def update(self, i):
         pass
-    charge_axis.grid()
-    return charge_plot
 
-def spatial_distribution_plot_init(charge_plot):
-    charge_plot.set_data([], [])
+    def return_animated(self):
+        return self.plots
 
-def spatial_distribution_plot_update(S, charge_plot, i):
-    charge_plot.set_data(S.grid.x, S.grid.charge_density_history[i, :])
 
-def velocity_distribution_plot(S, distribution_axes):
-    histograms = []
-    bin_arrays = []
-    for i, s in enumerate(S.list_species):
-        bin_array = np.linspace(s.velocity_history.min(), s.velocity_history.max())
-        bin_arrays.append(bin_array)
-        histograms.append(
-            distribution_axes.plot(*velocity_histogram_data(s.velocity_history[0], bin_array), colors[i])[0])
-    distribution_axes.grid()
-    distribution_axes.yaxis.tick_right()
-    distribution_axes.yaxis.set_label_position("right")
-    distribution_axes.set_xlabel(r"Velocity $v$")
-    distribution_axes.set_ylabel(r"Number of particles")
-    distribution_axes.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
-    return histograms, bin_arrays
+class FrequencyPlot(Plot):
+    def __init__(self, S, ax):
+        super().__init__(S, ax)
+        self.plots.append(ax.plot([], [], "o-", label="energy per mode")[0])
+        self.ax.set_xlabel(r"Wavevector mode $k$")
+        self.ax.set_ylabel(r"Energy $E$")
+        self.ax.set_xlim(0, S.grid.NG / 2)
+        self.ax.set_xticks(S.grid.k_plot)
+        self.ax.set_ylim(S.grid.energy_per_mode_history.min(), S.grid.energy_per_mode_history.max())
 
-def velocity_distribution_init(histograms):
-    for histogram in histograms:
-        histogram.set_data([], [])
+    def update(self, i):
+        self.plots[0].set_data(self.S.grid.k_plot, self.S.grid.energy_per_mode_history[i])
 
-def velocity_distribution_update(S, histograms, bin_arrays, i):
-    for species, histogram, bin_array in zip(S.list_species, histograms, bin_arrays):
-        index = helper_functions.convert_global_to_particle_iter(i, species.save_every_n_iterations)
-        histogram.set_data(*velocity_histogram_data(species.velocity_history[index], bin_array))
+
+def phaseplot_values(species):
+    return {"x": species.position_history,
+            "v_x": species.velocity_history[:, :, 0],
+            "v_y": species.velocity_history[:, :, 1],
+            "v_z": species.velocity_history[:, :, 2],
+            }
+
+
+class PhasePlot(Plot):
+    def __init__(self, S, ax, v1, v2, alpha):
+        super().__init__(S, ax)
+        self.x = [phaseplot_values(species)[v1] for species in S.list_species]
+        self.y = [phaseplot_values(species)[v2] for species in S.list_species]
+        if len(self.y):
+            maxys = max([np.max(np.abs(y)) for y in self.y])
+            self.ax.set_ylim(-maxys, maxys)
+        for i, species in enumerate(S.list_species):
+            self.plots.append(ax.plot([], [], colors[i] + ".", alpha=alpha)[0])
+        self.ax.yaxis.set_label_position("right")
+        self.ax.set_xlabel(rf"${v1}$")
+        self.ax.set_ylabel(rf"${v2}$")
+
+    def update(self, i):
+        for plot, species, x, y in zip(self.plots, self.S.list_species, self.x, self.y):
+            if helper_functions.is_this_saved_iteration(i, species.save_every_n_iterations):
+                index = helper_functions.convert_global_to_particle_iter(i, species.save_every_n_iterations)
+                # print(y[index, species.alive_history[index]]) #TODO: get alive history to work here!
+                plot.set_data(x[index],  # , species.alive_history[index]],
+                              y[index])  # , species.alive_history[index]])
+
+
+class SpatialDistributionPlot(Plot):
+    def __init__(self, S, ax):
+        super().__init__(S, ax)
+        self.plots.append(ax.plot([], [], "-", alpha=0.8)[0])
+        ax.set_ylabel(f"Charge density $\\rho$")
+        try:
+            mincharge = np.min(S.grid.charge_density_history)
+            maxcharge = np.max(S.grid.charge_density_history)
+            ax.set_ylim(mincharge, maxcharge)
+        except ValueError:
+            pass
+
+    def update(self, i):
+        self.plots[0].set_data(self.S.grid.x, self.S.grid.charge_density_history[i, :])
+
+
+class VelocityDistributionPlot(Plot):
+    def __init__(self, S, ax, v1="v_x"):
+        super().__init__(S, ax)
+        self.bin_arrays = []
+        # self.values = [phaseplot_values(species)[v1] for species in S.list_species] # TODO BUG see PhasePlot
+        self.values = [species.velocity_history[:, :, 0] for species in S.list_species]
+        for i, s, v in zip(range(len(S.list_species)), S.list_species, self.values):
+            bin_array = np.linspace(v.min(), v.max())
+            self.bin_arrays.append(bin_array)
+            self.plots.append(
+                ax.plot(*velocity_histogram_data(v[0], bin_array), colors[i])[0])
+        self.ax.set_xlabel(rf"${v1}$")
+        self.ax.set_ylabel(r"Number of particles")
+        if len(self.bin_arrays):
+            self.ax.set_xlim(min([bin_array.min() for bin_array in self.bin_arrays]),
+                             max([bin_array.max() for bin_array in self.bin_arrays]))
+
+    def update(self, i):
+        for species, histogram, bin_array, v in zip(self.S.list_species, self.plots, self.bin_arrays, self.values):
+            index = helper_functions.convert_global_to_particle_iter(i, species.save_every_n_iterations)
+            histogram.set_data(*velocity_histogram_data(v[index], bin_array))
+
 
 def velocity_histogram_data(arr, bins):
     """
@@ -98,101 +133,91 @@ def velocity_histogram_data(arr, bins):
     bin_center = (bin_edge[:-1] + bin_edge[1:]) * 0.5
     return bin_center, bin_height
 
-def frequency_plot(S, freq_axes):
-    freq_plot, = freq_axes.plot([], [], "bo-", label="energy per mode")
-    freq_axes.set_xlabel(r"Wavevector mode $k$")
-    freq_axes.set_ylabel(r"Energy $E$")
-    freq_axes.set_xlim(0, S.grid.NG / 2)
-    freq_axes.set_ylim(S.grid.energy_per_mode_history.min(), S.grid.energy_per_mode_history.max())
-    freq_axes.grid()
-    freq_axes.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True, useOffset=False)
-    freq_axes.yaxis.tick_right()
-    freq_axes.yaxis.set_label_position("right")
-    return freq_plot
 
-def frequency_plot_init(freq_plot):
-    freq_plot.set_data([], [])
+class IterationCounter:
+    def __init__(self, S, ax):
+        self.S = S
+        self.ax = ax
+        self.counter = ax.text(0.1, 0.9, 'i=x', horizontalalignment='left',
+                               verticalalignment='center', transform=ax.transAxes)
 
-def frequency_plot_update(S, freq_plot, i):
-    freq_plot.set_data(S.grid.k_plot, S.grid.energy_per_mode_history[i])
+    def animation_init(self):
+        self.counter.set_text("Iteration: ")
 
-def iteration_counter(axes):
-    iteration = axes.text(0.1, 0.9, 'i=x', horizontalalignment='left',
-                               verticalalignment='center', transform=axes.transAxes)
-    return iteration
+    def update(self, i):
+        self.counter.set_text(f"Iteration: {i}/{self.S.NT}\nTime: {i*self.S.dt:.3g}/{self.S.NT*self.S.dt:.3g}")
 
-def iteration_init(iteration):
-    iteration.set_text("Iteration: ")
-
-def iteration_update(S, iteration, i):
-    iteration.set_text(f"Iteration: {i}/{S.NT}\nTime: {i*S.dt:.3g}/{S.NT*S.dt:.3g}")
-
-def field_plots(S, field_axes, j):
-    field_axes.set_xlim(0, S.grid.L)
-    efield_plot, = field_axes.plot(S.grid.x, S.grid.electric_field_history[0, :, j], "k-", alpha=0.7,
-                        label=f"$E_{directions[j]}$")
-
-    bfield_plot, = field_axes.plot(S.grid.x, S.grid.magnetic_field_history[0, :, j-1], "m-", alpha=0.7,
-                        label=f"$B_{directions[j-1]}$")
-    field_axes.set_ylabel(r"Fields $E$, $B$", color='k')
-    field_axes.tick_params('y', colors='k')
-    field_axes.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
-    max_e = np.max(np.abs(S.grid.electric_field_history[:,:,j]))
-    max_b = np.max(np.abs(S.grid.magnetic_field_history[:,:,j-1]))
-    maxfield = max([max_e, max_b])
-    field_axes.set_ylim(-maxfield, maxfield)
-    field_axes.grid()
-    field_axes.legend(loc='upper right')
-    return efield_plot, bfield_plot
-
-def field_plots_init(efield_plot, bfield_plot):
-    efield_plot.set_data([], [])
-    bfield_plot.set_data([], [])
-
-def field_plots_update(S, efield_plot, bfield_plot, j, i):
-    efield_plot.set_data(S.grid.x, S.grid.electric_field_history[i, :, j])
-    bfield_plot.set_data(S.grid.x, S.grid.magnetic_field_history[i, :, j - 1])
+    def return_animated(self):
+        return [self.counter]
 
 
-def current_plot(S, current_axes, j):
-    current_plot, = current_axes.plot(S.grid.x, S.grid.current_density_history[0, :, j], ".-",
-                                              alpha=0.9,
-                                              label=fr"$j_{directions[j]}$")
-    current_axes.set_xlim(0, S.grid.L)
-    current_axes.set_ylabel(f"Current density $j_{directions[j]}$", color='b')
-    current_axes.tick_params('y', colors='b')
-    current_axes.set_xlabel(r"Position $x$")
-    current_axes.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
-    try:
-        mincurrent = S.grid.current_density_history[:, :, j].min()
-        maxcurrent = S.grid.current_density_history[:, :, j].max()
-        current_axes.set_ylim(mincurrent, maxcurrent)
-    except ValueError:
-        pass
-    current_axes.grid()
-    current_axes.legend(loc='lower left')
-    return current_plot
+class FieldPlot(Plot):
+    def __init__(self, S, ax, j):
+        super().__init__(S, ax)
+        self.j = j
+        self.plots.append(ax.plot([], [], "r-", label=f"$E_{directions[j]}$")[0])
+        self.plots.append(ax.plot([], [], "b-", label=f"$B_{directions[j]}$")[0])
+        ax.set_ylabel(r"Fields $E$, $B$")
+        max_e = np.max(np.abs(S.grid.electric_field_history[:, :, j]))
+        max_b = np.max(np.abs(S.grid.magnetic_field_history[:, :, j - 1]))  # TODO remove -1 via ProcessedGrid
+        maxfield = max([max_e, max_b])
+        ax.set_ylim(-maxfield, maxfield)
+        ax.legend(loc='upper right')
 
-def current_plots_init(current_plot):
-    current_plot.set_data([], [])
+    def update(self, i):
+        self.plots[0].set_data(self.S.grid.x, self.S.grid.electric_field_history[i, :, self.j])
+        self.plots[1].set_data(self.S.grid.x,
+                               self.S.grid.magnetic_field_history[i, :, self.j - 1])  # TODO remove -1 via ProcGrid
 
-def current_plots_update(S, current_plot, j, i):
-    current_plot.set_data(S.grid.x, S.grid.current_density_history[i, :, j])
-# class ScatterPlot2D:
-#     def __init__(self, ax, x, y, xlabel=None, ylabel=None):
-#         self.xdata = x
-#         self.ydata = y
-#         self.plot, = ax.plot([], [], "")
-#         ax.set_xlabel(xlabel)
-#         ax.set_ylabel(ylabel)
-#     def update(self, i):
-#         self.plot.set_data(self.xdata[i], self.ydata[i])
-#
-#
-# class PhasePlot(ScatterPlot2D):
-#     def __init__(self, ax, s):
-#         super().__init__(ax, s.position_history, s.velocity_history[:,:,0], r"$x$ position [m]", r"$v_x$ velocity [m/s]")
 
+class CurrentPlot(Plot):
+    def __init__(self, S, ax, j):
+        super().__init__(S, ax)
+        self.j = j
+        self.plots.append(ax.plot(S.grid.x, S.grid.current_density_history[0, :, j], ".-",
+                                  alpha=0.9,
+                                  label=fr"$j_{directions[j]}$")[0])
+        ax.set_ylabel(f"Current density $j_{directions[j]}$", color='b')
+        ax.tick_params('y', colors='b')
+        ax.legend(loc='lower left')
+        try:
+            mincurrent = S.grid.current_density_history[:, :, j].min()
+            maxcurrent = S.grid.current_density_history[:, :, j].max()
+            ax.set_ylim(mincurrent, maxcurrent)
+        except ValueError:
+            pass
+
+    def update(self, i):
+        self.plots[0].set_data(self.S.grid.x, self.S.grid.current_density_history[i, :, self.j])
+
+
+class PlotSet:
+    def __init__(self, axes, list_plots):
+        self.axes = axes
+        self.list_plots = list_plots
+
+    def update(self, i):
+        for plot in self.list_plots:
+            plot.update(i)
+
+    def animation_init(self):
+        for plot in self.list_plots:
+            plot.animation_init()
+
+    def return_animated(self):
+        return list(itertools.chain.from_iterable(plot.return_animated() for plot in self.list_plots))
+
+
+class TripleFieldPlot(PlotSet):
+    def __init__(self, S, axes):
+        plots = [FieldPlot(S, ax, j) for j, ax in enumerate(axes)]
+        super().__init__(axes, plots)
+
+
+class TripleCurrentPlot(PlotSet):
+    def __init__(self, S, axes):
+        plots = [CurrentPlot(S, ax, j) for j, ax in enumerate(axes)]
+        super().__init__(axes, plots)
 
 
 def animation(S, save: bool = False, alpha=1):
@@ -218,57 +243,40 @@ def animation(S, save: bool = False, alpha=1):
     phase_axes = fig.add_subplot(426)
     freq_axes = fig.add_subplot(428)
 
-    iteration = iteration_counter(freq_axes)
     fig.suptitle(str(S), fontsize=12)
     fig.subplots_adjust(top=0.81, bottom=0.08, left=0.15, right=0.95,
                         wspace=.25, hspace=0.6)  # TODO: remove particle windows if there are no particles
 
+    phase_plot = PhasePlot(S, phase_axes, "x", "v_x", alpha)
+    velocity_histogram = VelocityDistributionPlot(S, distribution_axes)
+    freq_plot = FrequencyPlot(S, freq_axes)
+    charge_plot = SpatialDistributionPlot(S, charge_axis)
+    iteration = IterationCounter(S, freq_axes)
+    current_plots = TripleCurrentPlot(S, current_axes)
+    field_plots = TripleFieldPlot(S, [current_ax.twinx() for current_ax in current_axes])
 
-    phase_dots = phase_plot(S, phase_axes, alpha)
-    histograms, bin_arrays = velocity_distribution_plot(S, distribution_axes)
-    freq_plot = frequency_plot(S, freq_axes)
-    charge_plot = spatial_distribution_plot(S, charge_axis)
-
-    current_plots = []
-    electric_field_plots = []
-    magnetic_field_plots = []
-    # TODO: 3d animation for transverse fields
-    for j in range(3):
-        current_plots.append(current_plot(S, current_axes[j], j))
-        field_axes = current_axes[j].twinx()
-        efield_plot, bfield_plot = field_plots(S, field_axes, j)
-        electric_field_plots.append(efield_plot)
-        magnetic_field_plots.append(bfield_plot)
-
-
+    plots = [phase_plot, velocity_histogram, freq_plot, charge_plot, iteration, current_plots, field_plots]
+    results = [*field_plots.return_animated(),
+               *current_plots.return_animated(),
+               *charge_plot.return_animated(),
+               *freq_plot.return_animated(),
+               *velocity_histogram.return_animated(),
+               *phase_plot.return_animated(),
+               *iteration.return_animated()]  # TODO: optimize this
 
     def init():
         """initializes animation window for faster drawing"""
-        iteration_init(iteration)
-        frequency_plot_init(freq_plot)
-        spatial_distribution_plot_init(charge_plot)
-        phase_plot_init(S, phase_dots)
-        velocity_distribution_init(histograms)
-        for j in range(3):
-            field_plots_init(electric_field_plots[j], magnetic_field_plots[j])
-            current_plots_init(current_plots[j])
-        return [*current_plots, charge_plot, *electric_field_plots, *magnetic_field_plots, freq_plot,
-                *phase_dots.values(), iteration]
+        for plot in plots:
+            plot.animation_init()
+        return results
 
     def animate(i):
         """draws the i-th frame of the simulation"""
-        frequency_plot_update(S, freq_plot, i)
-        iteration_update(S, iteration, i)
-        spatial_distribution_plot_update(S, charge_plot, i)
-        phase_plot_update(S, phase_dots, i)
-        velocity_distribution_update(S, histograms, bin_arrays, i)
-        for j, efield_plot, bfield_plot in zip(range(3), electric_field_plots, magnetic_field_plots):
-            field_plots_update(S, efield_plot, bfield_plot, j, i)
-            current_plots_update(S, current_plots[j], j, i)
+        for plot in plots:
+            plot.update(i)
+        return results
 
-        return [*current_plots, charge_plot, *electric_field_plots, *magnetic_field_plots, freq_plot, *histograms,
-                *phase_dots.values(), iteration]
-
+    # noinspection PyTypeChecker
     animation_object = anim.FuncAnimation(fig, animate, interval=100,
                                           frames=np.arange(0, S.NT, helper_functions.calculate_particle_iter_step(S.NT),
                                                            dtype=int),
@@ -280,4 +288,3 @@ def animation(S, save: bool = False, alpha=1):
         animation_object.save(videofile_name, fps=15, writer='ffmpeg', extra_args=['-vcodec', 'libx264'])
         print(f"Saved animation to {videofile_name}")
     return animation_object
-
