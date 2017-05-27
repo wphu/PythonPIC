@@ -1,8 +1,7 @@
 """Implements interaction of the laser with a hydrogen shield plasma"""
 # coding=utf-8
-from algorithms.helper_functions import critical_density
 from pythonpic.algorithms.helper_functions import epsilon_zero, electric_charge, lightspeed, proton_mass, electron_rest_mass
-from pythonpic.algorithms.helper_functions import plotting_parser
+from pythonpic.algorithms.helper_functions import plotting_parser, critical_density
 from pythonpic.classes.grid import Grid
 from pythonpic.classes.simulation import Simulation, load_data
 from pythonpic.classes.species import Species
@@ -37,7 +36,7 @@ scaling = npic # TODO: what should be the proper value here?
 def laser(filename):
     filename=f"data_analysis/laser-shield/{filename}/{filename}.hdf5"
     dt = spatial_step / lightspeed
-    grid = Grid(T=total_time, L=length, NG=number_cells, c =lightspeed, epsilon_0 =epsilon_zero, periodic=True)
+    grid = Grid(T=total_time, L=length, NG=number_cells, c =lightspeed, epsilon_0 =epsilon_zero, periodic=False)
 
     electrons = Species(-electric_charge, electron_rest_mass, n_macroparticles, grid, "electrons", scaling)
     protons = Species(electric_charge, proton_mass, n_macroparticles, grid, "protons", scaling)
