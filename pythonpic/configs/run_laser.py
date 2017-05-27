@@ -1,5 +1,6 @@
 """Implements interaction of the laser with a hydrogen shield plasma"""
 # coding=utf-8
+from pythonpic.algorithms import BoundaryCondition, FieldSolver
 from pythonpic.algorithms.helper_functions import epsilon_zero, electric_charge, lightspeed, proton_mass, electron_rest_mass
 from pythonpic.algorithms.helper_functions import plotting_parser, critical_density
 from pythonpic.classes.grid import Grid
@@ -28,21 +29,20 @@ maximum_electron_concentration = 5.24e27 # TODO: this is a crutch
 
 npic = 1.048e25 # m^-3
 
-# n_macroparticles = 75000
-n_macroparticles = 20000
+n_macroparticles = 75000
 
 scaling = npic # TODO: what should be the proper value here?
 
 def laser(filename):
     filename=f"data_analysis/laser-shield/{filename}/{filename}.hdf5"
     dt = spatial_step / lightspeed
-    grid = Grid(T=total_time, L=length, NG=number_cells, c =lightspeed, epsilon_0 =epsilon_zero, periodic=False)
+    bc = BoundaryCondition.non_periodic_bc(BoundaryCondition.Laser(laser_wavelength, dt*100, impulse_duration, c=lightspeed).laser_pulse)
+    grid = Grid(T=total_time, L=length, NG=number_cells, c =lightspeed, epsilon_0 =epsilon_zero, bc=bc, periodic=False, solver=FieldSolver.BunemanSolver)
 
     electrons = Species(-electric_charge, electron_rest_mass, n_macroparticles, grid, "electrons", scaling)
     protons = Species(electric_charge, proton_mass, n_macroparticles, grid, "protons", scaling)
     list_species = [electrons, protons]
 
-    # bc = BoundaryCondition.non_periodic_bc(BoundaryCondition.Laser(laser_wavelength, dt*100, impulse_duration, c=lightspeed).laser_pulse)
 
     for species in list_species:
         print(f"Distributing {species.name} nonuniformly.")

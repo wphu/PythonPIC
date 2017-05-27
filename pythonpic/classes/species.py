@@ -53,7 +53,7 @@ class Species:
         self.name = name
         if self.N >= MAX_SAVED_PARTICLES:
             self.save_every_n_particle = (self.N // MAX_SAVED_PARTICLES)
-            self.saved_particles = self.N // self.save_every_n_particle
+            self.saved_particles = np.ceil(self.N / self.save_every_n_particle).astype(int)
             print(f"Too many macro{name} to save them all! N: {self.N}, so we're saving every "
                   f"{self.save_every_n_particle}th one and we're going to have "
                   f"{self.saved_particles}"
@@ -62,10 +62,10 @@ class Species:
             self.saved_particles = self.N
             self.save_every_n_particle = 1
 
-        self.position_history = np.zeros((self.saved_iterations, self.saved_particles))
-        self.velocity_history = np.zeros((self.saved_iterations, self.saved_particles, 3))
-        self.velocity_mean_history = np.zeros((self.saved_iterations, 3))
-        self.velocity_std_history = np.zeros((self.saved_iterations, 3))
+        self.position_history = np.zeros((self.saved_iterations, self.saved_particles), dtype=float)
+        self.velocity_history = np.zeros((self.saved_iterations, self.saved_particles, 3), dtype=float)
+        self.velocity_mean_history = np.zeros((self.saved_iterations, 3), dtype=float)
+        self.velocity_std_history = np.zeros((self.saved_iterations, 3), dtype=float)
         self.alive_history = np.zeros((self.saved_iterations, self.saved_particles), dtype=bool)
         self.kinetic_energy_history = np.zeros(self.NT+1)
         self.pusher = pusher
