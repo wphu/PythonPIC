@@ -13,7 +13,10 @@ from ..algorithms.helper_functions import git_version, Constants
 
 
 class Simulation:
-    """Contains data from one run of the simulation:
+    """
+
+    Contains data from one run of the simulation.
+
     Parameters
     ----------
     grid : Grid
@@ -23,7 +26,7 @@ class Simulation:
     filename : str
     title : str
     """
-    def __init__(self, grid: Grid, list_species, run_date=time.ctime(), git_ver=git_version(),
+    def __init__(self, grid: Grid, list_species = [], run_date=time.ctime(), git_ver=git_version(),
                  filename=time.strftime("%Y-%m-%d_%H-%M-%S.hdf5"), boundary_condition=BoundaryCondition.PeriodicBC, title=""):
         self.NT = grid.NT
         self.dt = grid.dt

@@ -4,10 +4,9 @@ import numpy as np
 import pytest
 
 from ..algorithms.helper_functions import l2_norm
-from ..classes import TimelessGrid
-
-DEBUG = False
-
+from ..algorithms.FieldSolver import BunemanSolver
+from ..classes import TimelessGrid, Grid, Simulation
+from ..visualization.animation import CurrentPlot, FieldPlot
 
 @pytest.fixture(params=(64, 128, 256, 512))
 def _NG(request):
@@ -23,8 +22,11 @@ def _L(request):
 def _test_charge_density(request):
     return request.param
 
+@pytest.fixture(params=(1, 2 * np.pi, 7.51))
+def _T(request):
+    return request.param
 
-def test_PoissonSolver(_NG, _L, debug=DEBUG):
+def test_PoissonSolver(_NG, _L):
     g = TimelessGrid(_L, _NG)
     charge_density = (2 * np.pi / _L) ** 2 * np.sin(2 * g.x * np.pi / _L)
     field = np.zeros((_NG + 2, 3))
@@ -47,8 +49,6 @@ def test_PoissonSolver(_NG, _L, debug=DEBUG):
         plt.show()
         return "test_PoissonSolver failed! calc/theory field ratio at 0: {}".format(g.electric_field[1] / field[0])
 
-    if debug:
-        plots()
     assert np.allclose(g.electric_field, field), plots()
 
 
@@ -102,7 +102,7 @@ def test_PoissonSolver(_NG, _L, debug=DEBUG):
 #     potential_correct = np.isclose(g.potential, anal_potential(g.x)).all()
 #     assert field_correct and potential_correct and energy_correct, plots()
 
-def test_PoissonSolver_energy_sine(_NG, debug=DEBUG):
+def test_PoissonSolver_energy_sine(_NG, ):
     _L = 1
     resolution_increase = _NG
     N = _NG * resolution_increase
@@ -144,8 +144,6 @@ def test_PoissonSolver_energy_sine(_NG, debug=DEBUG):
         plt.show()
         return "test_PoissonSolver_complex failed!"
 
-    if debug:
-        plots()
 
     energy_correct = np.allclose(energy_fourier, energy_direct)
     assert energy_correct, plots()
@@ -153,7 +151,7 @@ def test_PoissonSolver_energy_sine(_NG, debug=DEBUG):
     assert field_correct, plots()
 
 
-def test_PoissonSolver_sheets(_NG, _L, debug=DEBUG, _test_charge_density=1):
+def test_PoissonSolver_sheets(_NG, _L, _test_charge_density=1):
     epsilon_0 = 1
 
     x, dx = np.linspace(0, _L, _NG, retstep=True, endpoint=False)
@@ -179,8 +177,6 @@ def test_PoissonSolver_sheets(_NG, _L, debug=DEBUG, _test_charge_density=1):
         plt.show()
         return "test_PoissonSolver_sheets failed!"
 
-    if debug:
-        plots()
 
     polynomial_coefficients = np.polyfit(x[region1], g.electric_field[1:-1, 0][region1], 1)
     first_bump_right = np.isclose(
@@ -193,7 +189,7 @@ def test_PoissonSolver_sheets(_NG, _L, debug=DEBUG, _test_charge_density=1):
     assert second_bump_right, plots()
 
 
-def test_PoissonSolver_ramp(_NG, _L, debug=DEBUG):
+def test_PoissonSolver_ramp(_NG, _L):
     """ For a charge density rho = Ax + B
     d2phi/dx2 = -rho/epsilon_0
     set epsilon_0 to 1
@@ -223,8 +219,26 @@ def test_PoissonSolver_ramp(_NG, _L, debug=DEBUG):
         plt.show()
         return "test_PoissonSolver_ramp failed!"
 
-    if debug:
-        plots()
 
     polynomial_coefficients = np.polyfit(g.x, g.electric_field[1:-1, 0], 2)
     assert np.isclose(polynomial_coefficients[0], a / 2, rtol=1e-2), (polynomial_coefficients[0], a / 2, plots())
+
+def test_BunemanSolver(_T, _NG, _L, _test_charge_density):
+    g = Grid(_T, _L, _NG, solver=BunemanSolver)
+    charge_index = _NG // 2
+    g.current_density_x[charge_index] = _test_charge_density
+    g.solve()
+    g.save_field_values(0)
+
+    S = Simulation(g)
+    pulled_field = g.electric_field[charge_index, 0]
+    expected_field = - g.dt / g.epsilon_0 * _test_charge_density
+
+    def plot():
+        fig, (ax1, ax2) = plt.subplots(2)
+        CurrentPlot(S, ax1, 0).update(0)
+        FieldPlot(S, ax2, 0).update(0)
+        plt.show()
+    assert np.isclose(pulled_field, expected_field), plot()
+
+
