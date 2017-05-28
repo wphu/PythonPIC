@@ -1,3 +1,13 @@
+[run]
+branch = True
+
 [report]
 omit =
 	*/tests/*
+
+exclude_lines =
+    raise NotImplementedError
+    def _-repr__
+    if __name == .__main__.:
+    if 0:
+    def main():

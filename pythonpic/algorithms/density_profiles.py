@@ -28,6 +28,7 @@ def relativistic_maxwellian(v, N, c, m, T):
     normalization = N / (2 * np.pi) * m * c **2 / T / (1 + T / m / c**2)
     f = normalization * np.exp(-kinetic_energy/T)
     # TODO: finish this algorithm
+    raise NotImplementedError
 
 
 def generate(dense_range, func, *function_params):

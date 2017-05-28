@@ -152,10 +152,11 @@ class Species:
         :return:
         """
         self.x += amplitude * np.cos(2 * mode * np.pi * self.x / L)
-        self.x %= L  # ensure boundaries # TODO: this will not work with non-periodic boundary conditions
+        self.apply_bc()
 
     def random_position_perturbation(self, std: float):
         self.x += np.random.normal(scale=std, size=self.N)
+        self.apply_bc()
 
     """VELOCITY INITIALIZATION"""
 
@@ -278,7 +279,3 @@ class Particle(Species):
         self.v[:, 1] = vy
         self.v[:, 2] = vz
 
-
-if __name__ == '__main__':
-    p = Particle(1, 3, 4, -5, name="test particle")
-    print(p)

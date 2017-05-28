@@ -65,9 +65,9 @@ def main():
     args = plotting_parser("Hydrogen shield")
     run = True
     if run:
-        s = laser("Laser1")
+        s = laser("Laser2")
     else:
-        filename = "Laser1"
+        filename = "Laser2"
         filename=f"data_analysis/laser-shield/{filename}/{filename}.hdf5"
         s = load_data(filename)
     plotting.plots(s, *args)
