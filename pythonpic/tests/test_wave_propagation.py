@@ -29,25 +29,46 @@ def plot_all(field_history, analytical_solution):
     plt.colorbar(CF2)
     plt.show()
 
+@pytest.fixture(scope="module", params=[lambda x: x.laser_wave, lambda x: x.laser_envelope, lambda x: x.laser_pulse])
+def shape(request):
+    return request.param
 
-@pytest.mark.parametrize(["filename", "bc"],
-                         [("sine", BoundaryCondition.non_periodic_bc(BoundaryCondition.Laser(1, 10, 3).laser_wave)),
-                          ("envelope",
-                           BoundaryCondition.non_periodic_bc(BoundaryCondition.Laser(1, 10, 3).laser_envelope)),
-                          ("laser", BoundaryCondition.non_periodic_bc(BoundaryCondition.Laser(1, 10, 3).laser_pulse)),
-                          ])
-def test_wave_propagation(filename, bc):
-    run = wave_propagation(filename, bc)
-    assert run.grid.grid_energy_history.mean() > 0, plots(run, *on_failure)
+@pytest.fixture(scope="module", params=[1, 10, 100, 1e9, 1e23])
+def intensity(request):
+    return request.param
+
+@pytest.fixture(scope="module", params=[1, 2, 10, 0.1])
+def wavelength(request):
+    return request.param
+
+@pytest.fixture(scope="module", params=range(1, 6, 2))
+def power(request):
+    return request.param
+
+@pytest.fixture(scope="module")
+def wave_propagation_helper(shape, intensity, wavelength, power):
+    laser = BoundaryCondition.Laser(intensity, wavelength, 10, power)
+    bc = BoundaryCondition.non_periodic_bc(shape(laser))
+    filename = "wave_propagation_test"
+    return wave_propagation(filename, bc, save_data=False), laser
 
 
-@pytest.mark.parametrize(["filename", "bc"],
-                         [("sine", BoundaryCondition.non_periodic_bc(BoundaryCondition.Laser(1, 10, 3).laser_wave)),
-                          ("envelope",
-                           BoundaryCondition.non_periodic_bc(BoundaryCondition.Laser(1, 10, 3).laser_envelope)),
-                          ("laser", BoundaryCondition.non_periodic_bc(BoundaryCondition.Laser(1, 10, 3).laser_pulse)),
-                          ])
-def test_polarization_orthogonality(filename, bc):
-    run = wave_propagation(filename, bc)
+def test_amplitude(wave_propagation_helper):
+    run, laser = wave_propagation_helper
+    amplitude = laser.laser_amplitude
+    max_efield = run.grid.electric_field_history.max()
+    assert np.isclose(amplitude, max_efield), amplitude/max_efield
+
+def test_wave_propagation(wave_propagation_helper):
+    run, laser = wave_propagation_helper
+    mean_energy = run.grid.grid_energy_history.mean()
+    assert mean_energy, plots(run, *on_failure)
+
+
+def test_polarization_orthogonality(wave_propagation_helper):
+    run, laser = wave_propagation_helper
     angles = ((run.grid.electric_field_history[:, :, 1:] * run.grid.magnetic_field_history).sum(axis=(1, 2)))
     assert np.isclose(angles, 0).all(), "Polarization is not orthogonal!"
+
+
+

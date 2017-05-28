@@ -232,7 +232,7 @@ class IterationCounter:
                                verticalalignment='center', transform=ax.transAxes)
 
     def animation_init(self):
-        self.update(0)
+        self.counter.set_text("Iteration: \nTime: ")
 
     def update(self, i):
         self.counter.set_text(f"Iteration: {i}/{self.S.NT}\nTime: {i*self.S.dt:.3g}/{self.S.NT*self.S.dt:.3g}")
@@ -431,6 +431,7 @@ def animation(S, save: bool = False, alpha=1, frame_to_draw="animation"):
                *phase_plot.return_animated(),
                *iteration.return_animated()]  # TODO: optimize this
 
+
     def animate(i):
         """draws the i-th frame of the simulation"""
         for plot in plots:
@@ -438,6 +439,7 @@ def animation(S, save: bool = False, alpha=1, frame_to_draw="animation"):
         return results
 
     if frame_to_draw == "animation":
+        print("Drawing full animation.")
         def init():
             """initializes animation window for faster drawing"""
             for plot in plots:
@@ -446,7 +448,7 @@ def animation(S, save: bool = False, alpha=1, frame_to_draw="animation"):
 
         frames = np.arange(0, S.NT,
                            helper_functions.calculate_particle_iter_step(S.NT),
-                           dtype=int),
+                           dtype=int)
 
         # noinspection PyTypeChecker
         animation_object = anim.FuncAnimation(fig, animate, interval=100,
@@ -460,6 +462,7 @@ def animation(S, save: bool = False, alpha=1, frame_to_draw="animation"):
             print(f"Saved animation to {videofile_name}")
         return animation_object
     elif isinstance(frame_to_draw, list):
+        print("Drawing frames." + frame_to_draw)
         for i in frame_to_draw:
             animate(i)
             helper_functions.make_sure_path_exists(S.filename)
@@ -468,6 +471,7 @@ def animation(S, save: bool = False, alpha=1, frame_to_draw="animation"):
             fig.savefig(file_name)
         return fig
     elif isinstance(frame_to_draw, int):
+        print("Drawing iteration", int)
         animate(iteration)
         if save:
             helper_functions.make_sure_path_exists(S.filename)

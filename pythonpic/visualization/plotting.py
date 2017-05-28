@@ -12,10 +12,10 @@ directory = "data_analysis/"
 
 
 def plots(file,
-          show_static: bool = True,
+          show_static: bool = False,
           save_static: bool = False,
-          show_animation: bool = True,
-          save_animation: bool = True,
+          show_animation: bool = False,
+          save_animation: bool = False,
           alpha: float = 1):
     """
     Wrapper to run visual analysis on saved hdf5 file. Displays static plots and animations.

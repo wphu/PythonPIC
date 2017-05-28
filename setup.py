@@ -14,5 +14,5 @@ setup(
     author='Dominik Stańczak',
     author_email='stanczakdominik@gmail.com',
     description='A particle-in-cell code written in Python optimized for speed as well as readability.',
-    python_requires='>=3.6', install_requires=['matplotlib', 'numpy', 'scipy', 'h5py', 'pytest', ]
+    python_requires='>=3.6', install_requires=['matplotlib', 'numpy', 'scipy', 'h5py', 'pytest']
     )

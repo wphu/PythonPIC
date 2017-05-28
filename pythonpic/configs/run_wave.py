@@ -10,21 +10,17 @@ from pythonpic.visualization import plotting
 
 def wave_propagation(filename,
                      bc = BoundaryCondition.non_periodic_bc(
-                                               BoundaryCondition.Laser(1, 10, 3).laser_pulse),
+                                               BoundaryCondition.Laser(1, 1, 10, 3).laser_pulse),
                      save_data: bool = True,
                      ):
     """Implements wave propagation"""
     filename = f"data_analysis/EMWAVE/{filename}/{filename}.hdf5"
     T = 50
-    print(f"T is {T}")
     NG = 60
     L = 2 * np.pi
     epsilon_0 = 1
     c = 1
     grid = Grid(T=T, L=L, NG=NG, epsilon_0=epsilon_0, bc=bc, solver=FieldSolver.BunemanSolver)
-    alpha = c * grid.dt / grid.dx
-    print(f"alpha is {alpha}")
-    assert alpha <= 1
     description = \
         f"""Electrostatic wave driven by boundary condition
     """
@@ -39,11 +35,11 @@ def main():
     args = plotting_parser("Weak beam instability")
     for filename, boundary_function in zip(["Wave", "Envelope", "Laser"],
                                            [BoundaryCondition.non_periodic_bc(
-                                               BoundaryCondition.Laser(1, 10, 3).laser_wave),
+                                               BoundaryCondition.Laser(1, 1, 10, 3).laser_wave),
                                             BoundaryCondition.non_periodic_bc(
-                                                BoundaryCondition.Laser(1, 10, 3).laser_envelope),
+                                                BoundaryCondition.Laser(1, 1, 10, 3).laser_envelope),
                                             BoundaryCondition.non_periodic_bc(
-                                                BoundaryCondition.Laser(1, 10, 3).laser_pulse),
+                                                BoundaryCondition.Laser(1, 1, 10, 3).laser_pulse),
                                             ]):
         s = wave_propagation(filename, boundary_function)
         plotting.plots(s, *args, alpha=0.5)

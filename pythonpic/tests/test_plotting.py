@@ -9,6 +9,7 @@ from ..visualization.plotting import plots
 @pytest.fixture(scope="module")
 def helper_short_simulation():
     if "DISPLAY" not in os.environ.keys():
+        print("Not running display test right now.")
         return False
     else:
         run_name = "visualization_test"
@@ -20,16 +21,22 @@ def test_static_plots(helper_short_simulation):
     S = helper_short_simulation
     if S:
         try:
-            plots(S, False, True, False, False)
+            plots(S, save_static=True)
         except:
             assert False, "Failure on saving static plot"
+
+def test_static_plots_frames(helper_short_simulation):
+
+    S = helper_short_simulation
+    if S:
+        assert True # TODO: finish test
 
 
 def test_animation(helper_short_simulation):
     S = helper_short_simulation
     if S:
         try:
-            plots(S, False, False, False, True)
+            plots(S, save_animation=True)
         except:
             assert False, "Failure on saving animation"
 
