@@ -23,28 +23,42 @@ def cold_plasma_oscillations(filename,
                              save_data: bool = True,
                              **kwargs):
     """
-    Runs cold plasma oscilltaions
+    Runs cold plasma oscillations. Essentially a standing wave.
 
-    :param qmratio: the ratio between charge and mass for electrons 
-    :type qmratio: float 
-    :param plasma_frequency: the plasma frequency $\omega_{pe}$ for electrons
-    :type plasma_frequency: float
-    :param str filename: hdf5 file name
-    :param float dt: timestep
-    :param int NT: number of timesteps to run
-    :param int N_electrons: number of electron superparticles
-    :param int NG: number of cells on grid
-    :param float L: grid size
-    :param float epsilon_0: the physical constant
-    :param float c: the speed of light
-    :param float push_amplitude: amplitude of initial position displacement
-    :param int push_mode: mode of initially excited mode
-    :param bool save_data: 
+    Parameters
+    ----------
+    filename : str
+    plasma_frequency : float
+        the plasma frequency $\omega_{pe}$ for electrons
+    qmratio : float
+        The ratio between electron charge and mass. Default is 1.
+    T : float
+        Duration of the simulation.
+    NG : int
+        number of grid points
+    N_electrons : int
+        number of macroparticles
+    L : float
+        length of the simulation region
+    epsilon_0 : float
+        the physical constant
+    c : float
+        speed of light
+    push_amplitude : float
+        amplitude of initial perturbation
+    push_mode : int, float
+        wavenumber of initial perturbation
+    save_data : bool
+    kwargs :
+
+    Returns
+    -------
+    Simulation
+        a `Simulation` object with saved data.
     """
-
     filename = f"data_analysis/CO/{filename}/{filename}.hdf5"
     particle_mass = 1
-    particle_charge = particle_mass * qmratio
+    particle_charge = particle_mass * qmratio # REFACTOR: use physical units here
     scaling = abs(particle_mass * plasma_frequency ** 2 * L / float(
         particle_charge * N_electrons * epsilon_0))
 

@@ -11,6 +11,8 @@ import numpy as np
 
 show_on_fail = True
 
+def report_progress(i, NT):
+    print(f"{i}/{NT} iterations ({i/NT*100:.0f}%) done!")
 
 def l2_norm(reference: np.ndarray, test: np.ndarray) -> float:
     """

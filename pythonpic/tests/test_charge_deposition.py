@@ -9,7 +9,7 @@ def test_single_particle(plotting=False):
     NG = 8
     L = 1
     x, dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
-    # TODO: gridify
+    # REFACTOR: gridify
 
     q = 1
 
@@ -40,7 +40,7 @@ def test_single_particle(plotting=False):
 def test_constant_density(plotting=False):
     NG = 8
     L = 1
-    # TODO: gridify
+    # REFACTOR: gridify
     x, dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
 
     q = 1
@@ -70,7 +70,7 @@ def test_boundaries(plotting=False):
     NG = 8
     L = 1
     x, dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
-    # TODO: gridify
+    # REFACTOR: gridify
 
     q = 1
 

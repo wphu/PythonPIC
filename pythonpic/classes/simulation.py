@@ -9,7 +9,7 @@ import numpy as np
 from .grid import Grid
 from .species import Species
 from ..algorithms import BoundaryCondition
-from ..algorithms.helper_functions import git_version, Constants
+from ..algorithms.helper_functions import git_version, Constants, report_progress
 
 
 class Simulation:
@@ -26,12 +26,14 @@ class Simulation:
     filename : str
     title : str
     """
-    def __init__(self, grid: Grid, list_species = [], run_date=time.ctime(), git_ver=git_version(),
+    def __init__(self, grid: Grid, list_species=None, run_date=time.ctime(), git_ver=git_version(),
                  filename=time.strftime("%Y-%m-%d_%H-%M-%S.hdf5"), boundary_condition=BoundaryCondition.PeriodicBC, title=""):
         self.NT = grid.NT
         self.dt = grid.dt
         self.t = np.arange(self.NT) * self.dt
         self.grid = grid
+        if list_species is None:
+            list_species = []
         self.list_species = list_species
         self.field_energy = np.zeros(self.NT)
         self.total_energy = np.zeros(self.NT)
@@ -69,7 +71,7 @@ class Simulation:
             2. 2. pushes particles forward
 
         """
-        self.grid.save_field_values(i)  # TODO: is this the right place, or after loop?
+        self.grid.save_field_values(i)  # CHECK: is this the right place, or after loop?
 
         total_kinetic_energy = 0  # accumulate over species
         for species in self.list_species:
@@ -98,7 +100,7 @@ class Simulation:
         start_time = time.time()
         for i in range(self.NT):
             if verbose and i % (self.NT // 100) == 0:
-                print(f"{i}/{self.NT} iterations ({i/self.NT*100:.0f}%) done!")
+                report_progress(i, self.NT)
             self.iteration(i)
         for species in self.list_species:
             species.save_particle_values(self.NT)
@@ -159,7 +161,7 @@ def load_data(filename: str) -> Simulation:
         grid_data = f['grid']
         NG = grid_data.attrs['NGrid']
         grid = Grid(L=NT, NG=NG, T=T)
-        grid.load_from_h5py(grid_data)
+        grid.load_from_h5py(grid_data) # TODO: clean up along PostProcessed
 
         all_species = []
         for species_group_name in f['species']:

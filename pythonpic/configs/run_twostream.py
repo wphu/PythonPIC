@@ -24,11 +24,11 @@ def two_stream_instability(filename,
                            NG=32,
                            N_electrons=128,
                            L=2 * np.pi,
-                           epsilon_0=1,
+                           epsilon_0=1.0,
                            push_amplitude=0.001,
                            push_mode=1,
                            v0=0.05,
-                           vrandom=0,
+                           vrandom=0.0,
                            save_data: bool = True,
                            species_2_sign=1):
     """Implements two stream instability from Birdsall and Langdon"""

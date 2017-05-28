@@ -66,7 +66,7 @@ class Plot:
 class FrequencyPlot(Plot):
     """
     Plots the spatial Fourier transform of field energy versus wave number.
-    """  # TODO move the fourier analysis to PostProcessedGrid; describe the math here as well as there
+    """  # REFACTOR move the fourier analysis to PostProcessedGrid; describe the math here as well as there
 
     def __init__(self, S, ax):
         super().__init__(S, ax)
@@ -215,7 +215,7 @@ def calculate_histogram_data(arr, bins):
     bin_height : ndarray
         Heights of histogram bars (the y array for plotting)
     """
-    bin_height, bin_edge = np.histogram(arr, bins=bins)  # TODO: this could be optimized
+    bin_height, bin_edge = np.histogram(arr, bins=bins)  # OPTIMIZE
     bin_center = (bin_edge[:-1] + bin_edge[1:]) * 0.5
     return bin_center, bin_height
 
@@ -266,7 +266,7 @@ class FieldPlot(Plot):
     def update(self, i):
         self.plots[0].set_data(self.S.grid.x, self.S.grid.electric_field_history[i, :, self.j])
         self.plots[1].set_data(self.S.grid.x,
-                               self.S.grid.magnetic_field_history[i, :, self.j - 1])  # TODO remove -1 via ProcGrid
+                               self.S.grid.magnetic_field_history[i, :, self.j - 1])  # TODO remove -1 via enlarging last dimension of MagFieldHistory
 
 
 class CurrentPlot(Plot):
@@ -412,7 +412,7 @@ def animation(S, save: bool = False, alpha=1, frame_to_draw="animation"):
 
     fig.suptitle(str(S), fontsize=12)
     fig.subplots_adjust(top=0.81, bottom=0.08, left=0.15, right=0.95,
-                        wspace=.25, hspace=0.6)  # TODO: remove particle windows if there are no particles
+                        wspace=.25, hspace=0.6)  # REFACTOR: remove particle windows if there are no particles
 
     phase_plot = PhasePlot(S, phase_axes, "x", "v_x", alpha)
     velocity_histogram = Histogram(S, distribution_axes, "v_x")
@@ -429,11 +429,13 @@ def animation(S, save: bool = False, alpha=1, frame_to_draw="animation"):
                *freq_plot.return_animated(),
                *velocity_histogram.return_animated(),
                *phase_plot.return_animated(),
-               *iteration.return_animated()]  # TODO: optimize this
+               *iteration.return_animated()]  # REFACTOR: use itertools
 
 
-    def animate(i):
+    def animate(i, verbose=False):
         """draws the i-th frame of the simulation"""
+        if verbose:
+            helper_functions.report_progress(i, S.NG)
         for plot in plots:
             plot.update(i)
         return results
@@ -453,7 +455,8 @@ def animation(S, save: bool = False, alpha=1, frame_to_draw="animation"):
         # noinspection PyTypeChecker
         animation_object = anim.FuncAnimation(fig, animate, interval=100,
                                               frames=frames,
-                                              blit=True, init_func=init)
+                                              blit=True, init_func=init,
+                                              fargs=True)
         if save:
             helper_functions.make_sure_path_exists(S.filename)
             videofile_name = S.filename.replace(".hdf5", ".mp4")

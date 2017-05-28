@@ -16,7 +16,7 @@ def boris_push(species, E, dt, B):
     t = -B * species.eff_q / species.eff_m * dt * 0.5
     s = 2 * t / (1 + t * t)
 
-    vprime = vminus + np.cross(vminus, t)  # TODO: axis?
+    vprime = vminus + np.cross(vminus, t)
     vplus = vminus + np.cross(vprime, s)
     v_new = vplus + species.eff_q * E / species.eff_m * dt * 0.5
 
@@ -80,7 +80,8 @@ def rela_boris_push(species, E: np.ndarray, dt: float, B: np.ndarray,
     """
     relativistic Boris pusher
     """
-    u = species.v * gamma_from_v(species.v, species.c)
+    init_gamma = gamma_from_v(species.v, species.c)
+    u = species.v * init_gamma
     half_force = species.eff_q * E / species.eff_m * dt * 0.5  # eq. 21 LPIC # array of shape (N_particles, 3)
     # add first half of electric force
     uminus = u + half_force
@@ -93,10 +94,10 @@ def rela_boris_push(species, E: np.ndarray, dt: float, B: np.ndarray,
     # add second half of electric force
     u_new = uplus + half_force
 
-    # TODO: check correctness of relativistic kinetic energy calculation
-    #   import ipdb; ipdb.set_trace()
+    # CHECK: check correctness of relativistic kinetic energy calculation (needs to be at half timestep!)
     final_gamma = gamma_from_u(u_new, species.c)
     v_new = u_new / final_gamma
+    # TODO mean_gamma = (init_gamma + final_gamma)*0.5
     energy = ((final_gamma - 1) * species.eff_m * species.c ** 2).sum()
     x_new = species.x + v_new[:, 0] * dt
     return x_new, v_new, energy

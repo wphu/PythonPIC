@@ -14,11 +14,11 @@ def static_plot_window(S, N, M):
     axes = [[fig.add_subplot(gs[n, m]) for m in range(M)] for n in range(N)]
     fig.suptitle(str(S), fontsize=12)
 
-    # REFACTOR: separate window creation and axis layout into separate functions
     gs.update(left=0.075, right=0.95, bottom=0.075, top=0.8, hspace=0.45, wspace=0.025)  # , wspace=0.05, hspace=0.05
     return fig, axes
 
 
+# REFACTOR: turn these into classes like in animation
 def ESE_time_plots(S, axis):
     data = S.grid.energy_per_mode_history
 
@@ -79,8 +79,6 @@ def energy_time_plots(S, axis):
               alpha=0.5)
     # axis.plot(np.arange(S.NT) * S.dt, S.grid.epsilon_0 * (S.grid.electric_field_history ** 2).sum(axis=1) * 0.5,
     #                  ".-", label="Field energy (direct solve)", alpha=0.5)
-    # TODO: implement direct field energy solver outside this place
-    # TODO: why is direct field energy solver shifted by a half? is this due to the staggered Leapfrog\Boris solver?
     axis.plot(np.arange(S.NT) * S.dt, S.total_energy, ".-", label="Total energy")
     axis.grid()
     axis.set_xlabel(r"Time $t$")
@@ -143,7 +141,7 @@ def velocity_time_plots(S, axis):
     axis.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
 
 
-def static_plots(S, filename=False):
+def static_plots(S, filename=None):
     if filename and not os.path.exists(os.path.dirname(filename)):
         os.makedirs(os.path.dirname(filename))
     time_fig, axes = static_plot_window(S, 3, 2)

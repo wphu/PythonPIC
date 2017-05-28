@@ -66,9 +66,9 @@ class TimelessGrid(Frame):
         self.NG = NG
 
         self.solver = solver
-        self.bc_function = bc.field_bc
+        self.bc_function = bc.field_bc # REFACTOR: refactor BoundaryCondition
 
-        # specific to Poisson solver but used also elsewhere, for plots # TODO: clear this part up
+        # specific to Poisson solver but used also elsewhere, for plots # CHECK how to move this part away
         self.k = 2 * np.pi * fft.fftfreq(self.NG, self.dx)
         self.k[0] = 0.0001
         self.k_plot = self.k[:int(self.NG / 2)]
@@ -174,7 +174,7 @@ class Grid(TimelessGrid):
         self.magnetic_field_history = np.zeros((self.NT, self.NG, 2))
 
         self.energy_per_mode_history = np.zeros(
-            (self.NT, int(self.NG / 2)))  # OPTIMIZE: get this from efield_history?
+            (self.NT, int(self.NG / 2)))  # OPTIMIZE: get this from efield_history
         self.grid_energy_history = np.zeros(self.NT)  # OPTIMIZE: get this from efield_history
 
 
@@ -234,7 +234,6 @@ class PostprocessedGrid(Grid):
         self.NT = grid_data['rho'].shape[0]
         # TODO: call super()
 
-        # OPTIMIZE: check whether these might not be able to be loaded partially for animation...?
         self.x = grid_data['x'][...]
         self.dx = self.x[1] - self.x[0]
         self.x_current = self.x + self.dx / 2

@@ -27,13 +27,12 @@ def PoissonSolver(rho, k, NG, epsilon_0=1, neutralize=True):
     # DOCUMENTATION: finish this description
     """
 
-    rho_F = fft.fft(rho)
+    rho_F = fft.fft(rho) # OPTIMIZE check if it's possible to use rfft here
     if neutralize:
         rho_F[0] = 0
     field_F = rho_F / (1j * k * epsilon_0)
     potential_F = field_F / (-1j * k * epsilon_0)
     field = fft.ifft(field_F).real
-    # TODO: check for differences with finite difference field gotten from potential
     energy_presum = (rho_F * potential_F.conjugate()).real[:int(NG / 2)] / 2
     return field, energy_presum
 
@@ -46,9 +45,9 @@ def BunemanWaveSolver(electric_field, magnetic_field, current_x, current_yz, dt,
     Gminus = 0.5 * (electric_field[:, 2] - c * magnetic_field[:, 1])
 
     Fplus[1:] = Fplus[:-1] - 0.5 * dt * (current_yz[2:-1, 0]) / epsilon_0
-    Fminus[:-1] = Fminus[1:] - 0.5 * dt * (current_yz[1:-2, 0]) / epsilon_0  # TODO: verify the index on current here
+    Fminus[:-1] = Fminus[1:] - 0.5 * dt * (current_yz[1:-2, 0]) / epsilon_0
     Gplus[1:] = Gplus[:-1] - 0.5 * dt * (current_yz[2:-1, 1]) / epsilon_0
-    Gminus[:-1] = Gminus[1:] - 0.5 * dt * (current_yz[1:-2, 1]) / epsilon_0  # TODO: verify the index on current here
+    Gminus[:-1] = Gminus[1:] - 0.5 * dt * (current_yz[1:-2, 1]) / epsilon_0
 
     new_electric_field = np.zeros_like(electric_field)
     new_magnetic_field = np.zeros_like(magnetic_field)
@@ -58,7 +57,7 @@ def BunemanWaveSolver(electric_field, magnetic_field, current_x, current_yz, dt,
     new_magnetic_field[:, 1] = (Gplus - Gminus) / c
     new_magnetic_field[:, 2] = (Fplus - Fminus) / c
 
-    new_electric_field[:, 0] = electric_field[:, 0] - dt / epsilon_0 * current_x[:-1]  # TODO: verify indices here
+    new_electric_field[:, 0] = electric_field[:, 0] - dt / epsilon_0 * current_x[:-1]
     electric_energy = 0.5 * epsilon_0 * dx * (new_electric_field ** 2).sum()
     magnetic_energy = 0.5 * dx * (new_magnetic_field ** 2).sum()
     return new_electric_field, new_magnetic_field, electric_energy + magnetic_energy

@@ -77,14 +77,21 @@ class Species:
         return 0.5 * self.m * np.sum(self.v**2) # TODO: make this relativistic
 
     def init_push(self, electric_field_function, magnetic_field_function=lambda x: np.zeros((x.size, 3))):
-        r"""
-        Initializes particles for Leapfrog pushing.
-        Same as `leapfrog_push`, except
-        a) doesn't move particles in space,
-        b) uses -dt/2
+        """
+        Push the particles using the previously set pushing algorithm.
+        This is the same thing as seen in `push`, except that it doesn't update positions.
+        That is necessary for energy conservation purposes of Boris and Leapfrog pushers.
 
-        :param electric_field_function: E(x), interpolated from grid
-        :return float energy: (N,) size array of particle kinetic energies calculated at half time step
+        Parameters
+        ----------
+        electric_field_function : ndarray
+        magnetic_field_function : ndarray
+            Arrays of interpolated field values. Shape should be (N_particles, 3).
+
+        Returns
+        -------
+
+        The kinetic energy of the particles, calculated at half timestep.
         """
 
         E = electric_field_function(self.x[self.alive])
@@ -93,14 +100,21 @@ class Species:
         return self.energy
 
     def push(self, electric_field_function, magnetic_field_function=lambda x: np.zeros((x.size, 3))):
-        r"""
-        Leapfrog pusher for particles.
-
-        :param electric_field_function: E(x), interpolated from grid
-        :param float dt: original time step
-        :return float energy: (N,) size array of particle kinetic energies calculated at half time step
         """
-        # TODO: this should maybe take grid instead of functions
+        Push the particles using the previously set pushing algorithm.
+
+        Parameters
+        ----------
+        electric_field_function : ndarray
+        magnetic_field_function : ndarray
+            Arrays of interpolated field values. Shape should be (N_particles, 3).
+
+        Returns
+        -------
+
+        The kinetic energy of the particles, calculated at half timestep.
+        """
+        # REFACTOR: this should take grid instead of functions
 
         E = electric_field_function(self.x[self.alive])
         B = magnetic_field_function(self.x[self.alive])

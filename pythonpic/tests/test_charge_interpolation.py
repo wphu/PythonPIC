@@ -53,8 +53,6 @@ def test_periodic(field, plotting=False):
 
     N = 128
     x_particles = np.linspace(0, L, N, endpoint=False)
-    # noinspection PyUnusedLocal
-    particle_charge = 1  # TEST: vary this
 
     electric_field = field(x)
     interpolated = interpolateField(x_particles, electric_field, x, dx)

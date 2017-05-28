@@ -25,13 +25,13 @@ main_plasma_length = 7.73e-7 + preplasma_length # meters
 maximum_electron_concentration = 5 * critical_density(laser_wavelength) # m^-3
 
 # assert np.isclose(maximum_electron_concentration, 5.24e27), maximum_electron_concentration # m^-3
-maximum_electron_concentration = 5.24e27 # TODO: this is a crutch
+maximum_electron_concentration = 5.24e27 # CHECK: this is a crutch
 
 npic = 1.048e25 # m^-3
 
 n_macroparticles = 75000
 
-scaling = npic # TODO: what should be the proper value here?
+scaling = npic # CHECK what should be the proper value here?
 
 def laser(filename):
     filename=f"data_analysis/laser-shield/{filename}/{filename}.hdf5"

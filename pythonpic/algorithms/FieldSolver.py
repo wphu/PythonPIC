@@ -4,6 +4,7 @@ import functools
 from pythonpic.algorithms import grid_solvers
 
 
+
 class Solver:
     def __init__(self, solve_algorithm, initialiation_algorithm):
         self.solve = solve_algorithm
