@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
-from ..algorithms.helper_functions import l2_norm
 from ..algorithms.FieldSolver import BunemanSolver
 from ..classes import TimelessGrid, Grid, Simulation
 from ..visualization.animation import CurrentPlot, FieldPlot
@@ -40,8 +39,7 @@ def test_PoissonSolver(_NG, _L):
         ax0.plot(g.x, charge_density)
         ax0.set_title("Charge density")
         ax1.set_title("Field")
-        ax1.plot(g.x, g.electric_field[1:-1], "r-", label="Fourier {:4.2f}".format(
-            l2_norm(field, g.electric_field[1:-1])))
+        ax1.plot(g.x, g.electric_field[1:-1], "r-", label="Fourier")
         ax1.plot(g.x, field, "g-", label="Analytic")
         for ax in axes:
             ax.grid()

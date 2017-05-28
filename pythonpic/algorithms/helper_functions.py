@@ -11,43 +11,118 @@ import numpy as np
 
 show_on_fail = True
 
-def report_progress(i, NT):
+def report_progress(i: int, NT: int):
+    """
+    Prints out a message on how many iterations out of how many total have been completed.
+
+    Parameters
+    ----------
+    i : int
+        Current iteration number
+    NT : int
+        Total iteration number
+
+    Examples
+    ----------
+    >>> report_progress(0, 128)
+    0/128 iterations (0%) done!
+    >>> report_progress(33, 200)
+    33/200 iterations (16%) done!
+    >>> report_progress(200, 200)
+    200/200 iterations(100%) done!
+
+    """
     print(f"{i}/{NT} iterations ({i/NT*100:.0f}%) done!")
-
-def l2_norm(reference: np.ndarray, test: np.ndarray) -> float:
-    """
-    Calculates relative L-2 norm for accuracy testing
-
-    :param np.ndarray reference: numpy array of values you assume to be correct
-    :param np.ndarray test: numpy array of values you're attempting to test
-    :return float: relative L-2 norm
-    """
-    # noinspection PyTypeChecker
-    return np.sum((reference - test) ** 2) / np.sum(reference ** 2)
 
 
 def git_version() -> str:
     """
-    :return: a short version of the git version hash
+    Returns the current git version identifier.
+    -------
+    str
+        The current seven first characters of the current git version hash.
     """
     return subprocess.check_output(['git', 'describe', '--always']).decode()[:-1]
 
 
-def calculate_particle_iter_step(NT):
-    result = int(np.log2(NT))
-    return result if result >1 else 1
+def calculate_particle_iter_step(NT, f=np.log2):
+    """
+    Calculate number of iterations between saving particle data.
+
+    The function is meant to be easy to change.
+    It should, however, rise slower than :math:`f(x) = x`.
+    Good candidates are logarithms and roots.
+
+    If the result is lower than 1, it returns 1.
+
+    Parameters
+    ----------
+    NT : int
+        total number of iterations
+    f : function
+        A function of a single variable returning a single variable
+
+    Examples
+    ----------
+    >>> calculate_particle_iter_step(128, np.log2)
+    7
+    >>> calculate_particle_iter_step(128, np.sqrt)
+    11
+    >>> calculate_particle_iter_step(3, np.log10)
+    1
+
+    Returns
+    -------
+    int
+        iteration step capped
+    """
+    result = int(f(NT))
+    return result if result > 1 else 1
 
 
-def calculate_particle_snapshots(NT):
-    return int(NT / calculate_particle_iter_step(NT)) + 1
+def calculate_particle_snapshots(NT, f = np.log2):
+    """
+    Calculates number of particle snapshots via `calculate_particle_iter_step`. See docs of that.
+
+    Parameters
+    ----------
+    NT : int
+        total number of iterations
+    f : function
+        A slowly rising function of a single variable returning a single variable
+
+    Examples
+    ----------
+    >>> calculate_particle_snapshots(128, np.log2)
+    19
+    >>> calculate_particle_snapshots(128, np.sqrt)
+    12
+    >>> calculate_particle_snapshots(3, np.log10)
+    4
+
+    Returns
+    -------
+    int
+        number of iteration steps to be saved.
+
+    """
+    return int(NT / calculate_particle_iter_step(NT, f)) + 1 # CHECK if result shouldn't be as NT, so remove + 1 here
 
 
 def plasma_parameter(N_particles, N_grid, dx):
+    """
+    Estimates the plasma parameter as the number of particles per step.
+
+    Parameters
+    ----------
+    N_particles : int, float
+        Number of physical particles
+    N_grid : int
+        Number of grid cells
+    dx : float
+        grid step size
+    """
     return (N_particles / N_grid) * dx
-
-
-def cold_plasma_frequency(electron_density, electron_mass=1, epsilon_0=1, electric_charge=1):
-    return (electron_density * electric_charge ** 2 / electron_mass / epsilon_0) ** 0.5
 
 
 def check_plasma_parameter(N_particles, N_grid, dx):
@@ -57,6 +132,8 @@ def check_plasma_parameter(N_particles, N_grid, dx):
     else:
         print(f"Plasma parameter is {pp:.3f}, which seems okay.")
 
+def cold_plasma_frequency(electron_density, electron_mass=1, epsilon_0=1, electric_charge=1):
+    return (electron_density * electric_charge ** 2 / electron_mass / epsilon_0) ** 0.5
 
 def check_pusher_stability(plasma_frequency, dt):
     if plasma_frequency * dt < 2:
