@@ -94,6 +94,18 @@ def test_single_particle_transversal_deposition(_position, _velocity):
     assert np.isclose(total_sum_currents, 0), (plot_transversal(), f"Currents do not zero out at {total_sum_currents}")
 
 
+def test_single_particle_above_lightspeed():
+    g = TimelessGrid(L=7, NG=7)
+    s = Particle(g, 1*g.dx, g.c*4)
+    dt = g.dx / s.c
+    g.current_density_x[...] = 0
+    g.current_density_yz[...] = 0
+    with pytest.raises(Exception):
+        longitudinal_current_deposition(g.current_density_x, s.v[:, 0], s.x, g.dx, dt, s.q)
+    with pytest.raises(Exception):
+        transversal_current_deposition(g.current_density_yz, s.v, s.x, g.dx, dt, s.q)
+
+
 def test_two_particles_deposition(_position, _velocity, _truefalse, _truefalse2):
     NG = 7
     L = NG

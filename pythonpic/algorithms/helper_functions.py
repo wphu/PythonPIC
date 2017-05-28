@@ -29,7 +29,7 @@ def report_progress(i: int, NT: int):
     >>> report_progress(33, 200)
     33/200 iterations (16%) done!
     >>> report_progress(200, 200)
-    200/200 iterations(100%) done!
+    200/200 iterations (100%) done!
 
     """
     print(f"{i}/{NT} iterations ({i/NT*100:.0f}%) done!")
