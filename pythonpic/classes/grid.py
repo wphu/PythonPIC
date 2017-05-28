@@ -184,6 +184,7 @@ class Grid(TimelessGrid):
         bc_value = self.bc_function(i * self.dt)
         if bc_value:
             self.electric_field[0, 1] = bc_value
+            self.magnetic_field[0, 2] = bc_value / self.c
 
 
     def save_field_values(self, i):

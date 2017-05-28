@@ -37,7 +37,7 @@ def shape(request):
 def intensity(request):
     return request.param
 
-@pytest.fixture(scope="module", params=[1, 2, 10, 0.1])
+@pytest.fixture(scope="module", params=[1, 2, 3, 0.1, 0.5])
 def wavelength(request):
     return request.param
 
@@ -49,15 +49,16 @@ def power(request):
 def wave_propagation_helper(shape, intensity, wavelength, power):
     laser = BoundaryCondition.Laser(intensity, wavelength, 10, power)
     bc = BoundaryCondition.non_periodic_bc(shape(laser))
-    filename = "wave_propagation_test"
+    filename = f"wave_propagation_test_I{intensity}L{wavelength}P{power}"
     return wave_propagation(filename, bc, save_data=False), laser
 
 
 def test_amplitude(wave_propagation_helper):
     run, laser = wave_propagation_helper
     amplitude = laser.laser_amplitude
-    max_efield = run.grid.electric_field_history.max()
-    assert np.isclose(amplitude, max_efield), amplitude/max_efield
+    max_efield = np.abs(run.grid.electric_field_history).max()
+    assert max_efield < amplitude, plots(run, *on_failure)
+    assert max_efield > amplitude*2**-0.5, plots(run, *on_failure)
 
 def test_wave_propagation(wave_propagation_helper):
     run, laser = wave_propagation_helper
