@@ -36,8 +36,8 @@ scaling = npic # CHECK what should be the proper value here?
 def laser(filename):
     filename=f"data_analysis/laser-shield/{filename}/{filename}.hdf5"
     dt = spatial_step / lightspeed
-    bc = BoundaryCondition.non_periodic_bc(BoundaryCondition.Laser(laser_intensity, laser_wavelength, dt*100, impulse_duration, c=lightspeed, epsilon_0=epsilon_zero).laser_pulse)
-    grid = Grid(T=total_time, L=length, NG=number_cells, c =lightspeed, epsilon_0 =epsilon_zero, bc=bc, periodic=False, solver=FieldSolver.BunemanSolver)
+    bc = BoundaryCondition.Laser(laser_intensity, laser_wavelength, total_time/2, impulse_duration, c=lightspeed, epsilon_0=epsilon_zero).laser_pulse
+    grid = Grid(T=total_time, L=length, NG=number_cells, c =lightspeed, epsilon_0 =epsilon_zero, bc=bc, periodic=False)
 
     electrons = Species(-electric_charge, electron_rest_mass, n_macroparticles, grid, "electrons", scaling)
     protons = Species(electric_charge, proton_mass, n_macroparticles, grid, "protons", scaling)

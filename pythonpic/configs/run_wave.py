@@ -9,8 +9,7 @@ from pythonpic.visualization import plotting
 
 
 def wave_propagation(filename,
-                     bc = BoundaryCondition.non_periodic_bc(
-                                               BoundaryCondition.Laser(1, 1, 10, 3).laser_pulse),
+                     bc = BoundaryCondition.Laser(1, 1, 10, 3).laser_pulse,
                      save_data: bool = True,
                      ):
     """Implements wave propagation"""
@@ -20,7 +19,7 @@ def wave_propagation(filename,
     L = 2 * np.pi
     epsilon_0 = 1
     c = 1
-    grid = Grid(T=T, L=L, NG=NG, epsilon_0=epsilon_0, bc=bc, solver=FieldSolver.BunemanSolver)
+    grid = Grid(T=T, L=L, NG=NG, epsilon_0=epsilon_0, bc=bc, solver=FieldSolver.BunemanSolver, periodic="false")
     description = \
         f"""Electrostatic wave driven by boundary condition
     """

@@ -4,7 +4,7 @@ import pytest
 
 from ..algorithms import density_profiles
 from ..classes import Species
-from ..classes import TimelessGrid
+from ..classes import Grid
 
 
 @pytest.fixture(params=np.linspace(0.01, 0.5, 3), scope='module')
@@ -26,7 +26,7 @@ def _profile(request):
 @pytest.fixture(scope='module')
 def test_density_helper(_fraction, _second_fraction, _profile, _N):
 
-    g = TimelessGrid(100, 100)
+    g = Grid(1, 100, 100)
     s = Species(1, 1, _N, g)
 
     moat_length = g.L * _fraction

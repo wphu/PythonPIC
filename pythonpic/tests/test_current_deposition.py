@@ -4,7 +4,7 @@ import pytest
 from matplotlib import pyplot as plt
 
 from ..algorithms.field_interpolation import longitudinal_current_deposition, transversal_current_deposition
-from ..classes import Particle, Species, TimelessGrid
+from ..classes import Particle, Species, Grid
 
 
 @pytest.fixture(params=np.arange(3, 4, 0.2))
@@ -24,9 +24,9 @@ def _truefalse(request):
 _truefalse2 = _truefalse
 
 def test_single_particle_longitudinal_deposition(_position, _velocity):
-    g = TimelessGrid(L=7, NG=7)
+    g = Grid(T = 1, L=7, NG=7)
     s = Particle(g, _position * g.dx, _velocity)
-    dt = g.dx / s.c
+    dt = g.dt
     g.current_density_x[...] = 0
     g.current_density_yz[...] = 0
     # current_deposition(g, s, dt)
@@ -55,7 +55,7 @@ def test_single_particle_longitudinal_deposition(_position, _velocity):
 
 
 def test_single_particle_transversal_deposition(_position, _velocity):
-    g = TimelessGrid(L=7, NG=7)
+    g = Grid(1,L=7, NG=7)
     s = Particle(g, _position * g.dx, _velocity, 1, -1)
     dt = g.dx / s.c
     new_positions = s.x + s.v[:, 0] * dt
@@ -95,7 +95,7 @@ def test_single_particle_transversal_deposition(_position, _velocity):
 
 
 def test_single_particle_above_lightspeed():
-    g = TimelessGrid(L=7, NG=7)
+    g = Grid(1,L=7, NG=7)
     s = Particle(g, 1*g.dx, g.c*4)
     dt = g.dx / s.c
     g.current_density_x[...] = 0
@@ -109,7 +109,7 @@ def test_single_particle_above_lightspeed():
 def test_two_particles_deposition(_position, _velocity, _truefalse, _truefalse2):
     NG = 7
     L = NG
-    g = TimelessGrid(L=L, NG=NG)
+    g = Grid(1,L=L, NG=NG)
     c = 1
     dt = g.dx / c
     positions = [_position * g.dx, (L - _position * g.dx) % L]
@@ -129,7 +129,7 @@ def test_two_particles_deposition(_position, _velocity, _truefalse, _truefalse2)
     collected_weights_x = g.current_density_x.sum(axis=0) / _velocity
     collected_weights_yz = g.current_density_yz.sum(axis=0) / np.array([1, -1], dtype=float)
 
-    g2 = TimelessGrid(L=L, NG=NG)
+    g2 = Grid(1,L=L, NG=NG)
     s = Species(1, 1, 2, g2)
     s.x[:] = positions
     s.v[:, 0] = _velocity
@@ -178,7 +178,7 @@ def test_two_particles_deposition(_position, _velocity, _truefalse, _truefalse2)
 def test_many_particles_deposition(N, _velocity):
     NG = 10
     L = NG
-    g = TimelessGrid(L=L, NG=NG)
+    g = Grid(1,L=L, NG=NG)
     s = Species(1.0 / N, 1, N, g)
     s.distribute_uniformly(L, 1e-6, 2 * g.dx, 2 * g.dx)
     s.v[:, 0] = _velocity
@@ -213,7 +213,7 @@ def test_many_particles_deposition(N, _velocity):
 def test_many_particles_periodic_deposition(N, _velocity):
     NG = 10
     L = NG
-    g = TimelessGrid(L=L, NG=NG, periodic=True)
+    g = Grid(1,L=L, NG=NG, periodic=True)
     s = Species(1.0 / N, 1, N, g)
     s.distribute_uniformly(L)
     s.v[:, 0] = _velocity

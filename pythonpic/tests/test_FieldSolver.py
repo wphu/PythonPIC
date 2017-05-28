@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from ..algorithms.FieldSolver import BunemanSolver
-from ..classes import TimelessGrid, Grid, Simulation
+from ..classes import Grid, Simulation
 from ..visualization.animation import CurrentPlot, FieldPlot
 
 @pytest.fixture(params=(64, 128, 256, 512))
@@ -26,12 +26,12 @@ def _T(request):
     return request.param
 
 def test_PoissonSolver(_NG, _L):
-    g = TimelessGrid(_L, _NG)
+    g = Grid(1, _L, _NG)
     charge_density = (2 * np.pi / _L) ** 2 * np.sin(2 * g.x * np.pi / _L)
     field = np.zeros((_NG + 2, 3))
     field[1:-1, 0] = -2 * np.pi / _L * np.cos(2 * np.pi * g.x / _L)
     g.charge_density[:-1] = charge_density
-    g.solve()
+    g.init_solver()
 
     def plots():
         fig, axes = plt.subplots(2)
@@ -66,7 +66,7 @@ def test_PoissonSolver(_NG, _L):
 #     g = Frame(L, NG, epsilon_0)
 #     # indices_in_denser_grid = np.searchsorted(x, g.x)
 #     g.charge_density = charge_density_anal(g.x)
-#     energy_fourier = g.solve_fourier()
+#     energy_fourier = g.init_solver_fourier()
 #     energy_direct = 0.5 * (g.electric_field**2).sum() * g.dx
 #     print("dx", dx, "fourier", energy_fourier, "direct", energy_direct, energy_fourier / energy_direct)
 #
@@ -111,11 +111,11 @@ def test_PoissonSolver_energy_sine(_NG, ):
 
     charge_density_anal = ((2 * np.pi) ** 2 * np.sin(x * 2 * np.pi))
 
-    g = TimelessGrid(_L, _NG, epsilon_0)
+    g = Grid(1,_L, _NG, epsilon_0)
     indices_in_denser_grid = np.searchsorted(x, g.x)
     g.charge_density[:-1] = charge_density_anal[indices_in_denser_grid]  # / resolution_increase
 
-    energy_fourier = g.solve()
+    energy_fourier = g.init_solver()
     energy_direct = g.direct_energy_calculation() * resolution_increase
     print("dx", dx, "fourier", energy_fourier, "direct", energy_direct, energy_fourier / energy_direct)
 
@@ -158,9 +158,9 @@ def test_PoissonSolver_sheets(_NG, _L, _test_charge_density=1):
     region2 = (_L * 5 / 8 < x) * (x < _L * 6 / 8)
     charge_density[region1] = _test_charge_density
     charge_density[region2] = -_test_charge_density
-    g = TimelessGrid(_L, _NG, epsilon_0)
+    g = Grid(1,_L, _NG, epsilon_0)
     g.charge_density[:-1] = charge_density
-    g.solve()
+    g.init_solver()
 
     def plots():
         fig, axes = plt.subplots(3)
@@ -198,9 +198,9 @@ def test_PoissonSolver_ramp(_NG, _L):
     a = 1
 
     # noinspection PyArgumentEqualDefault
-    g = TimelessGrid(_L, _NG, epsilon_0=1)
+    g = Grid(1,_L, _NG, epsilon_0=1)
     g.charge_density[:-1] = a * g.x
-    g.solve()
+    g.init_solver()
     field = a * (g.x - _L / 2) ** 2 / 2
 
     def plots():
@@ -222,7 +222,7 @@ def test_PoissonSolver_ramp(_NG, _L):
     assert np.isclose(polynomial_coefficients[0], a / 2, rtol=1e-2), (polynomial_coefficients[0], a / 2, plots())
 
 def test_BunemanSolver(_T, _NG, _L, _test_charge_density):
-    g = Grid(_T, _L, _NG, solver=BunemanSolver)
+    g = Grid(_T, _L, _NG, periodic=False)
     charge_index = _NG // 2
     g.current_density_x[charge_index] = _test_charge_density
     g.solve()

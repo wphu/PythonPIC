@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from ..algorithms import particle_push, helper_functions
-from ..classes import Species, Frame, Grid
+from ..classes import Species, Grid
 
 atol = 1e-1
 rtol = 1e-4
@@ -39,7 +39,7 @@ def g():
     NG = 10
     L = NG * dx
 
-    g = Grid(T, L, NG, c)
+    g = Grid(T, L, NG)
     return g
 
 @pytest.fixture()
@@ -165,7 +165,7 @@ def test_periodic_particles(g):
     for i in range(g.NT):
         s.push(lambda x: 0)
         s.apply_bc()
-    assert s.alive.all()
+    assert s.N_alive == s.N
 
 def test_nonperiodic_particles(g_aperiodic):
     g = g_aperiodic
@@ -175,4 +175,4 @@ def test_nonperiodic_particles(g_aperiodic):
     for i in range(g.NT):
         s.push(lambda x: 0)
         s.apply_bc()
-    assert ~s.alive.any()
+    assert s.N_alive == 0

@@ -14,10 +14,11 @@ def return_particles_to_bounds(species):
 
 
 def kill_particles_outside_bounds(species):
-    print("is kil")
-    species.alive = (0 < species.x) & (species.x < species.grid.L)
-    species.x[~species.alive] = np.nan
-    species.v[~species.alive] = np.nan
+    alive = (0 < species.x) & (species.x < species.grid.L)
+    species.N_alive = alive.sum()
+    if species.N_alive:
+        species.x = species.x[~species.alive]
+        species.v = species.v[~species.alive]
 
 
 def apply_bc_buneman(grid, i, bc_function):
@@ -68,7 +69,15 @@ class Laser:
     epsilon_0 : float
         The physical constant
     """
-    def __init__(self, laser_intensity, laser_wavelength, envelope_center_t=0, envelope_width=1, envelope_power=2, laser_phase = 0, c=1, epsilon_0=1):
+    def __init__(self, laser_intensity,
+                 laser_wavelength,
+                 envelope_center_t=0,
+                 envelope_width=1,
+                 envelope_power=2,
+                 laser_phase = 0,
+                 c=1,
+                 epsilon_0=1,
+                 bc_function = "pulse"):
         self.laser_wavelength = laser_wavelength
         self.laser_phase = laser_phase
         self.laser_omega = 2 * np.pi * c / laser_wavelength
@@ -78,6 +87,12 @@ class Laser:
         self.envelope_power = envelope_power
         self.laser_intensity = laser_intensity
         self.laser_amplitude = ((laser_intensity * 2 ) / (c * epsilon_0)) ** 0.5
+        if bc_function == "pulse":
+            self.bc_function = self.laser_pulse
+        elif bc_function == "wave":
+            self.bc_function = self.laser_wave
+        elif bc_function == "envelope":
+            self.bc_function = self.laser_envelope
 
     def wave_func(self, t):
         return np.sin(self.laser_omega * t + self.laser_phase)
@@ -94,12 +109,4 @@ class Laser:
     def laser_pulse(self, t):
         return self.laser_wave(t) * self.envelope_func(t)
 
-def non_periodic_bc(wrapped_function):
-    return BoundaryCondition(kill_particles_outside_bounds, wrapped_function)
 
-
-PeriodicBC = BoundaryCondition(return_particles_to_bounds, lambda x: None)
-# laser = Laser(1, 10, 3)
-# LaserBC = non_periodic_bc(laser.laser_pulse)
-# WaveBC = non_periodic_bc(laser.laser_wave)
-# EnvelopeBC = non_periodic_bc(laser.laser_envelope)

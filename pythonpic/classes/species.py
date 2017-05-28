@@ -34,6 +34,7 @@ class Species:
         self.q = q
         self.m = m
         self.N = int(N)
+        self.N_alive = N
         self.scaling = scaling
         self.eff_q = q * scaling
         self.eff_m = m * scaling
@@ -67,6 +68,7 @@ class Species:
         self.velocity_mean_history = np.zeros((self.saved_iterations, 3), dtype=float)
         self.velocity_std_history = np.zeros((self.saved_iterations, 3), dtype=float)
         self.alive_history = np.zeros((self.saved_iterations, self.saved_particles), dtype=bool)
+        self.number_alive_history = np.zeros((self.saved_iterations), dtype=int)
         self.kinetic_energy_history = np.zeros(self.NT+1)
         self.pusher = pusher
 
@@ -94,9 +96,9 @@ class Species:
         The kinetic energy of the particles, calculated at half timestep.
         """
 
-        E = electric_field_function(self.x[self.alive])
-        B = magnetic_field_function(self.x[self.alive])
-        _, self.v[self.alive], self.energy = self.pusher(self, E, -self.dt * 0.5, B)
+        E = electric_field_function(self.x)
+        B = magnetic_field_function(self.x)
+        _, self.v, self.energy = self.pusher(self, E, -self.dt * 0.5, B)
         return self.energy
 
     def push(self, electric_field_function, magnetic_field_function=lambda x: np.zeros((x.size, 3))):
@@ -114,9 +116,9 @@ class Species:
 
         The kinetic energy of the particles, calculated at half timestep.
         """
-        E = electric_field_function(self.x[self.alive])
-        B = magnetic_field_function(self.x[self.alive])
-        self.x[self.alive], self.v[self.alive], self.energy = self.pusher(self, E, self.dt, B)
+        E = electric_field_function(self.x)
+        B = magnetic_field_function(self.x)
+        self.x, self.v, self.energy = self.pusher(self, E, self.dt, B)
         return self.energy
 
     """POSITION INITIALIZATION"""
@@ -191,11 +193,16 @@ class Species:
     def save_particle_values(self, i: int):
         """Update the i-th set of particle values"""
         if helper_functions.is_this_saved_iteration(i, self.save_every_n_iterations):
+
+            N_alive = self.x.size
+            save_every_n_particle = (N_alive // MAX_SAVED_PARTICLES)
+            save_every_n_particle = 1 if save_every_n_particle == 0 else save_every_n_particle
             index = helper_functions.convert_global_to_particle_iter(i, self.save_every_n_iterations)
-            self.position_history[index] = self.x[::self.save_every_n_particle]
-            self.velocity_history[index] = self.v[::self.save_every_n_particle]
-            self.velocity_mean_history[index] = self.v[self.alive].mean(axis=0)
-            self.velocity_std_history[index] = self.v[self.alive].std(axis=0)
+            self.position_history[index, :N_alive] = self.x[::save_every_n_particle]
+            self.velocity_history[index, :N_alive] = self.v[::save_every_n_particle]
+            self.velocity_mean_history[index] = self.v.mean(axis=0)
+            self.velocity_std_history[index] = self.v.std(axis=0)
+            self.number_alive_history[index] = N_alive
         self.kinetic_energy_history[i] = self.energy
 
     def save_to_h5py(self, species_data):
@@ -210,7 +217,6 @@ class Species:
 
         species_data.create_dataset(name="x", dtype=float, data=self.position_history)
         species_data.create_dataset(name="v", dtype=float, data=self.velocity_history)
-        species_data.create_dataset(name="alive", dtype=float, data=self.alive)
         species_data.create_dataset(name="Kinetic energy", dtype=float, data=self.kinetic_energy_history)
 
         species_data.create_dataset(name="v_mean", dtype=float, data=self.velocity_mean_history)

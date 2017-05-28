@@ -27,7 +27,7 @@ class Simulation:
     title : str
     """
     def __init__(self, grid: Grid, list_species=None, run_date=time.ctime(), git_ver=git_version(),
-                 filename=time.strftime("%Y-%m-%d_%H-%M-%S.hdf5"), boundary_condition=BoundaryCondition.PeriodicBC, title=""):
+                 filename=time.strftime("%Y-%m-%d_%H-%M-%S.hdf5"), title=""):
         self.NT = grid.NT
         self.dt = grid.dt
         self.t = np.arange(self.NT) * self.dt
@@ -37,8 +37,6 @@ class Simulation:
         self.list_species = list_species
         self.field_energy = np.zeros(self.NT)
         self.total_energy = np.zeros(self.NT)
-        self.boundary_condition = boundary_condition
-        self.constants = Constants(grid.c, grid.epsilon_0)
         self.filename = filename
         self.title = title
         self.git_version = git_ver
@@ -140,8 +138,8 @@ class Simulation:
         {self.title} simulation ({os.path.basename(self.filename)}) containing {self.NT} iterations with time step {
         self.dt:.3e}
         Done on {self.run_date} from git version {self.git_version}
-        {self.grid.NG}-cell grid of length {self.grid.L:.2f}. Epsilon zero = {self.constants.epsilon_0}, 
-        c = {self.constants.epsilon_0}""".lstrip()
+        {self.grid.NG}-cell grid of length {self.grid.L:.2f}. Epsilon zero = {self.grid.epsilon_0}, 
+        c = {self.grid.epsilon_0}""".lstrip()
         for species in self.list_species:
             result_string = result_string + "\n" + str(species)
         return result_string  # REFACTOR: add information from config file (run_coldplasma...)

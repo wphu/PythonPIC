@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from ..algorithms.field_interpolation import interpolateField
-from ..classes import TimelessGrid, Species
+from ..classes import Species, Grid
 
 @pytest.mark.parametrize("power", range(6))
 def test_poly(power, plotting=False):
@@ -84,7 +84,7 @@ def test_single_particle(power, plotting=False):
     """
     NG = 16
     L = 1
-    g = TimelessGrid(L=L, NG=NG)
+    g = Grid(1, L=L, NG=NG)
     s = Species(1, 1, 4, g)
 
     def electric_field_function(x):
