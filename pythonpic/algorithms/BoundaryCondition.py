@@ -14,7 +14,8 @@ def return_particles_to_bounds(species):
 
 
 def kill_particles_outside_bounds(species):
-    species.alive = (0 < species.x) * (species.x < species.grid.L)
+    print("is kil")
+    species.alive = (0 < species.x) & (species.x < species.grid.L)
     species.x[~species.alive] = np.nan
     species.v[~species.alive] = np.nan
 

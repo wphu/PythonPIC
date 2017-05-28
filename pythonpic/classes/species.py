@@ -114,8 +114,6 @@ class Species:
 
         The kinetic energy of the particles, calculated at half timestep.
         """
-        # REFACTOR: this should take grid instead of functions
-
         E = electric_field_function(self.x[self.alive])
         B = magnetic_field_function(self.x[self.alive])
         self.x[self.alive], self.v[self.alive], self.energy = self.pusher(self, E, self.dt, B)

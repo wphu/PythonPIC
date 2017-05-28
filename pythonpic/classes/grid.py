@@ -163,7 +163,7 @@ class Grid(TimelessGrid):
         :param int NT: number of timesteps for history tracking purposes
         """
 
-        super().__init__(L, NG, c, epsilon_0, bc, solver, periodic)
+        super().__init__(L, NG, c, epsilon_0, bc, solver, 1, periodic)
         self.T = T
         self.NT = helper_functions.calculate_number_timesteps(T, self.dt)
 
