@@ -134,9 +134,10 @@ class PhasePlot(Plot):
         for plot, species, x, y in zip(self.plots, self.S.list_species, self.x, self.y):
             if helper_functions.is_this_saved_iteration(i, species.save_every_n_iterations):
                 index = helper_functions.convert_global_to_particle_iter(i, species.save_every_n_iterations)
+                alive = species.N_alive_history[index] +1
                 # print(y[index, species.alive_history[index]]) #TODO: get alive history to work here!
-                plot.set_data(x[index],  # , species.alive_history[index]],
-                              y[index])  # , species.alive_history[index]])
+                plot.set_data(x[index, :alive],  # , species.alive_history[index]],
+                              y[index, :alive])  # , species.alive_history[index]])
 
 
 class SpatialDistributionPlot(Plot):
@@ -195,7 +196,8 @@ class Histogram(Plot):
     def update(self, i):
         for species, histogram, bin_array, v in zip(self.S.list_species, self.plots, self.bin_arrays, self.values):
             index = helper_functions.convert_global_to_particle_iter(i, species.save_every_n_iterations)
-            histogram.set_data(*calculate_histogram_data(v[index], bin_array))
+            alive = species.N_alive_history[index] +1
+            histogram.set_data(*calculate_histogram_data(v[index, :alive], bin_array))
 
 
 def calculate_histogram_data(arr, bins):
@@ -258,7 +260,7 @@ class FieldPlot(Plot):
         self.plots.append(ax.plot([], [], "b-", label=f"$B_{directions[j]}$")[0])
         ax.set_ylabel(r"Fields $E$, $B$")
         max_e = np.max(np.abs(S.grid.electric_field_history[:, :, j]))
-        max_b = np.max(np.abs(S.grid.magnetic_field_history[:, :, j - 1]))  # TODO remove -1 via ProcessedGrid
+        max_b = np.max(np.abs(S.grid.magnetic_field_history[:, :, j]))
         maxfield = max([max_e, max_b])
         ax.set_ylim(-maxfield, maxfield)
         ax.legend(loc='upper right')
@@ -282,7 +284,8 @@ class CurrentPlot(Plot):
     def __init__(self, S, ax, j):
         super().__init__(S, ax)
         self.j = j
-        self.plots.append(ax.plot(S.grid.x, S.grid.current_density_history[0, :, j], ".-",
+        x = S.grid.x_current if j == 0 else S.grid.x
+        self.plots.append(ax.plot(x, S.grid.current_density_history[0, :, j], ".-",
                                   alpha=0.9,
                                   label=fr"$j_{directions[j]}$")[0])
         ax.set_ylabel(f"Current density $j_{directions[j]}$", color='b')
@@ -422,20 +425,34 @@ def animation(S, save: bool = False, alpha=1, frame_to_draw="animation"):
     current_plots = TripleCurrentPlot(S, current_axes)
     field_plots = TripleFieldPlot(S, [current_ax.twinx() for current_ax in current_axes])
 
-    plots = [phase_plot, velocity_histogram, freq_plot, charge_plot, iteration, current_plots, field_plots]
-    results = [*field_plots.return_animated(),
-               *current_plots.return_animated(),
-               *charge_plot.return_animated(),
-               *freq_plot.return_animated(),
-               *velocity_histogram.return_animated(),
-               *phase_plot.return_animated(),
-               *iteration.return_animated()]  # REFACTOR: use itertools
+    plots = [
+            phase_plot,
+             velocity_histogram,
+             freq_plot,
+             charge_plot,
+             iteration,
+             current_plots,
+             field_plots,
+        ]
+    results = []
+    for plot in plots:
+        for result in plot.return_animated():
+            results.append(result)
+    # results = [
+    #     *field_plots.return_animated(),
+    #            # *current_plots.return_animated(),
+    #            # *charge_plot.return_animated(),
+    #            # *freq_plot.return_animated(),
+    #            *velocity_histogram.return_animated(),
+    #            *phase_plot.return_animated(),
+    #            *iteration.return_animated(),
+    #     ]  # REFACTOR: use itertools on plots[]
 
 
     def animate(i, verbose=False):
         """draws the i-th frame of the simulation"""
         if verbose:
-            helper_functions.report_progress(i, S.NG)
+            helper_functions.report_progress(i, S.grid.NT)
         for plot in plots:
             plot.update(i)
         return results
@@ -456,7 +473,7 @@ def animation(S, save: bool = False, alpha=1, frame_to_draw="animation"):
         animation_object = anim.FuncAnimation(fig, animate, interval=100,
                                               frames=frames,
                                               blit=True, init_func=init,
-                                              fargs=True)
+                                              fargs=(save,))
         if save:
             helper_functions.make_sure_path_exists(S.filename)
             videofile_name = S.filename.replace(".hdf5", ".mp4")

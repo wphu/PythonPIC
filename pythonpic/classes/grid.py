@@ -81,16 +81,29 @@ class Grid:
         self.postprocessed = False
 
     def postprocess(self):
-        self.postprocessed = True
+        if not self.postprocessed:
+            print("Postprocessing grid.")
+            self.postprocessed = True
 
-        self.k_plot = self.k[:int(self.NG / 2)]
+            # increase size of magnetic field history
+            magnetic_field_history = np.zeros((self.NT, self.NG, 3), dtype=float)
+            magnetic_field_history[:,:,1:] = self.magnetic_field_history
+            self.magnetic_field_history = magnetic_field_history
 
-        self.energy_per_mode_history = np.zeros(
-            (self.NT, int(self.NG / 2)))  # OPTIMIZE: get this from efield_history
-        self.grid_energy_history = np.zeros(self.NT)  # OPTIMIZE: get this from efield_history
-        self.energy_per_mode = np.zeros(int(self.NG / 2)) # REFACTOR
+            self.k_plot = self.k[:int(self.NG / 2)]
 
-        self.x_current = self.x + self.dx / 2
+            # calculate energy history
+            electric_energy = 0.5 * self.epsilon_0 * self.dx * (self.electric_field_history ** 2).sum(2) # over directions
+            magnetic_energy = 0.5 * self.dx * (self.magnetic_field_history **2).sum(2) # over directions
+            self.grid_energy_history = electric_energy + magnetic_energy
+
+            # fourier analysis
+            from scipy import fftpack
+            self.energy_per_mode_history = fftpack.rfft(self.grid_energy_history).real
+
+            self.grid_energy_history = self.grid_energy_history.sum(1) # over positions
+
+            self.x_current = self.x + self.dx / 2
 
     def apply_bc(self, i):
         bc_value = self.bc_function(i * self.dt)

@@ -69,9 +69,10 @@ class Species:
         self.velocity_std_history = np.zeros((self.saved_iterations, 3), dtype=float)
         # self.alive_history = np.zeros((self.saved_iterations, self.saved_particles), dtype=bool)
         self.N_alive_history = np.zeros(self.saved_iterations, dtype=int)
-        self.number_alive_history = np.zeros((self.saved_iterations), dtype=int)
         self.kinetic_energy_history = np.zeros(self.NT+1)
         self.pusher = pusher
+
+        self.postprocessed = False
 
     def apply_bc(self):
         self.particle_bc(self)
@@ -200,9 +201,10 @@ class Species:
             index = helper_functions.convert_global_to_particle_iter(i, self.save_every_n_iterations)
             self.position_history[index, :N_alive] = self.x[::save_every_n_particle]
             self.velocity_history[index, :N_alive] = self.v[::save_every_n_particle]
-            self.velocity_mean_history[index] = self.v.mean(axis=0)
-            self.velocity_std_history[index] = self.v.std(axis=0)
-            self.number_alive_history[index] = N_alive
+            self.N_alive_history[index] = N_alive
+            if N_alive > 0:
+                self.velocity_mean_history[index] = self.v.mean(axis=0)
+                self.velocity_std_history[index] = self.v.std(axis=0)
         self.kinetic_energy_history[i] = self.energy
 
     def save_to_h5py(self, species_data):
@@ -232,7 +234,10 @@ class Species:
         species_data.create_dataset(name="N_alive_history", dtype=int, data=self.N_alive_history)
 
     def postprocess(self):
-        pass # TODO: implement
+        if not self.postprocessed:
+            print(f"Postprocessing {self.name}.")
+            self.postprocessed = True
+            pass # TODO: implement
 
     def __repr__(self, *args, **kwargs):
         return f"Species(q={self.q:.4f},m={self.m:.4f},N={self.N},name=\"{self.name}\",NT={self.NT})"

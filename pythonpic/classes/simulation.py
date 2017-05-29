@@ -42,6 +42,15 @@ class Simulation:
         self.git_version = git_version
         self.run_date = run_date
 
+        self.postprocessed=False
+
+    def postprocess(self):
+        if not self.postprocessed:
+            self.grid.postprocess()
+            for species in self.list_species:
+                species.postprocess()
+            self.postprocessed = True
+
     def grid_species_initialization(self):
         """
         Initializes grid and particle relations:
@@ -169,6 +178,7 @@ def load_simulation(filename: str) -> Simulation:
         run_date = f.attrs['run_date']
         git_version = f.attrs['git_version']
     S = Simulation(grid, all_species, run_date=run_date, git_version=git_version, filename=filename, title=title)
+    S.postprocessed = True
 
     S.total_energy = total_energy
 

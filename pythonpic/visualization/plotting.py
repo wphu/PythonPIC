@@ -37,6 +37,7 @@ def plots(file,
     if show_static or show_animation or save_animation or save_static:
         if type(file) == simulation.Simulation:
             S = file
+            S.postprocess()
         else:
             try:
                 print(f"Loading simulation data from {file}")
