@@ -19,7 +19,7 @@ def wave_propagation(filename,
     L = 2 * np.pi
     epsilon_0 = 1
     c = 1
-    grid = Grid(T=T, L=L, NG=NG, epsilon_0=epsilon_0, bc=bc, solver=FieldSolver.BunemanSolver, periodic="false")
+    grid = Grid(T=T, L=L, NG=NG, epsilon_0=epsilon_0, bc=bc, periodic="false")
     description = \
         f"""Electrostatic wave driven by boundary condition
     """

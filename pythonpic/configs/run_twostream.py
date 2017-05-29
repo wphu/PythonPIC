@@ -18,8 +18,8 @@ def stability_condition(k0, v0, w0):
 
 
 def two_stream_instability(filename,
-                           plasma_frequency=1,
-                           qmratio=-1,
+                           plasma_frequency=1.,
+                           qmratio=-1.,
                            T=300 * 0.2,
                            NG=32,
                            N_electrons=128,
