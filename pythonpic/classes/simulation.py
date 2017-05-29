@@ -6,8 +6,8 @@ import time
 import h5py
 import numpy as np
 
-from .grid import Grid
-from .species import Species
+from .grid import Grid, load_grid
+from .species import Species, load_species
 from ..algorithms import BoundaryCondition
 from ..algorithms.helper_functions import git_version, Constants, report_progress
 
@@ -80,8 +80,8 @@ class Simulation:
         self.grid.gather_charge(self.list_species)
         self.grid.gather_current(self.list_species)
         fourier_field_energy = self.grid.solve()
-        self.grid.grid_energy_history[i] = fourier_field_energy
-        self.total_energy[i] = total_kinetic_energy + fourier_field_energy
+        # self.grid.grid_energy_history[i] = fourier_field_energy # TODO: readd
+        # self.total_energy[i] = total_kinetic_energy + fourier_field_energy # TODO: readd
 
     def run(self, save_data: bool = True, verbose = False) -> float:
         """
@@ -145,31 +145,30 @@ class Simulation:
         return result_string  # REFACTOR: add information from config file (run_coldplasma...)
 
 
-# class PostprocessedSimulation # TODO
-def load_data(filename: str) -> Simulation:
-    """Create a Simulation object from a hdf5 file"""
+def load_simulation(filename: str) -> Simulation:
+    """
+    Create a Simulation object from a hdf5 file.
+
+    Parameters
+    ----------
+    filename : str
+        Path to a hdf5 file.
+
+    Returns
+    -------
+
+    """
     with h5py.File(filename, "r") as f:
         total_energy = f['Total energy'][...]
-
-        NT = f.attrs['NT']
-        dt = f.attrs['dt']
-        T = NT * dt
         title = f.attrs['title']
-
         grid_data = f['grid']
-        NG = grid_data.attrs['NGrid']
-        grid = Grid(L=NT, NG=NG, T=T)
-        grid.load_from_h5py(grid_data) # TODO: clean up along PostProcessed
+        grid = load_grid(grid_data, postprocess=True)
 
-        all_species = []
-        for species_group_name in f['species']:
-            species_group = f['species'][species_group_name]
-            species = Species(1, 1, 1, grid)
-            species.load_from_h5py(species_group)
-            all_species.append(species)
+        all_species = [load_species(f['species'][species_group_name], grid, postprocess=True)
+                       for species_group_name in f['species']]
         run_date = f.attrs['run_date']
         git_version = f.attrs['git_version']
-    S = Simulation(grid, all_species, git_version, filename=filename, title=title)
+    S = Simulation(grid, all_species, run_date=run_date, git_version=git_version, filename=filename, title=title)
 
     S.total_energy = total_energy
 

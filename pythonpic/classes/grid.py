@@ -28,16 +28,12 @@ class Grid:
             speed of light
         epsilon_0 : float
             electric permittivity of vacuum
-        bc : BoundaryCondition
-        solver : FieldSolver
+        bc : function
+            Function for providing values of the left boundary. To be refactored into taking the Laser object. # REFACTOR
+        periodic: bool
+            Defines whether the grid is to be treated as periodic or non-periodic.
         """
 
-        """
-        :param float L: grid length, in nondimensional units
-        :param int NG: number of grid cells
-        :param float epsilon_0: the physical constant
-        :param int NT: number of timesteps for history tracking purposes
-        """
 
         self.c = c
         self.epsilon_0 = epsilon_0
@@ -54,24 +50,21 @@ class Grid:
         self.current_density_yz = np.zeros((NG + 4, 2))
         self.electric_field = np.zeros((NG + 2, 3))
         self.magnetic_field = np.zeros((NG + 2, 3))
-        self.energy_per_mode = np.zeros(int(NG / 2)) # REFACTOR
 
         self.L = L
         self.NG = NG
 
-        self.bc_function = bc # REFACTOR: refactor BoundaryCondition
+        self.bc_function = bc # REFACTOR boundary condition
 
-        # specific to Poisson solver but used also elsewhere, for plots # CHECK how to move this part away
-        self.k = 2 * np.pi * fft.fftfreq(self.NG, self.dx)
-        self.k[0] = 0.0001
-        self.k_plot = self.k[:int(self.NG / 2)]
         self.periodic = periodic
         if self.periodic:
             self.charge_gather_function = field_interpolation.periodic_charge_density_deposition
             self.current_longitudinal_gather_function = field_interpolation.periodic_longitudinal_current_deposition
             self.current_transversal_gather_function = field_interpolation.periodic_transversal_current_deposition
             self.particle_bc = BoundaryCondition.return_particles_to_bounds
-            self.solver = FieldSolver.FourierSolver # TODO that's new
+            self.solver = FieldSolver.FourierSolver
+            self.k = 2 * np.pi * fft.fftfreq(self.NG, self.dx)
+            self.k[0] = 0.0001
         else:
             self.charge_gather_function = field_interpolation.charge_density_deposition
             self.current_longitudinal_gather_function = field_interpolation.longitudinal_current_deposition
@@ -85,12 +78,21 @@ class Grid:
         self.electric_field_history = np.zeros((self.NT, self.NG, 3))
         self.magnetic_field_history = np.zeros((self.NT, self.NG, 2))
 
+        self.postprocessed = False
+
+    def postprocess(self):
+        self.postprocessed = True
+
+        self.k = 2 * np.pi * fft.fftfreq(self.NG, self.dx)
+        self.k[0] = 0.0001
+        self.k_plot = self.k[:int(self.NG / 2)]
+
         self.energy_per_mode_history = np.zeros(
             (self.NT, int(self.NG / 2)))  # OPTIMIZE: get this from efield_history
         self.grid_energy_history = np.zeros(self.NT)  # OPTIMIZE: get this from efield_history
+        self.energy_per_mode = np.zeros(int(self.NG / 2)) # REFACTOR
 
-
-
+        self.x_current = self.x + self.dx / 2
 
     def apply_bc(self, i):
         bc_value = self.bc_function(i * self.dt)
@@ -153,54 +155,78 @@ class Grid:
         self.current_density_history[i, :, 1:] = self.current_density_yz[2:-2]
         self.electric_field_history[i] = self.electric_field[1:-1]
         self.magnetic_field_history[i] = self.magnetic_field[1:-1, 1:]
-        self.energy_per_mode_history[i] = self.energy_per_mode
-        self.grid_energy_history[i] = self.energy_per_mode.sum() / (self.NG / 2)
 
     def save_to_h5py(self, grid_data):
         """
         Saves all grid data to h5py file
         grid_data: h5py group in premade hdf5 file
         """
-
-        grid_data.attrs['NGrid'] = self.NG
-        grid_data.attrs['L'] = self.L
-        grid_data.attrs['epsilon_0'] = self.epsilon_0
-        grid_data.create_dataset(name="x", dtype=float, data=self.x)
-
-        grid_data.create_dataset(name="rho", dtype=float, data=self.charge_density_history)
-        grid_data.create_dataset(name="current", dtype=float, data=self.current_density_history)
-        grid_data.create_dataset(name="Efield", dtype=float, data=self.electric_field_history)
-        grid_data.create_dataset(name="Bfield", dtype=float, data=self.magnetic_field_history)
+        h5py_dictionary = {'NGrid': self.NG,
+                           'L': self.L,
+                           'epsilon_0': self.epsilon_0,
+                           'c': self.c,
+                           'dt': self.dt,
+                           'dx': self.dx,
+                           'NT': self.NT,
+                           'T': self.T,
+                           'periodic': self.periodic
+                           }
+        for key, value in h5py_dictionary.items():
+            grid_data.attrs[key] = value
+        h5py_dataset_dictionary = {'x':self.x,
+                                   'rho':self.charge_density_history,
+                                    'current':self.current_density_history,
+                                   'Efield':self.electric_field_history,
+                                   'Bfield':self.magnetic_field_history,
+                                   }
+        for key, value in h5py_dataset_dictionary.items():
+            grid_data.create_dataset(name=key, dtype=float, data=value)
 
         grid_data.create_dataset(name="energy per mode", dtype=float,
                                  data=self.energy_per_mode_history)  # OPTIMIZE: do these in post production
         grid_data.create_dataset(name="grid energy", dtype=float, data=self.grid_energy_history)
 
-class PostprocessedGrid(Grid):
-    """
-    Object representing the grid, with post-simulation computation and visualization capabilities.
-    """
-    def __init__(self, grid_data):
-        """
-        Builds a grid and runs computation on it.
-        Parameters
-        ----------
-        grid_data: path to grid_data in open h5py file
-        """
-        self.NG = grid_data.attrs['NGrid']
-        self.L = grid_data.attrs['L']
-        self.epsilon_0 = grid_data.attrs['epsilon_0']
-        self.NT = grid_data['rho'].shape[0]
-        # TODO: call super()
 
-        self.x = grid_data['x'][...]
-        self.dx = self.x[1] - self.x[0]
-        self.x_current = self.x + self.dx / 2
-        self.charge_density_history = grid_data['rho'][...]
-        self.current_density_history = grid_data['current'][...]
-        self.electric_field_history = grid_data['Efield'][...]
-        self.magnetic_field_history = np.zeros(grid_data['Bfield'].shape)
-        self.magnetic_field_history[:, :, 1:] = grid_data['Bfield'][...]
-        # OPTIMIZE: this can be calculated during analysis
-        self.energy_per_mode_history = grid_data["energy per mode"][...]
-        self.grid_energy_history = grid_data["grid energy"][...]
+def load_grid(grid_data, postprocess=False):
+    """
+    Loads grid data and create a Grid object.
+
+    Parameters
+    ----------
+    grid_data : h5py path
+        Path to Grid data.
+    Returns
+    -------
+    Grid
+        the loaded grid.
+    """
+    NG = grid_data.attrs['NGrid']
+    L = grid_data.attrs['L']
+    epsilon_0 = grid_data.attrs['epsilon_0']
+    NT = grid_data['rho'].shape[0]
+    c = grid_data.attrs['c']
+    dx = grid_data.attrs['dx']
+    dt = grid_data.attrs['dt']
+    T = grid_data.attrs['T']
+    periodic = grid_data.attrs['periodic']
+
+    x = grid_data['x'][...]
+    grid = Grid(T = T,
+                L = L,
+                NG = NG,
+                c = c,
+                epsilon_0 = epsilon_0,
+                periodic = periodic
+                )
+    assert grid.dx == dx
+    assert grid.dt == dt
+    assert grid.NT == NT
+    assert np.allclose(x, grid.x)
+    grid.charge_density_history = grid_data['rho'][...]
+    grid.current_density_history = grid_data['current'][...]
+    grid.electric_field_history = grid_data['Efield'][...]
+    grid.magnetic_field_history = np.zeros(grid_data['Bfield'].shape)
+
+    if postprocess:
+        grid.postprocess()
+    return grid

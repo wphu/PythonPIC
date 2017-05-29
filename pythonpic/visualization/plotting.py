@@ -40,7 +40,7 @@ def plots(file,
         else:
             try:
                 print(f"Loading simulation data from {file}")
-                S = simulation.load_data(file)
+                S = simulation.load_simulation(file)
             except:
                 raise ValueError("Simulation file doesn't exist.")
         if save_static or show_static:

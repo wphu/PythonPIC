@@ -4,7 +4,7 @@ from pythonpic.algorithms import BoundaryCondition, FieldSolver
 from pythonpic.algorithms.helper_functions import epsilon_zero, electric_charge, lightspeed, proton_mass, electron_rest_mass
 from pythonpic.algorithms.helper_functions import plotting_parser, critical_density
 from pythonpic.classes.grid import Grid
-from pythonpic.classes.simulation import Simulation, load_data
+from pythonpic.classes.simulation import Simulation, load_simulation
 from pythonpic.classes.species import Species
 from pythonpic.visualization import plotting
 
@@ -55,21 +55,22 @@ def laser(filename):
     print("Simulation prepared.")
     run.grid_species_initialization()
     print("Grid\species interactions initialized."
-          "May Guod have mercy upon your soul."
           "Beginning simulation.")
     run.run(save_data=True, verbose=True)
     print("Well, that's it, then.")
     return run
 
 def main():
+    import os
     args = plotting_parser("Hydrogen shield")
-    run = True
+    filename = "Laser2"
+    filename=f"data_analysis/laser-shield/{filename}/{filename}.hdf5"
+    print(os.path.isfile(filename))
+    run = False
     if run:
         s = laser("Laser2")
     else:
-        filename = "Laser2"
-        filename=f"data_analysis/laser-shield/{filename}/{filename}.hdf5"
-        s = load_data(filename)
+        s = load_simulation(filename)
     plotting.plots(s, *args)
 
 if __name__ == '__main__':

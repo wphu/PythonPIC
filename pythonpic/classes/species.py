@@ -214,6 +214,7 @@ class Species:
         species_data.attrs['N'] = self.N
         species_data.attrs['q'] = self.q
         species_data.attrs['m'] = self.m
+        species_data.attrs['scaling'] = self.scaling
 
         species_data.create_dataset(name="x", dtype=float, data=self.position_history)
         species_data.create_dataset(name="v", dtype=float, data=self.velocity_history)
@@ -223,23 +224,14 @@ class Species:
         species_data.create_dataset(name="v_std", dtype=float, data=self.velocity_std_history)
 
     def load_from_h5py(self, species_data):
-        # REFACTOR: move this out of class (like Simulation.load_data)
+        # REFACTOR: move this out of class (like Simulation.load_simulation)
         """
         Loads species data from h5py file
         species_data: h5py group for this species in pre-made hdf5 file
         """
-        self.name = species_data.attrs['name']
-        self.N = species_data.attrs['N']
-        self.q = species_data.attrs['q']
-        self.m = species_data.attrs['m']
 
-        self.velocity_mean_history = species_data["v_mean"][...]
-        self.velocity_std_history = species_data["v_std"][...]
-
-        self.position_history = species_data["x"][...]
-        self.velocity_history = species_data["v"][...]
-        self.alive_history = species_data["alive"][...]
-        self.kinetic_energy_history = species_data["Kinetic energy"][...]
+    def postprocess(self):
+        pass # TODO: implement
 
     def __repr__(self, *args, **kwargs):
         return f"Species(q={self.q:.4f},m={self.m:.4f},N={self.N},name=\"{self.name}\",NT={self.NT})"
@@ -247,6 +239,26 @@ class Species:
     def __str__(self):
         return f"{self.N} {self.scaling:.2e}-{self.name} with q = {self.q:.2e}, m = {self.m:.2e}, {self.saved_iterations} saved history " \
                f"steps over {self.NT} iterations"
+
+def load_species(species_data, grid, postprocess=False):
+    name = species_data.attrs['name']
+    N = species_data.attrs['N']
+    q = species_data.attrs['q']
+    m = species_data.attrs['m']
+    scaling = species_data.attrs['scaling']
+
+
+    species = Species(q, m, N, grid, name, scaling)
+    species.velocity_mean_history = species_data["v_mean"][...]
+    species.velocity_std_history = species_data["v_std"][...]
+
+    species.position_history = species_data["x"][...]
+    species.velocity_history = species_data["v"][...]
+    species.alive_history = species_data["alive"][...]
+    species.kinetic_energy_history = species_data["Kinetic energy"][...]
+    if postprocess:
+        species.postprocess()
+    return species
 
 
 class Particle(Species):

@@ -167,8 +167,8 @@ def static_plots(S, filename=None):
 if __name__ == "__main__":
     from classes import simulation
 
-    Sim = simulation.load_data("data_analysis/TS2/TS2.hdf5")
+    Sim = simulation.load_simulation("data_analysis/TS2/TS2.hdf5")
     static_plots(Sim)
-    Sim2 = simulation.load_data("data_analysis/TS1/TS1.hdf5")
+    Sim2 = simulation.load_simulation("data_analysis/TS1/TS1.hdf5")
     static_plots(Sim2)
     plt.show()
