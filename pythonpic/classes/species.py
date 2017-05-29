@@ -198,6 +198,7 @@ class Species:
         if helper_functions.is_this_saved_iteration(i, self.save_every_n_iterations):
             save_every_n_particle = (N_alive // MAX_SAVED_PARTICLES)
             save_every_n_particle = 1 if save_every_n_particle == 0 else save_every_n_particle
+            # print(f"out of {N_alive} save every {save_every_n_particle} with mean x {self.x.mean()}")
             index = helper_functions.convert_global_to_particle_iter(i, self.save_every_n_iterations)
             self.position_history[index, :N_alive] = self.x[::save_every_n_particle]
             self.velocity_history[index, :N_alive] = self.v[::save_every_n_particle]

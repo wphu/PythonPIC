@@ -3,12 +3,6 @@
 import numpy as np
 
 
-class BoundaryCondition:
-    def __init__(self, particle_bc, field_bc):
-        self.particle_bc = particle_bc
-        self.field_bc = field_bc
-
-
 def return_particles_to_bounds(species):
     species.x %= species.grid.L
 
@@ -16,14 +10,11 @@ def return_particles_to_bounds(species):
 def kill_particles_outside_bounds(species):
     alive = (0 < species.x) & (species.x < species.grid.L)
     species.N_alive = alive.sum()
+    # print(f"{species.N_alive} alive")
     if species.N_alive:
-        species.x = species.x[~species.alive]
-        species.v = species.v[~species.alive]
+        species.x = species.x[alive]
+        species.v = species.v[alive]
 
-
-def apply_bc_buneman(grid, i, bc_function):
-    grid.electric_field[0, 1] = bc_function(i * grid.dt, *grid.bc_params)
-    # self.magnetic_field[0, :] = self.bc_function(i * self.dt, *self.bc_params) / self.c
 
 class Laser:
     """

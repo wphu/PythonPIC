@@ -36,6 +36,7 @@ def test_kaiser_wilhelm_instability_avoidance(N_electrons, push_amplitude):
                                  N_electrons=N_electrons, NG=256,
                                  T = 200,
                                  push_amplitude=push_amplitude)
+    S.postprocess()
     assert get_dominant_mode(S) == 1, plots(S, *on_failure)
 
 
