@@ -4,6 +4,7 @@ import numpy as np
 
 from pythonpic.algorithms import helper_functions
 from pythonpic.algorithms.helper_functions import plotting_parser
+from pythonpic.helper_functions.file_io import try_run
 from pythonpic.classes.grid import Grid
 from pythonpic.classes.simulation import Simulation
 from pythonpic.classes.species import Species
@@ -17,6 +18,7 @@ def stability_condition(k0, v0, w0):
     return expected_stability
 
 
+category_name = "twostream"
 def two_stream_instability(filename,
                            plasma_frequency=1.,
                            qmratio=-1.,
@@ -46,8 +48,6 @@ def two_stream_instability(filename,
     scaling = abs(particle_mass * plasma_frequency ** 2 * L / float(
         particle_charge * N_electrons * epsilon_0))
 
-    filename = f"data_analysis/TS/{filename}/{filename}.hdf5"
-
     helper_functions.check_plasma_parameter(N_electrons * scaling, NG, grid.dx)
     k0 = 2 * np.pi / L
 
@@ -72,37 +72,38 @@ def two_stream_instability(filename,
     print(run)
     # REFACTOR: add initial condition values to Simulation object
     run.grid_species_initialization()
-    run.run(save_data)
+    run.run(save_data, postprocess=False)
     return run
 
 
 def main():
     args = plotting_parser("Two stream instability")
-    S = two_stream_instability("TS1",
+    S = try_run("TS1", category_name, two_stream_instability,
                            NG=512,
                            N_electrons=4096,
                            plasma_frequency=0.05 / 4,
                            )
     plots(S, *args)
-    S = two_stream_instability("TS2",
+    S = try_run("TS2", category_name, two_stream_instability,
                            NG=512,
                            N_electrons=4096,
                            plasma_frequency=0.05,
                            )
     plots(S, *args)
-    S = two_stream_instability("TS3",
+    S = try_run("TS3", category_name, two_stream_instability,
                            NG=512,
                            N_electrons=4096,
                            plasma_frequency=0.05 * 10,
                            )
     plots(S, *args)
-    S = two_stream_instability("TSRANDOM1",
+    S = try_run("TSRANDOM1", category_name, two_stream_instability,
                            NG=512,
                            N_electrons=4096,
                            vrandom=1e-1,
                            )
     plots(S, *args)
-    S = two_stream_instability("TSRANDOM2", NG=512, N_electrons=4096,
+    S = try_run("TSRANDOM2", category_name, two_stream_instability,
+                           NG=512, N_electrons=4096,
                            vrandom=1e-1)
     plots(S, *args)
 

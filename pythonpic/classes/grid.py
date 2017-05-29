@@ -83,7 +83,6 @@ class Grid:
     def postprocess(self):
         if not self.postprocessed:
             print("Postprocessing grid.")
-            self.postprocessed = True
 
             self.t = np.arange(self.NT) * self.dt
 
@@ -92,7 +91,6 @@ class Grid:
             magnetic_field_history[:,:,1:] = self.magnetic_field_history
             self.magnetic_field_history = magnetic_field_history
 
-            self.k_plot = self.k[:int(self.NG / 2)]
 
             # calculate energy history
             electric_energy = 0.5 * self.epsilon_0 * self.dx * (self.electric_field_history ** 2).sum(2) # over directions
@@ -101,11 +99,13 @@ class Grid:
 
             # fourier analysis
             from scipy import fftpack
+            self.k_plot = fftpack.rfftfreq(int(self.NG))
             self.energy_per_mode_history = fftpack.rfft(self.grid_energy_history).real
 
             self.grid_energy_history = self.grid_energy_history.sum(1) # over positions
 
             self.x_current = self.x + self.dx / 2
+            self.postprocessed = True
 
     def apply_bc(self, i):
         bc_value = self.bc_function(i * self.dt)
@@ -138,6 +138,7 @@ class Grid:
                                                            species.eff_q)
 
             self.charge_density += gathered_density
+        # REFACTOR: optionally self.charge_density -= self.charge_density.mean() for periodic simulations
 
     def gather_current(self, list_species):
         # REFACTOR: move to Species

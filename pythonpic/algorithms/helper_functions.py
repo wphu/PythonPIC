@@ -1,10 +1,10 @@
 """various helper functions"""
+import argparse
 # coding=utf-8
 import errno
-import argparse
+import os
 import subprocess
 import warnings
-import os
 from collections import namedtuple
 
 import numpy as np
@@ -181,7 +181,7 @@ def get_dominant_mode(S):
     data = S.grid.energy_per_mode_history
     weights = (data ** 2).sum(axis=0) / (data ** 2).sum()
 
-    max_mode = weights.argmax()
+    max_mode = weights[1:].argmax() +1
     # max_index = data[:, max_mode].argmax()
     return max_mode
 
@@ -235,3 +235,5 @@ def critical_density(wavelength):
     """
     n_c = electron_rest_mass * epsilon_zero * ((2 * np.pi * lightspeed) / (electric_charge * wavelength)) ** 2
     return n_c
+
+

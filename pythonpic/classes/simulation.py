@@ -94,7 +94,7 @@ class Simulation:
         # self.grid.grid_energy_history[i] = fourier_field_energy # TODO: readd
         # self.total_energy[i] = total_kinetic_energy + fourier_field_energy # TODO: readd
 
-    def run(self, save_data: bool = True, verbose = False) -> float:
+    def run(self, save_data: bool = True, postprocess=True, verbose = False) -> float:
         """
         Run n iterations of the simulation, saving data as it goes.
         Parameters
@@ -116,6 +116,8 @@ class Simulation:
         runtime = time.time() - start_time
         if self.filename and save_data:
             self.save_data(filename=self.filename, runtime=runtime)
+        if postprocess:
+            self.postprocess()
         return runtime
 
     def save_data(self, filename: str = time.strftime("%Y-%m-%d_%H-%M-%S.hdf5"), runtime: bool = False) -> str:

@@ -91,13 +91,15 @@ def energy_time_plots(S, axis):
 def velocity_distribution_plots(S, axis, i=0):
     for species in S.list_species:
         index = i // species.save_every_n_iterations
-        axis.hist(species.velocity_history[index, :, 0], bins=50, alpha=0.5, label=species.name)
+        axis.hist(species.velocity_history[index, :, 0],
+                  bins=50, alpha=0.5, normed=True,
+                  label=f"{species.name} ({species.N_alive_history[i]} alive)")
     axis.set_title("Velocity distribution at iteration %d" % i)
     axis.grid()
     if len(S.list_species) > 1:
         axis.legend(loc='upper right')
     axis.set_xlabel(r"Velocity $v$")
-    axis.set_ylabel(r"Number of superparticles")
+    axis.set_ylabel(r"fraction of superparticles out")
     axis.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
 
 

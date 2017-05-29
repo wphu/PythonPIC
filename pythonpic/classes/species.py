@@ -7,6 +7,25 @@ from ..algorithms.particle_push import rela_boris_push_bl as rela_boris_push
 
 MAX_SAVED_PARTICLES = int(1e4)
 
+def n_saved_particles(n_p_available, n_upper_limit):
+    """
+
+    Parameters
+    ----------
+    n_p_available :
+    n_upper_limit :
+
+    Returns
+    -------
+
+    """
+
+    if n_p_available <= n_upper_limit:
+        return 1, n_p_available
+    else:
+        save_every_n = n_p_available // n_upper_limit + 1
+        n_saved = np.ceil(n_p_available/save_every_n).astype(int)
+        return save_every_n, n_saved
 
 class Species:
     """
@@ -52,16 +71,11 @@ class Species:
         self.energy = self.kinetic_energy()
         self.alive = np.ones(N, dtype=bool)
         self.name = name
-        if self.N >= MAX_SAVED_PARTICLES:
-            self.save_every_n_particle = (self.N // MAX_SAVED_PARTICLES)
-            self.saved_particles = np.ceil(self.N / self.save_every_n_particle).astype(int)
-            print(f"Too many macro{name} to save them all! N: {self.N}, so we're saving every "
-                  f"{self.save_every_n_particle}th one and we're going to have "
-                  f"{self.saved_particles}"
-                  f" of them")
-        else:
-            self.saved_particles = self.N
-            self.save_every_n_particle = 1
+        self.save_every_n_particle, self.saved_particles = n_saved_particles(self.N, MAX_SAVED_PARTICLES)
+        # print(f"Too many macro{name} to save them all! N: {self.N}, so we're saving every "
+        #           f"{self.save_every_n_particle}th one and we're going to have "
+        #           f"{self.saved_particles}"
+        #           f" of them")
 
         self.position_history = np.zeros((self.saved_iterations, self.saved_particles), dtype=float)
         self.velocity_history = np.zeros((self.saved_iterations, self.saved_particles, 3), dtype=float)
@@ -153,7 +167,7 @@ class Species:
         :param float L: grid length
         :return:
         """
-        self.x += amplitude * np.cos(2 * mode * np.pi * self.x / L)
+        self.x += amplitude * np.cos(2 * mode * np.pi * self.x / L) # TODO: remove 2*
         self.apply_bc()
 
     def random_position_perturbation(self, std: float):
@@ -196,12 +210,16 @@ class Species:
         """Update the i-th set of particle values"""
         N_alive = self.x.size
         if helper_functions.is_this_saved_iteration(i, self.save_every_n_iterations):
-            save_every_n_particle = (N_alive // MAX_SAVED_PARTICLES)
-            save_every_n_particle = 1 if save_every_n_particle == 0 else save_every_n_particle
+            save_every_n_particle, saved_particles = n_saved_particles(N_alive, self.saved_particles)
+
             # print(f"out of {N_alive} save every {save_every_n_particle} with mean x {self.x.mean()}")
             index = helper_functions.convert_global_to_particle_iter(i, self.save_every_n_iterations)
-            self.position_history[index, :N_alive] = self.x[::save_every_n_particle]
-            self.velocity_history[index, :N_alive] = self.v[::save_every_n_particle]
+            try:
+                self.position_history[index, :saved_particles] = self.x[::save_every_n_particle]
+                self.velocity_history[index, :saved_particles] = self.v[::save_every_n_particle]
+            except ValueError as E:
+                data = N_alive, save_every_n_particle, saved_particles, self.N, self.x.size
+                raise ValueError(data)
         self.N_alive_history[i] = N_alive
         if N_alive > 0:
             self.velocity_mean_history[i] = self.v.mean(axis=0)

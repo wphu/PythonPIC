@@ -23,7 +23,6 @@ def test_linear_dominant_mode(push_mode):
     assert calculated_dominant_mode == push_mode, (
         f"got {calculated_dominant_mode} instead of {push_mode}",
         plots(S, *on_failure))
-    return S
 
 
 @pytest.mark.parametrize(["N_electrons", "push_amplitude"],

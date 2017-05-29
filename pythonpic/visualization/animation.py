@@ -73,12 +73,16 @@ class FrequencyPlot(Plot):
         self.plots.append(ax.plot([], [], "o-", label="energy per mode")[0])
         self.ax.set_xlabel(r"Wavevector mode $k$")
         self.ax.set_ylabel(r"Energy $E$")
-        self.ax.set_xlim(0, S.grid.NG / 2)
-        self.ax.set_xticks(S.grid.k_plot)
-        self.ax.set_ylim(S.grid.energy_per_mode_history.min(), S.grid.energy_per_mode_history.max())
+        max_interesting = S.grid.k_plot.max() * 0.3
+        self.indices = S.grid.k_plot <  max_interesting
+        self.ax.set_xticks(S.grid.k_plot[self.indices])
+        self.ax.set_xlim(0, max_interesting)
+        self.ax.set_ylim(0, S.grid.energy_per_mode_history.max())
 
     def update(self, i):
-        self.plots[0].set_data(self.S.grid.k_plot, self.S.grid.energy_per_mode_history[i])
+        # import ipdb; ipdb.set_trace()
+        self.plots[0].set_data(self.S.grid.k_plot[self.indices],
+                               self.S.grid.energy_per_mode_history[i][self.indices])
 
 
 def phaseplot_values(species):
@@ -421,7 +425,7 @@ def animation(S, save: bool = False, alpha=1, frame_to_draw="animation"):
     velocity_histogram = Histogram(S, distribution_axes, "v_x")
     freq_plot = FrequencyPlot(S, freq_axes)
     charge_plot = SpatialDistributionPlot(S, charge_axis)
-    iteration = IterationCounter(S, freq_axes)
+    iteration = IterationCounter(S, phase_axes)
     current_plots = TripleCurrentPlot(S, current_axes)
     field_plots = TripleFieldPlot(S, [current_ax.twinx() for current_ax in current_axes])
 

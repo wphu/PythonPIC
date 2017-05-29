@@ -1,10 +1,11 @@
 """Implements interaction of the laser with a hydrogen shield plasma"""
 # coding=utf-8
-from pythonpic.algorithms import BoundaryCondition, FieldSolver
+from pythonpic.helper_functions.file_io import try_run
+from pythonpic.algorithms import BoundaryCondition
 from pythonpic.algorithms.helper_functions import epsilon_zero, electric_charge, lightspeed, proton_mass, electron_rest_mass
 from pythonpic.algorithms.helper_functions import plotting_parser, critical_density
 from pythonpic.classes.grid import Grid
-from pythonpic.classes.simulation import Simulation, load_simulation
+from pythonpic.classes.simulation import Simulation
 from pythonpic.classes.species import Species
 from pythonpic.visualization import plotting
 
@@ -33,6 +34,7 @@ n_macroparticles = 75000
 
 scaling = npic # CHECK what should be the proper value here?
 
+category_name = "laser-shield"
 def laser(filename):
     filename=f"data_analysis/laser-shield/{filename}/{filename}.hdf5"
     bc = BoundaryCondition.Laser(laser_intensity, laser_wavelength, total_time/2, impulse_duration, c=lightspeed, epsilon_0=epsilon_zero).laser_pulse
@@ -59,24 +61,11 @@ def laser(filename):
     print("Well, that's it, then.")
     return run
 
+
 def main():
-    import os
     args = plotting_parser("Hydrogen shield")
     filename = "Laser2"
-    full_path=f"data_analysis/laser-shield/{filename}/{filename}.hdf5"
-    file_exists = os.path.isfile(full_path)
-    if file_exists:
-        print("Found file. Attempting to load...")
-        try:
-            s = load_simulation(full_path)
-        except KeyError as err:
-            print(err)
-            print("Running full sim.")
-            s = laser(filename)
-        print("Managed to load file.")
-    else:
-        print("Running simulation")
-        s = laser(filename)
+    s = try_run(filename, category_name, laser)
     plotting.plots(s, *args)
 
 if __name__ == '__main__':

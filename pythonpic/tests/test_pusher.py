@@ -165,7 +165,7 @@ def test_periodic_particles(g):
     for i in range(g.NT):
         s.push(lambda x: 0)
         s.apply_bc()
-    assert s.N_alive == s.N
+    assert s.N_alive == s.N, "They're dead, Jim."
 
 def test_nonperiodic_particles(g_aperiodic):
     g = g_aperiodic
