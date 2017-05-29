@@ -4,11 +4,12 @@ from ..classes import load_simulation
 
 
 def config_filename(run_name, category_name=None):
-    return f"data_analysis/{category_name}{'/' if category_name else ''}{run_name}/{run_name}.hdf5"
+    return f"data_analysis/{category_name+'/' if category_name else ''}{run_name}/{run_name}.hdf5"
 
 
 def try_run(run_name, category_name, config_function, *args, **kwargs):
     full_path = config_filename(run_name, category_name)
+    print(f"Path is {full_path}")
     file_exists = os.path.isfile(full_path)
     if file_exists:
         print("Found file. Attempting to load...")

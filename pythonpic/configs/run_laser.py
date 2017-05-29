@@ -35,7 +35,6 @@ scaling = npic # CHECK what should be the proper value here?
 
 category_name = "laser-shield"
 def laser(filename, n_macroparticles, impulse_duration):
-    filename=f"data_analysis/laser-shield/{filename}/{filename}.hdf5"
     bc = BoundaryCondition.Laser(laser_intensity=laser_intensity,
                                  laser_wavelength=laser_wavelength,
                                  envelope_center_t = total_time/2,
