@@ -67,7 +67,8 @@ class Species:
         self.velocity_history = np.zeros((self.saved_iterations, self.saved_particles, 3), dtype=float)
         self.velocity_mean_history = np.zeros((self.saved_iterations, 3), dtype=float)
         self.velocity_std_history = np.zeros((self.saved_iterations, 3), dtype=float)
-        self.alive_history = np.zeros((self.saved_iterations, self.saved_particles), dtype=bool)
+        # self.alive_history = np.zeros((self.saved_iterations, self.saved_particles), dtype=bool)
+        self.N_alive_history = np.zeros(self.saved_iterations, dtype=int)
         self.number_alive_history = np.zeros((self.saved_iterations), dtype=int)
         self.kinetic_energy_history = np.zeros(self.NT+1)
         self.pusher = pusher
@@ -193,7 +194,6 @@ class Species:
     def save_particle_values(self, i: int):
         """Update the i-th set of particle values"""
         if helper_functions.is_this_saved_iteration(i, self.save_every_n_iterations):
-
             N_alive = self.x.size
             save_every_n_particle = (N_alive // MAX_SAVED_PARTICLES)
             save_every_n_particle = 1 if save_every_n_particle == 0 else save_every_n_particle
@@ -208,7 +208,14 @@ class Species:
     def save_to_h5py(self, species_data):
         """
         Saves all species data to h5py file
-        species_data: h5py group for this species in pre-made hdf5 file
+
+        Parameters
+        ----------
+        species_data : h5py group
+            h5py group for this species in pre-made hdf5 file
+        Returns
+        -------
+
         """
         species_data.attrs['name'] = self.name
         species_data.attrs['N'] = self.N
@@ -222,13 +229,7 @@ class Species:
 
         species_data.create_dataset(name="v_mean", dtype=float, data=self.velocity_mean_history)
         species_data.create_dataset(name="v_std", dtype=float, data=self.velocity_std_history)
-
-    def load_from_h5py(self, species_data):
-        # REFACTOR: move this out of class (like Simulation.load_simulation)
-        """
-        Loads species data from h5py file
-        species_data: h5py group for this species in pre-made hdf5 file
-        """
+        species_data.create_dataset(name="N_alive_history", dtype=int, data=self.N_alive_history)
 
     def postprocess(self):
         pass # TODO: implement
@@ -241,6 +242,20 @@ class Species:
                f"steps over {self.NT} iterations"
 
 def load_species(species_data, grid, postprocess=False):
+    """
+    Loads species data from h5py file.
+    Parameters
+    ----------
+    species_data : h5py path
+        Path in open hdf5 file
+    grid : Grid
+        grid to load particles onto
+    postprocess : bool
+        Whether to run additional processing
+    Returns
+    -------
+
+    """
     name = species_data.attrs['name']
     N = species_data.attrs['N']
     q = species_data.attrs['q']
@@ -254,7 +269,7 @@ def load_species(species_data, grid, postprocess=False):
 
     species.position_history = species_data["x"][...]
     species.velocity_history = species_data["v"][...]
-    species.alive_history = species_data["alive"][...]
+    species.N_alive_history = species_data["N_alive_history"][...]
     species.kinetic_energy_history = species_data["Kinetic energy"][...]
     if postprocess:
         species.postprocess()

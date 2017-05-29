@@ -97,7 +97,7 @@ def rela_boris_push(species, E: np.ndarray, dt: float, B: np.ndarray,
     # CHECK: check correctness of relativistic kinetic energy calculation (needs to be at half timestep!)
     final_gamma = gamma_from_u(u_new, species.c)
     v_new = u_new / final_gamma
-    # TODO mean_gamma = (init_gamma + final_gamma)*0.5
+    # CHECK mean_gamma = (init_gamma + final_gamma)*0.5
     energy = ((final_gamma - 1) * species.eff_m * species.c ** 2).sum()
     x_new = species.x + v_new[:, 0] * dt
     return x_new, v_new, energy

@@ -26,7 +26,7 @@ class Simulation:
     filename : str
     title : str
     """
-    def __init__(self, grid: Grid, list_species=None, run_date=time.ctime(), git_ver=git_version(),
+    def __init__(self, grid: Grid, list_species=None, run_date=time.ctime(), git_version=git_version(),
                  filename=time.strftime("%Y-%m-%d_%H-%M-%S.hdf5"), title=""):
         self.NT = grid.NT
         self.dt = grid.dt
@@ -39,7 +39,7 @@ class Simulation:
         self.total_energy = np.zeros(self.NT)
         self.filename = filename
         self.title = title
-        self.git_version = git_ver
+        self.git_version = git_version
         self.run_date = run_date
 
     def grid_species_initialization(self):
@@ -156,7 +156,7 @@ def load_simulation(filename: str) -> Simulation:
 
     Returns
     -------
-
+    Simulation
     """
     with h5py.File(filename, "r") as f:
         total_energy = f['Total energy'][...]

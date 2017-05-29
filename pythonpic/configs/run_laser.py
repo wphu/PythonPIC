@@ -64,13 +64,20 @@ def main():
     import os
     args = plotting_parser("Hydrogen shield")
     filename = "Laser2"
-    filename=f"data_analysis/laser-shield/{filename}/{filename}.hdf5"
-    print(os.path.isfile(filename))
-    run = False
-    if run:
-        s = laser("Laser2")
+    full_path=f"data_analysis/laser-shield/{filename}/{filename}.hdf5"
+    file_exists = os.path.isfile(full_path)
+    if file_exists:
+        print("Found file. Attempting to load...")
+        try:
+            s = load_simulation(full_path)
+        except KeyError as err:
+            print(err)
+            print("Running full sim.")
+            s = laser(filename)
+        print("Managed to load file.")
     else:
-        s = load_simulation(filename)
+        print("Running simulation")
+        s = laser(filename)
     plotting.plots(s, *args)
 
 if __name__ == '__main__':

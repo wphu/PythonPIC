@@ -55,6 +55,8 @@ class Grid:
         self.NG = NG
 
         self.bc_function = bc # REFACTOR boundary condition
+        self.k = 2 * np.pi * fft.fftfreq(self.NG, self.dx)
+        self.k[0] = 0.0001
 
         self.periodic = periodic
         if self.periodic:
@@ -63,8 +65,6 @@ class Grid:
             self.current_transversal_gather_function = field_interpolation.periodic_transversal_current_deposition
             self.particle_bc = BoundaryCondition.return_particles_to_bounds
             self.solver = FieldSolver.FourierSolver
-            self.k = 2 * np.pi * fft.fftfreq(self.NG, self.dx)
-            self.k[0] = 0.0001
         else:
             self.charge_gather_function = field_interpolation.charge_density_deposition
             self.current_longitudinal_gather_function = field_interpolation.longitudinal_current_deposition
@@ -83,8 +83,6 @@ class Grid:
     def postprocess(self):
         self.postprocessed = True
 
-        self.k = 2 * np.pi * fft.fftfreq(self.NG, self.dx)
-        self.k[0] = 0.0001
         self.k_plot = self.k[:int(self.NG / 2)]
 
         self.energy_per_mode_history = np.zeros(
@@ -182,9 +180,9 @@ class Grid:
         for key, value in h5py_dataset_dictionary.items():
             grid_data.create_dataset(name=key, dtype=float, data=value)
 
-        grid_data.create_dataset(name="energy per mode", dtype=float,
-                                 data=self.energy_per_mode_history)  # OPTIMIZE: do these in post production
-        grid_data.create_dataset(name="grid energy", dtype=float, data=self.grid_energy_history)
+        # grid_data.create_dataset(name="energy per mode", dtype=float,
+        #                          data=self.energy_per_mode_history)  # OPTIMIZE: do these in post production
+        # grid_data.create_dataset(name="grid energy", dtype=float, data=self.grid_energy_history)
 
 
 def load_grid(grid_data, postprocess=False):
