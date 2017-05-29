@@ -37,6 +37,8 @@ class Simulation:
         self.list_species = list_species
         self.field_energy = np.zeros(self.NT)
         self.total_energy = np.zeros(self.NT)
+        if not filename.endswith(".hdf5"):
+            filename = filename + ".hdf5"
         self.filename = filename
         self.title = title
         self.git_version = git_version
