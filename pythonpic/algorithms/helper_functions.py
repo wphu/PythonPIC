@@ -68,6 +68,8 @@ def calculate_particle_iter_step(NT, f=np.log2):
     7
     >>> calculate_particle_iter_step(128, np.sqrt)
     11
+    >>> calculate_particle_iter_step(128, np.log10)
+    2
     >>> calculate_particle_iter_step(3, np.log10)
     1
 

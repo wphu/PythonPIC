@@ -152,7 +152,7 @@ class Simulation:
         self.dt:.3e}
         Done on {self.run_date} from git version {self.git_version}
         {self.grid.NG}-cell grid of length {self.grid.L:.2f}. Epsilon zero = {self.grid.epsilon_0}, 
-        c = {self.grid.epsilon_0}""".lstrip()
+        c = {self.grid.c}""".lstrip()
         for species in self.list_species:
             result_string = result_string + "\n" + str(species)
         return result_string  # REFACTOR: add information from config file (run_coldplasma...)
