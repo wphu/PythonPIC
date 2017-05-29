@@ -109,8 +109,8 @@ class Simulation:
             if verbose and i % (self.NT // 100) == 0:
                 report_progress(i, self.NT)
             self.iteration(i)
-        for species in self.list_species:
-            species.save_particle_values(self.NT)
+        # for species in self.list_species:
+        #     species.save_particle_values(self.NT)
         runtime = time.time() - start_time
         if self.filename and save_data:
             self.save_data(filename=self.filename, runtime=runtime)

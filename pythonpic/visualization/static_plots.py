@@ -127,12 +127,12 @@ def phase_trajectories(S, axis, all=False):
 
 def velocity_time_plots(S, axis):
     for s in S.list_species:
-        t = np.arange(calculate_particle_snapshots(S.NT), dtype=int) * S.dt * s.save_every_n_iterations
+        # t = np.arange(calculate_particle_snapshots(S.NT), dtype=int) * S.dt * s.save_every_n_iterations
         for i in range(3):
             mean = s.velocity_mean_history[:, i]
             std = s.velocity_std_history[:, i]
-            axis.plot(t, mean, "-", color=colors[i], label=f"{s.name} $v_{directions[i]}$", alpha=1)
-            axis.fill_between(t, mean - std, mean + std, color=colors[i], alpha=0.3)
+            axis.plot(S.grid.t, mean, "-", color=colors[i], label=f"{s.name} $v_{directions[i]}$", alpha=1)
+            axis.fill_between(S.grid.t, mean - std, mean + std, color=colors[i], alpha=0.3)
     axis.set_xlabel(r"Time $t$")
     axis.set_ylabel(r"Velocity $v$")
     if len(S.list_species) > 1:

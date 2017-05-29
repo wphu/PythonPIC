@@ -85,6 +85,8 @@ class Grid:
             print("Postprocessing grid.")
             self.postprocessed = True
 
+            self.t = np.arange(self.NT) * self.dt
+
             # increase size of magnetic field history
             magnetic_field_history = np.zeros((self.NT, self.NG, 3), dtype=float)
             magnetic_field_history[:,:,1:] = self.magnetic_field_history

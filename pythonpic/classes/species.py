@@ -65,10 +65,10 @@ class Species:
 
         self.position_history = np.zeros((self.saved_iterations, self.saved_particles), dtype=float)
         self.velocity_history = np.zeros((self.saved_iterations, self.saved_particles, 3), dtype=float)
-        self.velocity_mean_history = np.zeros((self.saved_iterations, 3), dtype=float)
-        self.velocity_std_history = np.zeros((self.saved_iterations, 3), dtype=float)
-        # self.alive_history = np.zeros((self.saved_iterations, self.saved_particles), dtype=bool)
-        self.N_alive_history = np.zeros(self.saved_iterations, dtype=int)
+
+        self.velocity_mean_history = np.zeros((self.NT, 3), dtype=float)
+        self.velocity_std_history = np.zeros((self.NT, 3), dtype=float)
+        self.N_alive_history = np.zeros(self.NT, dtype=int)
         self.kinetic_energy_history = np.zeros(self.NT+1)
         self.pusher = pusher
 
@@ -194,17 +194,17 @@ class Species:
 
     def save_particle_values(self, i: int):
         """Update the i-th set of particle values"""
+        N_alive = self.x.size
         if helper_functions.is_this_saved_iteration(i, self.save_every_n_iterations):
-            N_alive = self.x.size
             save_every_n_particle = (N_alive // MAX_SAVED_PARTICLES)
             save_every_n_particle = 1 if save_every_n_particle == 0 else save_every_n_particle
             index = helper_functions.convert_global_to_particle_iter(i, self.save_every_n_iterations)
             self.position_history[index, :N_alive] = self.x[::save_every_n_particle]
             self.velocity_history[index, :N_alive] = self.v[::save_every_n_particle]
-            self.N_alive_history[index] = N_alive
-            if N_alive > 0:
-                self.velocity_mean_history[index] = self.v.mean(axis=0)
-                self.velocity_std_history[index] = self.v.std(axis=0)
+        self.N_alive_history[i] = N_alive
+        if N_alive > 0:
+            self.velocity_mean_history[i] = self.v.mean(axis=0)
+            self.velocity_std_history[i] = self.v.std(axis=0)
         self.kinetic_energy_history[i] = self.energy
 
     def save_to_h5py(self, species_data):
