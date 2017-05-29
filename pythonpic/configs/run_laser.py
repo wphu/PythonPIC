@@ -31,13 +31,18 @@ maximum_electron_concentration = 5.24e27 # CHECK: this is a crutch
 npic = 1.048e25 # m^-3
 
 n_macroparticles = 75000
-
 scaling = npic # CHECK what should be the proper value here?
 
 category_name = "laser-shield"
-def laser(filename):
+def laser(filename, n_macroparticles, impulse_duration):
     filename=f"data_analysis/laser-shield/{filename}/{filename}.hdf5"
-    bc = BoundaryCondition.Laser(laser_intensity, laser_wavelength, total_time/2, impulse_duration, c=lightspeed, epsilon_0=epsilon_zero).laser_pulse
+    bc = BoundaryCondition.Laser(laser_intensity=laser_intensity,
+                                 laser_wavelength=laser_wavelength,
+                                 envelope_center_t = total_time/2,
+                                 envelope_width=impulse_duration,
+                                 c=lightspeed,
+                                 epsilon_0=epsilon_zero,
+                                 ).laser_pulse
     grid = Grid(T=total_time, L=length, NG=number_cells, c =lightspeed, epsilon_0 =epsilon_zero, bc=bc, periodic=False)
 
     electrons = Species(-electric_charge, electron_rest_mass, n_macroparticles, grid, "electrons", scaling)
@@ -55,8 +60,7 @@ def laser(filename):
     run = Simulation(grid, list_species, filename=filename, title=description)
     print("Simulation prepared.")
     run.grid_species_initialization()
-    print("Grid\species interactions initialized."
-          "Beginning simulation.")
+    print("Grid\species interactions initialized. Beginning simulation.")
     run.run(save_data=True, verbose=True)
     print("Well, that's it, then.")
     return run
@@ -64,8 +68,13 @@ def laser(filename):
 
 def main():
     args = plotting_parser("Hydrogen shield")
-    filename = "Laser2"
-    s = try_run(filename, category_name, laser)
+    s = try_run("few_particles", category_name, laser, 10000, impulse_duration)
+    plotting.plots(s, *args)
+    s = try_run("few_particles_short_pulse", category_name, laser, 10000, impulse_duration/10)
+    plotting.plots(s, *args)
+    s = try_run("production_run_short_pulse", category_name, laser, n_macroparticles, impulse_duration/10)
+    plotting.plots(s, *args)
+    s = try_run("production_run", category_name, laser, n_macroparticles, impulse_duration)
     plotting.plots(s, *args)
 
 if __name__ == '__main__':

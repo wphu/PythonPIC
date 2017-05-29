@@ -38,7 +38,7 @@ class Simulation:
         self.field_energy = np.zeros(self.NT)
         self.total_energy = np.zeros(self.NT)
         if not filename.endswith(".hdf5"):
-            filename = filename + ".hdf5"
+            raise ValueError("Filename does not end with '.hdf5'.")
         self.filename = filename
         self.title = title
         self.git_version = git_version
@@ -143,7 +143,7 @@ class Simulation:
             f.attrs['title'] = self.title
             if runtime:
                 f.attrs['runtime'] = runtime
-        print("Saved file to {}".format(filename))
+        print(f"Saved file to {filename}")
         return filename
 
     def __str__(self, *args, **kwargs):

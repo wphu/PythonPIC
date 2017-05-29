@@ -272,7 +272,7 @@ class FieldPlot(Plot):
     def update(self, i):
         self.plots[0].set_data(self.S.grid.x, self.S.grid.electric_field_history[i, :, self.j])
         self.plots[1].set_data(self.S.grid.x,
-                               self.S.grid.magnetic_field_history[i, :, self.j - 1])  # TODO remove -1 via enlarging last dimension of MagFieldHistory
+                               self.S.grid.magnetic_field_history[i, :, self.j])
 
 
 class CurrentPlot(Plot):
