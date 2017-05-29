@@ -48,7 +48,7 @@ def power(request):
 @pytest.fixture(scope="module")
 def wave_propagation_helper(shape, intensity, wavelength, power):
     laser = BoundaryCondition.Laser(intensity, wavelength, 10, power)
-    bc = BoundaryCondition.non_periodic_bc(shape(laser))
+    bc = shape(laser)
     filename = f"wave_propagation_test_I{intensity}L{wavelength}P{power}"
     return wave_propagation(filename, bc, save_data=False), laser
 
