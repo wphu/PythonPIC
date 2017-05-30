@@ -40,21 +40,6 @@ def animation(S, save: bool = False, alpha=1, frame_to_draw="animation", writer=
     """
     assert alpha <= 1, "alpha too large!"
     assert alpha >= 0, "alpha must be between 0 and 1!"
-    """ animates the simulation, showing:
-    * grid charge vs grid position
-    * grid electric field vs grid position
-    * particle phase plot (velocity vs position)
-    * spatial energy modes
-
-    S - Simulation object with run's data
-    videofile_name - should be in format FILENAME.mp4;
-        if not None, saves to file
-    lines - boolean flag; draws particle trajectories on phase plot
-    # TODO: investigate lines flag in animation
-    alpha - float (0, 1) - controls opacity for phase plot
-
-    returns: matplotlib figure with animation
-    """
     S.postprocess()
     fig = plt.figure(figsize=(13, 10))
     charge_axis = fig.add_subplot(421)

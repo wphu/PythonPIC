@@ -39,7 +39,6 @@ class Simulation:
         self.field_energy = np.zeros(self.NT)
         self.total_energy = np.zeros(self.NT)
         self.filename = config_filename(filename, category_type, config_version)
-        print("FILENAME", self.filename)
         self.title = title
         self.git_version = git_version
         self.run_date = run_date

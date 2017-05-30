@@ -3,7 +3,10 @@ branch = True
 
 [report]
 omit =
+    *__init__.py
 	*/tests/*
+	*/visualization/*
+	*/configs/*
 
 exclude_lines =
     raise NotImplementedError
