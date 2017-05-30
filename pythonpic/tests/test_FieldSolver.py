@@ -5,7 +5,8 @@ import pytest
 
 from ..algorithms.FieldSolver import BunemanSolver
 from ..classes import Grid, Simulation
-from ..visualization.animation import CurrentPlot, FieldPlot
+from ..visualization.time_snapshots import FieldPlot, CurrentPlot
+
 
 @pytest.fixture(params=(64, 128, 256, 512))
 def _NG(request):

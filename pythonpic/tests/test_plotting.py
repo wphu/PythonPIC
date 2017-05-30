@@ -6,9 +6,10 @@ import numpy as np
 from time import time
 
 from ..algorithms import helper_functions
-from ..configs import cold_plasma_oscillations
+from ..configs.run_coldplasma import cold_plasma_oscillations
 from ..visualization.plotting import plots
 from ..visualization.animation import animation
+from ..visualization.static_plots import static_plots
 
 
 @pytest.fixture(scope="module")
@@ -18,38 +19,35 @@ def helper_short_simulation():
         return False
     else:
         run_name = "visualization_test"
-        S = cold_plasma_oscillations(run_name, save_data=False)
+        S = cold_plasma_oscillations(run_name, save_data=False).run().postprocess()
         return S
 
 
 def test_static_plots(helper_short_simulation):
     S = helper_short_simulation
     if S:
-        try:
-            plots(S, save_static=True)
-        except:
-            assert False, "Failure on saving static plot"
+        static = static_plots(S, S.filename.replace(".hdf5", ".png"))
+        assert True
 
 def test_animation(helper_short_simulation):
     S = helper_short_simulation
     if S:
-        try:
-            plots(S, save_animation=True)
-        except:
-            assert False, "Failure on saving animation"
+        animation(S, save=True)
+        assert True
 
 
 def test_writer_manual_speed(helper_short_simulation):
     S = helper_short_simulation
-    start_time = time()
-    frames = list(np.arange(0, S.NT,
-                       helper_functions.calculate_particle_iter_step(S.NT),
-                       dtype=int))
-    animation(S, save=True, frame_to_draw=frames)
-    endtime = time()
-    runtime = endtime - start_time
-    print(runtime)
-    assert runtime
+    if S:
+        start_time = time()
+        frames = list(np.arange(0, S.NT,
+                           helper_functions.calculate_particle_iter_step(S.NT),
+                           dtype=int)[::10])
+        animation(S, save=True, frame_to_draw=frames)
+        endtime = time()
+        runtime = endtime - start_time
+        print(runtime)
+        assert runtime
 
 # @pytest.mark.parametrize("writer", ['ffmpeg', 'ffmpeg_file', 'mencoder'])
 # def test_writer_speed(helper_short_simulation, writer):

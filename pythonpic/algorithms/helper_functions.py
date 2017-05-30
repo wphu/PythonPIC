@@ -1,3 +1,4 @@
+# coding=utf-8
 """various helper functions"""
 import argparse
 # coding=utf-8
@@ -183,7 +184,7 @@ def get_dominant_mode(S):
     data = S.grid.energy_per_mode_history
     weights = (data ** 2).sum(axis=0) / (data ** 2).sum()
 
-    max_mode = weights[1:].argmax() +1
+    max_mode = weights[1:].argmax()
     # max_index = data[:, max_mode].argmax()
     return max_mode
 
@@ -230,6 +231,13 @@ def critical_density(wavelength):
     Parameters
     ----------
     wavelength : in meters
+
+    Examples
+    ----------
+    >>> critical_density(1)
+    1115085555081946.6
+    >>> critical_density(1115085555081946.6**0.5)
+    1.0
 
     Returns
     -------

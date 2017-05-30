@@ -1,6 +1,5 @@
 """Implements interaction of the laser with a hydrogen shield plasma"""
 # coding=utf-8
-from pythonpic.helper_functions.file_io import try_run
 from pythonpic.algorithms import BoundaryCondition
 from pythonpic.algorithms.helper_functions import epsilon_zero, electric_charge, lightspeed, proton_mass, electron_rest_mass
 from pythonpic.algorithms.helper_functions import plotting_parser, critical_density
@@ -44,36 +43,41 @@ def laser(filename, n_macroparticles, impulse_duration):
                                  ).laser_pulse
     grid = Grid(T=total_time, L=length, NG=number_cells, c =lightspeed, epsilon_0 =epsilon_zero, bc=bc, periodic=False)
 
-    electrons = Species(-electric_charge, electron_rest_mass, n_macroparticles, grid, "electrons", scaling)
-    protons = Species(electric_charge, proton_mass, n_macroparticles, grid, "protons", scaling)
-    list_species = [electrons, protons]
+    if n_macroparticles:
+        electrons = Species(-electric_charge, electron_rest_mass, n_macroparticles, grid, "electrons", scaling)
+        protons = Species(electric_charge, proton_mass, n_macroparticles, grid, "protons", scaling)
+        list_species = [electrons, protons]
 
 
-    for species in list_species:
-        print(f"Distributing {species.name} nonuniformly.")
-        species.distribute_nonuniformly(length, moat_length_left_side, preplasma_length, main_plasma_length)
-        species.random_position_perturbation(grid.L / grid.NG / 1000)
+        for species in list_species:
+            print(f"Distributing {species.name} nonuniformly.")
+            species.distribute_nonuniformly(length, moat_length_left_side, preplasma_length, main_plasma_length)
+            species.random_position_perturbation(grid.L / grid.NG / 1000)
+    else:
+        list_species = []
 
     description = "The big one"
 
-    run = Simulation(grid, list_species, filename=filename, title=description)
+    run = Simulation(grid, list_species,
+                     filename=filename,
+                     category_type="laser-shield",
+                     config_version=4,
+                     title=description)
     print("Simulation prepared.")
-    run.grid_species_initialization()
-    print("Grid\species interactions initialized. Beginning simulation.")
-    run.run(save_data=True, verbose=True)
-    print("Well, that's it, then.")
     return run
 
 
 def main():
     args = plotting_parser("Hydrogen shield")
-    s = try_run("few_particles", category_name, laser, 10000, impulse_duration)
+    s =laser("field_only", 0, impulse_duration).lazy_run()
     plotting.plots(s, *args)
-    s = try_run("few_particles_short_pulse", category_name, laser, 10000, impulse_duration/10)
+    s =laser("few_particles", 10000, impulse_duration).lazy_run()
     plotting.plots(s, *args)
-    s = try_run("production_run_short_pulse", category_name, laser, n_macroparticles, impulse_duration/10)
+    s = laser("few_particles_short_pulse", 10000, impulse_duration/10).lazy_run()
     plotting.plots(s, *args)
-    s = try_run("production_run", category_name, laser, n_macroparticles, impulse_duration)
+    s = laser("production_run_short_pulse", n_macroparticles, impulse_duration/10).lazy_run()
+    plotting.plots(s, *args)
+    s = laser("production_run", n_macroparticles, impulse_duration).lazy_run()
     plotting.plots(s, *args)
 
 if __name__ == '__main__':

@@ -1,3 +1,4 @@
+# coding=utf-8
 import pytest
 import numpy as np
 from ..classes.species import n_saved_particles

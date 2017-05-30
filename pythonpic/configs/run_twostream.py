@@ -4,7 +4,6 @@ import numpy as np
 
 from pythonpic.algorithms import helper_functions
 from pythonpic.algorithms.helper_functions import plotting_parser
-from pythonpic.helper_functions.file_io import try_run
 from pythonpic.classes.grid import Grid
 from pythonpic.classes.simulation import Simulation
 from pythonpic.classes.species import Species
@@ -68,43 +67,41 @@ def two_stream_instability(filename,
         description += f" + thermal $v_1$ of standard dev. {vrandom:.2f}"
 
     description += f" ({'stable' if expected_stability else 'unstable'}).\n"
-    run = Simulation(grid, list_species, filename=filename, title=description)
+    run = Simulation(grid, list_species, filename=filename, category_type="twostream", title=description)
     print(run)
     # REFACTOR: add initial condition values to Simulation object
-    run.grid_species_initialization()
-    run.run(save_data, postprocess=False)
     return run
 
 
 def main():
     args = plotting_parser("Two stream instability")
-    S = try_run("TS1", category_name, two_stream_instability,
+    S = two_stream_instability("TS1",
                            NG=512,
                            N_electrons=4096,
                            plasma_frequency=0.05 / 4,
-                           )
+                           ).lazy_run()
     plots(S, *args)
-    S = try_run("TS2", category_name, two_stream_instability,
+    S = two_stream_instability("TS2",
                            NG=512,
                            N_electrons=4096,
                            plasma_frequency=0.05,
-                           )
+                           ).lazy_run()
     plots(S, *args)
-    S = try_run("TS3", category_name, two_stream_instability,
+    S = two_stream_instability("TS3",
                            NG=512,
                            N_electrons=4096,
                            plasma_frequency=0.05 * 10,
-                           )
+                           ).lazy_run()
     plots(S, *args)
-    S = try_run("TSRANDOM1", category_name, two_stream_instability,
+    S = two_stream_instability("TSRANDOM1",
                            NG=512,
                            N_electrons=4096,
                            vrandom=1e-1,
-                           )
+                           ).lazy_run()
     plots(S, *args)
-    S = try_run("TSRANDOM2", category_name, two_stream_instability,
+    S = two_stream_instability("TSRANDOM2",
                            NG=512, N_electrons=4096,
-                           vrandom=1e-1)
+                           vrandom=1e-1).lazy_run()
     plots(S, *args)
 
 

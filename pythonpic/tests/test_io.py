@@ -1,17 +1,19 @@
+# coding=utf-8
 import pytest
 import numpy as np
 from ..classes import Grid, Particle, Simulation, load_simulation
+from ..helper_functions.file_io import config_filename
 
 @pytest.fixture(scope="module")
 def test_io_helper():
     grid = Grid(1, 1, 100)
     species = Particle(grid, 0.5, 0.1)
-    filename = "data_analysis/io_test.hdf5"
+    filename = "io_test"
     sim = Simulation(grid, [species], filename = filename)
     sim.grid_species_initialization()
-    sim.run(save_data=True)
+    sim.run().save_data()
 
-    sim2 = load_simulation(filename)
+    sim2 = load_simulation(config_filename(filename))
     return sim, sim2
 
 def test_grid_io(test_io_helper):

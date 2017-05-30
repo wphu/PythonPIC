@@ -56,7 +56,6 @@ def cold_plasma_oscillations(filename,
     Simulation
         a `Simulation` object with saved data.
     """
-    filename = f"data_analysis/CO/{filename}/{filename}.hdf5"
     particle_mass = 1
     particle_charge = particle_mass * qmratio # REFACTOR: use physical units here
     scaling = abs(particle_mass * plasma_frequency ** 2 * L / float(
@@ -78,9 +77,7 @@ def cold_plasma_oscillations(filename,
     description = f"Cold plasma oscillations\nposition initial condition perturbed by sinusoidal oscillation mode " \
                   f"{push_mode} excited with amplitude {push_amplitude}\n"
 
-    run = Simulation(grid, list_species, filename=filename, title=description)
-    run.grid_species_initialization()
-    run.run(save_data)
+    run = Simulation(grid, list_species, filename=filename, category_type="coldplasma", title=description)
     return run
 
 
@@ -93,7 +90,7 @@ def main():
     qmratio = -1
 
     S = cold_plasma_oscillations(f"CO1", qmratio=qmratio, plasma_frequency=plasma_frequency, NG=NG,
-                                 N_electrons=N_electrons, push_mode=push_mode, save_data=False)
+                                 N_electrons=N_electrons, push_mode=push_mode, save_data=False).lazy_run()
     plots(S, *args)
 
 

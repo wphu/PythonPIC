@@ -108,6 +108,7 @@ class Grid:
             self.postprocessed = True
 
     def apply_bc(self, i):
+        # noinspection PyCallingNonCallable
         bc_value = self.bc_function(i * self.dt)
         if bc_value is not None:
             self.electric_field[0, 1] = bc_value
@@ -209,6 +210,8 @@ def load_grid(grid_data, postprocess=False):
     ----------
     grid_data : h5py path
         Path to Grid data.
+    postprocess: bool
+        Whether to postprocess the grid after loading.
     Returns
     -------
     Grid

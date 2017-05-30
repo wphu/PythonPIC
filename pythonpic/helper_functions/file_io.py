@@ -1,26 +1,38 @@
+# coding=utf-8
 import os
 
-from ..classes import load_simulation
+# from ..classes import load_simulation
 
 
-def config_filename(run_name, category_name=None):
-    return f"data_analysis/{category_name+'/' if category_name else ''}{run_name}/{run_name}.hdf5"
+def config_filename(run_name, category_name=None, version_number=None):
+    """
+    Prepares config filename for saving.
+
+    Parameters
+    ----------
+    run_name : str
+
+    category_name : str
+
+    version_number : int
 
 
-def try_run(run_name, category_name, config_function, *args, **kwargs):
-    full_path = config_filename(run_name, category_name)
-    print(f"Path is {full_path}")
-    file_exists = os.path.isfile(full_path)
-    if file_exists:
-        print("Found file. Attempting to load...")
-        try:
-            s = load_simulation(full_path)
-        except KeyError as err:
-            print(err)
-            print("Running full sim.")
-            s = config_function(full_path, *args, **kwargs)
-        print("Managed to load file.")
-    else:
-        print("Running simulation")
-        s = config_function(full_path, *args, **kwargs)
-    return s
+    Examples
+    ----------
+    >>> config_filename("run")
+    'data_analysis/run/run.hdf5'
+    >>> config_filename("run", "simulation_type")
+    'data_analysis/simulation_type/run/run.hdf5'
+    >>> config_filename("run", "simulation_type", 1)
+    'data_analysis/simulation_type/v1/run/run.hdf5'
+
+    Returns
+    -------
+
+    """
+    return "data_analysis/"+\
+           f"{category_name+'/' if category_name else ''}"+\
+            f"{'v' + str(version_number) + '/' if version_number else ''}" +\
+            f"{run_name}/{run_name}.hdf5"
+
+#

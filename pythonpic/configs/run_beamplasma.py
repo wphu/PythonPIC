@@ -48,8 +48,8 @@ def weakbeam_instability(filename,
     grid = Grid(L=L, NG=NG, T=T)
     filename = f"data_analysis/BP/{filename}/{filename}.hdf5"
 
-    plasma = Species(particle_charge, particle_mass, N_plasma, "plasma", grid.NT, scaling(N_plasma))
-    beam = Species(particle_charge, particle_mass, N_beam, "beam2", grid.NT, scaling(N_plasma))
+    plasma = Species(particle_charge, particle_mass, N_plasma, grid, "plasma", scaling(N_plasma))
+    beam = Species(particle_charge, particle_mass, N_beam, grid, "beam2", scaling(N_plasma))
     # total_negative_charge = particle_charge * (N_plasma + N_beam)
     # N_protons = 100
     # q_protons = -total_negative_charge/N_protons
@@ -68,22 +68,15 @@ def weakbeam_instability(filename,
     if vrandom:
         description += f" + thermal $v_1$ of standard dev. {vrandom:.2f}"
     description += "\n"
-    run = Simulation(grid, list_species, filename=filename, title=description)
-    run.grid_species_initialization()
-    run.run(save_data)
+    run = Simulation(grid, list_species, filename=filename, category_type="beamplasma", title=description)
     return run
 
 
 def main():
     args = plotting_parser("Weak beam instability")
     np.random.seed(0)
-    simulations = [
-        weakbeam_instability("BP1",
-                             ),
-        ]
-
-    for s in simulations:
-        plotting.plots(s, *args, alpha=0.5)
+    s = weakbeam_instability("beamplasma1").lazy_run()
+    plotting.plots(s, *args, alpha=0.5)
 
 
 if __name__ == '__main__':

@@ -29,10 +29,10 @@ def ESE_time_plots(S, axis):
     # # TODO: max_index = data[:, max_mode].argmax()
 
     t = np.arange(S.NT) * S.dt
-    for i in range(1, 6):
+    for i in range(6):
         axis.plot(t, data[:, i], label=f"Mode {i}", alpha=0.8)
     for i in range(6, data.shape[1]):
-        axis.plot(t, data[:, i], alpha=0.9)
+        axis.plot(t, data[:, i], alpha=0.7)
     # axis.annotate(f"Mode {max_mode}",
     #               xy=(t[max_index], data[max_index, max_mode]),
     #               arrowprops=dict(facecolor='black', shrink=0.05),

@@ -123,9 +123,9 @@ class Species:
 
         Parameters
         ----------
-        electric_field_function : ndarray
-        magnetic_field_function : ndarray
-            Arrays of interpolated field values. Shape should be (N_particles, 3).
+        electric_field_function : function
+        magnetic_field_function : function
+            Functions returning arrays of interpolated field values. Shape should be (N_particles, 3).
 
         Returns
         -------
@@ -141,10 +141,20 @@ class Species:
 
     def distribute_uniformly(self, Lx: float, shift: float = 0, start_moat=0, end_moat=0):
         """
+
         Distribute uniformly on grid.
 
-        :param Lx: grid size
-        :param shift: displace all particles right by this distance
+        Parameters
+        ----------
+        Lx : float
+            physical grid size
+        shift : float
+            a constant displacement for all particles
+        start_moat : float
+            left boundary size
+        end_moat :
+            right boundary size
+
         """
         self.x = (np.linspace(start_moat + Lx / self.N * 1e-10, Lx - end_moat, self.N,
                               endpoint=False) + shift * self.N / Lx / 10) % Lx  # Type:
