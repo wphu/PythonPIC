@@ -53,22 +53,27 @@ class weakbeam_instability(Simulation):
             description += f" + thermal $v_1$ of standard dev. {vrandom:.2f}"
         description += "\n"
         super().__init__(grid, list_species, filename=filename, category_type="beamplasma", title=description)
+        self.v0 = v0
+        self.push_amplitude = push_amplitude
+        self.push_mode = push_mode
+        self.vrandom = self.vrandom
 
 
+    def grid_species_initialization(self):
         # total_negative_charge = particle_charge * (N_plasma + N_beam)
         # N_protons = 100
         # q_protons = -total_negative_charge/N_protons
         # proton_mass = 1e16
-        beam.v[:, 0] = v0
+        beam, plasma = self.list_species
+        beam.v[:, 0] = self.v0
         plasma.v[:, 0] = 0
         # background = Species(q_protons, proton_mass, N_protons, "protons", NT, scaling(N_plasma))
         # background.v[:,:] = 0
-        for i, species in enumerate(list_species):
-            species.distribute_uniformly(L, 0.5 * grid.dx * i)
-            species.sinusoidal_position_perturbation(push_amplitude, push_mode, grid.L)
-            if vrandom:
-                species.random_velocity_perturbation(0, vrandom)
-        run = Simulation(
-        return run
+        for i, species in enumerate(self.list_species):
+            species.distribute_uniformly(self.grid.L, 0.5 * self.grid.dx * i)
+            species.sinusoidal_position_perturbation(self.push_amplitude, self.push_mode, self.grid.L)
+            if self.vrandom:
+                species.random_velocity_perturbation(0, self.vrandom)
+        super().grid_species_initialization()
 
 

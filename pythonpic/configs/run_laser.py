@@ -30,37 +30,40 @@ n_macroparticles = 75000
 scaling = npic # CHECK what should be the proper value here?
 
 category_name = "laser-shield"
-def laser(filename, n_macroparticles, impulse_duration):
-    bc = BoundaryCondition.Laser(laser_intensity=laser_intensity,
-                                 laser_wavelength=laser_wavelength,
-                                 envelope_center_t = total_time/2,
-                                 envelope_width=impulse_duration,
-                                 c=lightspeed,
-                                 epsilon_0=epsilon_zero,
-                                 ).laser_pulse
-    grid = Grid(T=total_time, L=length, NG=number_cells, c =lightspeed, epsilon_0 =epsilon_zero, bc=bc, periodic=False)
+class laser(Simulation):
+    def __init__(self, filename, n_macroparticles, impulse_duration):
+        bc = BoundaryCondition.Laser(laser_intensity=laser_intensity,
+                                     laser_wavelength=laser_wavelength,
+                                     envelope_center_t = total_time/2,
+                                     envelope_width=impulse_duration,
+                                     c=lightspeed,
+                                     epsilon_0=epsilon_zero,
+                                     ).laser_pulse
+        grid = Grid(T=total_time, L=length, NG=number_cells, c =lightspeed, epsilon_0 =epsilon_zero, bc=bc, periodic=False)
 
-    if n_macroparticles:
-        electrons = Species(-electric_charge, electron_rest_mass, n_macroparticles, grid, "electrons", scaling)
-        protons = Species(electric_charge, proton_mass, n_macroparticles, grid, "protons", scaling)
-        list_species = [electrons, protons]
+        if n_macroparticles:
+            electrons = Species(-electric_charge, electron_rest_mass, n_macroparticles, grid, "electrons", scaling)
+            protons = Species(electric_charge, proton_mass, n_macroparticles, grid, "protons", scaling)
+            list_species = [electrons, protons]
 
 
-        for species in list_species:
+        else:
+            list_species = []
+
+        description = "The big one"
+
+        super().__init__(grid, list_species,
+                         filename=filename,
+                         category_type="laser-shield",
+                         config_version=4,
+                         title=description)
+        print("Simulation prepared.")
+
+    def grid_species_initialization(self):
+        for species in self.list_species:
             print(f"Distributing {species.name} nonuniformly.")
             species.distribute_nonuniformly(length, moat_length_left_side, preplasma_length, main_plasma_length)
-            species.random_position_perturbation(grid.L / grid.NG / 1000)
-    else:
-        list_species = []
-
-    description = "The big one"
-
-    run = Simulation(grid, list_species,
-                     filename=filename,
-                     category_type="laser-shield",
-                     config_version=4,
-                     title=description)
-    print("Simulation prepared.")
-    return run
+            species.random_position_perturbation(self.grid.L / self.grid.NG / 1000)
+        super().grid_species_initialization()
 
 
