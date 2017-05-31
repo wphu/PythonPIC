@@ -1,11 +1,9 @@
 """Implements interaction of the laser with a hydrogen shield plasma"""
 # coding=utf-8
 from ..algorithms import BoundaryCondition
+from ..classes import Grid, Simulation, Species
 from ..helper_functions.physics import epsilon_zero, electric_charge, lightspeed, proton_mass, electron_rest_mass, \
     critical_density
-from ..helper_functions.helpers import plotting_parser
-from ..classes import Grid, Simulation, Species
-from ..visualization import plotting
 
 laser_wavelength = 1.064e-6 # meters
 laser_intensity = 1e23 # watt/meters squared
@@ -66,18 +64,3 @@ def laser(filename, n_macroparticles, impulse_duration):
     return run
 
 
-def main():
-    args = plotting_parser("Hydrogen shield")
-    s =laser("field_only", 0, impulse_duration).lazy_run()
-    plotting.plots(s, *args)
-    s =laser("few_particles", 10000, impulse_duration).lazy_run()
-    plotting.plots(s, *args)
-    s = laser("few_particles_short_pulse", 10000, impulse_duration/10).lazy_run()
-    plotting.plots(s, *args)
-    s = laser("production_run_short_pulse", n_macroparticles, impulse_duration/10).lazy_run()
-    plotting.plots(s, *args)
-    s = laser("production_run", n_macroparticles, impulse_duration).lazy_run()
-    plotting.plots(s, *args)
-
-if __name__ == '__main__':
-    main()

@@ -3,9 +3,7 @@
 import numpy as np
 
 from ..algorithms import BoundaryCondition
-from ..helper_functions.helpers import plotting_parser
 from ..classes import Grid, Simulation
-from ..visualization import plotting
 
 
 def wave_propagation(filename,
@@ -24,16 +22,3 @@ def wave_propagation(filename,
     return run
 
 
-def main():
-    args = plotting_parser("Wave propagation")
-    for filename, boundary_function in zip(["Wave", "Envelope", "Laser"],
-                                           [BoundaryCondition.Laser(1, 1, 10, 3).laser_wave,
-                                            BoundaryCondition.Laser(1, 1, 10, 3).laser_envelope,
-                                            BoundaryCondition.Laser(1, 1, 10, 3).laser_pulse,
-                                            ]):
-        s = wave_propagation(filename, bc=boundary_function).lazy_run()
-        plotting.plots(s, *args, alpha=0.5)
-
-
-if __name__ == "__main__":
-    main()

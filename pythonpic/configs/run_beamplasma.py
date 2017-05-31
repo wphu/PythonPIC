@@ -2,9 +2,7 @@
 # coding=utf-8
 import numpy as np
 
-from ..helper_functions.helpers import plotting_parser
 from ..classes import Grid, Simulation, Species
-from ..visualization import plotting
 
 
 def weakbeam_instability(filename,
@@ -70,12 +68,3 @@ def weakbeam_instability(filename,
     return run
 
 
-def main():
-    args = plotting_parser("Weak beam instability")
-    np.random.seed(0)
-    s = weakbeam_instability("beamplasma1").lazy_run()
-    plotting.plots(s, *args, alpha=0.5)
-
-
-if __name__ == '__main__':
-    main()

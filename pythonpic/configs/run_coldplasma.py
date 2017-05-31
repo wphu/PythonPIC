@@ -2,9 +2,7 @@
 # coding=utf-8
 from numpy import pi
 
-from ..helper_functions.helpers import plotting_parser
 from ..classes import Grid, Simulation, Species
-from ..visualization.plotting import plots
 
 
 def cold_plasma_oscillations(filename,
@@ -79,18 +77,3 @@ def cold_plasma_oscillations(filename,
     return run
 
 
-def main():
-    args = plotting_parser("Cold plasma oscillations")
-    plasma_frequency = 1
-    push_mode = 2
-    N_electrons = 1024
-    NG = 64
-    qmratio = -1
-
-    S = cold_plasma_oscillations(f"CO1", qmratio=qmratio, plasma_frequency=plasma_frequency, NG=NG,
-                                 N_electrons=N_electrons, push_mode=push_mode, save_data=False).lazy_run()
-    plots(S, *args)
-
-
-if __name__ == '__main__':
-    main()

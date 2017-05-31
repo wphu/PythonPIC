@@ -1,11 +1,10 @@
 # coding=utf-8
 """A work in progress particle-in-cell code written in Python, optimized for speed as well as readability."""
 
-from . import classes
-from . import algorithms
-from . import visualization
-from . import configs
-from . import helper_functions
+from .configs import wave_propagation, two_stream_instability, laser_shield, cold_plasma_oscillations, weakbeam_instability
+from .visualization.plotting import plots
+from .helper_functions.helpers import plotting_parser
+from .algorithms import BoundaryCondition
 import sys
 import warnings
 
