@@ -115,6 +115,7 @@ class Grid:
         if bc_value is not None:
             self.electric_field[0, 1] = bc_value
             self.magnetic_field[0, 2] = bc_value / self.c
+            # TODO: add polarization
             # self.electric_field[0, 2] = bc_value
             # self.magnetic_field[0, 1] = bc_value / self.c
 
@@ -246,7 +247,7 @@ def load_grid(grid_data, postprocess=False):
     grid.charge_density_history = grid_data['rho'][...]
     grid.current_density_history = grid_data['current'][...]
     grid.electric_field_history = grid_data['Efield'][...]
-    grid.magnetic_field_history = np.zeros(grid_data['Bfield'].shape)
+    grid.magnetic_field_history = grid_data['Bfield'][...]
 
     if postprocess:
         grid.postprocess()

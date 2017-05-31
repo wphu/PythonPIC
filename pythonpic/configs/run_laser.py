@@ -6,7 +6,7 @@ from ..helper_functions.physics import epsilon_zero, electric_charge, lightspeed
     critical_density
 
 
-VERSION = 5
+VERSION = 4
 laser_wavelength = 1.064e-6 # meters
 laser_intensity = 1e23 # watt/meters squared
 impulse_duration = 1e-13 # seconds
