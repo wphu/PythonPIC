@@ -19,6 +19,6 @@ class wave_propagation(Simulation):
         grid = Grid(T=T, L=L, NG=NG, epsilon_0=epsilon_0, c=c, bc=bc, periodic=False)
         description = "Electrostatic wave driven by boundary condition"
 
-        super.__init__(grid, [], filename=filename, category_type="wave", title=description)
+        super().__init__(grid, [], filename=filename, category_type="wave", title=description)
 
 
