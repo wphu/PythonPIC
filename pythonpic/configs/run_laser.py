@@ -6,7 +6,7 @@ from ..helper_functions.physics import epsilon_zero, electric_charge, lightspeed
     critical_density
 
 
-VERSION = 4
+VERSION = 5
 laser_wavelength = 1.064e-6 # meters
 laser_intensity = 1e23 # watt/meters squared
 impulse_duration = 1e-13 # seconds
@@ -38,6 +38,7 @@ class laser(Simulation):
                                      laser_wavelength=laser_wavelength,
                                      envelope_center_t = total_time/2,
                                      envelope_width=impulse_duration,
+                                     envelope_power=6,
                                      c=lightspeed,
                                      epsilon_0=epsilon_zero,
                                      ).laser_pulse
@@ -52,7 +53,7 @@ class laser(Simulation):
         else:
             list_species = []
 
-        description = "The big one"
+        description = "Hydrogen shield-laser interaction"
 
         super().__init__(grid, list_species,
                          filename=filename,
