@@ -16,7 +16,8 @@ def plots(file,
           save_static: bool = False,
           show_animation: bool = False,
           save_animation: bool = False,
-          alpha: float = 0.7):
+          alpha: float = 0.7,
+          frame_to_draw = "animation"):
     """
     Wrapper to run visual analysis on saved hdf5 file. Displays static plots and animations.
 
@@ -49,7 +50,7 @@ def plots(file,
         if show_animation or save_animation:
             # noinspection PyUnusedLocal
             # this needs name due to matplotlib.animation
-            anim = animation.animation(S, save_animation, alpha=alpha)
+            anim = animation.animation(S, save_animation, alpha=alpha, frame_to_draw=frame_to_draw)
         if show_animation or show_static:
             plt.show()
         else:
