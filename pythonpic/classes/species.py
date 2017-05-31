@@ -61,6 +61,7 @@ class Species:
         self.eff_m = m * scaling
 
         self.grid = grid
+        self.grid.list_species.append(self)
         self.particle_bc = grid.particle_bc
         self.dt = grid.dt
         self.NT = grid.NT
@@ -70,6 +71,7 @@ class Species:
         self.saved_iterations = calculate_particle_snapshots(grid.NT)
         self.x = np.zeros(N, dtype=float)
         self.v = np.zeros((N, 3), dtype=float)
+        self.gathered_density = np.zeros(self.grid.NG+1, dtype=float)
         self.energy = self.kinetic_energy()
         self.alive = np.ones(N, dtype=bool)
         self.name = name
@@ -82,6 +84,7 @@ class Species:
         self.position_history = np.zeros((self.saved_iterations, self.saved_particles), dtype=float)
         self.velocity_history = np.zeros((self.saved_iterations, self.saved_particles, 3), dtype=float)
 
+        self.density_history = np.zeros((self.NT, self.grid.NG), dtype=float)
         self.velocity_mean_history = np.zeros((self.NT, 3), dtype=float)
         self.velocity_std_history = np.zeros((self.NT, 3), dtype=float)
         self.N_alive_history = np.zeros(self.NT, dtype=int)
@@ -139,6 +142,9 @@ class Species:
         self.x, self.v, self.energy = self.pusher(self, E, self.dt, B)
         return self.energy
 
+    def gather_density(self):
+        self.gathered_density = self.grid.charge_gather_function(self.grid.x, self.grid.dx, self.x)
+        return self.gathered_density
     """POSITION INITIALIZATION"""
 
     def distribute_uniformly(self, Lx: float, shift: float = 0, start_moat=0, end_moat=0):
@@ -221,6 +227,7 @@ class Species:
     def save_particle_values(self, i: int):
         """Update the i-th set of particle values"""
         N_alive = self.x.size
+        self.density_history[i] = self.gathered_density[:-1]
         if is_this_saved_iteration(i, self.save_every_n_iterations):
             save_every_n_particle, saved_particles = n_saved_particles(N_alive, self.saved_particles)
 
@@ -263,6 +270,7 @@ class Species:
         species_data.create_dataset(name="v_mean", dtype=float, data=self.velocity_mean_history)
         species_data.create_dataset(name="v_std", dtype=float, data=self.velocity_std_history)
         species_data.create_dataset(name="N_alive_history", dtype=int, data=self.N_alive_history)
+        species_data.create_dataset(name="density_history", dtype=float, data=self.density_history)
 
     def postprocess(self):
         if not self.postprocessed:
@@ -302,6 +310,7 @@ def load_species(species_data, grid, postprocess=False):
     species = Species(q, m, N, grid, name, scaling)
     species.velocity_mean_history = species_data["v_mean"][...]
     species.velocity_std_history = species_data["v_std"][...]
+    species.density_history = species_data["density_history"][...]
 
     species.position_history = species_data["x"][...]
     species.velocity_history = species_data["v"][...]

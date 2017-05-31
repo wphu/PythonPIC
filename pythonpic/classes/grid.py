@@ -61,20 +61,21 @@ class Grid:
 
         self.periodic = periodic
         if self.periodic:
-            self.charge_gather_function = field_interpolation.periodic_charge_density_deposition
+            self.charge_gather_function = field_interpolation.periodic_density_deposition
             self.current_longitudinal_gather_function = current_interpolation \
                 .periodic_longitudinal_current_deposition
             self.current_transversal_gather_function = current_interpolation.periodic_transversal_current_deposition
             self.particle_bc = BoundaryCondition.return_particles_to_bounds
             self.solver = FieldSolver.FourierSolver
         else:
-            self.charge_gather_function = field_interpolation.aperiodic_charge_density_deposition
+            self.charge_gather_function = field_interpolation.aperiodic_density_deposition
             self.current_longitudinal_gather_function = current_interpolation.longitudinal_current_deposition
             self.current_transversal_gather_function = current_interpolation.transversal_current_deposition
             self.particle_bc = BoundaryCondition.kill_particles_outside_bounds
             self.solver = FieldSolver.BunemanSolver
 
 
+        self.list_species = []
         self.charge_density_history = np.zeros((self.NT, self.NG))
         self.current_density_history = np.zeros((self.NT, self.NG, 3))
         self.electric_field_history = np.zeros((self.NT, self.NG, 3))
@@ -139,11 +140,7 @@ class Grid:
         # REFACTOR: move to Species
         self.charge_density[...] = 0.0
         for species in list_species:
-            gathered_density = self.charge_gather_function(self.x, self.dx,
-                                                           species.x,
-                                                           species.eff_q)
-
-            self.charge_density += gathered_density
+            self.charge_density += species.gather_density() * species.eff_q
         # REFACTOR: optionally self.charge_density -= self.charge_density.mean() for periodic simulations
 
     def gather_current(self, list_species):

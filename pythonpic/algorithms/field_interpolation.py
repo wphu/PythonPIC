@@ -3,7 +3,7 @@
 import numpy as np
 
 
-def charge_density_deposition(x, dx: float, x_particles, particle_charge: float):
+def density_deposition(x, dx: float, x_particles):
     """scatters charge from particles to grid
     uses linear interpolation
     x_i | __________p___| x_i+1
@@ -22,21 +22,21 @@ def charge_density_deposition(x, dx: float, x_particles, particle_charge: float)
     logical_coordinates = (x_particles / dx).astype(int)
     right_fractions = x_particles / dx - logical_coordinates
     left_fractions = 1 - right_fractions
-    charge_to_right = particle_charge * right_fractions
-    charge_to_left = particle_charge * left_fractions
+    charge_to_right = right_fractions
+    charge_to_left = left_fractions
     charge_hist_to_right = np.bincount(logical_coordinates+1, charge_to_right, minlength=x.size+1)
     charge_hist_to_left = np.bincount(logical_coordinates, charge_to_left, minlength=x.size+1)
     return charge_hist_to_right + charge_hist_to_left
 
 
-def periodic_charge_density_deposition(x, dx: float, x_particles, particle_charge: float):
-    result = charge_density_deposition(x, dx, x_particles, particle_charge)
+def periodic_density_deposition(x, dx: float, x_particles):
+    result = density_deposition(x, dx, x_particles)
     result[0] += result[-1]
     return result
 
 
-def aperiodic_charge_density_deposition(x, dx: float, x_particles, particle_charge: float):
-    result = charge_density_deposition(x, dx, x_particles, particle_charge)
+def aperiodic_density_deposition(x, dx: float, x_particles, particle_charge: float):
+    result = density_deposition(x, dx, x_particles)
     return result
 
 

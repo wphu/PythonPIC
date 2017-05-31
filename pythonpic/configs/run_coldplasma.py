@@ -77,7 +77,7 @@ class cold_plasma_oscillations(Simulation):
 
     def grid_species_initialization(self):
         for species in self.list_species:
-            species.distribute_uniformly(L)
-            species.sinusoidal_position_perturbation(self.push_amplitude, self.push_mode, L)
+            species.distribute_uniformly(self.grid.L)
+            species.sinusoidal_position_perturbation(self.push_amplitude, self.push_mode, self.grid.L)
         super().grid_species_initialization()
 

@@ -2,7 +2,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ..algorithms.field_interpolation import charge_density_deposition, periodic_charge_density_deposition
+from ..algorithms.field_interpolation import density_deposition, periodic_density_deposition
 
 
 def test_single_particle(plotting=False):
@@ -20,7 +20,7 @@ def test_single_particle(plotting=False):
     print(indices)
 
     analytical_charge_density = np.array([0., 0., 0., 0.5, 0.5, 0.25, 0.75, 0., 0.])
-    charge_density = charge_density_deposition(x, dx, x_particles, q)
+    charge_density = q * density_deposition(x, dx, x_particles)
     print(f"charge density {charge_density}")
     print(f"analytical charge density {analytical_charge_density}")
 
@@ -49,7 +49,7 @@ def test_constant_density(plotting=False):
     x_particles = np.linspace(0, L, N, endpoint=False)
     analytical_charge_density = x_particles.size * q / L / NG * np.ones_like(x)
 
-    charge_density = periodic_charge_density_deposition(x, dx, x_particles, q)
+    charge_density = periodic_density_deposition(x, dx, x_particles)
     print(f"charge density {charge_density}")
     print(f"analytical charge density {analytical_charge_density}")
 
@@ -78,7 +78,7 @@ def test_boundaries(plotting=False):
     analytical_charge_density = x_particles.size * q / L
 
     analytical_charge_density = np.array([0.25, 0., 0., 0.5, 0.5, 0., 0., 0.75])
-    charge_density = periodic_charge_density_deposition(x, dx, x_particles, q)
+    charge_density = periodic_density_deposition(x, dx, x_particles)
     print(f"charge density {charge_density}")
     print(f"analytical charge density {analytical_charge_density}")
 
