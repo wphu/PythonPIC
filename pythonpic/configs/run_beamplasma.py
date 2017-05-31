@@ -9,7 +9,6 @@ class weakbeam_instability(Simulation):
     def __init__(self, filename,
                          plasma_frequency=1,
                          qmratio=-1,
-                         dt=0.2,
                          T=300 * 0.2,
                          NG=32,
                          N_beam=128,
@@ -20,7 +19,6 @@ class weakbeam_instability(Simulation):
                          push_mode=1,
                          v0=0.01,
                          vrandom=0,
-                         save_data: bool = True,
                          ):
         """Implements beam-plasma instability from Birdsall and Langdon
 
