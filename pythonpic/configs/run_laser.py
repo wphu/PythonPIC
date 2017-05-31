@@ -5,6 +5,8 @@ from ..classes import Grid, Simulation, Species
 from ..helper_functions.physics import epsilon_zero, electric_charge, lightspeed, proton_mass, electron_rest_mass, \
     critical_density
 
+
+VERSION = 5
 laser_wavelength = 1.064e-6 # meters
 laser_intensity = 1e23 # watt/meters squared
 impulse_duration = 1e-13 # seconds
@@ -55,7 +57,7 @@ class laser(Simulation):
         super().__init__(grid, list_species,
                          filename=filename,
                          category_type="laser-shield",
-                         config_version=4,
+                         config_version=VERSION,
                          title=description)
         print("Simulation prepared.")
 
@@ -64,6 +66,8 @@ class laser(Simulation):
             print(f"Distributing {species.name} nonuniformly.")
             species.distribute_nonuniformly(length, moat_length_left_side, preplasma_length, main_plasma_length)
             species.random_position_perturbation(self.grid.L / self.grid.NG / 1000)
+        print("Finished initial distribution of particles.")
         super().grid_species_initialization()
+        print("Finished initialization.")
 
 

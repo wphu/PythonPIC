@@ -115,6 +115,8 @@ class Grid:
         if bc_value is not None:
             self.electric_field[0, 1] = bc_value
             self.magnetic_field[0, 2] = bc_value / self.c
+            # self.electric_field[0, 2] = bc_value
+            # self.magnetic_field[0, 1] = bc_value / self.c
 
     def init_solver(self):
         return self.solver.init_solver(self)

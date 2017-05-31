@@ -44,7 +44,7 @@ def ESE_time_plots(S, axis):
     axis.set_ylabel("Energy")
     axis.set_xlim(0, S.NT * S.dt)
     axis.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True, useOffset=False)
-    axis.set_title("Energy per mode versus time")
+    axis.set_title("Energy per spatial mode versus time")
 
 
 def temperature_time_plot(S, axis, twinaxis=True):
