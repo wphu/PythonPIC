@@ -271,8 +271,8 @@ class Species:
     def postprocess(self):
         if not self.postprocessed:
             print(f"Postprocessing {self.name}.")
+            self.kinetic_energy_history = 0.5 * (self.kinetic_energy_history[1:] + self.kinetic_energy_history[:-1])
             self.postprocessed = True
-            pass # TODO: implement
 
     def __repr__(self, *args, **kwargs):
         return f"Species(q={self.q:.4f},m={self.m:.4f},N={self.N},name=\"{self.name}\",NT={self.NT})"

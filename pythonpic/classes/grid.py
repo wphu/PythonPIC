@@ -96,8 +96,8 @@ class Grid:
 
 
             # calculate energy history
-            electric_energy = 0.5 * self.epsilon_0 * self.dx * (self.electric_field_history ** 2).sum(2) # over directions
-            magnetic_energy = 0.5 * self.dx * (self.magnetic_field_history **2).sum(2) # over directions
+            electric_energy = 0.5 * self.epsilon_0 * (self.electric_field_history ** 2).sum(2) # over directions
+            magnetic_energy = 0.5 * (self.magnetic_field_history **2).sum(2) # over directions
             self.grid_energy_history = electric_energy + magnetic_energy
 
             # fourier analysis
@@ -134,7 +134,7 @@ class Grid:
 
         :return float E: calculated energy
         """
-        return self.epsilon_0 * (self.electric_field ** 2).sum() * 0.5 * self.dx
+        return self.epsilon_0 * (self.electric_field ** 2).sum() * 0.5
 
     def gather_charge(self, list_species):
         # REFACTOR: move to Species

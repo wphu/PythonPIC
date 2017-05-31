@@ -73,7 +73,7 @@ def temperature_time_plot(S, axis, twinaxis=True):
 
 def energy_time_plots(S, axis):
     for species in S.list_species:
-        axis.plot(S.t, species.kinetic_energy_history[1:], ".-",
+        axis.plot(S.t, species.kinetic_energy_history, ".-",
                   label="Kinetic energy: {}".format(species.name), alpha=0.3)
     axis.plot(np.arange(S.NT) * S.dt, S.grid.grid_energy_history, ".-", label="Field energy (Fourier)",
               alpha=0.5)

@@ -7,7 +7,7 @@ import h5py
 import numpy as np
 
 from .grid import Grid, load_grid
-from .species import Species, load_species
+from .species import load_species
 from ..helper_functions.helpers import report_progress, git_version, config_filename
 
 
@@ -35,7 +35,6 @@ class Simulation:
             list_species = []
         self.list_species = list_species
         self.field_energy = np.zeros(self.NT)
-        self.total_energy = np.zeros(self.NT)
         self.filename = config_filename(filename, category_type, config_version)
         self.title = title
         self.git_version = git_version
@@ -47,8 +46,12 @@ class Simulation:
     def postprocess(self):
         if not self.postprocessed:
             self.grid.postprocess()
+            self.total_kinetic_energy = np.zeros(self.NT)
             for species in self.list_species:
                 species.postprocess()
+                self.total_kinetic_energy += species.kinetic_energy_history
+            print("Postprocessing simulation.")
+            self.total_energy =  self.total_kinetic_energy + self.grid.grid_energy_history
             self.postprocessed = True
         return self
 
@@ -82,17 +85,14 @@ class Simulation:
         """
         self.grid.save_field_values(i)  # CHECK: is this the right place, or after loop?
 
-        total_kinetic_energy = 0  # accumulate over species
         for species in self.list_species:
             species.save_particle_values(i)
-            total_kinetic_energy += species.push(self.grid.electric_field_function, self.grid.magnetic_field_function)
+            species.push(self.grid.electric_field_function, self.grid.magnetic_field_function)
             species.apply_bc()
         self.grid.apply_bc(i)
         self.grid.gather_charge(self.list_species)
         self.grid.gather_current(self.list_species)
-        fourier_field_energy = self.grid.solve()
-        # self.grid.grid_energy_history[i] = fourier_field_energy # TODO: readd
-        # self.total_energy[i] = total_kinetic_energy + fourier_field_energy # TODO: readd
+        self.grid.solve()
 
     def run(self, init=True, verbose = False) -> float:
         """
@@ -146,8 +146,6 @@ class Simulation:
             for species in self.list_species:
                 species_data = all_species.create_group(species.name)
                 species.save_to_h5py(species_data)
-            f.create_dataset(name="Field energy", dtype=float, data=self.field_energy)
-            f.create_dataset(name="Total energy", dtype=float, data=self.total_energy)
 
             f.attrs['dt'] = self.dt
             f.attrs['NT'] = self.NT
@@ -186,7 +184,6 @@ def load_simulation(filename: str) -> Simulation:
     Simulation
     """
     with h5py.File(filename, "r") as f:
-        total_energy = f['Total energy'][...]
         title = f.attrs['title']
         grid_data = f['grid']
         grid = load_grid(grid_data, postprocess=True)
@@ -197,8 +194,6 @@ def load_simulation(filename: str) -> Simulation:
         git_version = f.attrs['git_version']
     S = Simulation(grid, all_species, run_date=run_date, git_version=git_version, filename=filename, title=title)
     S.filename = filename
-    S.postprocessed = True
 
-    S.total_energy = total_energy
-
+    S.postprocess()
     return S
