@@ -1,7 +1,5 @@
 """ Run wave propagation"""
 # coding=utf-8
-import numpy as np
-
 from ..algorithms import BoundaryCondition
 from ..helper_functions import physics
 from ..classes import Grid, Simulation

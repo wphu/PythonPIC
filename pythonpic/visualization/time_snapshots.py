@@ -143,6 +143,22 @@ class PhasePlot(Plot):
 
 class SpatialDistributionPlot(Plot):
     """
+    Draws particle density on the grid.
+    """
+
+    def __init__(self, S, ax):
+        super().__init__(S, ax)
+        for species in S.list_species:
+            self.plots.append(ax.plot([], [], "-", alpha=0.8, label=species.name)[0])
+        ax.set_ylabel(f"Particle density $n$")
+        ax.set_ylim(0, 1.2*max([species.density_history.max() for species in S.list_species]))
+
+    def update(self, i):
+        for species, plot in zip(self.S.list_species, self.plots):
+            plot.set_data(self.S.grid.x, species.density_history[i])
+
+class ChargeDistributionPlot(Plot):
+    """
     Draws charge density from the grid.
     """
 
@@ -150,16 +166,12 @@ class SpatialDistributionPlot(Plot):
         super().__init__(S, ax)
         self.plots.append(ax.plot([], [], "-", alpha=0.8)[0])
         ax.set_ylabel(f"Charge density $\\rho$")
-        try:
-            mincharge = np.min(S.grid.charge_density_history)
-            maxcharge = np.max(S.grid.charge_density_history)
-            ax.set_ylim(mincharge, maxcharge)
-        except ValueError:
-            pass
+        mincharge = np.min(S.grid.charge_density_history)
+        maxcharge = np.max(S.grid.charge_density_history)
+        ax.set_ylim(mincharge, maxcharge)
 
     def update(self, i):
         self.plots[0].set_data(self.S.grid.x, self.S.grid.charge_density_history[i, :])
-
 
 class Histogram(Plot):
     """

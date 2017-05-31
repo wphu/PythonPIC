@@ -1,3 +1,4 @@
+# coding=utf-8
 from pythonpic import wave_propagation, plotting_parser, plots, BoundaryCondition
 
 

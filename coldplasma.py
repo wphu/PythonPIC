@@ -1,3 +1,4 @@
+# coding=utf-8
 from pythonpic import plotting_parser, plots, cold_plasma_oscillations
 
 

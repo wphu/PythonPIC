@@ -1,3 +1,4 @@
+# coding=utf-8
 import numpy as np
 
 from pythonpic import weakbeam_instability, plotting_parser, plots

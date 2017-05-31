@@ -47,7 +47,7 @@ class Species:
     name : str
         name of group
     scaling : float
-        number of particles per macroparticle
+        number of particles represented by each macroparticle
     pusher : function 
         particle push algorithm
     """
@@ -76,10 +76,6 @@ class Species:
         self.alive = np.ones(N, dtype=bool)
         self.name = name
         self.save_every_n_particle, self.saved_particles = n_saved_particles(self.N, MAX_SAVED_PARTICLES)
-        # print(f"Too many macro{name} to save them all! N: {self.N}, so we're saving every "
-        #           f"{self.save_every_n_particle}th one and we're going to have "
-        #           f"{self.saved_particles}"
-        #           f" of them")
 
         self.position_history = np.zeros((self.saved_iterations, self.saved_particles), dtype=float)
         self.velocity_history = np.zeros((self.saved_iterations, self.saved_particles, 3), dtype=float)

@@ -1,3 +1,4 @@
+# coding=utf-8
 from pythonpic import two_stream_instability, plots, plotting_parser
 
 

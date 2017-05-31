@@ -1,4 +1,5 @@
-from pythonpic import plotting_parser, plots, laser_shield, plots
+# coding=utf-8
+from pythonpic import plotting_parser, laser_shield, plots
 from pythonpic.configs.run_laser import impulse_duration, n_macroparticles
 
 args = plotting_parser("Hydrogen shield")

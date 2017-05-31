@@ -12,6 +12,7 @@ def FDENS(x, moat_left, ramp_length, plasma_length, N, func='linear'):
     func = profiles[func]
     rectangle_area = (plasma_length - ramp_length)
     modified_func = lambda x_value: func((x_value - moat_left) / ramp_length)
+    # noinspection PyTupleAssignmentBalance
     ramp_area, _ = quad(modified_func, moat_left, moat_left + ramp_length)
     normalization = (N+0.1) / (rectangle_area + ramp_area) # N + 0.1 due to non-exact float calculations
     result = np.zeros_like(x)
