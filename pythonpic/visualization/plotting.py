@@ -45,7 +45,8 @@ def plots(file,
             except:
                 raise ValueError("Simulation file doesn't exist.")
         if save_static or show_static:
-            static = static_plots.static_plots(S)
+            filename = S.filename.replace(".hdf5", ".png") if save_static else None
+            static = static_plots.static_plots(S, filename)
         if show_animation or save_animation:
             # noinspection PyUnusedLocal
             # this needs name due to matplotlib.animation
