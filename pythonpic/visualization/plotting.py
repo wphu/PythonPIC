@@ -16,7 +16,7 @@ def plots(file,
           save_static: bool = False,
           show_animation: bool = False,
           save_animation: bool = False,
-          alpha: float = 1):
+          alpha: float = 0.7):
     """
     Wrapper to run visual analysis on saved hdf5 file. Displays static plots and animations.
 

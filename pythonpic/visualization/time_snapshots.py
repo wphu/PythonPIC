@@ -3,7 +3,7 @@ import itertools
 
 import numpy as np
 
-from ..algorithms.helper_functions import colors, directions, is_this_saved_iteration, convert_global_to_particle_iter
+from ..helper_functions.helpers import is_this_saved_iteration, convert_global_to_particle_iter, colors, directions
 
 
 class Plot:

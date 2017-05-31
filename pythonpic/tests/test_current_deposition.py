@@ -3,8 +3,9 @@ import numpy as np
 import pytest
 from matplotlib import pyplot as plt
 
-from ..algorithms.field_interpolation import longitudinal_current_deposition, transversal_current_deposition
-from ..classes import Particle, Species, Grid
+from ..visualization.plotting import plots
+from ..algorithms.current_interpolation import longitudinal_current_deposition, transversal_current_deposition
+from ..classes import Particle, Species, Grid, Simulation
 
 
 @pytest.fixture(params=np.arange(3, 4, 0.2))
@@ -244,6 +245,17 @@ def test_many_particles_periodic_deposition(N, _velocity):
 
     assert np.allclose(longitudinal_collected_weights, 1), ("Longitudinal weights don't match!", plot())
     assert np.allclose(transversal_collected_weights, 1), ("Transversal weights don't match!", plot())
+
+
+# @pytest.mark.parametrize("periodic", [False, True])
+# def test_single_particle_deposition_simulation(periodic):
+#     g = Grid(T=100, L=1, NG=100, c=1, periodic=periodic)
+#     s = Particle(g, g.L / 2, g.dx, g.dx, -g.dx)
+#     sim = Simulation(g, [s], category_type="test",
+#                      filename=f"test_single_particle_depo_sim_{'' if periodic else 'a'}periodic")
+#     sim.run().postprocess()
+#     # plots(sim, show_animation=True, show_static=True)
+#     assert False
 
 if __name__ == '__main__':
     test_single_particle_transversal_deposition(3.01, 1)

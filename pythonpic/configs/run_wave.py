@@ -2,10 +2,10 @@
 # coding=utf-8
 import numpy as np
 
-from pythonpic.algorithms import FieldSolver, BoundaryCondition
-from pythonpic.algorithms.helper_functions import plotting_parser
-from pythonpic.classes import Grid, Simulation
-from pythonpic.visualization import plotting
+from ..algorithms import BoundaryCondition
+from ..helper_functions.helpers import plotting_parser
+from ..classes import Grid, Simulation
+from ..visualization import plotting
 
 
 def wave_propagation(filename,

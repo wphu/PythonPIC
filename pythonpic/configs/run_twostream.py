@@ -2,12 +2,10 @@
 # coding=utf-8
 import numpy as np
 
-from pythonpic.algorithms import helper_functions
-from pythonpic.algorithms.helper_functions import plotting_parser
-from pythonpic.classes.grid import Grid
-from pythonpic.classes.simulation import Simulation
-from pythonpic.classes.species import Species
-from pythonpic.visualization.plotting import plots
+from ..helper_functions import physics
+from ..helper_functions.helpers import plotting_parser
+from ..classes import Grid, Simulation, Species
+from ..visualization.plotting import plots
 
 def stability_condition(k0, v0, w0):
     dimensionless_number = k0 * v0 / w0
@@ -39,7 +37,7 @@ def two_stream_instability(filename,
     print(f"timestep: {grid.dt}")
     print(f"iloczyn: {plasma_frequency * grid.dt}")
 
-    helper_functions.check_pusher_stability(plasma_frequency, grid.dt)
+    physics.check_pusher_stability(plasma_frequency, grid.dt)
     np.random.seed(0)
 
     particle_mass = 1
@@ -47,7 +45,7 @@ def two_stream_instability(filename,
     scaling = abs(particle_mass * plasma_frequency ** 2 * L / float(
         particle_charge * N_electrons * epsilon_0))
 
-    helper_functions.check_plasma_parameter(N_electrons * scaling, NG, grid.dx)
+    physics.check_plasma_parameter(N_electrons * scaling, NG, grid.dx)
     k0 = 2 * np.pi / L
 
     expected_stability = stability_condition(k0, v0, plasma_frequency)

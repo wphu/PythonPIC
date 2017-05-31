@@ -5,6 +5,7 @@ from . import classes
 from . import algorithms
 from . import visualization
 from . import configs
+from . import helper_functions
 import sys
 import warnings
 

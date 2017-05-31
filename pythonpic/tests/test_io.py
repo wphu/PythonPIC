@@ -1,8 +1,10 @@
 # coding=utf-8
-import pytest
 import numpy as np
+import pytest
+
 from ..classes import Grid, Particle, Simulation, load_simulation
-from ..helper_functions.file_io import config_filename
+from ..helper_functions.helpers import config_filename
+
 
 @pytest.fixture(scope="module")
 def test_io_helper():

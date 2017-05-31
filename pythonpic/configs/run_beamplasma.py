@@ -2,11 +2,9 @@
 # coding=utf-8
 import numpy as np
 
-from pythonpic.algorithms.helper_functions import plotting_parser
-from pythonpic.classes.grid import Grid
-from pythonpic.classes.simulation import Simulation
-from pythonpic.classes.species import Species
-from pythonpic.visualization import plotting
+from ..helper_functions.helpers import plotting_parser
+from ..classes import Grid, Simulation, Species
+from ..visualization import plotting
 
 
 def weakbeam_instability(filename,

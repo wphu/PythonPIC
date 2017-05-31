@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import gridspec
 
-from ..algorithms.helper_functions import directions, colors, calculate_particle_snapshots
+from ..helper_functions.helpers import calculate_particle_snapshots, colors, directions
 
 
 def static_plot_window(S, N, M):

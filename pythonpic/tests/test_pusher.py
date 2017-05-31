@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
-from ..algorithms import particle_push, helper_functions
+from ..helper_functions import physics
+from ..algorithms import particle_push
 from ..classes import Species, Grid
 
 atol = 1e-1
@@ -118,7 +119,7 @@ def test_relativistic_magnetic_field(g,_rela_pusher, _N_particles, _v0):
     def uniform_electric_field(x):
         return np.zeros(3, dtype=float)
 
-    gamma = helper_functions.gamma_from_v(s.v, s.c)[0]
+    gamma = physics.gamma_from_v(s.v, s.c)[0]
     vy_analytical = _v0 * np.cos(s.q * B0 * (t - g.dt / 2) / (s.m * gamma))
 
     s.init_push(uniform_electric_field, uniform_magnetic_field)

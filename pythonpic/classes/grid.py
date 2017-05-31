@@ -3,7 +3,8 @@
 import numpy as np
 import scipy.fftpack as fft
 
-from ..algorithms import field_interpolation, helper_functions, FieldSolver, BoundaryCondition
+from ..helper_functions import physics
+from ..algorithms import field_interpolation, FieldSolver, BoundaryCondition, current_interpolation
 
 
 class Grid:
@@ -42,7 +43,7 @@ class Grid:
 
         self.dt = self.dx / c
         self.T = T
-        self.NT = helper_functions.calculate_number_timesteps(T, self.dt)
+        self.NT = physics.calculate_number_timesteps(T, self.dt)
         self.epsilon_0 = epsilon_0
 
         self.charge_density = np.zeros(NG + 1)
@@ -61,14 +62,15 @@ class Grid:
         self.periodic = periodic
         if self.periodic:
             self.charge_gather_function = field_interpolation.periodic_charge_density_deposition
-            self.current_longitudinal_gather_function = field_interpolation.periodic_longitudinal_current_deposition
-            self.current_transversal_gather_function = field_interpolation.periodic_transversal_current_deposition
+            self.current_longitudinal_gather_function = current_interpolation \
+                .periodic_longitudinal_current_deposition
+            self.current_transversal_gather_function = current_interpolation.periodic_transversal_current_deposition
             self.particle_bc = BoundaryCondition.return_particles_to_bounds
             self.solver = FieldSolver.FourierSolver
         else:
-            self.charge_gather_function = field_interpolation.charge_density_deposition
-            self.current_longitudinal_gather_function = field_interpolation.longitudinal_current_deposition
-            self.current_transversal_gather_function = field_interpolation.transversal_current_deposition
+            self.charge_gather_function = field_interpolation.aperiodic_charge_density_deposition
+            self.current_longitudinal_gather_function = current_interpolation.longitudinal_current_deposition
+            self.current_transversal_gather_function = current_interpolation.transversal_current_deposition
             self.particle_bc = BoundaryCondition.kill_particles_outside_bounds
             self.solver = FieldSolver.BunemanSolver
 

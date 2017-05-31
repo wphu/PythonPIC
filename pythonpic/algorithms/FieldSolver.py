@@ -1,7 +1,7 @@
 # coding=utf-8
 import functools
 
-from pythonpic.algorithms import grid_solvers
+from ..algorithms.grid_solvers import PoissonLongitudinalSolver, BunemanTransversalSolver, BunemanLongitudinalSolver
 
 
 
@@ -12,19 +12,31 @@ class Solver:
 
 
 def solve_fourier(grid, neutralize = False):
-    grid.electric_field[1:-1, 0], grid.energy_per_mode = grid_solvers.PoissonSolver(
+    grid.electric_field[1:-1, 0] = PoissonLongitudinalSolver(
         grid.charge_density[:-1], grid.k, grid.NG, epsilon_0=grid.epsilon_0, neutralize=neutralize
         )
-    return grid.energy_per_mode.sum() / (grid.NG / 2)  # * 8 * np.pi * grid.k[1]**2
+
+    grid.electric_field[:, 1:], grid.magnetic_field[:, 1:] = BunemanTransversalSolver(grid.electric_field[:, 1:],
+                                                                                      grid.magnetic_field[:, 1:],
+                                                                                      grid.current_density_yz, grid.dt,
+                                                                                      grid.c, grid.epsilon_0)
+    return None
 
 
 solve_fourier_neutral = functools.partial(solve_fourier, neutralize=True)
 
 
 def solve_buneman(grid):
-    grid.electric_field, grid.magnetic_field, grid.energy_per_mode = grid_solvers.BunemanWaveSolver(
-        grid.electric_field, grid.magnetic_field, grid.current_density_x, grid.current_density_yz, grid.dt, grid.dx, grid.c, grid.epsilon_0)
-    return grid.energy_per_mode
+    grid.electric_field[:, 0] = BunemanLongitudinalSolver(grid.electric_field[:, 0],
+                                                          grid.current_density_x,
+                                                          grid.dt,
+                                                          grid.epsilon_0,
+                                                          )
+    grid.electric_field[:, 1:], grid.magnetic_field[:, 1:] = BunemanTransversalSolver(grid.electric_field[:, 1:],
+                                                                                      grid.magnetic_field[:, 1:],
+                                                                                      grid.current_density_yz, grid.dt,
+                                                                                      grid.c, grid.epsilon_0)
+    return None
 
 
 FourierSolver = Solver(solve_fourier_neutral, solve_fourier_neutral)

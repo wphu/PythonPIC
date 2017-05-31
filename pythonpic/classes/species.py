@@ -2,7 +2,9 @@
 # coding=utf-8
 import numpy as np
 
-from ..algorithms import density_profiles, helper_functions
+from ..helper_functions.helpers import calculate_particle_snapshots, calculate_particle_iter_step, \
+    is_this_saved_iteration, convert_global_to_particle_iter
+from ..algorithms import density_profiles
 from ..algorithms.particle_push import rela_boris_push_bl as rela_boris_push
 
 MAX_SAVED_PARTICLES = int(1e4)
@@ -64,8 +66,8 @@ class Species:
         self.NT = grid.NT
         self.c = grid.c
 
-        self.save_every_n_iterations = helper_functions.calculate_particle_iter_step(grid.NT)
-        self.saved_iterations = helper_functions.calculate_particle_snapshots(grid.NT)
+        self.save_every_n_iterations = calculate_particle_iter_step(grid.NT)
+        self.saved_iterations = calculate_particle_snapshots(grid.NT)
         self.x = np.zeros(N, dtype=float)
         self.v = np.zeros((N, 3), dtype=float)
         self.energy = self.kinetic_energy()
@@ -219,11 +221,11 @@ class Species:
     def save_particle_values(self, i: int):
         """Update the i-th set of particle values"""
         N_alive = self.x.size
-        if helper_functions.is_this_saved_iteration(i, self.save_every_n_iterations):
+        if is_this_saved_iteration(i, self.save_every_n_iterations):
             save_every_n_particle, saved_particles = n_saved_particles(N_alive, self.saved_particles)
 
             # print(f"out of {N_alive} save every {save_every_n_particle} with mean x {self.x.mean()}")
-            index = helper_functions.convert_global_to_particle_iter(i, self.save_every_n_iterations)
+            index = convert_global_to_particle_iter(i, self.save_every_n_iterations)
             try:
                 self.position_history[index, :saved_particles] = self.x[::save_every_n_particle]
                 self.velocity_history[index, :saved_particles] = self.v[::save_every_n_particle]

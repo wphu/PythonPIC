@@ -3,7 +3,7 @@
 import pytest
 
 from . import on_failure
-from ..algorithms.helper_functions import get_dominant_mode
+from ..helper_functions.physics import get_dominant_mode
 from ..configs.run_coldplasma import cold_plasma_oscillations
 from ..visualization.plotting import plots
 

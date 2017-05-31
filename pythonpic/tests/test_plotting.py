@@ -5,7 +5,7 @@ from matplotlib import animation as mpl_anim
 import numpy as np
 from time import time
 
-from ..algorithms import helper_functions
+from ..helper_functions import helpers
 from ..configs.run_coldplasma import cold_plasma_oscillations
 from ..visualization.plotting import plots
 from ..visualization.animation import animation
@@ -41,8 +41,8 @@ def test_writer_manual_speed(helper_short_simulation):
     if S:
         start_time = time()
         frames = list(np.arange(0, S.NT,
-                           helper_functions.calculate_particle_iter_step(S.NT),
-                           dtype=int)[::10])
+                                helpers.calculate_particle_iter_step(S.NT),
+                                dtype=int)[::10])
         animation(S, save=True, frame_to_draw=frames)
         endtime = time()
         runtime = endtime - start_time

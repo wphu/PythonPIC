@@ -8,9 +8,7 @@ import numpy as np
 
 from .grid import Grid, load_grid
 from .species import Species, load_species
-from ..algorithms import BoundaryCondition
-from ..algorithms.helper_functions import git_version, Constants, report_progress
-from ..helper_functions.file_io import config_filename
+from ..helper_functions.helpers import report_progress, git_version, config_filename
 
 
 class Simulation:

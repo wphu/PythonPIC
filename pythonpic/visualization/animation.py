@@ -5,9 +5,10 @@ import matplotlib.animation as anim
 import matplotlib.pyplot as plt
 import numpy as np
 
-from .time_snapshots import FrequencyPlot, PhasePlot, SpatialDistributionPlot, IterationCounter, \
+from .time_snapshots import FrequencyPlot, \
+    PhasePlot, SpatialDistributionPlot, IterationCounter, \
     TripleFieldPlot, TripleCurrentPlot
-from ..algorithms import helper_functions
+from ..helper_functions import helpers
 
 
 # formatter = matplotlib.ticker.ScalarFormatter(useMathText=True, useOffset=False)
@@ -82,14 +83,14 @@ def animation(S, save: bool = False, alpha=1, frame_to_draw="animation", writer=
     def animate(i, verbose=False):
         """draws the i-th frame of the simulation"""
         if verbose:
-            helper_functions.report_progress(i, S.grid.NT)
+            helpers.report_progress(i, S.grid.NT)
         for plot in plots:
             plot.update(i)
         return results
     if isinstance(frame_to_draw, np.ndarray):
         frame_to_draw = list(frame_to_draw)
     frames = np.arange(0, S.NT,
-                       helper_functions.calculate_particle_iter_step(S.NT),
+                       helpers.calculate_particle_iter_step(S.NT),
                        dtype=int)
     if frame_to_draw == "animation":
         print("Drawing full animation.")
@@ -108,7 +109,7 @@ def animation(S, save: bool = False, alpha=1, frame_to_draw="animation", writer=
                                               blit=True, init_func=init,
                                               fargs=(save,))
         if save:
-            helper_functions.make_sure_path_exists(S.filename)
+            helpers.make_sure_path_exists(S.filename)
             videofile_name = S.filename.replace(".hdf5", ".mp4")
             print(f"Saving animation to {videofile_name}")
             animation_object.save(videofile_name, writer=mpl_writer)#, extra_args=['-vcodec', 'libx264'])
@@ -118,7 +119,7 @@ def animation(S, save: bool = False, alpha=1, frame_to_draw="animation", writer=
         print("Drawing animation as snapshots.")
         for i in frames:
             animate(i)
-            helper_functions.make_sure_path_exists(S.filename)
+            helpers.make_sure_path_exists(S.filename)
             file_name = S.filename.replace(".hdf5", f"_{i:06}.png")
             print(f"Saving iteration {i} to {file_name}")
             fig.savefig(file_name)
@@ -127,7 +128,7 @@ def animation(S, save: bool = False, alpha=1, frame_to_draw="animation", writer=
         print("Drawing frames." + str(frame_to_draw))
         for i in frame_to_draw:
             animate(i)
-            helper_functions.make_sure_path_exists(S.filename)
+            helpers.make_sure_path_exists(S.filename)
             file_name = S.filename.replace(".hdf5", f"_{i:06}.png")
             print(f"Saving iteration {i} to {file_name}")
             fig.savefig(file_name)
@@ -136,7 +137,7 @@ def animation(S, save: bool = False, alpha=1, frame_to_draw="animation", writer=
         print("Drawing iteration", frame_to_draw)
         animate(frame_to_draw)
         if save:
-            helper_functions.make_sure_path_exists(S.filename)
+            helpers.make_sure_path_exists(S.filename)
             file_name = S.filename.replace(".hdf5", f"_{frame_to_draw}.png")
             print(f"Saving iteration {frame_to_draw} to {file_name}")
             fig.savefig(file_name)

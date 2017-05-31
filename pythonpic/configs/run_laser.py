@@ -1,12 +1,11 @@
 """Implements interaction of the laser with a hydrogen shield plasma"""
 # coding=utf-8
-from pythonpic.algorithms import BoundaryCondition
-from pythonpic.algorithms.helper_functions import epsilon_zero, electric_charge, lightspeed, proton_mass, electron_rest_mass
-from pythonpic.algorithms.helper_functions import plotting_parser, critical_density
-from pythonpic.classes.grid import Grid
-from pythonpic.classes.simulation import Simulation
-from pythonpic.classes.species import Species
-from pythonpic.visualization import plotting
+from ..algorithms import BoundaryCondition
+from ..helper_functions.physics import epsilon_zero, electric_charge, lightspeed, proton_mass, electron_rest_mass, \
+    critical_density
+from ..helper_functions.helpers import plotting_parser
+from ..classes import Grid, Simulation, Species
+from ..visualization import plotting
 
 laser_wavelength = 1.064e-6 # meters
 laser_intensity = 1e23 # watt/meters squared

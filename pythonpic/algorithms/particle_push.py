@@ -1,11 +1,9 @@
 # coding=utf-8
 """mathematical algorithms for the particle pusher, Leapfrog and Boris"""
 import functools
-
-# coding=utf-8
 import numpy as np
 
-from pythonpic.algorithms.helper_functions import gamma_from_v, gamma_from_u
+from ..helper_functions.physics import gamma_from_v, gamma_from_u
 
 
 def boris_push(species, E, dt, B):

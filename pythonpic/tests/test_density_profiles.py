@@ -3,8 +3,7 @@ import numpy as np
 import pytest
 
 from ..algorithms import density_profiles
-from ..classes import Species
-from ..classes import Grid
+from ..classes import Species, Grid
 
 
 @pytest.fixture(params=np.linspace(0.01, 0.5, 3), scope='module')

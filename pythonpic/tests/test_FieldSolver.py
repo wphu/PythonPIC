@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
-from ..algorithms.FieldSolver import BunemanSolver
 from ..classes import Grid, Simulation
 from ..visualization.time_snapshots import FieldPlot, CurrentPlot
 
@@ -116,8 +115,11 @@ def test_PoissonSolver_energy_sine(_NG, ):
     indices_in_denser_grid = np.searchsorted(x, g.x)
     g.charge_density[:-1] = charge_density_anal[indices_in_denser_grid]  # / resolution_increase
 
-    energy_fourier = g.init_solver()
-    energy_direct = g.direct_energy_calculation() * resolution_increase
+    g.init_solver()
+    g.save_field_values(0)
+    g.postprocess()
+    energy_fourier = g.grid_energy_history[0]
+    energy_direct = g.direct_energy_calculation()
     print("dx", dx, "fourier", energy_fourier, "direct", energy_direct, energy_fourier / energy_direct)
 
     def plots():
