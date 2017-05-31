@@ -117,7 +117,7 @@ def animation(S, save: bool = False, alpha=1, frame_to_draw="animation", writer=
         return animation_object
     elif frame_to_draw == "anim_snapshots":
         print("Drawing animation as snapshots.")
-        for i in frames:
+        for i in frames[::30]:
             animate(i)
             helpers.make_sure_path_exists(S.filename)
             file_name = S.filename.replace(".hdf5", f"_{i:06}.png")
