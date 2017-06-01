@@ -13,7 +13,7 @@ def _fraction(request):
 
 _second_fraction = _fraction
 
-@pytest.fixture(params=np.linspace(1000, 15000, 3, dtype=int), scope='module')
+@pytest.fixture(params=np.linspace(300, 4000, 3, dtype=int), scope='module')
 def _N(request):
     return request.param
 

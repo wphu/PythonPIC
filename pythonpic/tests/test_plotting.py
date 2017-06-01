@@ -8,7 +8,7 @@ from time import time
 from ..helper_functions import helpers
 from ..configs.run_coldplasma import cold_plasma_oscillations
 from ..visualization.plotting import plots
-from ..visualization.animation import animation
+from ..visualization import animation
 from ..visualization.static_plots import static_plots
 
 
@@ -32,7 +32,7 @@ def test_static_plots(helper_short_simulation):
 def test_animation(helper_short_simulation):
     S = helper_short_simulation
     if S:
-        animation(S, save=True)
+        animation.OneDimAnimation(S).full_animation(True)
         assert True
 
 
@@ -43,7 +43,7 @@ def test_writer_manual_speed(helper_short_simulation):
         frames = list(np.arange(0, S.NT,
                                 helpers.calculate_particle_iter_step(S.NT),
                                 dtype=int)[::10])
-        animation(S, save=True, frame_to_draw=frames)
+        animation.OneDimAnimation(S).snapshot_animation()
         endtime = time()
         runtime = endtime - start_time
         print(runtime)

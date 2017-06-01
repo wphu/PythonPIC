@@ -1,5 +1,6 @@
 # coding=utf-8
 import pytest
+import numpy as np
 
 from . import on_failure
 from ..helper_functions.physics import did_it_thermalize
@@ -19,15 +20,18 @@ def test_finish():
         assert False, ("The simulation did not finish.", E, plots(S, *on_failure))
     assert True # if it gets here, we didn't error during the simulation
 
-@pytest.mark.parametrize(["NG", "N_electrons"], [
-    (200, 5000),
-    (400, 10000),
+@pytest.mark.parametrize(["L", "NG", "N_electrons"], [
+    (2*np.pi/100, 64, 1024),
+    (2*np.pi/200, 64, 2024),
+    # (200, 5000),
+    # (400, 10000),
     ])
-def test_linear_regime_beam_stability(NG, N_electrons):
+def test_linear_regime_beam_stability(L, NG, N_electrons):
     """Tests the simulation's behavior in modes expected to be linear."""
     run_name = f"TS_LINEAR_{NG}_{N_electrons}"
     S = two_stream_instability(run_name,
                                NG=NG,
+                               L=L,
                                N_electrons=N_electrons,
                                v0 = 0.01,
                                ).test_run()
@@ -35,9 +39,9 @@ def test_linear_regime_beam_stability(NG, N_electrons):
 
 
 # TODO: restore this test
-@pytest.mark.parametrize(["NG", "N_electrons", "plasma_frequency"], [
-    (64, 1024, 1),
-    # (64, int(2**13), 1),
+@pytest.mark.parametrize(["L", "NG", "N_electrons"], [
+    (2 * np.pi * 100, 64, 1024),
+    (2 * np.pi * 200, 64, 2024),
     ])
 def test_nonlinear_regime_beam_instability(NG, N_electrons, plasma_frequency):
     run_name = f"TS_NONLINEAR_{NG}_{N_electrons}_{plasma_frequency}"

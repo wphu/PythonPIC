@@ -14,7 +14,8 @@ def stability_condition(k0, v0, w0):
     dimensionless_number = k0 * v0 / w0
     expected_stability = dimensionless_number > 2 ** -0.5
     print(f"k0*v0/w0 is {dimensionless_number} which means the regime is "
-          f"{'stable' if expected_stability else 'unstable'}")
+          f"{'stable' if expected_stability else 'unstable'}"
+          "(stable above sqrt(2))")
     return expected_stability
 
 
