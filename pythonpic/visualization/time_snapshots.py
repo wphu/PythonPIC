@@ -24,14 +24,11 @@ class Plot:
         self.plots = []
 
         self.ax.set_xlim(0, S.grid.L)
-        ax.set_xlabel(r"Position $x$")
-        self.ax.set_xticks(S.grid.x)
+        ax.set_xlabel(r"Position $x$ [m]")
         self.ax.grid()
         self.ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True,
                                  useOffset=False)  # TODO axis=both?
-        self.ax.xaxis.set_ticklabels([])
-        self.ax.yaxis.tick_right()
-        self.ax.yaxis.set_label_position("right")
+        # self.ax.yaxis.set_label_position("right")
 
     def animation_init(self):
         """
@@ -307,8 +304,8 @@ class CurrentPlot(Plot):
         self.plots.append(ax.plot(x, S.grid.current_density_history[0, :, j], ".-",
                                   alpha=0.9,
                                   label=fr"$j_{directions[j]}$")[0])
-        ax.set_ylabel(f"Current density $j_{directions[j]}$", color='b')
-        ax.tick_params('y', colors='b')
+        ax.set_ylabel(f"Current density $j_{directions[j]}$")
+        ax.tick_params('y')
         ax.legend(loc='lower left')
         try:
             mincurrent = S.grid.current_density_history[:, :, j].min()

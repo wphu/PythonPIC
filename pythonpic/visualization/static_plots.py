@@ -21,6 +21,7 @@ def static_plot_window(S, N, M):
 # REFACTOR: turn these into classes like in animation
 def ESE_time_plots(S, axis):
     data = S.grid.energy_per_mode_history
+    # wavelengths = 2 * np.pi / S.grid.k_plot
 
     top_values = data.max(axis=0)
     sorted_indices = np.argsort(top_values)
@@ -31,10 +32,10 @@ def ESE_time_plots(S, axis):
     # # TODO: max_index = data[:, max_mode].argmax()
 
     t = np.arange(S.NT) * S.dt
-    for i in sorted_indices[:6]:
-        axis.plot(t, data[:, i], lw=2, label=f"Mode {i}", alpha=0.8)
-    for i in sorted_indices[6:]:
-        axis.plot(t, data[:, i], alpha=0.7)
+    for i in range(6):
+        axis.plot(t, data[:, i], label=f"Mode {i}", alpha=0.8)
+    for i in range(6, data.shape[1]):
+        axis.plot(t, data[:, i], alpha=0.5)
     # axis.annotate(f"Mode {max_mode}",
     #               xy=(t[max_index], data[max_index, max_mode]),
     #               arrowprops=dict(facecolor='black', shrink=0.05),
@@ -55,36 +56,37 @@ def temperature_time_plot(S, axis, twinaxis=True):
     fontP.set_size('small')
 
     for species in S.list_species:
-        t = np.arange(calculate_particle_snapshots(S.NT), dtype=int) * S.dt * species.save_every_n_iterations
-        meanv = species.velocity_history.mean(axis=1)
-        meanv2 = (species.velocity_history ** 2).mean(axis=1)
-        temperature = meanv2 - meanv ** 2
-        temperature_parallel = temperature[:, 0]
-        axis.plot(t, temperature_parallel, label=species.name + r" $T_{||}$")
-        # if twinaxis:
-        #     axis.plot(t, meanv2[:, 0], "--", label=species.name + r" $<v^2>$", alpha=0.5)
-        #     axis.plot(t, meanv[:, 0] ** 2, "--", label=species.name + r" $<v>^2$", alpha=0.5)
+        t = S.t
+        meanv = species.velocity_mean_history
+        # meanv = (species.velocity_history).mean(axis=1) # TODO: FIX ONCE NEW RUN IS OUT
+        # meanv2 = (species.velocity_history ** 2).mean(axis=1) # TODO: FIX ONCE NEW RUN IS OUT
+        meanv2 = species.velocity_squared_mean_history
+        temperature = meanv ** 2 - meanv2
+        # temperature_parallel = temperature[:, 0]
+        temperature_t = temperature.sum(axis=1)
+        # axis.plot(t, temperature_parallel, label=species.name + r" $T_{||}$")
+        axis.plot(t, temperature_t, label=species.name + r" $T$")
     axis.legend(loc='best', prop=fontP)
     axis.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True, useOffset=False)
     axis.grid()
     axis.set_xlabel(r"Time $t$")
     axis.set_xlim(0, S.NT * S.dt)
-    axis.set_ylabel(r"Temperature $<v^2> - <v>^2$ [$(\frac{m}{s})^2$]")
+    axis.set_ylabel(r"Temperature $<v>^2 - <v^2>$ [$(\frac{m}{s})^2$]")
 
 
 def energy_time_plots(S, axis):
     for species in S.list_species:
         axis.plot(S.t, species.kinetic_energy_history, "-",
                   label="Kin.: {}".format(species.name), alpha=0.3)
-    axis.plot(np.arange(S.NT) * S.dt, S.grid.grid_energy_history, "-", label="Pot.",
+    axis.plot(np.arange(S.NT) * S.dt, S.grid.grid_energy_history, "-", label="Potential E.",
               alpha=0.5)
     # axis.plot(np.arange(S.NT) * S.dt, S.grid.epsilon_0 * (S.grid.electric_field_history ** 2).sum(axis=1) * 0.5,
     #                  ".-", label="Field energy (direct solve)", alpha=0.5)
-    axis.plot(np.arange(S.NT) * S.dt, S.total_energy, ".-", label="Tot.")
+    axis.plot(np.arange(S.NT) * S.dt, S.total_energy, ".-", label="Total E.")
     axis.grid()
     axis.set_xlabel(r"Time $t$")
     axis.set_xlim(0, S.NT * S.dt)
-    axis.set_ylabel(r"Energy $E$")
+    axis.set_ylabel(r"Energy $E$ [J]")
     axis.legend(loc='best')
     axis.set_title("Energy evolution")
     axis.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True, useOffset=False)
@@ -120,8 +122,8 @@ def phase_trajectories(S, axis, all=False):
     axis.set_xlim(0, S.grid.L)
     if len(S.list_species) > 1:
         axis.legend(loc='best')
-    axis.set_xlabel(r"Position $x$")
-    axis.set_ylabel(r"Velocity $v_x$")
+    axis.set_xlabel(r"Position $x$ [m]")
+    axis.set_ylabel(r"Velocity $v_x$ [m/s]")
     axis.grid()
     axis.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
 
@@ -137,8 +139,8 @@ def velocity_time_plots(S, axis):
             std = s.velocity_std_history[:, i]
             axis.plot(S.grid.t, mean, "-", color=colors[i], label=f"{s.name} $v_{directions[i]}$", alpha=1)
             axis.fill_between(S.grid.t, mean - std, mean + std, color=colors[i], alpha=0.3)
-    axis.set_xlabel(r"Time $t$")
-    axis.set_ylabel(r"Velocity $v$")
+    axis.set_xlabel(r"Time $t$ [s]")
+    axis.set_ylabel(r"Velocity $v$ [m/s]")
     if len(S.list_species) > 1:
         axis.legend(loc='best')
     axis.grid()
@@ -152,7 +154,7 @@ def directional_velocity_time_plots(S, axis, j):
         axis.plot(S.grid.t, mean, "-", color=colors[i], label=f"{s.name} $v_{directions[j]}$", alpha=1)
         axis.fill_between(S.grid.t, mean - std, mean + std, color=colors[i], alpha=0.3)
     axis.set_xlabel(r"Time $t$")
-    axis.set_ylabel(r"Mean velocity $<v> \pm 1 $ std [m/s]")
+    axis.set_ylabel(r"Avg. vel. $<v> \pm 1 $ std [m/s]")
     if len(S.list_species) > 1:
         axis.legend(loc='best')
     axis.grid()
