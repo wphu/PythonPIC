@@ -3,9 +3,9 @@
 import pytest
 
 from . import on_failure
-from ..helper_functions.physics import get_dominant_mode
-from ..configs.run_coldplasma import cold_plasma_oscillations
-from ..visualization.plotting import plots
+from pythonpic.helper_functions.physics import get_dominant_mode
+from ..run_coldplasma import cold_plasma_oscillations
+from pythonpic.visualization.plotting import plots
 
 #
 # @pytest.mark.parametrize("push_mode", range(1, 32, 3))

@@ -5,9 +5,9 @@ import numpy as np
 import pytest
 
 from . import on_failure
-from ..algorithms import BoundaryCondition
-from ..configs.run_wave import wave_propagation
-from ..visualization.plotting import plots
+from pythonpic.algorithms import BoundaryCondition
+from ..run_wave import wave_propagation
+from pythonpic.visualization.plotting import plots
 
 
 def plot_all(field_history, analytical_solution):
