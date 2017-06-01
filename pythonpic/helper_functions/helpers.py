@@ -161,8 +161,9 @@ def plotting_parser(description):
     parser.add_argument("--save-static", help="Save plots once the run finishes", action="store_true")
     parser.add_argument("--show-animation", help="Show the animation", action="store_true")
     parser.add_argument("--save-animation", help="Save the animation", action="store_true")
+    parser.add_argument("--snapshot-animation", help="Save the animation as snapshots", action="store_true")
     args = parser.parse_args()
-    return args.show_static, args.save_static, args.show_animation, args.save_animation
+    return args.show_static, args.save_static, args.show_animation, args.save_animation, args.snapshot_animation
 
 
 def make_sure_path_exists(path):

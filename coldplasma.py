@@ -1,5 +1,6 @@
 # coding=utf-8
-from pythonpic import plotting_parser, plots, cold_plasma_oscillations
+from pythonpic import plotting_parser
+from pythonpic.configs.run_coldplasma import plots, cold_plasma_oscillations
 
 
 args = plotting_parser("Cold plasma oscillations")

@@ -5,6 +5,10 @@ import numpy as np
 from ..classes import Grid, Simulation, Species
 from ..helper_functions import physics
 
+from functools import partial
+from ..visualization.plotting import plots
+from ..visualization import animation
+plots = partial(plots, animation_type = animation.OneDimAnimation)
 
 def stability_condition(k0, v0, w0):
     dimensionless_number = k0 * v0 / w0

@@ -1,5 +1,6 @@
 # coding=utf-8
-from pythonpic import two_stream_instability, plots, plotting_parser
+from pythonpic import plotting_parser
+from pythonpic.configs.run_twostream import two_stream_instability, plots
 
 
 args = plotting_parser("Two stream instability")

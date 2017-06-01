@@ -4,6 +4,10 @@ from numpy import pi
 
 from ..classes import Grid, Simulation, Species
 
+from functools import partial
+from ..visualization.plotting import plots
+from ..visualization import animation
+plots = partial(plots, animation_type = animation.OneDimAnimation)
 
 class cold_plasma_oscillations(Simulation):
     def __init__(self, filename,

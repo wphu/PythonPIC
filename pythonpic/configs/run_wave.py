@@ -6,6 +6,11 @@ from ..classes import Grid, Simulation
 
 VERSION = 2
 
+from functools import partial
+from ..visualization.plotting import plots
+from ..visualization import animation
+plots = partial(plots, animation_type = animation.FastAnimation)
+
 class wave_propagation(Simulation):
     def __init__(self, filename,
                      bc = BoundaryCondition.Laser(1, 1, 1e-6, 3).laser_pulse,

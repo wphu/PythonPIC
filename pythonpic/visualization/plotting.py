@@ -18,7 +18,7 @@ def plots(file,
           save_animation: bool = False,
           snapshot_animation: bool = False,
           alpha: float = 0.7,
-          animation_type = animation.OneDimAnimation
+          animation_type = animation.FastAnimation
           ):
     """
     Wrapper to run visual analysis on saved hdf5 file. Displays static plots and animations.

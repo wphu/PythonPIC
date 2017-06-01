@@ -5,6 +5,10 @@ from ..classes import Grid, Simulation, Species
 from ..helper_functions.physics import epsilon_zero, electric_charge, lightspeed, proton_mass, electron_rest_mass, \
     critical_density
 
+from functools import partial
+from ..visualization.plotting import plots
+from ..visualization import animation
+plots = partial(plots, animation_type = animation.FastAnimation)
 
 VERSION = 5
 laser_wavelength = 1.064e-6 # meters

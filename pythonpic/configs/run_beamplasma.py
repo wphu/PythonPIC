@@ -4,6 +4,10 @@ import numpy as np
 
 from ..classes import Grid, Simulation, Species
 
+from functools import partial
+from ..visualization.plotting import plots
+from ..visualization import animation
+plots = partial(plots, animation_type = animation.OneDimAnimation)
 
 class weakbeam_instability(Simulation):
     def __init__(self, filename,

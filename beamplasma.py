@@ -1,7 +1,8 @@
 # coding=utf-8
 import numpy as np
 
-from pythonpic import weakbeam_instability, plotting_parser, plots
+from pythonpic import plotting_parser
+from pythonpic.configs.run_beamplasma import weakbeam_instability, plots
 
 
 args = plotting_parser("Weak beam instability")

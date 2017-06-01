@@ -149,6 +149,27 @@ class FullAnimation(animation):
                  field_plots]
         super().add_plots(plots)
 
+class FastAnimation(animation):
+    def __init__(self, S, alpha=1):
+        super().__init__(S, alpha)
+        charge_axis = self.fig.add_subplot(421)
+        current_axes = [self.fig.add_subplot(423 + 2 * i) for i in range(3)]
+        field_axes = [self.fig.add_subplot(422 + 2 * i) for i in range(3)]
+        freq_axes = self.fig.add_subplot(428)
+
+        freq_plot = FrequencyPlot(self.S, freq_axes)
+        charge_plot = SpatialDistributionPlot(self.S, charge_axis)
+        iteration = IterationCounter(self.S, freq_axes)
+        current_plots = TripleCurrentPlot(self.S, current_axes)
+        field_plots = TripleFieldPlot(self.S, field_axes)
+
+        plots = [
+                 freq_plot,
+                 charge_plot,
+                 iteration,
+                 current_plots,
+                 field_plots]
+        super().add_plots(plots)
 
 class OneDimAnimation(animation):
     def __init__(self, S, alpha=1):
