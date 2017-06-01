@@ -212,7 +212,7 @@ def load_simulation(filename: str) -> Simulation:
         run_date = f.attrs['run_date']
         git_version = f.attrs['git_version']
         considered_large = f.attrs['considered_large']
-    S = Simulation(grid, all_species, run_date=run_date, git_version=git_version, filename=filename, title=title, considered_large=considered_large))
+    S = Simulation(grid, all_species, run_date=run_date, git_version=git_version, filename=filename, title=title, considered_large=considered_large)
     S.filename = filename
 
     S.postprocess()

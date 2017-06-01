@@ -22,6 +22,8 @@ def static_plot_window(S, N, M):
 def ESE_time_plots(S, axis):
     data = S.grid.energy_per_mode_history
 
+    top_values = data.max(axis=0)
+    sorted_indices = np.argsort(top_values)
     # weights = (data ** 2).sum(axis=0) / (data ** 2).sum()
     #
     # # noinspection PyUnusedLocal
@@ -29,19 +31,19 @@ def ESE_time_plots(S, axis):
     # # TODO: max_index = data[:, max_mode].argmax()
 
     t = np.arange(S.NT) * S.dt
-    for i in range(6):
-        axis.plot(t, data[:, i], label=f"Mode {i}", alpha=0.8)
-    for i in range(6, data.shape[1]):
+    for i in sorted_indices[:6]:
+        axis.plot(t, data[:, i], lw=2, label=f"Mode {i}", alpha=0.8)
+    for i in sorted_indices[6:]:
         axis.plot(t, data[:, i], alpha=0.7)
     # axis.annotate(f"Mode {max_mode}",
     #               xy=(t[max_index], data[max_index, max_mode]),
     #               arrowprops=dict(facecolor='black', shrink=0.05),
     #               xytext=(t.mean(), data.max()/2))
 
-    axis.legend(loc='upper right')
+    axis.legend(loc='best')
     axis.grid()
-    axis.set_xlabel(f"Time [dt: {S.dt:.2e}]")
-    axis.set_ylabel("Energy")
+    axis.set_xlabel(f"Time [s] [dt: {S.dt:.2e}]")
+    axis.set_ylabel("Energy [J]")
     axis.set_xlim(0, S.NT * S.dt)
     axis.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True, useOffset=False)
     axis.set_title("Energy per spatial mode versus time")
@@ -58,33 +60,33 @@ def temperature_time_plot(S, axis, twinaxis=True):
         meanv2 = (species.velocity_history ** 2).mean(axis=1)
         temperature = meanv2 - meanv ** 2
         temperature_parallel = temperature[:, 0]
-        # TODO: temperature_transverse = temperature[:, 1:].sum(axis=1)
         axis.plot(t, temperature_parallel, label=species.name + r" $T_{||}$")
-        if twinaxis:
-            axis.plot(t, meanv2[:, 0], "--", label=species.name + r" $<v^2>$", alpha=0.5)
-            axis.plot(t, meanv[:, 0] ** 2, "--", label=species.name + r" $<v>^2$", alpha=0.5)
-    axis.legend(loc='center right', prop=fontP)
+        # if twinaxis:
+        #     axis.plot(t, meanv2[:, 0], "--", label=species.name + r" $<v^2>$", alpha=0.5)
+        #     axis.plot(t, meanv[:, 0] ** 2, "--", label=species.name + r" $<v>^2$", alpha=0.5)
+    axis.legend(loc='best', prop=fontP)
     axis.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True, useOffset=False)
     axis.grid()
     axis.set_xlabel(r"Time $t$")
     axis.set_xlim(0, S.NT * S.dt)
-    axis.set_ylabel("Temperature $t$")
+    axis.set_ylabel(r"Temperature $<v^2> - <v>^2$ [$(\frac{m}{s})^2$]")
 
 
 def energy_time_plots(S, axis):
     for species in S.list_species:
-        axis.plot(S.t, species.kinetic_energy_history, ".-",
-                  label="Kinetic energy: {}".format(species.name), alpha=0.3)
-    axis.plot(np.arange(S.NT) * S.dt, S.grid.grid_energy_history, ".-", label="Field energy (Fourier)",
+        axis.plot(S.t, species.kinetic_energy_history, "-",
+                  label="Kin.: {}".format(species.name), alpha=0.3)
+    axis.plot(np.arange(S.NT) * S.dt, S.grid.grid_energy_history, "-", label="Pot.",
               alpha=0.5)
     # axis.plot(np.arange(S.NT) * S.dt, S.grid.epsilon_0 * (S.grid.electric_field_history ** 2).sum(axis=1) * 0.5,
     #                  ".-", label="Field energy (direct solve)", alpha=0.5)
-    axis.plot(np.arange(S.NT) * S.dt, S.total_energy, ".-", label="Total energy")
+    axis.plot(np.arange(S.NT) * S.dt, S.total_energy, ".-", label="Tot.")
     axis.grid()
     axis.set_xlabel(r"Time $t$")
     axis.set_xlim(0, S.NT * S.dt)
     axis.set_ylabel(r"Energy $E$")
-    axis.legend(loc='lower right')
+    axis.legend(loc='best')
+    axis.set_title("Energy evolution")
     axis.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True, useOffset=False)
 
 
@@ -97,7 +99,7 @@ def velocity_distribution_plots(S, axis, i=0):
     axis.set_title("Velocity distribution at iteration %d" % i)
     axis.grid()
     if len(S.list_species) > 1:
-        axis.legend(loc='upper right')
+        axis.legend(loc='best')
     axis.set_xlabel(r"Velocity $v$")
     axis.set_ylabel(r"fraction of superparticles out")
     axis.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
@@ -117,7 +119,7 @@ def phase_trajectories(S, axis, all=False):
         axis.plot(x, y, ".", label=species.name)
     axis.set_xlim(0, S.grid.L)
     if len(S.list_species) > 1:
-        axis.legend()
+        axis.legend(loc='best')
     axis.set_xlabel(r"Position $x$")
     axis.set_ylabel(r"Velocity $v_x$")
     axis.grid()
@@ -138,10 +140,23 @@ def velocity_time_plots(S, axis):
     axis.set_xlabel(r"Time $t$")
     axis.set_ylabel(r"Velocity $v$")
     if len(S.list_species) > 1:
-        axis.legend()
+        axis.legend(loc='best')
     axis.grid()
     axis.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
 
+def directional_velocity_time_plots(S, axis, j):
+    for i, s in enumerate(S.list_species):
+        # t = np.arange(calculate_particle_snapshots(S.NT), dtype=int) * S.dt * s.save_every_n_iterations
+        mean = s.velocity_mean_history[:, j]
+        std = s.velocity_std_history[:, j]
+        axis.plot(S.grid.t, mean, "-", color=colors[i], label=f"{s.name} $v_{directions[j]}$", alpha=1)
+        axis.fill_between(S.grid.t, mean - std, mean + std, color=colors[i], alpha=0.3)
+    axis.set_xlabel(r"Time $t$")
+    axis.set_ylabel(r"Mean velocity $<v> \pm 1 $ std [m/s]")
+    if len(S.list_species) > 1:
+        axis.legend(loc='best')
+    axis.grid()
+    axis.ticklabel_format(style='sci', axis='both', scilimits=(0, 0), useMathText=True, useOffset=False)
 
 def static_plots(S, filename=None):
     if filename and not os.path.exists(os.path.dirname(filename)):
@@ -151,26 +166,11 @@ def static_plots(S, filename=None):
     ESE_time_plots(S, axes[0][0])
     temperature_time_plot(S, axes[1][0])
     energy_time_plots(S, axes[2][0])
-    velocity_time_plots(S, axes[0][1])
-    axes[0][1].yaxis.tick_right()
-    axes[0][1].yaxis.set_label_position("right")
-    velocity_distribution_plots(S, axes[1][1])
-    axes[1][1].yaxis.tick_right()
-    axes[1][1].yaxis.set_label_position("right")
-    velocity_distribution_plots(S, axes[2][1], S.NT - 1)
-    axes[2][1].yaxis.tick_right()
-    axes[2][1].yaxis.set_label_position("right")
+    for i in range(3):
+        directional_velocity_time_plots(S, axes[i][1], i)
+        axes[i][1].yaxis.tick_right()
+        axes[i][1].yaxis.set_label_position("right")
 
     if filename:
         time_fig.savefig(filename)
     return time_fig
-
-
-if __name__ == "__main__":
-    from classes import simulation
-
-    Sim = simulation.load_simulation("data_analysis/TS2/TS2.hdf5")
-    static_plots(Sim)
-    Sim2 = simulation.load_simulation("data_analysis/TS1/TS1.hdf5")
-    static_plots(Sim2)
-    plt.show()

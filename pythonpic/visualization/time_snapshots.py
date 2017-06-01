@@ -148,11 +148,12 @@ class SpatialDistributionPlot(Plot):
 
     def __init__(self, S, ax):
         super().__init__(S, ax)
+        ax.set_ylabel(f"Particle density $n$")
         for species in S.list_species:
             self.plots.append(ax.plot([], [], "-", alpha=0.8, label=species.name)[0])
         if len(S.list_species):
-            ax.set_ylabel(f"Particle density $n$")
             ax.set_ylim(0, 1.2*max([species.density_history.max() for species in S.list_species]))
+            ax.legend(loc='best')
 
     def update(self, i):
         for species, plot in zip(self.S.list_species, self.plots):
@@ -270,11 +271,11 @@ class FieldPlot(Plot):
     def __init__(self, S, ax, j):
         super().__init__(S, ax)
         self.j = j
-        self.plots.append(ax.plot([], [], "r-", label=f"$E_{directions[j]}$")[0])
+        self.plots.append(ax.plot([], [], "-", label=f"$E_{directions[j]}$")[0])
         ax.set_ylabel(r"Fields $E$, $B$")
         max_e = np.max(np.abs(S.grid.electric_field_history[:, :, j]))
         if j != 0:
-            self.plots.append(ax.plot([], [], "b-", label=f"$B_{directions[j]}$")[0])
+            self.plots.append(ax.plot([], [], "-", label=f"$B_{directions[j]}$")[0])
             max_b = np.max(np.abs(S.grid.magnetic_field_history[:, :, j]))
             maxfield = max([max_e, max_b])
         else:

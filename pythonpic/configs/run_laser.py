@@ -63,7 +63,8 @@ class laser(Simulation):
                          filename=filename,
                          category_type="laser-shield",
                          config_version=VERSION,
-                         title=description)
+                         title=description,
+                         considered_large = True)
         print("Simulation prepared.")
 
     def grid_species_initialization(self):

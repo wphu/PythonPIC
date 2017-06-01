@@ -82,6 +82,7 @@ class Species:
 
         self.density_history = np.zeros((self.NT, self.grid.NG), dtype=float)
         self.velocity_mean_history = np.zeros((self.NT, 3), dtype=float)
+        self.velocity_squared_mean_history = np.zeros((self.NT, 3), dtype=float)
         self.velocity_std_history = np.zeros((self.NT, 3), dtype=float)
         self.N_alive_history = np.zeros(self.NT, dtype=int)
         self.kinetic_energy_history = np.zeros(self.NT+1)
@@ -240,6 +241,7 @@ class Species:
         self.N_alive_history[i] = N_alive
         if N_alive > 0:
             self.velocity_mean_history[i] = self.v.mean(axis=0)
+            self.velocity_squared_mean_history[i] = (self.v**2).mean(axis=0)
             self.velocity_std_history[i] = self.v.std(axis=0)
         self.kinetic_energy_history[i] = self.energy
 
@@ -266,6 +268,7 @@ class Species:
         species_data.create_dataset(name="Kinetic energy", dtype=float, data=self.kinetic_energy_history)
 
         species_data.create_dataset(name="v_mean", dtype=float, data=self.velocity_mean_history)
+        species_data.create_dataset(name="v2_mean", dtype=float, data=self.velocity_squared_mean_history)
         species_data.create_dataset(name="v_std", dtype=float, data=self.velocity_std_history)
         species_data.create_dataset(name="N_alive_history", dtype=int, data=self.N_alive_history)
         species_data.create_dataset(name="density_history", dtype=float, data=self.density_history)
