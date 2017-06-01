@@ -35,7 +35,7 @@ def periodic_density_deposition(x, dx: float, x_particles):
     return result
 
 
-def aperiodic_density_deposition(x, dx: float, x_particles, particle_charge: float):
+def aperiodic_density_deposition(x, dx: float, x_particles):
     result = density_deposition(x, dx, x_particles)
     return result
 

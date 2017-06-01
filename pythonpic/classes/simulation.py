@@ -26,7 +26,8 @@ class Simulation:
     title : str
     """
     def __init__(self, grid: Grid, list_species=None, run_date=time.ctime(), git_version=git_version(),
-                 filename=time.strftime("%Y-%m-%d_%H-%M-%S"), category_type=None, config_version=None, title=""):
+                 filename=time.strftime("%Y-%m-%d_%H-%M-%S"), category_type=None, config_version=None, title="",
+                 considered_large=False):
         self.NT = grid.NT
         self.dt = grid.dt
         self.t = np.arange(self.NT) * self.dt
@@ -42,6 +43,7 @@ class Simulation:
 
         self.postprocessed=False
         self.runtime = None
+        self.considered_large = considered_large
 
     def postprocess(self):
         if not self.postprocessed:
@@ -94,7 +96,7 @@ class Simulation:
         self.grid.gather_current(self.list_species)
         self.grid.solve()
 
-    def run(self, init=True, verbose = False) -> float:
+    def run(self, init=True) -> float:
         """
         Run n iterations of the simulation, saving data as it goes.
 
@@ -105,8 +107,6 @@ class Simulation:
         init : bool
             Whether or not to initialize the simulation (particle placement, grid interaction).
             Not necessary, for example, in some tests.
-        verbose : bool
-            Whether or not to print out progress
 
         Returns
         -------
@@ -117,7 +117,7 @@ class Simulation:
             self.grid_species_initialization()
         start_time = time.time()
         for i in range(self.NT):
-            if verbose and i % (self.NT // 100) == 0:
+            if self.considered_large and i % (self.NT // 100) == 0:
                 report_progress(i, self.NT)
             self.iteration(i)
         self.runtime = time.time() - start_time
@@ -171,6 +171,7 @@ class Simulation:
             f.attrs['git_version'] = self.git_version
             f.attrs['title'] = self.title
             f.attrs['runtime'] = self.runtime
+            f.attrs['considered_large'] = self.considered_large
         print(f"Saved file to {self.filename}")
         return self
 
@@ -210,7 +211,8 @@ def load_simulation(filename: str) -> Simulation:
                        for species_group_name in f['species']]
         run_date = f.attrs['run_date']
         git_version = f.attrs['git_version']
-    S = Simulation(grid, all_species, run_date=run_date, git_version=git_version, filename=filename, title=title)
+        considered_large = f.attrs['considered_large']
+    S = Simulation(grid, all_species, run_date=run_date, git_version=git_version, filename=filename, title=title, considered_large=considered_large))
     S.filename = filename
 
     S.postprocess()

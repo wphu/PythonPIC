@@ -60,7 +60,7 @@ class animation:
 
     def animate(self, i, verbose=False):
         """draws the i-th frame of the simulation"""
-        if verbose:
+        if self.S.considered_large:
             helpers.report_progress(i, self.S.grid.NT)
         for plot in self.plots:
             plot.update(i)

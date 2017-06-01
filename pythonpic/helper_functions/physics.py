@@ -64,7 +64,7 @@ def did_it_thermalize(S):
     initial_velocities = np.array([s.velocity_history[0, :, 0].mean() for s in S.list_species])
     initial_velocity_stds = np.array([s.velocity_history[0, :, 0].std() for s in S.list_species])
     average_velocities = np.array([s.velocity_history[:, :, 0].mean() for s in S.list_species])
-    return np.abs((initial_velocities - average_velocities)) > initial_velocity_stds
+    return np.abs(initial_velocities - average_velocities) > initial_velocity_stds
 
 
 def gamma_from_v(v, c):
