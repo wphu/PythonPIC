@@ -30,7 +30,6 @@ def test_linear_regime_beam_stability(NG, N_electrons):
                                NG=NG,
                                N_electrons=N_electrons,
                                v0 = 0.01,
-                               save_data=False,
                                ).test_run()
     assert (~did_it_thermalize(S)).all(), ("A linear regime run came out unstable.", plots(S, *on_failure))
 
@@ -47,7 +46,6 @@ def test_nonlinear_regime_beam_instability(NG, N_electrons, plasma_frequency):
                                N_electrons=N_electrons,
                                plasma_frequency=plasma_frequency,
                                T=300 * 3,
-                               save_data=False,
                                )
     assert did_it_thermalize(S).all(), ("A nonlinear regime run came out stable.", plots(S, *on_failure))
 

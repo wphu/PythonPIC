@@ -16,8 +16,10 @@ def plots(file,
           save_static: bool = False,
           show_animation: bool = False,
           save_animation: bool = False,
+          snapshot_animation: bool = False,
           alpha: float = 0.7,
-          frame_to_draw = "animation"):
+          animation_type = animation.OneDimAnimation
+          ):
     """
     Wrapper to run visual analysis on saved hdf5 file. Displays static plots and animations.
 
@@ -28,6 +30,7 @@ def plots(file,
     save_static : bool
     show_animation : bool
     save_animation : bool
+    snapshot_animation : bool
     alpha : float
         Used for opacity in plots
 
@@ -48,10 +51,14 @@ def plots(file,
         if save_static or show_static:
             filename = S.filename.replace(".hdf5", ".png") if save_static else None
             static = static_plots.static_plots(S, filename)
-        if show_animation or save_animation:
+        if show_animation or save_animation or snapshot_animation:
             # noinspection PyUnusedLocal
             # this needs name due to matplotlib.animation
-            anim = animation.animation(S, save_animation, alpha=alpha, frame_to_draw=frame_to_draw)
+            anim = animation_type(S, alpha)
+            if snapshot_animation:
+                anim.snapshot_animation()
+            if save_animation or show_animation:
+                anim_object = anim.full_animation(save_animation)
         if show_animation or show_static:
             plt.show()
         else:

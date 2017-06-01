@@ -7,140 +7,173 @@ import numpy as np
 
 from .time_snapshots import FrequencyPlot, \
     PhasePlot, SpatialDistributionPlot, IterationCounter, \
-    TripleFieldPlot, TripleCurrentPlot
+    TripleFieldPlot, TripleCurrentPlot, CurrentPlot, FieldPlot, ChargeDistributionPlot
 from ..helper_functions import helpers
 
 
 # formatter = matplotlib.ticker.ScalarFormatter(useMathText=True, useOffset=False)
 
+class animation:
+    def __init__(self,
+                 S,
+                 alpha=1,
+                 ):
 
-def animation(S, save: bool = False, alpha=1, frame_to_draw="animation", writer="ffmpeg"):
-    """
+        """
 
-    Creates an animation from `Plot`s.
+        Creates an animation from `Plot`s.
 
-    Parameters
-    ----------
-    S : Simulation
-        Data source
-    save : bool
-        Whether to save the simulation
-    alpha : float
-        Opacity value from 0 to 1, used in the phase plot.
-    frame_to_draw : str, list or int
-        Default value is "animation" - this causes the full animation to be played.
-        A list such as [0, 10, 100, 500, 1000] causes the animation to plot iterations 0, 10, 100... etc
-        and save them as pictures. Does not display the frames.
-        An integer causes the animation to display a single iterations, optionally saving it as a picture.
-    writer : str
-        A Matplotlib writer string.
-    Returns
-    -------
-    figure or matplotlib animation
-        Plot object, depending on `frame_to_draw`.
-    """
-    assert alpha <= 1, "alpha too large!"
-    assert alpha >= 0, "alpha must be between 0 and 1!"
-    S.postprocess()
-    fig = plt.figure(figsize=(13, 10))
-    charge_axis = fig.add_subplot(421)
-    current_axes = [fig.add_subplot(423 + 2 * i) for i in range(3)]
-    phase_axes_x = fig.add_subplot(422)
-    phase_axes_y = fig.add_subplot(424)
-    phase_axes_z = fig.add_subplot(426)
-    freq_axes = fig.add_subplot(428)
+        Parameters
+        ----------
+        S : Simulation
+            Data source
+        alpha : float
+            Opacity value from 0 to 1, used in the phase plot.
 
-    fig.suptitle(str(S), fontsize=12)
-    fig.subplots_adjust(top=0.81, bottom=0.08, left=0.15, right=0.95,
-                        wspace=.25, hspace=0.6)  # REFACTOR: remove particle windows if there are no particles
+        Returns
+        -------
+        figure or matplotlib animation
+            Plot object, depending on `frame_to_draw`.
+        """
+        assert alpha <= 1, "alpha too large!"
+        assert alpha >= 0, "alpha must be between 0 and 1!"
+        self.S = S.postprocess()
+        self.fig = plt.figure(figsize=(13, 10))
+        self.alpha = alpha
 
-    phase_plot_x = PhasePlot(S, phase_axes_x, "x", "v_x", alpha)
-    phase_plot_y = PhasePlot(S, phase_axes_y, "x", "v_y", alpha)
-    phase_plot_z = PhasePlot(S, phase_axes_z, "x", "v_z", alpha)
-    # velocity_histogram = Histogram(S, distribution_axes, "v_x")
-    freq_plot = FrequencyPlot(S, freq_axes)
-    charge_plot = SpatialDistributionPlot(S, charge_axis)
-    iteration = IterationCounter(S, freq_axes)
-    current_plots = TripleCurrentPlot(S, current_axes)
-    field_plots = TripleFieldPlot(S, [current_ax.twinx() for current_ax in current_axes])
 
-    plots = [
-            phase_plot_x,
-            phase_plot_y,
-            phase_plot_z,
-             freq_plot,
-             charge_plot,
-             iteration,
-             current_plots,
-             field_plots,
-        ]
+        self.fig.suptitle(str(self.S), fontsize=12)
+        self.fig.subplots_adjust(top=0.81, bottom=0.08, left=0.15, right=0.95,
+                            wspace=.25, hspace=0.6)  # REFACTOR: remove particle windows if there are no particles
 
-    results = []
-    for plot in plots:
-        for result in plot.return_animated():
-            results.append(result)
+        self.frames = np.arange(0, S.NT,
+                           helpers.calculate_particle_iter_step(S.NT),
+                           dtype=int)
 
-    def animate(i, verbose=False):
+    def add_plots(self, plots):
+        self.plots = plots
+
+        self.updatable = []
+        for plot in plots:
+            for result in plot.return_animated():
+                self.updatable.append(result)
+
+    def animate(self, i, verbose=False):
         """draws the i-th frame of the simulation"""
         if verbose:
-            helpers.report_progress(i, S.grid.NT)
-        for plot in plots:
+            helpers.report_progress(i, self.S.grid.NT)
+        for plot in self.plots:
             plot.update(i)
-        return results
-    if isinstance(frame_to_draw, np.ndarray):
-        frame_to_draw = list(frame_to_draw)
-    frames = np.arange(0, S.NT,
-                       helpers.calculate_particle_iter_step(S.NT),
-                       dtype=int)
-    if frame_to_draw == "animation":
+        return self.updatable
+
+    def init(self):
+        """initializes animation window for faster drawing"""
+        for plot in self.plots:
+            plot.animation_init()
+        return self.updatable
+
+    def full_animation(self, save=False, writer="ffmpeg"):
+        """
+
+        Parameters
+        ----------
+        save : bool
+            Whether to save the simulation. This may take a long time.
+        writer :
+
+        Returns
+        -------
+
+        """
         print("Drawing full animation.")
         mpl_Writer = anim.writers[writer]
-        mpl_writer = mpl_Writer(fps=15, metadata=dict(artist='Me'), bitrate=1800)
-        def init():
-            """initializes animation window for faster drawing"""
-            for plot in plots:
-                plot.animation_init()
-            return results
-
+        mpl_writer = mpl_Writer(fps=15, metadata=dict(artist='Me'), bitrate=1800) # TODO: does bitrate matter here
 
         # noinspection PyTypeChecker
-        animation_object = anim.FuncAnimation(fig, animate, interval=100,
-                                              frames=frames,
-                                              blit=True, init_func=init,
+        animation_object = anim.FuncAnimation(self.fig, self.animate, interval=100,
+                                              frames=self.frames,
+                                              blit=True, init_func=self.init,
                                               fargs=(save,))
         if save:
-            helpers.make_sure_path_exists(S.filename)
-            videofile_name = S.filename.replace(".hdf5", ".mp4")
+            helpers.make_sure_path_exists(self.S.filename)
+            videofile_name = self.S.filename.replace(".hdf5", ".mp4")
             print(f"Saving animation to {videofile_name}")
             animation_object.save(videofile_name, writer=mpl_writer)#, extra_args=['-vcodec', 'libx264'])
             print(f"Saved animation to {videofile_name}")
         return animation_object
-    elif frame_to_draw == "anim_snapshots":
+
+    def snapshot_animation(self, frames : list = "all"):
+        if frames == "all":
+            frames_to_draw = self.frames[::30]
+        elif isinstance(frames, list):
+            frames_to_draw = frames
+        else:
+            raise ValueError("Incorrect frame_to_draw - must be 'animation' or number of iteration to draw.")
+
         print("Drawing animation as snapshots.")
-        for i in frames[::30]:
-            animate(i)
-            helpers.make_sure_path_exists(S.filename)
-            file_name = S.filename.replace(".hdf5", f"_{i:06}.png")
+        for i in frames_to_draw:
+            self.animate(i)
+            helpers.make_sure_path_exists(self.S.filename)
+            file_name = self.S.filename.replace(".hdf5", f"_{i:06}.png")
             print(f"Saving iteration {i} to {file_name}")
-            fig.savefig(file_name)
-        return fig
-    elif isinstance(frame_to_draw, list):
-        print("Drawing frames." + str(frame_to_draw))
-        for i in frame_to_draw:
-            animate(i)
-            helpers.make_sure_path_exists(S.filename)
-            file_name = S.filename.replace(".hdf5", f"_{i:06}.png")
-            print(f"Saving iteration {i} to {file_name}")
-            fig.savefig(file_name)
-        return fig
-    elif isinstance(frame_to_draw, int):
-        print("Drawing iteration", frame_to_draw)
-        animate(frame_to_draw)
-        if save:
-            helpers.make_sure_path_exists(S.filename)
-            file_name = S.filename.replace(".hdf5", f"_{frame_to_draw}.png")
-            print(f"Saving iteration {frame_to_draw} to {file_name}")
-            fig.savefig(file_name)
-        return fig
-    else:
-        raise ValueError("Incorrect frame_to_draw - must be 'animation' or number of iteration to draw.")
+            self.fig.savefig(file_name)
+        return self.fig
+
+class FullAnimation(animation):
+    def __init__(self, S, alpha=1):
+        super().__init__(S, alpha)
+        charge_axis = self.fig.add_subplot(421)
+        current_axes = [self.fig.add_subplot(423 + 2 * i) for i in range(3)]
+        phase_axes_x = self.fig.add_subplot(422)
+        phase_axes_y = self.fig.add_subplot(424)
+        phase_axes_z = self.fig.add_subplot(426)
+        freq_axes = self.fig.add_subplot(428)
+
+        phase_plot_x = PhasePlot(self.S, phase_axes_x, "x", "v_x", self.alpha)
+        phase_plot_y = PhasePlot(self.S, phase_axes_y, "x", "v_y", self.alpha)
+        phase_plot_z = PhasePlot(self.S, phase_axes_z, "x", "v_z", self.alpha)
+        # velocity_histogram = Histogram(self.S, distribution_axes, "v_x")
+        freq_plot = FrequencyPlot(self.S, freq_axes)
+        charge_plot = SpatialDistributionPlot(self.S, charge_axis)
+        iteration = IterationCounter(self.S, freq_axes)
+        current_plots = TripleCurrentPlot(self.S, current_axes)
+        field_plots = TripleFieldPlot(self.S, [current_ax.twinx() for current_ax in current_axes])
+
+        plots = [phase_plot_x,
+                 phase_plot_y,
+                 phase_plot_z,
+                 freq_plot,
+                 charge_plot,
+                 iteration,
+                 current_plots,
+                 field_plots]
+        super().add_plots(plots)
+
+
+class OneDimAnimation(animation):
+    def __init__(self, S, alpha=1):
+        super().__init__(S, alpha)
+        density_axis = self.fig.add_subplot(321)
+        charge_axis = self.fig.add_subplot(323)
+
+        current_axis = self.fig.add_subplot(324)
+        field_axis = self.fig.add_subplot(326)
+        phase_axes_x = self.fig.add_subplot(322)
+        freq_axes = self.fig.add_subplot(325)
+
+        phase_plot_x = PhasePlot(self.S, phase_axes_x, "x", "v_x", self.alpha)
+        freq_plot = FrequencyPlot(self.S, freq_axes)
+        density_plot = SpatialDistributionPlot(self.S, density_axis)
+        charge_plot = ChargeDistributionPlot(self.S, charge_axis)
+        iteration = IterationCounter(self.S, freq_axes)
+        current_plot = CurrentPlot(self.S, current_axis, 0)
+        field_plot = FieldPlot(self.S, field_axis, 0)
+
+        plots = [phase_plot_x,
+                 freq_plot,
+                 density_plot,
+                 charge_plot,
+                 iteration,
+                 current_plot,
+                 field_plot]
+        super().add_plots(plots)
