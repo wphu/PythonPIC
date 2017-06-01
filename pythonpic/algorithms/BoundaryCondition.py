@@ -8,12 +8,11 @@ def return_particles_to_bounds(species):
 
 
 def kill_particles_outside_bounds(species):
-    alive = (0 < species.x) & (species.x < species.grid.L)
-    species.N_alive = alive.sum()
-    # print(f"{species.N_alive} alive")
+    alive = (0 <= species.x) & (species.x < species.grid.L)
     if species.N_alive:
         species.x = species.x[alive]
         species.v = species.v[alive]
+    species.N_alive = alive.sum()
 
 
 class Laser:

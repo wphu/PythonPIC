@@ -39,10 +39,7 @@ def test_linear_regime_beam_stability(L, NG, N_electrons):
                                T = T,
                                N_electrons=N_electrons,
                                v0 = 0.01,
-                               )
-    print(S.grid.NT)
-    assert False
-    # .test_run()
+                               ).test_run()
     assert (~did_it_thermalize(S)).all(), ("A linear regime run came out unstable.", plots(S, *on_failure))
 
 

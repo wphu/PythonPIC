@@ -134,10 +134,14 @@ class Species:
 
         The kinetic energy of the particles, calculated at half timestep.
         """
-        E = electric_field_function(self.x)
-        B = magnetic_field_function(self.x)
-        self.x, self.v, self.energy = self.pusher(self, E, self.dt, B)
-        return self.energy
+        if self.N_alive:
+            E = electric_field_function(self.x)
+            B = magnetic_field_function(self.x)
+            self.x, self.v, self.energy = self.pusher(self, E, self.dt, B)
+            return self.energy
+        else:
+            self.energy = 0
+            return 0
 
     def gather_density(self):
         """A wrapper function to facilitate gathering particle density onto the grid.
