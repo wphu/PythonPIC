@@ -150,8 +150,9 @@ class SpatialDistributionPlot(Plot):
         super().__init__(S, ax)
         for species in S.list_species:
             self.plots.append(ax.plot([], [], "-", alpha=0.8, label=species.name)[0])
-        ax.set_ylabel(f"Particle density $n$")
-        ax.set_ylim(0, 1.2*max([species.density_history.max() for species in S.list_species]))
+        if len(S.list_species):
+            ax.set_ylabel(f"Particle density $n$")
+            ax.set_ylim(0, 1.2*max([species.density_history.max() for species in S.list_species]))
 
     def update(self, i):
         for species, plot in zip(self.S.list_species, self.plots):

@@ -139,6 +139,8 @@ class Species:
         return self.energy
 
     def gather_density(self):
+        """A wrapper function to facilitate gathering particle density onto the grid.
+        """
         self.gathered_density = self.grid.charge_gather_function(self.grid.x, self.grid.dx, self.x)
         return self.gathered_density
     """POSITION INITIALIZATION"""

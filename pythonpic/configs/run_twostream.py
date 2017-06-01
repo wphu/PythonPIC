@@ -27,7 +27,6 @@ class two_stream_instability(Simulation):
                            push_mode=1,
                            v0=0.05,
                            vrandom=0.0,
-                           save_data: bool = True,
                            species_2_sign=1):
         """Implements two stream instability from Birdsall and Langdon"""
         print("Running two stream instability")

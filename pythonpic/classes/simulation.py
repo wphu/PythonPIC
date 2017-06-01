@@ -97,14 +97,21 @@ class Simulation:
     def run(self, init=True, verbose = False) -> float:
         """
         Run n iterations of the simulation, saving data as it goes.
+
+        Also measures runtime, saving it in self.runtime as a float with units of seconds.
+
         Parameters
         ----------
-        save_data (bool): Whether or not to save the data
-        verbose (bool): Whether or not to print out progress
+        init : bool
+            Whether or not to initialize the simulation (particle placement, grid interaction).
+            Not necessary, for example, in some tests.
+        verbose : bool
+            Whether or not to print out progress
 
         Returns
         -------
-        runtime (float): runtime of this part of simulation in seconds
+        self: Simulation
+            The simulation, for chaining purposes.
         """
         if init:
             self.grid_species_initialization()
@@ -117,6 +124,12 @@ class Simulation:
         return self
 
     def lazy_run(self):
+        """Does a simulation run() unless there's already a saved data with that file.
+
+        If that file contains the same initial conditions and config version, the simulation's results are
+        loaded instead.
+
+        If the simulation errors during loading, it is ran anew."""
         print(f"Path is {self.filename}")
         file_exists = os.path.isfile(self.filename)
         if file_exists:
@@ -132,6 +145,11 @@ class Simulation:
                 print(err)
         print("Running simulation")
         return self.run().save_data().postprocess()
+
+    def test_run(self):
+        """Does a blind run without saving data, for test purposes."""
+        return self.run().postprocess()
+
 
     def save_data(self):
         """Save simulation data to hdf5.
