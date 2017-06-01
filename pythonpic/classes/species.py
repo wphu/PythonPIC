@@ -314,6 +314,7 @@ def load_species(species_data, grid, postprocess=False):
 
     species = Species(q, m, N, grid, name, scaling)
     species.velocity_mean_history = species_data["v_mean"][...]
+    species.velocity_squared_mean_history = species_data["v2_mean"][...]
     species.velocity_std_history = species_data["v_std"][...]
     species.density_history = species_data["density_history"][...]
 

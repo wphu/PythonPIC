@@ -58,20 +58,16 @@ def temperature_time_plot(S, axis, twinaxis=True):
     for species in S.list_species:
         t = S.t
         meanv = species.velocity_mean_history
-        # meanv = (species.velocity_history).mean(axis=1) # TODO: FIX ONCE NEW RUN IS OUT
-        # meanv2 = (species.velocity_history ** 2).mean(axis=1) # TODO: FIX ONCE NEW RUN IS OUT
         meanv2 = species.velocity_squared_mean_history
-        temperature = meanv ** 2 - meanv2
-        # temperature_parallel = temperature[:, 0]
+        temperature = meanv2 - meanv**2
         temperature_t = temperature.sum(axis=1)
-        # axis.plot(t, temperature_parallel, label=species.name + r" $T_{||}$")
-        axis.plot(t, temperature_t, label=species.name + r" $T$")
+        axis.plot(t, temperature_t, label=species.name)
     axis.legend(loc='best', prop=fontP)
     axis.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True, useOffset=False)
     axis.grid()
     axis.set_xlabel(r"Time $t$")
     axis.set_xlim(0, S.NT * S.dt)
-    axis.set_ylabel(r"Temperature $<v>^2 - <v^2>$ [$(\frac{m}{s})^2$]")
+    axis.set_ylabel(r"Temperature ($\bar{v^2} - \bar{v}^2$) [$(\frac{m}{s})^2$]")
 
 
 def energy_time_plots(S, axis):
