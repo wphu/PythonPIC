@@ -46,8 +46,9 @@ def test_nonlinear_regime_beam_instability(L, NG, N_electrons):
                                NG=NG,
                                N_electrons=N_electrons,
                                L=L,
+                               v0 = 0.01,
                                T=T,
-                               )
+                               ).test_run()
     assert did_it_thermalize(S).all(), ("A nonlinear regime run came out stable.", plots(S, *on_failure))
 
 # @pytest.mark.parametrize(["v0", "NT"], [
