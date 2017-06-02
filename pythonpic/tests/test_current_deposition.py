@@ -264,3 +264,20 @@ if __name__ == '__main__':
     for position in (3.01, 3.25, 3.49, 3.51, 3.99):
         for velocity in (0.01, 1, -0.01, -1):
             test_single_particle_transversal_deposition(position, velocity)
+
+
+@pytest.mark.parametrize(["T", "n_end_moat"], [[0.03, 3], [0.3, 3], [0.03,4], [0.03,5]])
+def test_simulation_at_boundaries(T, n_end_moat):
+    g = Grid(T=30, L=1, NG=100, c=1, periodic=False)
+    s_n = Species(1, 2000, 1000, g, "heavy protons")
+    s = Species(-1, 1, 1000, g, "light electrons")
+    s.v[:,0] = +0.3
+    s.distribute_uniformly(g.L, start_moat=g.dx*(g.NG-10), end_moat=n_end_moat*g.dx)
+    s_n.distribute_uniformly(g.L, start_moat=g.dx*(g.NG-10), end_moat=n_end_moat*g.dx)
+    filename = f"test_simulation_boundaries_{T}_{n_end_moat}"
+    sim = Simulation(g, [s, s_n], category_type="test", filename=filename)
+    sim.run().postprocess()
+
+    from pythonpic.visualization import animation
+    plots(sim, save_static=True, save_animation=True, snapshot_animation=True, animation_type=animation.OneDimAnimation)
+    assert False

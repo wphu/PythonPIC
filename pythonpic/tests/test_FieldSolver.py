@@ -243,3 +243,20 @@ def test_BunemanSolver(_T, _NG, _L, _test_charge_density):
     assert np.isclose(pulled_field, expected_field), plot()
 
 
+def test_BunemanSolver_charge(_T, _NG, _L, _test_charge_density):
+    g = Grid(_T, _L, _NG, periodic=False)
+    v = 0.5
+    g.current_density_x[1:-2] = v * _test_charge_density
+    g.solve()
+    g.save_field_values(0)
+    S = Simulation(g).postprocess()
+
+
+    def plot():
+        fig, (ax1, ax2) = plt.subplots(2)
+        CurrentPlot(S, ax1, 0).update(0)
+        FieldPlot(S, ax2, 0).update(0)
+        plt.show()
+    assert np.allclose(g.electric_field[1:-1,0], -v * _test_charge_density * g.dt / g.epsilon_0), plot()
+
+
