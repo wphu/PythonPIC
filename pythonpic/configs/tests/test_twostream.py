@@ -33,8 +33,8 @@ def test_linear_regime_beam_stability(L, NG, N_electrons):
 
 
 @pytest.mark.parametrize(["L", "NG", "N_electrons"], [
-    (2 * np.pi * 100, 32, 512),
-    (2 * np.pi * 200, 32, 512),
+    (2 * np.pi * 1000, 32, 512),
+    (2 * np.pi * 2000, 32, 512),
     ])
 def test_nonlinear_regime_beam_instability(L, NG, N_electrons):
     run_name = f"TS_NONLINEAR_{L}_{NG}_{N_electrons}"
