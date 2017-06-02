@@ -1,6 +1,7 @@
 """plotting suite for simulation data analysis, can be called from command line"""
 # coding=utf-8
 import argparse
+import os
 
 import matplotlib.pyplot as plt
 
@@ -38,6 +39,9 @@ def plots(file,
     -------
 
     """
+    if "DISPLAY" not in os.environ.keys():
+        print("Can't plot, DISPLAY not defined!")
+        return False
     if show_static or show_animation or save_animation or save_static:
         if isinstance(file, simulation.Simulation):
             S = file
