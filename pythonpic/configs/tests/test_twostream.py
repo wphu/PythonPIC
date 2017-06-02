@@ -4,35 +4,23 @@ import numpy as np
 
 from . import on_failure
 from pythonpic.helper_functions.physics import did_it_thermalize
-from ..run_twostream import two_stream_instability
-from pythonpic.visualization.plotting import plots
+from ..run_twostream import two_stream_instability, plots
 
-
-def test_finish():
-    """Tests whether the simulation finishes at all."""
-    try:
-        S = two_stream_instability("TS_FINISH",
-                                   NG=512,
-                                   N_electrons=4096,
-                                   plasma_frequency=0.05 / 4,
-                                   ).test_run()
-    except Exception as E:
-        assert False, ("The simulation did not finish.", E, plots(S, *on_failure))
-    assert True # if it gets here, we didn't error during the simulation
 
 @pytest.mark.parametrize(["L", "NG", "N_electrons"], [
-    (2*np.pi/100, 64, 1024),
-    (2*np.pi/200, 64, 2024),
+    (2*np.pi/100, 32, 512),
+    (2*np.pi/200, 32, 512),
     # (200, 5000),
     # (400, 10000),
     ])
 def test_linear_regime_beam_stability(L, NG, N_electrons):
     """Tests the simulation's behavior in modes expected to be linear."""
-    run_name = f"TS_LINEAR_{NG}_{N_electrons}"
+    run_name = f"TS_LINEAR_{L}_{NG}_{N_electrons}"
     dx = L / NG
     c = 1
     dt = dx / c
-    T = 1000 * dt
+    T = 50000 * dt
+    # NT = T / dt = 50000 * c / dx = 50000 * c * NG / L
     S = two_stream_instability(run_name,
                                NG=NG,
                                L=L,
@@ -43,20 +31,24 @@ def test_linear_regime_beam_stability(L, NG, N_electrons):
     assert (~did_it_thermalize(S)).all(), ("A linear regime run came out unstable.", plots(S, *on_failure))
 
 
-# # TODO: restore this test
-# @pytest.mark.parametrize(["L", "NG", "N_electrons"], [
-#     (2 * np.pi * 100, 64, 1024),
-#     (2 * np.pi * 200, 64, 2024),
-#     ])
-# def test_nonlinear_regime_beam_instability(NG, N_electrons, plasma_frequency):
-#     run_name = f"TS_NONLINEAR_{NG}_{N_electrons}_{plasma_frequency}"
-#     S = two_stream_instability(run_name,
-#                                NG=NG,
-#                                N_electrons=N_electrons,
-#                                plasma_frequency=plasma_frequency,
-#                                T=300 * 3,
-#                                )
-#     assert did_it_thermalize(S).all(), ("A nonlinear regime run came out stable.", plots(S, *on_failure))
+
+@pytest.mark.parametrize(["L", "NG", "N_electrons"], [
+    (2 * np.pi * 100, 32, 512),
+    (2 * np.pi * 200, 32, 512),
+    ])
+def test_nonlinear_regime_beam_instability(L, NG, N_electrons):
+    run_name = f"TS_NONLINEAR_{L}_{NG}_{N_electrons}"
+    dx = L / NG
+    c = 1
+    dt = dx / c
+    T = 50000 * dt
+    S = two_stream_instability(run_name,
+                               NG=NG,
+                               N_electrons=N_electrons,
+                               L=L,
+                               T=T,
+                               )
+    assert did_it_thermalize(S).all(), ("A nonlinear regime run came out stable.", plots(S, *on_failure))
 
 # @pytest.mark.parametrize(["v0", "NT"], [
 #     (0.1, 450),
@@ -86,3 +78,11 @@ def test_linear_regime_beam_stability(L, NG, N_electrons):
 #                            )
 #
 #     # TEST: finish this
+def test_finish():
+    """Tests whether the simulation finishes at all."""
+    S = two_stream_instability("TS_FINISH",
+                               NG=512,
+                               N_electrons=4096,
+                               plasma_frequency=0.05 / 4,
+                               ).test_run()
+    assert True, ("The simulation did not finish.", plots(S, *on_failure))

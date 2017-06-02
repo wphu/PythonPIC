@@ -124,7 +124,7 @@ class PhasePlot(Plot):
             self.ax.set_ylim(-maxys, maxys)
         for i, species in enumerate(S.list_species):
             self.plots.append(ax.plot([], [], colors[i] + ".", alpha=alpha)[0])
-        self.ax.yaxis.set_label_position("right")
+        # self.ax.yaxis.set_label_position("right")
         self.ax.set_xlabel(rf"${v1}$")
         self.ax.set_ylabel(rf"${v2}$")
 

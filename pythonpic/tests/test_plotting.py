@@ -29,11 +29,11 @@ def test_static_plots(helper_short_simulation):
         static = static_plots(S, S.filename.replace(".hdf5", ".png"))
         assert True
 
-def test_animation(helper_short_simulation):
-    S = helper_short_simulation
-    if S:
-        animation.OneDimAnimation(S).full_animation(True)
-        assert True
+# def test_animation(helper_short_simulation):
+#     S = helper_short_simulation
+#     if S:
+#         animation.OneDimAnimation(S).full_animation(True)
+#         assert True
 
 
 def test_writer_manual_speed(helper_short_simulation):
