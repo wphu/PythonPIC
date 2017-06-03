@@ -10,7 +10,7 @@ from ..visualization.plotting import plots
 from ..visualization import animation
 plots = partial(plots, animation_type = animation.FastAnimation)
 
-VERSION = 7
+VERSION = 8
 laser_wavelength = 1.064e-6 # meters
 laser_intensity = 1e23 # watt/meters squared
 impulse_duration = 1e-13 # seconds
@@ -71,7 +71,7 @@ class laser(Simulation):
         for species in self.list_species:
             print(f"Distributing {species.name} nonuniformly.")
             species.distribute_nonuniformly(length, moat_length_left_side, preplasma_length, main_plasma_length)
-            species.random_position_perturbation(self.grid.dx * self.perturbation_amplitude)
+            species.random_position_perturbation(self.perturbation_amplitude)
         print("Finished initial distribution of particles.")
         super().grid_species_initialization()
         print("Finished initialization.")

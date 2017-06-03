@@ -180,19 +180,33 @@ class Species:
     def sinusoidal_position_perturbation(self, amplitude: float, mode: int, L: float):
         """
         Displace positions by a sinusoidal perturbation calculated for each particle.
-        
-            dx = amplitude * cos(2 * mode * pi * x / L)xk
 
-        :param float amplitude: Amplitude of perturbation
-        :param int mode: which mode is excited/home/dominik/Inzynierka/pythonpic/pythonpic/tests/__init__.py
-        :param float L: grid length
-        :return:
+        ..math:
+            dx = amplitude * cos(2 * mode * pi * x / L)
+
+        Parameters
+        ----------
+        amplitude : float
+        mode : int, float
+
+
         """
-        self.x += amplitude * np.cos(2 * mode * np.pi * self.x / L) # TODO: remove 2*
+        self.x += amplitude * np.cos(2 * mode * np.pi * self.x / self.grid.L) # TODO: remove 2*
         self.apply_bc()
 
     def random_position_perturbation(self, std: float):
-        self.x += np.random.normal(scale=std, size=self.N)
+        """
+        Displace positions by gaussian noise. May reduce number of particles afterwards due to applying BC.
+
+        Parameters
+        ----------
+        std : float
+            standard deviation of the noise, in units of grid cell size
+        Returns
+        -------
+
+        """
+        self.x += np.random.normal(scale=std*self.grid.dx, size=self.N)
         self.apply_bc()
 
     """VELOCITY INITIALIZATION"""
