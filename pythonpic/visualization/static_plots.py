@@ -78,7 +78,7 @@ def energy_time_plots(S, axis):
               alpha=0.5)
     # axis.plot(np.arange(S.NT) * S.dt, S.grid.epsilon_0 * (S.grid.electric_field_history ** 2).sum(axis=1) * 0.5,
     #                  ".-", label="Field energy (direct solve)", alpha=0.5)
-    axis.plot(np.arange(S.NT) * S.dt, S.total_energy, ".-", label="Total E.")
+    axis.plot(np.arange(S.NT) * S.dt, S.total_energy, "-", label="Total E.")
     axis.grid()
     axis.set_xlabel(r"Time $t$")
     axis.set_xlim(0, S.NT * S.dt)

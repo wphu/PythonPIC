@@ -3,7 +3,7 @@ from pythonpic import plotting_parser
 from pythonpic.configs.run_laser import laser, impulse_duration, n_macroparticles, plots
 
 args = plotting_parser("Hydrogen shield")
-s = laser("production_run", n_macroparticles, impulse_duration).lazy_run()
+s = laser("production_run_21_01", n_macroparticles, impulse_duration, 1e21, 0.1).lazy_run()
 plots(s, *args)
 # s =laser("field_only", 0, impulse_duration).lazy_run()
 # plots(s, *args)

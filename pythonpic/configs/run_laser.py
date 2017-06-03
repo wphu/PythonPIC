@@ -10,7 +10,7 @@ from ..visualization.plotting import plots
 from ..visualization import animation
 plots = partial(plots, animation_type = animation.FastAnimation)
 
-VERSION = 6
+VERSION = 7
 laser_wavelength = 1.064e-6 # meters
 laser_intensity = 1e23 # watt/meters squared
 impulse_duration = 1e-13 # seconds
@@ -37,7 +37,7 @@ scaling = npic # CHECK what should be the proper value here?
 
 category_name = "laser-shield"
 class laser(Simulation):
-    def __init__(self, filename, n_macroparticles, impulse_duration):
+    def __init__(self, filename, n_macroparticles, impulse_duration, laser_intensity, perturbation_amplitude):
         bc = BoundaryCondition.Laser(laser_intensity=laser_intensity,
                                      laser_wavelength=laser_wavelength,
                                      envelope_center_t = total_time/2,
@@ -52,10 +52,10 @@ class laser(Simulation):
             electrons = Species(-electric_charge, electron_rest_mass, n_macroparticles, grid, "electrons", scaling)
             protons = Species(electric_charge, proton_mass, n_macroparticles, grid, "protons", scaling)
             list_species = [electrons, protons]
-
-
         else:
             list_species = []
+
+        self.perturbation_amplitude = perturbation_amplitude # in units of dx
 
         description = "Hydrogen shield-laser interaction"
 
@@ -71,7 +71,7 @@ class laser(Simulation):
         for species in self.list_species:
             print(f"Distributing {species.name} nonuniformly.")
             species.distribute_nonuniformly(length, moat_length_left_side, preplasma_length, main_plasma_length)
-            species.random_position_perturbation(self.grid.L / self.grid.NG / 1000)
+            species.random_position_perturbation(self.grid.dx * self.perturbation_amplitude)
         print("Finished initial distribution of particles.")
         super().grid_species_initialization()
         print("Finished initialization.")
