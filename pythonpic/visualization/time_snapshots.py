@@ -156,6 +156,19 @@ class SpatialDistributionPlot(Plot):
         for species, plot in zip(self.S.list_species, self.plots):
             plot.set_data(self.S.grid.x, species.density_history[i])
 
+class SpatialPerturbationDistributionPlot(SpatialDistributionPlot):
+    def __init__(self, S, ax):
+        super().__init__(S, ax)
+        ax.set_ylabel(r"$\Delta n = n - n(t=0)$")
+        self.y = [self.S.density_history - self.S.density_history[0] for species in S.list_species]
+        if len(S.list_species):
+            ax.set_ylim(min([1.2 * y.min() for y in self.y]),max([1.2 * y.max() for y in self.y]))
+            ax.legend(loc='best')
+
+    def update(self, i):
+        for species, plot, y in zip(self.S.list_species, self.plots, self.y):
+            plot.set_data(self.S.grid.x, y[i])
+
 class ChargeDistributionPlot(Plot):
     """
     Draws charge density from the grid.

@@ -7,7 +7,7 @@ import numpy as np
 
 from .time_snapshots import FrequencyPlot, \
     PhasePlot, SpatialDistributionPlot, IterationCounter, \
-    TripleFieldPlot, TripleCurrentPlot, CurrentPlot, FieldPlot, ChargeDistributionPlot
+    TripleFieldPlot, TripleCurrentPlot, CurrentPlot, FieldPlot, ChargeDistributionPlot, SpatialPerturbationDistributionPlot
 from ..helper_functions import helpers
 
 
@@ -159,10 +159,12 @@ class FastAnimation(animation):
         super().__init__(S, alpha=alpha, frames=frames)
         charge_axis = self.fig.add_subplot(421)
         current_axes = [self.fig.add_subplot(423 + 2 * i) for i in range(3)]
-        field_axes = [self.fig.add_subplot(422 + 2 * i) for i in range(3)]
+        field_axes = [self.fig.add_subplot(424 + 2 * i) for i in range(2)]
         freq_axes = self.fig.add_subplot(428)
+        density_perturbation_axis = self.fig.add_subplot(422)
 
         freq_plot = FrequencyPlot(self.S, freq_axes)
+        density_perturbation_plot = SpatialPerturbationDistributionPlot(S, density_perturbation_axis)
         charge_plot = SpatialDistributionPlot(self.S, charge_axis)
         iteration = IterationCounter(self.S, freq_axes)
         current_plots = TripleCurrentPlot(self.S, current_axes)
@@ -173,6 +175,7 @@ class FastAnimation(animation):
                  charge_plot,
                  iteration,
                  current_plots,
+                 density_perturbation_plot,
                  field_plots]
         super().add_plots(plots)
 
