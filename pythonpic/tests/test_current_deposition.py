@@ -279,5 +279,6 @@ def test_simulation_at_boundaries(T, n_end_moat):
     sim.run().postprocess()
 
     from pythonpic.visualization import animation
-    plots(sim, save_static=True, save_animation=True, snapshot_animation=True, animation_type=animation.OneDimAnimation)
+    plots(sim, show_static=True, show_animation=True, animation_type=animation.OneDimAnimation, frames="all")
+    # plots(sim, save_static=True, save_animation=True, snapshot_animation=True, animation_type=animation.OneDimAnimation, frames="all")
     assert False

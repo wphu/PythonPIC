@@ -17,6 +17,7 @@ class animation:
     def __init__(self,
                  S,
                  alpha=1,
+                 frames="few"
                  ):
 
         """
@@ -46,9 +47,20 @@ class animation:
         self.fig.subplots_adjust(top=0.81, bottom=0.08, left=0.15, right=0.95,
                             wspace=.25, hspace=0.6)  # REFACTOR: remove particle windows if there are no particles
 
-        self.frames = np.arange(0, S.NT,
-                           helpers.calculate_particle_iter_step(S.NT),
-                           dtype=int)
+
+        if frames == "all":
+            self.frames = np.arange(0, S.NT,
+                                    dtype=int)
+            self.frames_to_draw = self.frames
+        elif frames == "few":
+            self.frames = np.arange(0, S.NT,
+                                    helpers.calculate_particle_iter_step(S.NT),
+                                    dtype=int)
+            self.frames_to_draw = self.frames[::30]
+        elif isinstance(frames, list):
+            self.frames_to_draw = frames
+        else:
+            raise ValueError("Incorrect frame_to_draw - must be 'animation' or number of iteration to draw.")
 
     def add_plots(self, plots):
         self.plots = plots
@@ -102,16 +114,9 @@ class animation:
             print(f"Saved animation to {videofile_name}")
         return animation_object
 
-    def snapshot_animation(self, frames : list = "all"):
-        if frames == "all":
-            frames_to_draw = self.frames[::30]
-        elif isinstance(frames, list):
-            frames_to_draw = frames
-        else:
-            raise ValueError("Incorrect frame_to_draw - must be 'animation' or number of iteration to draw.")
-
+    def snapshot_animation(self):
         print("Drawing animation as snapshots.")
-        for i in frames_to_draw:
+        for i in self.frames_to_draw:
             self.animate(i)
             helpers.make_sure_path_exists(self.S.filename)
             file_name = self.S.filename.replace(".hdf5", f"_{i:06}.png")

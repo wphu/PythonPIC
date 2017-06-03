@@ -19,7 +19,8 @@ def plots(file,
           save_animation: bool = False,
           snapshot_animation: bool = False,
           alpha: float = 0.7,
-          animation_type = animation.FastAnimation
+          animation_type = animation.FastAnimation,
+          frames="few"
           ):
     """
     Wrapper to run visual analysis on saved hdf5 file. Displays static plots and animations.
@@ -60,9 +61,9 @@ def plots(file,
             # this needs name due to matplotlib.animation
             anim = animation_type(S, alpha)
             if snapshot_animation:
-                anim.snapshot_animation()
+                anim.snapshot_animation(frames)
             if save_animation or show_animation:
-                anim_object = anim.full_animation(save_animation)
+                anim_object = anim.full_animation(save_animation, frames)
         if show_animation or show_static:
             plt.show()
         else:
