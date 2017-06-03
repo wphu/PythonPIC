@@ -59,11 +59,11 @@ def plots(file,
         if show_animation or save_animation or snapshot_animation:
             # noinspection PyUnusedLocal
             # this needs name due to matplotlib.animation
-            anim = animation_type(S, alpha)
+            anim = animation_type(S, alpha, frames)
             if snapshot_animation:
-                anim.snapshot_animation(frames)
+                anim.snapshot_animation()
             if save_animation or show_animation:
-                anim_object = anim.full_animation(save_animation, frames)
+                anim_object = anim.full_animation(save_animation)
         if show_animation or show_static:
             plt.show()
         else:

@@ -125,8 +125,8 @@ class animation:
         return self.fig
 
 class FullAnimation(animation):
-    def __init__(self, S, alpha=1):
-        super().__init__(S, alpha)
+    def __init__(self, S, alpha=1, frames="few"):
+        super().__init__(S, alpha=alpha, frames=frames)
         charge_axis = self.fig.add_subplot(421)
         current_axes = [self.fig.add_subplot(423 + 2 * i) for i in range(3)]
         phase_axes_x = self.fig.add_subplot(422)
@@ -155,8 +155,8 @@ class FullAnimation(animation):
         super().add_plots(plots)
 
 class FastAnimation(animation):
-    def __init__(self, S, alpha=1):
-        super().__init__(S, alpha)
+    def __init__(self, S, alpha=1, frames="few"):
+        super().__init__(S, alpha=alpha, frames=frames)
         charge_axis = self.fig.add_subplot(421)
         current_axes = [self.fig.add_subplot(423 + 2 * i) for i in range(3)]
         field_axes = [self.fig.add_subplot(422 + 2 * i) for i in range(3)]
@@ -177,8 +177,8 @@ class FastAnimation(animation):
         super().add_plots(plots)
 
 class OneDimAnimation(animation):
-    def __init__(self, S, alpha=1):
-        super().__init__(S, alpha)
+    def __init__(self, S, alpha=1, frames="few"):
+        super().__init__(S, alpha=alpha, frames=frames)
         density_axis = self.fig.add_subplot(321)
         charge_axis = self.fig.add_subplot(323)
 
