@@ -2,7 +2,7 @@
 import numpy as np
 
 
-def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q):
+def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q, L):
     """
 
     Parameters
@@ -80,15 +80,15 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q):
         new_locations[case2] = (logical_coordinates_n[case2] + 0.5) * dx - epsilon
         new_locations[case3] = (logical_coordinates_n[case3] + 1) * dx + epsilon
         new_locations[case4] = (logical_coordinates_n[case4] + 0.5) * dx + epsilon
-        active = switches_cells
+        active = switches_cells & (new_locations < L)
         x_particles = new_locations[active]
         x_velocity = x_velocity[active]
         time = new_time[active]
         active = np.ones_like(x_particles, dtype=bool)
 
 
-def periodic_longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q):
-    longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q)
+def periodic_longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q, L):
+    longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q, L)
     j_x[-3] += j_x[0]
     j_x[1:3] += j_x[-2:]
 

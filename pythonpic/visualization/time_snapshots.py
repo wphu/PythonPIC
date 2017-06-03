@@ -160,7 +160,7 @@ class SpatialPerturbationDistributionPlot(SpatialDistributionPlot):
     def __init__(self, S, ax):
         super().__init__(S, ax)
         ax.set_ylabel(r"$\Delta n = n - n(t=0)$")
-        self.y = [self.S.density_history - self.S.density_history[0] for species in S.list_species]
+        self.y = [species.density_history - species.density_history[0] for species in S.list_species]
         if len(S.list_species):
             ax.set_ylim(min([1.2 * y.min() for y in self.y]),max([1.2 * y.max() for y in self.y]))
             ax.legend(loc='best')

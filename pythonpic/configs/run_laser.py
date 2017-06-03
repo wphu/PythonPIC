@@ -10,7 +10,7 @@ from ..visualization.plotting import plots
 from ..visualization import animation
 plots = partial(plots, animation_type = animation.FastAnimation)
 
-VERSION = 8
+VERSION = 9
 laser_wavelength = 1.064e-6 # meters
 laser_intensity = 1e23 # watt/meters squared
 impulse_duration = 1e-13 # seconds
