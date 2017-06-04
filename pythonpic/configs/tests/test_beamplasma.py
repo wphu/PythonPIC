@@ -11,7 +11,7 @@ from . import on_failure
     (100*np.pi, True),
     ])
 def test_twostream_likeness(L, should_it_thermalize):
-    run_name = f"BP_TWOSTREAM_{N_beam}"
+    run_name = f"BP_TWOSTREAM_{L}"
     S = weakbeam_instability(run_name, L=L,
                              save_data=False)
     assert (did_it_thermalize(S)[:2] == should_it_thermalize).all(), ("Incorrect thermalization",

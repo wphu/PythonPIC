@@ -36,7 +36,7 @@ def test_density_helper(_fraction, _second_fraction, _profile, _N):
     s.distribute_nonuniformly(g.L, moat_length, ramp_length, plasma_length, profile=_profile)
     return s, g, moat_length, plasma_length, _profile
 
-@pytest.mark.parametrize("std", [0.0001])
+@pytest.mark.parametrize("std", [0.00001])
 def test_fitness(test_density_helper, std):
     s, g, moat_length, plasma_length, profile = test_density_helper
     assert (s.x > moat_length).all(), "Particles running out the right side!"
