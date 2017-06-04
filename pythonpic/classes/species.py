@@ -294,6 +294,7 @@ class Species:
     def postprocess(self):
         if not self.postprocessed:
             print(f"Postprocessing {self.name}.")
+            # self.density_history *= self.scaling
             self.kinetic_energy_history = 0.5 * (self.kinetic_energy_history[1:] + self.kinetic_energy_history[:-1])
             self.postprocessed = True
 

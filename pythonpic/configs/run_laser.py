@@ -10,7 +10,7 @@ from ..visualization.plotting import plots
 from ..visualization import animation
 plots = partial(plots, animation_type = animation.FastAnimation)
 
-VERSION = 9
+VERSION = 10
 laser_wavelength = 1.064e-6 # meters
 laser_intensity = 1e23 # watt/meters squared
 impulse_duration = 1e-13 # seconds
@@ -25,6 +25,7 @@ moat_length_left_side = 3.093e-6 # meters
 preplasma_length = 7.73e-7 # meters
 main_plasma_length = 7.73e-7 + preplasma_length # meters
 
+print("crit density", critical_density(laser_wavelength))
 maximum_electron_concentration = 5 * critical_density(laser_wavelength) # m^-3
 
 # assert np.isclose(maximum_electron_concentration, 5.24e27), maximum_electron_concentration # m^-3
@@ -38,14 +39,19 @@ scaling = npic # CHECK what should be the proper value here?
 category_name = "laser-shield"
 class laser(Simulation):
     def __init__(self, filename, n_macroparticles, impulse_duration, laser_intensity, perturbation_amplitude):
-        bc = BoundaryCondition.Laser(laser_intensity=laser_intensity,
-                                     laser_wavelength=laser_wavelength,
-                                     envelope_center_t = total_time/2,
-                                     envelope_width=impulse_duration,
-                                     envelope_power=6,
-                                     c=lightspeed,
-                                     epsilon_0=epsilon_zero,
-                                     ).laser_pulse
+        if laser_intensity:
+            bc_laser = BoundaryCondition.Laser(laser_intensity=laser_intensity,
+                                         laser_wavelength=laser_wavelength,
+                                         envelope_center_t = total_time/2,
+                                         envelope_width=impulse_duration,
+                                         envelope_power=6,
+                                         c=lightspeed,
+                                         epsilon_0=epsilon_zero,
+                                         )
+            print(f"Laser amplitude: {bc_laser.laser_amplitude:e}")
+            bc = bc_laser.laser_pulse
+        else:
+            bc = lambda x: None
         grid = Grid(T=total_time, L=length, NG=number_cells, c =lightspeed, epsilon_0 =epsilon_zero, bc=bc, periodic=False)
 
         if n_macroparticles:
