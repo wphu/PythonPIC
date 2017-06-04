@@ -1,12 +1,13 @@
 # coding=utf-8
 import numpy as np
 import pytest
+import matplotlib.pyplot as plt
 
 from ..algorithms import density_profiles
-from ..classes import Species, Grid
+from ..classes import Species, Grid, Simulation
+from ..visualization.time_snapshots import SpatialPerturbationDistributionPlot
 
-
-@pytest.fixture(params=np.linspace(0.01, 0.5, 3), scope='module')
+@pytest.fixture(params=np.linspace(0.1, 0.5, 3), scope='module')
 def _fraction(request):
     return request.param
 
@@ -22,7 +23,7 @@ def _profile(request):
     return request.param
 
 # noinspection PyUnresolvedReferences
-@pytest.fixture(scope='module')
+@pytest.fixture()
 def test_density_helper(_fraction, _second_fraction, _profile, _N):
 
     g = Grid(1, 100, 100)
@@ -35,32 +36,27 @@ def test_density_helper(_fraction, _second_fraction, _profile, _N):
     s.distribute_nonuniformly(g.L, moat_length, ramp_length, plasma_length, profile=_profile)
     return s, g, moat_length, plasma_length, _profile
 
-def test_particles_out_bounds(test_density_helper):
+@pytest.mark.parametrize("std", [0.0001])
+def test_fitness(test_density_helper, std):
     s, g, moat_length, plasma_length, profile = test_density_helper
-    minimal_warn = f"min particle x: {s.x.min()} < moat_length {moat_length}"
-    maximal_warn = f"max particle x: {s.x.max()} > plasma region {moat_length + plasma_length}"
+    assert (s.x > moat_length).all(), "Particles running out the right side!"
+    assert (s.x <= moat_length + plasma_length).all(), "Particles running out the left side!"
+    # particle conservation
+    assert s.N == s.x.size, "Particles are not conserved!"
+    sim = Simulation(g, [s])
+    s.gather_density()
+    s.save_particle_values(0)
+    s.random_position_perturbation(std)
+    s.gather_density()
+    s.save_particle_values(1)
+    def plots():
+        fig, ax = plt.subplots()
+        fig.suptitle(std)
+        plot = SpatialPerturbationDistributionPlot(sim, ax)
+        plot.update(1)
+        # plot2 = SpatialDistributionPlot(sim, ax)
+        # plot2.update(0)
+        plt.show()
+    assert np.allclose(s.density_history[0], s.density_history[1], atol=1e-3), plots()
 
-    def plot(warn):
-        print(_fraction, _second_fraction, plasma_length / g.L)
-        return warn
 
-    assert (s.x > moat_length).all(), plot(minimal_warn)
-    assert (s.x <= moat_length + plasma_length).all(), plot(maximal_warn)
-
-def test_particle_conservation(test_density_helper):
-    s, g, moat_length, plasma_length, profile = test_density_helper
-
-    def plot():
-        # # plt.plot(dense_x, linear_distribution_function, label="Distribution function")
-        # plt.scatter(s.x, s.x, c="g", alpha=0.1, label="Particles")
-        # plt.hist(s.x, g.x, label="Particle density", alpha=0.5);
-        # # plt.xlim(0, g.L)
-        # # plt.xticks(g.x)
-        # # plt.gca().xaxis.set_ticklabels([])
-        title = f"{difference} particles disappeared at N: {s.N} with {profile} profile!"
-        # plt.title(title)
-        # plt.legend()
-        # plt.show()
-        return  title
-    difference = s.N - s.x.size
-    assert difference == 0, plot()
