@@ -40,7 +40,7 @@ def test_linear_dominant_mode(push_mode):
 #     assert get_dominant_mode(S) == 1, plots(S, show_animation=True)
 
 
-@pytest.mark.parametrize("N", [128, 256])
+@pytest.mark.parametrize("N", [128])
 def test_kaiser_wilhelm_instability(N):
     # __doc__ = test_kaiser_wilhelm_instability_avoidance.__doc__
     S = cold_plasma_oscillations(f"CO_KWI_UNSTABLE_{N}",

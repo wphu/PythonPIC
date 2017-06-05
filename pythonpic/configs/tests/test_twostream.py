@@ -32,24 +32,25 @@ def test_linear_regime_beam_stability(L, NG, N_electrons):
 
 
 
-@pytest.mark.parametrize(["L", "NG", "N_electrons"], [
-    (2 * np.pi * 1000, 32, 512),
-    (2 * np.pi * 2000, 32, 512),
-    ])
-def test_nonlinear_regime_beam_instability(L, NG, N_electrons):
-    run_name = f"TS_NONLINEAR_{L}_{NG}_{N_electrons}"
-    dx = L / NG
-    c = 1
-    dt = dx / c
-    T = 50000 * dt
-    S = two_stream_instability(run_name,
-                               NG=NG,
-                               N_electrons=N_electrons,
-                               L=L,
-                               v0 = 0.01,
-                               T=T,
-                               ).test_run()
-    assert did_it_thermalize(S).all(), ("A nonlinear regime run came out stable.", plots(S, *on_failure))
+# TODO: redo this test
+# @pytest.mark.parametrize(["L", "NG", "N_electrons"], [
+#     (2 * np.pi * 1000, 32, 512),
+#     (2 * np.pi * 2000, 32, 512),
+#     ])
+# def test_nonlinear_regime_beam_instability(L, NG, N_electrons):
+#     run_name = f"TS_NONLINEAR_{L}_{NG}_{N_electrons}"
+#     dx = L / NG
+#     c = 1
+#     dt = dx / c
+#     T = 50000 * dt
+#     S = two_stream_instability(run_name,
+#                                NG=NG,
+#                                N_electrons=N_electrons,
+#                                L=L,
+#                                v0 = 0.01,
+#                                T=T,
+#                                ).test_run()
+#     assert did_it_thermalize(S).all(), ("A nonlinear regime run came out stable.", plots(S, *on_failure))
 
 # @pytest.mark.parametrize(["v0", "NT"], [
 #     (0.1, 450),
