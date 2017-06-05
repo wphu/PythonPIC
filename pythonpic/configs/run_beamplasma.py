@@ -58,7 +58,7 @@ class weakbeam_instability(Simulation):
         self.v0 = v0
         self.push_amplitude = push_amplitude
         self.push_mode = push_mode
-        self.vrandom = self.vrandom
+        self.vrandom = vrandom
 
 
     def grid_species_initialization(self):

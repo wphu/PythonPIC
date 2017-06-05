@@ -55,7 +55,7 @@ def get_dominant_mode(S):
     data = S.grid.energy_per_mode_history
     weights = (data ** 2).sum(axis=0) / (data ** 2).sum()
 
-    max_mode = weights[1:].argmax()
+    max_mode = weights[1:].argmax()+1
     # max_index = data[:, max_mode].argmax()
     return max_mode
 

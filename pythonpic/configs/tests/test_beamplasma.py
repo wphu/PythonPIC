@@ -5,14 +5,13 @@ from ..run_beamplasma import weakbeam_instability, plots
 from pythonpic.helper_functions.physics import did_it_thermalize
 from . import on_failure
 #
-@pytest.mark.parametrize(["L", "should_it_thermalize"], [
-    (2*np.pi, False),
-    (0.2*np.pi, False),
-    (100*np.pi, True),
+@pytest.mark.parametrize(["L", "T", "should_it_thermalize"], [
+    (2*np.pi, 60, False),
+    (0.2*np.pi, 60, False),
+    # (50*np.pi, 3000, True),
     ])
-def test_twostream_likeness(L, should_it_thermalize):
+def test_twostream_likeness(L, T, should_it_thermalize):
     run_name = f"BP_TWOSTREAM_{L}"
-    S = weakbeam_instability(run_name, L=L,
-                             save_data=False)
+    S = weakbeam_instability(run_name, L=L, T=T).test_run()
     assert (did_it_thermalize(S)[:2] == should_it_thermalize).all(), ("Incorrect thermalization",
-                                                                      plots(S, *on_failure))
+                                                                      plots(S, *on_failure, alpha=0.5))

@@ -66,10 +66,11 @@ class FrequencyPlot(Plot):
         self.ax.set_xlabel(r"Wavevector mode $k$")
         self.ax.set_ylabel(r"Energy $E$")
         max_interesting = S.grid.k_plot.max() * 0.3
-        self.indices = S.grid.k_plot <  max_interesting
+        # self.indices = S.grid.k_plot <  max_interesting
+        self.indices = np.ones_like(S.grid.k_plot, dtype=bool)
         interesting_x = S.grid.k_plot[self.indices]
         self.ax.set_xticks(interesting_x)
-        self.ax.xaxis.set_ticklabels(interesting_x)
+        self.ax.xaxis.set_ticklabels(np.arange(len(interesting_x)))
         self.ax.set_xlim(interesting_x.min(), interesting_x.max())
         self.ax.set_ylim(0, S.grid.energy_per_mode_history.max())
 
