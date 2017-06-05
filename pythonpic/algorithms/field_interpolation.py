@@ -1,3 +1,4 @@
+from scipy import interpolate as interp
 def interpolateField(x_particles, scalar_field, x, dx: float):
     """gathers field from grid to particles
 

@@ -2,6 +2,7 @@
 # coding=utf-8
 import numpy as np
 import scipy.fftpack as fft
+from scipy import interpolate as interp
 
 from ..helper_functions import physics
 from ..algorithms import charge_deposition, FieldSolver, BoundaryCondition, current_deposition, field_interpolation
@@ -122,10 +123,13 @@ class Grid:
             # self.magnetic_field[0, 1] = bc_value / self.c
 
     def init_solver(self):
-        return self.solver.init_solver(self)
+        result = self.solver.init_solver(self)
+        self.prepare_interpolators()
+        return result
 
     def solve(self):
-        return self.solver.solve(self)
+        result = self.solver.solve(self)
+        return result
 
     def direct_energy_calculation(self):
         r"""
@@ -154,17 +158,24 @@ class Grid:
             self.current_transversal_gather_function(self.current_density_yz, species.v, species.x, self.dx, self.dt,
                                                      species.eff_q)
 
+    def prepare_interpolators(self):
+        self.Efield_interpolator = interp.RegularGridInterpolator((self.x,),
+                                                             self.electric_field[1:-1],
+                                                             method="linear",
+                                                             bounds_error=True,
+                                                             )
+
+        self.Bfield_interpolator = interp.RegularGridInterpolator((self.x,),
+                                                             self.magnetic_field[1:-1],
+                                                             method="linear",
+                                                             bounds_error=True,
+                                                             )
+
     def electric_field_function(self, xp):
-        result = np.zeros((xp.size, 3))
-        for i in range(3):
-            result[:, i] = field_interpolation.interpolateField(xp, self.electric_field[1:-1, i], self.x, self.dx)
-        return result
+        return self.Efield_interpolator(xp)
 
     def magnetic_field_function(self, xp):
-        result = np.zeros((xp.size, 3))
-        for i in range(1, 3):
-            result[:, i] = field_interpolation.interpolateField(xp, self.magnetic_field[1:-1, i], self.x, self.dx)
-        return result
+        return self.Bfield_interpolator(xp)
 
     def save_field_values(self, i):
         """Update the i-th set of field values, without those gathered from interpolation (charge\current)"""
