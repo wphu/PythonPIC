@@ -89,6 +89,11 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q, L):
         time = new_time[active]
         active = np.ones_like(x_particles, dtype=bool)
 
+def aperiodic_longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q, L):
+    longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q, L)
+    j_x[0] = 0
+    j_x[-2:] = 0
+
 
 def periodic_longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q, L):
     longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q, L)
@@ -232,6 +237,10 @@ def transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
         velocity = velocity[active]
         active = np.ones_like(x_particles, dtype=bool)
 
+def aperiodic_transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
+    transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q)
+    j_yz[:2] = 0
+    j_yz[-2:] = 0
 
 def periodic_transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
     transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q)

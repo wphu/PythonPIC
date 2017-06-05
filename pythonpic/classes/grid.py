@@ -69,8 +69,8 @@ class Grid:
             self.solver = FieldSolver.FourierSolver
         else:
             self.charge_gather_function = field_interpolation.aperiodic_density_deposition
-            self.current_longitudinal_gather_function = current_interpolation.longitudinal_current_deposition
-            self.current_transversal_gather_function = current_interpolation.transversal_current_deposition
+            self.current_longitudinal_gather_function = current_interpolation.aperiodic_longitudinal_current_deposition
+            self.current_transversal_gather_function = current_interpolation.aperiodic_transversal_current_deposition
             self.particle_bc = BoundaryCondition.kill_particles_outside_bounds
             self.solver = FieldSolver.BunemanSolver
 
