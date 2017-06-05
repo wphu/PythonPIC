@@ -25,8 +25,6 @@ class Laser:
 
     Examples
     ---------
-    >>> Laser(0.5, 1).laser_envelope(0)
-    1.0
     >>> Laser(0.5, 1).laser_wave(0)
     0.0
     >>> Laser(0.5, 1).laser_pulse(0)
@@ -37,8 +35,6 @@ class Laser:
     True
     >>> np.isclose(Laser(1/2, 1).laser_pulse(1), 0)
     True
-    >>> Laser(0.5, 1, 10).laser_envelope(10)
-    1.0
 
     Parameters
     ----------
@@ -61,7 +57,7 @@ class Laser:
     """
     def __init__(self, laser_intensity,
                  laser_wavelength,
-                 envelope_center_t=0,
+                 envelope_center_t=1,
                  envelope_width=1,
                  envelope_power=2,
                  laser_phase = 0,

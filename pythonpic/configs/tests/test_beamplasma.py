@@ -8,7 +8,6 @@ from . import on_failure
 @pytest.mark.parametrize(["L", "T", "should_it_thermalize"], [
     (2*np.pi, 60, False),
     (0.2*np.pi, 60, False),
-    # (50*np.pi, 3000, True),
     ])
 def test_twostream_likeness(L, T, should_it_thermalize):
     run_name = f"BP_TWOSTREAM_{L}"
