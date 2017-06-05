@@ -52,9 +52,6 @@ def report_progress(i: int, NT: int, beginning_time = None):
         Current iteration number
     NT : int
         Total iteration number
-    beginning_time: float
-        Start time of the simulation, for estimating the progress.
-        An instance of time.time() saved before running the simulation.
 
     Examples
     ----------
@@ -67,7 +64,7 @@ def report_progress(i: int, NT: int, beginning_time = None):
 
     """
     start_string = f"{i}/{NT} iterations ({i/NT*100:.0f}%) done!"
-    if beginning_time:
+    if beginning_time and i > 0:
         iterations_left = NT - i
         time_delta = time.time() - beginning_time
         time_per_iteration = time_delta / i
