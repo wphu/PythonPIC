@@ -98,11 +98,7 @@ def transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
     epsilon = 1e-10 * dx
     time = np.ones_like(x_particles) * dt
     counter = 0
-    x_velocity = velocity[:, 0]
-    active = x_velocity != 0
-    x_particles = x_particles[active]
-    velocity = velocity[active]
-    time = time[active]
+    active = np.ones_like(x_particles, dtype=bool)
     while active.any():
         counter += 1
         if counter > 4:
@@ -123,7 +119,7 @@ def transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
         particle_in_right_half = ~particle_in_left_half
 
         velocity_to_left = x_velocity < 0
-        velocity_to_right = ~velocity_to_left
+        velocity_to_right = x_velocity > 0
 
         t1 = np.empty_like(x_particles)
         s = np.empty_like(x_particles)
@@ -141,11 +137,14 @@ def transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
         s[case3] = (logical_coordinates_n[case3] + 1) * dx + epsilon
         t1[case4] = -(x_particles[case4] - (logical_coordinates_n[case4] + 0.5) * dx) / x_velocity[case4]
         s[case4] = (logical_coordinates_n[case4] + 0.5) * dx - epsilon
+        s[x_velocity == 0] = x_particles[x_velocity == 0]
 
         time_overflow = time - t1
+        time_overflow[x_velocity == 0] = 0
         switches_cells = time_overflow > 0
         time_in_this_iteration = time.copy()
         time_in_this_iteration[switches_cells] = t1[switches_cells]
+        time_in_this_iteration[x_velocity == 0] = 0
 
         jy_contribution = q * y_velocity / dt * time_in_this_iteration
         jz_contribution = q * z_velocity / dt * time_in_this_iteration
