@@ -10,7 +10,7 @@ from ..visualization.plotting import plots
 from ..visualization import animation
 plots = partial(plots, animation_type = animation.FastAnimation)
 
-VERSION = 10
+VERSION = 11
 laser_wavelength = 1.064e-6 # meters
 laser_intensity = 1e23 # watt/meters squared
 impulse_duration = 1e-13 # seconds
@@ -73,8 +73,8 @@ class laser(Simulation):
             bc = lambda x: None
         grid = Grid(T=total_time, L=length, NG=number_cells, c =lightspeed, epsilon_0 =epsilon_zero, bc=bc, periodic=False)
 
-        scaling = default_scaling * N_MACROPARTICLES / n_macroparticles
         if n_macroparticles:
+            scaling = default_scaling * N_MACROPARTICLES / n_macroparticles
             electrons = Species(-electric_charge, electron_rest_mass, n_macroparticles, grid, "electrons", scaling)
             protons = Species(electric_charge, proton_mass, n_macroparticles, grid, "protons", scaling)
             list_species = [electrons, protons]
