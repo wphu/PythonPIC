@@ -175,16 +175,22 @@ class ChargeDistributionPlot(Plot):
     Draws charge density from the grid.
     """
 
-    def __init__(self, S, ax):
+    def __init__(self, S, ax, check_poisson=False):
         super().__init__(S, ax)
-        self.plots.append(ax.plot([], [], "-", alpha=0.8)[0])
+        self.plots.append(ax.plot([], [], "-", alpha=0.8, label="charge")[0])
         ax.set_ylabel(f"Charge density $\\rho$")
         mincharge = np.min(S.grid.charge_density_history)
         maxcharge = np.max(S.grid.charge_density_history)
         ax.set_ylim(mincharge, maxcharge)
+        self.check_poisson = check_poisson
+        if check_poisson:
+            self.plots.append(ax.plot([], [], "-", alpha=0.8, label=r"$\varepsilon_0 \partial E/ \partial x$")[0])
+            ax.legend(loc='lower left')
 
     def update(self, i):
         self.plots[0].set_data(self.S.grid.x, self.S.grid.charge_density_history[i, :])
+        if self.check_poisson:
+            self.plots[1].set_data(self.S.grid.x, self.S.grid.check_on_charge[i])
 
 class Histogram(Plot):
     """

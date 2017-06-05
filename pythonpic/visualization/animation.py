@@ -157,22 +157,22 @@ class FullAnimation(animation):
 class FastAnimation(animation):
     def __init__(self, S, alpha=1, frames="few"):
         super().__init__(S, alpha=alpha, frames=frames)
-        charge_axis = self.fig.add_subplot(421)
+        density_axis = self.fig.add_subplot(421)
         current_axes = [self.fig.add_subplot(423 + 2 * i) for i in range(3)]
         field_axes = [self.fig.add_subplot(424 + 2 * i) for i in range(2)]
-        freq_axes = self.fig.add_subplot(428)
+        charge_axis = self.fig.add_subplot(428)
         density_perturbation_axis = self.fig.add_subplot(422)
 
-        freq_plot = FrequencyPlot(self.S, freq_axes)
+        charge_plot = ChargeDistributionPlot(self.S, charge_axis, check_poisson=True)
         density_perturbation_plot = SpatialPerturbationDistributionPlot(S, density_perturbation_axis)
-        charge_plot = SpatialDistributionPlot(self.S, charge_axis)
-        iteration = IterationCounter(self.S, freq_axes)
+        density_plot = SpatialDistributionPlot(self.S, density_axis)
+        iteration = IterationCounter(self.S, charge_axis)
         current_plots = TripleCurrentPlot(self.S, current_axes)
         field_plots = TripleFieldPlot(self.S, field_axes)
 
         plots = [
-                 freq_plot,
                  charge_plot,
+                 density_plot,
                  iteration,
                  current_plots,
                  density_perturbation_plot,
