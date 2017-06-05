@@ -18,5 +18,4 @@ def test_stability(std):
         plt.show()
     s = S.list_species[0]
     plots()
-    assert np.allclose(s.density_history[0], s.density_history[-1], atol=1e-3), plots()
-    assert False
+    assert np.allclose(s.density_history[0], s.density_history[-1]), plots()
