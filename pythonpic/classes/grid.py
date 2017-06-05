@@ -67,12 +67,14 @@ class Grid:
                 .periodic_longitudinal_current_deposition
             self.current_transversal_gather_function = current_deposition.periodic_transversal_current_deposition
             self.particle_bc = BoundaryCondition.return_particles_to_bounds
+            self.interpolator = field_interpolation.PeriodicInterpolateField
             self.solver = FieldSolver.FourierSolver
         else:
             self.charge_gather_function = charge_deposition.aperiodic_density_deposition
             self.current_longitudinal_gather_function = current_deposition.aperiodic_longitudinal_current_deposition
             self.current_transversal_gather_function = current_deposition.aperiodic_transversal_current_deposition
             self.particle_bc = BoundaryCondition.kill_particles_outside_bounds
+            self.interpolator = field_interpolation.AperiodicInterpolateField
             self.solver = FieldSolver.BunemanSolver
 
 
@@ -157,13 +159,13 @@ class Grid:
     def electric_field_function(self, xp):
         result = np.zeros((xp.size, 3))
         for i in range(3):
-            result[:, i] = field_interpolation.interpolateField(xp, self.electric_field[1:-1, i], self.x, self.dx)
+            result[:, i] = self.interpolator(xp, self.electric_field[:, i], self.x, self.dx)
         return result
 
     def magnetic_field_function(self, xp):
         result = np.zeros((xp.size, 3))
         for i in range(1, 3):
-            result[:, i] = field_interpolation.interpolateField(xp, self.magnetic_field[1:-1, i], self.x, self.dx)
+            result[:, i]= self.interpolator(xp, self.magnetic_field[:, i], self.x, self.dx)
         return result
 
     def save_field_values(self, i):
