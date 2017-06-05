@@ -48,6 +48,7 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q, L):
         particle_in_right_half = x_particles / dx - logical_coordinates_n > 0.5
         velocity_to_left = x_velocity < 0
         velocity_to_right = x_velocity > 0
+        velocity_zero = x_velocity == 0
 
         case1 = particle_in_left_half & velocity_to_left
         case2 = particle_in_right_half & velocity_to_left
@@ -60,7 +61,9 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q, L):
         t1[case2] = -(x_particles[case2] - (logical_coordinates_n[case2] + 0.5) * dx) / x_velocity[case2]
         t1[case3] = ((logical_coordinates_n[case3] + 1) * dx - x_particles[case3]) / x_velocity[case3]
         t1[case4] = ((logical_coordinates_n[case4] + 1.5) * dx - x_particles[case4]) / x_velocity[case4]
+        time[velocity_zero] = 0
         switches_cells = t1 < time
+        switches_cells[velocity_zero] = False
 
         logical_coordinates_depo = logical_coordinates_n.copy()
         logical_coordinates_depo[case2 | case3] += 1
