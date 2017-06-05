@@ -180,7 +180,7 @@ class FastAnimation(animation):
         super().add_plots(plots)
 
 class OneDimAnimation(animation):
-    def __init__(self, S, alpha=1, frames="few"):
+    def __init__(self, S, alpha=0.6, frames="few"):
         super().__init__(S, alpha=alpha, frames=frames)
         density_axis = self.fig.add_subplot(321)
         charge_axis = self.fig.add_subplot(323)

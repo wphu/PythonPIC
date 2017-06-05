@@ -7,7 +7,7 @@ from ..algorithms import density_profiles
 from ..classes import Species, Grid, Simulation
 from ..visualization.time_snapshots import SpatialPerturbationDistributionPlot
 
-@pytest.fixture(params=np.linspace(0.1, 0.5, 3), scope='module')
+@pytest.fixture(params=np.linspace(0.05, 0.3, 3), scope='module')
 def _fraction(request):
     return request.param
 
@@ -38,6 +38,7 @@ def test_density_helper(_fraction, _second_fraction, _profile, _N):
 
 @pytest.mark.parametrize("std", [0.00001])
 def test_fitness(test_density_helper, std):
+    np.random.seed(0)
     s, g, moat_length, plasma_length, profile = test_density_helper
     assert (s.x > moat_length).all(), "Particles running out the right side!"
     assert (s.x <= moat_length + plasma_length).all(), "Particles running out the left side!"
@@ -47,6 +48,8 @@ def test_fitness(test_density_helper, std):
     s.gather_density()
     s.save_particle_values(0)
     s.random_position_perturbation(std)
+    assert (s.x > moat_length).all(), "Particles running out the right side!"
+    assert (s.x <= moat_length + plasma_length).all(), "Particles running out the left side!"
     s.gather_density()
     s.save_particle_values(1)
     def plots():
