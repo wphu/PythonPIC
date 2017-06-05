@@ -225,8 +225,10 @@ def transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
         #       "\n\n"
         #       )
         active = switches_cells
-        time = time_overflow
-        x_particles = s
+        time = time_overflow[active]
+        x_particles = s[active]
+        velocity = velocity[active]
+        active = np.ones_like(x_particles, dtype=bool)
 
 
 def periodic_transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
