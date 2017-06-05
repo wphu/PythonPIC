@@ -98,15 +98,15 @@ class animation:
 
         """
         print("Drawing full animation.")
-        mpl_Writer = anim.writers[writer]
-        mpl_writer = mpl_Writer(fps=15, metadata=dict(artist='Me'), bitrate=1800) # TODO: does bitrate matter here
-
         # noinspection PyTypeChecker
         animation_object = anim.FuncAnimation(self.fig, self.animate, interval=100,
                                               frames=self.frames,
                                               blit=True, init_func=self.init,
                                               fargs=(save,))
         if save:
+            mpl_Writer = anim.writers[writer]
+            mpl_writer = mpl_Writer(fps=15, metadata=dict(artist='Me'), bitrate=1800) # TODO: does bitrate matter here
+
             helpers.make_sure_path_exists(self.S.filename)
             videofile_name = self.S.filename.replace(".hdf5", ".mp4")
             print(f"Saving animation to {videofile_name}")
