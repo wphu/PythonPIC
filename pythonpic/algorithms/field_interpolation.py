@@ -1,3 +1,5 @@
+import numpy as np
+
 def PeriodicInterpolateField(x_particles, scalar_field, x, dx: float):
     """gathers field from grid to particles
 
@@ -8,7 +10,7 @@ def PeriodicInterpolateField(x_particles, scalar_field, x, dx: float):
     """
     logical_coordinates = (x_particles / dx).astype(int)
     NG = scalar_field.shape[0]-2
-    right_fractions = x_particles / dx - logical_coordinates
+    right_fractions = (x_particles / dx - logical_coordinates)[:,np.newaxis]
     field = (1 - right_fractions) * scalar_field[logical_coordinates+1] + \
             right_fractions * scalar_field[(logical_coordinates +1) % NG  + 1]
     return field
@@ -23,7 +25,7 @@ def AperiodicInterpolateField(x_particles, scalar_field, x, dx: float):
     """
     logical_coordinates = (x_particles / dx).astype(int)
     NG = scalar_field.shape[0]-2
-    right_fractions = x_particles / dx - logical_coordinates
+    right_fractions = (x_particles / dx - logical_coordinates)[:,np.newaxis]
     field = (1 - right_fractions) * scalar_field[logical_coordinates+1] + \
             right_fractions * scalar_field[logical_coordinates + 2]
     return field

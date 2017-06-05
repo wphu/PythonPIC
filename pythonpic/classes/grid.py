@@ -157,16 +157,10 @@ class Grid:
                                                      species.eff_q)
 
     def electric_field_function(self, xp):
-        result = np.zeros((xp.size, 3))
-        for i in range(3):
-            result[:, i] = self.interpolator(xp, self.electric_field[:, i], self.x, self.dx)
-        return result
+        return self.interpolator(xp, self.electric_field, self.x, self.dx)
 
     def magnetic_field_function(self, xp):
-        result = np.zeros((xp.size, 3))
-        for i in range(1, 3):
-            result[:, i]= self.interpolator(xp, self.magnetic_field[:, i], self.x, self.dx)
-        return result
+        return self.interpolator(xp, self.magnetic_field, self.x, self.dx)
 
     def save_field_values(self, i):
         """Update the i-th set of field values, without those gathered from interpolation (charge\current)"""
