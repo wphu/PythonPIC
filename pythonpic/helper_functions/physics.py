@@ -68,6 +68,7 @@ def did_it_thermalize(S):
 
 
 def gamma_from_v(v, c):
+    # print((v**2).sum(axis=1).max()**0.5 / c)
     return 1 / np.sqrt(1 - ((v ** 2).sum(axis=1, keepdims=True)) / c ** 2)  # below eq 22 LPIC
 
 
@@ -75,11 +76,11 @@ def gamma_from_u(u, c):
     return np.sqrt(1 + ((u ** 2).sum(axis=1, keepdims=True) / c ** 2))
 
 
-epsilon_zero = 8.854e-12  # F/m
-electric_charge = 1.602e-19  # C
-lightspeed = 2.998e8  # m /s
-proton_mass = 1.6726219e-27  # kg
-electron_rest_mass = 9.109e-31  # kg
+epsilon_zero = 8.854187817e-12  # F/m
+electric_charge = 1.60217662e-19  # C
+lightspeed = 299792458 # m /s
+proton_mass = 1.672621898e-27  # kg
+electron_rest_mass = 9.10938356e-31  # kg
 
 
 def critical_density(wavelength):

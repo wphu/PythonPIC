@@ -1,5 +1,6 @@
 """Implements interaction of the laser with a hydrogen shield plasma"""
 # coding=utf-8
+import numpy as np
 from ..algorithms import BoundaryCondition
 from ..classes import Grid, Simulation, Species
 from ..helper_functions.physics import epsilon_zero, electric_charge, lightspeed, proton_mass, electron_rest_mass, \
@@ -10,7 +11,7 @@ from ..visualization.plotting import plots
 from ..visualization import animation
 plots = partial(plots, animation_type = animation.FullAnimation, alpha=0.3)
 
-VERSION = 13
+VERSION = 14
 laser_wavelength = 1.064e-6 # meters
 laser_intensity = 1e23 # watt/meters squared
 impulse_duration = 1e-13 # seconds
@@ -29,16 +30,19 @@ print("crit density", critical_density(laser_wavelength))
 maximum_electron_concentration = 5 * critical_density(laser_wavelength) # m^-3
 
 # assert np.isclose(maximum_electron_concentration, 5.24e27), maximum_electron_concentration # m^-3
-maximum_electron_concentration = 5.24e27 # CHECK: this is a crutch
+# maximum_electron_concentration = 5.24e27 # CHECK: this is a crutch
 
-npic = 1.048e25 # m^-3
+npic = 0.01 * critical_density(laser_wavelength)
 
-N_MACROPARTICLES = 75000
+
+N_MACROPARTICLES = int(maximum_electron_concentration * 1.5 * preplasma_length / npic / spatial_step)
+print(N_MACROPARTICLES)
 n_macroparticles = N_MACROPARTICLES
-scaling = npic # CHECK what should be the proper value here?
+scaling = npic# CHECK what should be the proper value here?
 default_scaling = npic # CHECK what should be the proper value here?
 
 category_name = "laser-shield"
+# assert False
 class laser(Simulation):
     def __init__(self, filename, n_macroparticles, impulse_duration, laser_intensity, perturbation_amplitude):
         """

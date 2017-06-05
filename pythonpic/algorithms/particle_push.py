@@ -74,7 +74,7 @@ def bl_solve(t, s, N, uminus):
 
 # @numba.njit()
 def rela_boris_push(species, E: np.ndarray, dt: float, B: np.ndarray,
-                    solve=lpic_solve):
+                    solve=bl_solve):
     """
     relativistic Boris pusher
     """
