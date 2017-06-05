@@ -5,6 +5,7 @@ from matplotlib import pyplot as plt
 
 from ..helper_functions.helpers import make_sure_path_exists
 from ..visualization.plotting import plots
+from pythonpic.visualization import animation
 from ..algorithms.current_interpolation import longitudinal_current_deposition, transversal_current_deposition
 from ..classes import Particle, Species, Grid, Simulation
 
@@ -271,22 +272,18 @@ if __name__ == '__main__':
             test_single_particle_transversal_deposition(position, velocity)
 
 
-# @pytest.mark.parametrize(["T", "n_end_moat"], [[0.03, 3], [0.3, 3], [0.03,4], [0.03,5]])
-@pytest.mark.parametrize(["T", "n_end_moat", "perturbation_amplitude",], [[5, 2, 0.3], [5, 5, 0.3],[5, 50, 0.3], [2.5, 10, 0.3]])
-def test_simulation_at_boundaries(T, n_end_moat, perturbation_amplitude):
-    g = Grid(T=T, L=1, NG=100, c=1, periodic=False)
-    s_n = Species(-1, 2000, 1000, g, "heavy electrons")
-    s = Species(+1, 1, 1000, g, "light protons")
-    s.v[:,0] = +0.3
-    s.distribute_uniformly(g.L, start_moat=g.dx*(g.NG-10-n_end_moat), end_moat=n_end_moat*g.dx)
-    s.random_position_perturbation(perturbation_amplitude)
-    s_n.distribute_uniformly(g.L, start_moat=g.dx*(g.NG-10-n_end_moat), end_moat=n_end_moat*g.dx)
-    s_n.random_position_perturbation(perturbation_amplitude)
-    filename = f"test_simulation_boundaries_{T}_{n_end_moat}"
-    sim = Simulation(g, [s, s_n], category_type="test", filename=filename)
-    sim.run().postprocess()
-
-    from pythonpic.visualization import animation
-    plots(sim, show_animation=True, animation_type=animation.OneDimAnimation, frames="all")
-    # plots(sim, save_static=True, save_animation=True, snapshot_animation=True, animation_type=animation.OneDimAnimation, frames="all")
-    assert False
+# @pytest.mark.parametrize(["T", "n_end_moat", "perturbation_amplitude",], [[5, 2, 0.3], [5, 5, 0.3],[5, 50, 0.3], [2.5, 10, 0.3]])
+# def test_simulation_at_boundaries(T, n_end_moat, perturbation_amplitude):
+#     g = Grid(T=T, L=1, NG=100, c=1, periodic=False)
+#     s_n = Species(-1, 2000, 1000, g, "heavy electrons")
+#     s = Species(+1, 1, 1000, g, "light protons")
+#     s.v[:,0] = +0.3
+#     s.distribute_uniformly(g.L, start_moat=g.dx*(g.NG-10-n_end_moat), end_moat=n_end_moat*g.dx)
+#     s.random_position_perturbation(perturbation_amplitude)
+#     s_n.distribute_uniformly(g.L, start_moat=g.dx*(g.NG-10-n_end_moat), end_moat=n_end_moat*g.dx)
+#     s_n.random_position_perturbation(perturbation_amplitude)
+#     filename = f"test_simulation_boundaries_{T}_{n_end_moat}"
+#     sim = Simulation(g, [s, s_n], category_type="test", filename=filename)
+#     sim.run().postprocess()
+#
+#     assert True, plots(sim, show_animation=True, animation_type=animation.OneDimAnimation, frames="all")

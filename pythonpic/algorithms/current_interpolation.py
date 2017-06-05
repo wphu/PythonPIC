@@ -80,7 +80,7 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q, L):
         new_locations[case2] = (logical_coordinates_n[case2] + 0.5) * dx - epsilon
         new_locations[case3] = (logical_coordinates_n[case3] + 1) * dx + epsilon
         new_locations[case4] = (logical_coordinates_n[case4] + 0.5) * dx + epsilon
-        active = switches_cells & (new_locations < L)
+        active = switches_cells
         x_particles = new_locations[active]
         x_velocity = x_velocity[active]
         time = new_time[active]
