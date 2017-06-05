@@ -8,7 +8,7 @@ from ..helper_functions.physics import epsilon_zero, electric_charge, lightspeed
 from functools import partial
 from ..visualization.plotting import plots
 from ..visualization import animation
-plots = partial(plots, animation_type = animation.FastAnimation)
+plots = partial(plots, animation_type = animation.FullAnimation)
 
 VERSION = 11
 laser_wavelength = 1.064e-6 # meters

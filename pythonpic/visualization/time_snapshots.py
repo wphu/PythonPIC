@@ -327,12 +327,17 @@ class CurrentPlot(Plot):
         ax.set_ylabel(f"Current density $j_{directions[j]}$")
         ax.tick_params('y')
         ax.legend(loc='lower left')
+
+        current = S.grid.current_density_history[:, :, j]
+        mean = current.mean()
+        std = 3*current.std()
+
+        mincurrent = mean - std
+        maxcurrent = mean + std
         try:
-            mincurrent = S.grid.current_density_history[:, :, j].min()
-            maxcurrent = S.grid.current_density_history[:, :, j].max()
             ax.set_ylim(mincurrent, maxcurrent)
-        except ValueError:
-            pass
+        except ValueError as E:
+            print(f"Error on setting current limits in {j}: {E}")
 
     def update(self, i):
         self.plots[0].set_data(self.S.grid.x, self.S.grid.current_density_history[i, :, self.j])
