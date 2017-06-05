@@ -2,7 +2,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from ..algorithms.field_interpolation import density_deposition, periodic_density_deposition
+from ..algorithms.charge_deposition import density_deposition, periodic_density_deposition
 
 
 def test_single_particle(plotting=False):

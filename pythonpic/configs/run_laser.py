@@ -8,9 +8,9 @@ from ..helper_functions.physics import epsilon_zero, electric_charge, lightspeed
 from functools import partial
 from ..visualization.plotting import plots
 from ..visualization import animation
-plots = partial(plots, animation_type = animation.FastAnimation)
+plots = partial(plots, animation_type = animation.FullAnimation, alpha=0.3)
 
-VERSION = 10
+VERSION = 13
 laser_wavelength = 1.064e-6 # meters
 laser_intensity = 1e23 # watt/meters squared
 impulse_duration = 1e-13 # seconds
@@ -33,12 +33,31 @@ maximum_electron_concentration = 5.24e27 # CHECK: this is a crutch
 
 npic = 1.048e25 # m^-3
 
-n_macroparticles = 75000
+N_MACROPARTICLES = 75000
+n_macroparticles = N_MACROPARTICLES
 scaling = npic # CHECK what should be the proper value here?
+default_scaling = npic # CHECK what should be the proper value here?
 
 category_name = "laser-shield"
 class laser(Simulation):
     def __init__(self, filename, n_macroparticles, impulse_duration, laser_intensity, perturbation_amplitude):
+        """
+        A simulation of laser-hydrogen shield interaction.
+
+        Parameters
+        ----------
+        filename : str
+            Filename for the simulation.
+        n_macroparticles : int
+            Number of macroparticles for each species. The simulation is
+            normalized to 75000 macroparticles by default,
+        impulse_duration : float
+            Duration of the laser impulse.
+        laser_intensity : float
+            Laser impulse intensity, in W/m^2. A good default is 1e21.
+        perturbation_amplitude : float
+            Amplitude of the initial position perturbation.
+        """
         if laser_intensity:
             bc_laser = BoundaryCondition.Laser(laser_intensity=laser_intensity,
                                          laser_wavelength=laser_wavelength,
@@ -55,6 +74,7 @@ class laser(Simulation):
         grid = Grid(T=total_time, L=length, NG=number_cells, c =lightspeed, epsilon_0 =epsilon_zero, bc=bc, periodic=False)
 
         if n_macroparticles:
+            scaling = default_scaling * N_MACROPARTICLES / n_macroparticles
             electrons = Species(-electric_charge, electron_rest_mass, n_macroparticles, grid, "electrons", scaling)
             protons = Species(electric_charge, proton_mass, n_macroparticles, grid, "protons", scaling)
             list_species = [electrons, protons]

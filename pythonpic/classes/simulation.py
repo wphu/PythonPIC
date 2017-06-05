@@ -118,7 +118,7 @@ class Simulation:
         start_time = time.time()
         for i in range(self.NT):
             if self.considered_large and i % (self.NT // 100) == 0:
-                report_progress(i, self.NT)
+                report_progress(i, self.NT, start_time)
             self.iteration(i)
         self.runtime = time.time() - start_time
         return self

@@ -4,7 +4,7 @@ import numpy as np
 import scipy.fftpack as fft
 
 from ..helper_functions import physics
-from ..algorithms import field_interpolation, FieldSolver, BoundaryCondition, current_interpolation
+from ..algorithms import charge_deposition, FieldSolver, BoundaryCondition, current_deposition, field_interpolation
 
 
 class Grid:
@@ -40,6 +40,7 @@ class Grid:
         self.epsilon_0 = epsilon_0
         self.particle_bc = lambda *x: None
         self.x, self.dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
+        self.x_interpolation = np.arange(NG+2)*self.dx - self.dx
 
         self.dt = self.dx / c
         self.T = T
@@ -61,17 +62,19 @@ class Grid:
 
         self.periodic = periodic
         if self.periodic:
-            self.charge_gather_function = field_interpolation.periodic_density_deposition
-            self.current_longitudinal_gather_function = current_interpolation \
+            self.charge_gather_function = charge_deposition.periodic_density_deposition
+            self.current_longitudinal_gather_function = current_deposition \
                 .periodic_longitudinal_current_deposition
-            self.current_transversal_gather_function = current_interpolation.periodic_transversal_current_deposition
+            self.current_transversal_gather_function = current_deposition.periodic_transversal_current_deposition
             self.particle_bc = BoundaryCondition.return_particles_to_bounds
+            self.interpolator = field_interpolation.PeriodicInterpolateField
             self.solver = FieldSolver.FourierSolver
         else:
-            self.charge_gather_function = field_interpolation.aperiodic_density_deposition
-            self.current_longitudinal_gather_function = current_interpolation.longitudinal_current_deposition
-            self.current_transversal_gather_function = current_interpolation.transversal_current_deposition
+            self.charge_gather_function = charge_deposition.aperiodic_density_deposition
+            self.current_longitudinal_gather_function = current_deposition.aperiodic_longitudinal_current_deposition
+            self.current_transversal_gather_function = current_deposition.aperiodic_transversal_current_deposition
             self.particle_bc = BoundaryCondition.kill_particles_outside_bounds
+            self.interpolator = field_interpolation.AperiodicInterpolateField
             self.solver = FieldSolver.BunemanSolver
 
 
@@ -99,7 +102,7 @@ class Grid:
             electric_energy = 0.5 * self.epsilon_0 * (self.electric_field_history ** 2).sum(2) # over directions
             magnetic_energy = 0.5 * (self.magnetic_field_history **2).sum(2) # over directions
             self.grid_energy_history = electric_energy + magnetic_energy
-
+            self.check_on_charge = np.gradient(self.electric_field_history[:, :, 0], self.dx, axis=1) * self.epsilon_0
             # fourier analysis
             from scipy import fftpack
             self.k_plot = fftpack.rfftfreq(int(self.NG), self.dx)[::2]
@@ -154,16 +157,10 @@ class Grid:
                                                      species.eff_q)
 
     def electric_field_function(self, xp):
-        result = np.zeros((xp.size, 3))
-        for i in range(3):
-            result[:, i] = field_interpolation.interpolateField(xp, self.electric_field[1:-1, i], self.x, self.dx)
-        return result
+        return self.interpolator(xp, self.electric_field, self.x, self.dx)
 
     def magnetic_field_function(self, xp):
-        result = np.zeros((xp.size, 3))
-        for i in range(1, 3):
-            result[:, i] = field_interpolation.interpolateField(xp, self.magnetic_field[1:-1, i], self.x, self.dx)
-        return result
+        return self.interpolator(xp, self.magnetic_field, self.x, self.dx)
 
     def save_field_values(self, i):
         """Update the i-th set of field values, without those gathered from interpolation (charge\current)"""

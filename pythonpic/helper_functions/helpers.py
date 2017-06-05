@@ -2,7 +2,7 @@
 import argparse
 import errno
 import os
-
+import time
 # from ..classes import load_simulation
 import subprocess
 
@@ -42,7 +42,7 @@ def config_filename(run_name, category_name=None, version_number=None):
 
 
 #
-def report_progress(i: int, NT: int):
+def report_progress(i: int, NT: int, beginning_time = None):
     """
     Prints out a message on how many iterations out of how many total have been completed.
 
@@ -63,7 +63,14 @@ def report_progress(i: int, NT: int):
     200/200 iterations (100%) done!
 
     """
-    print(f"{i}/{NT} iterations ({i/NT*100:.0f}%) done!")
+    start_string = f"{i}/{NT} iterations ({i/NT*100:.0f}%) done!"
+    if beginning_time and i > 0:
+        iterations_left = NT - i
+        time_delta = time.time() - beginning_time
+        time_per_iteration = time_delta / i
+        estimated_remaining_time = iterations_left * time_per_iteration
+        start_string += f" Estimated {estimated_remaining_time:.0f}s left."
+    print(start_string)
 
 
 def git_version() -> str:

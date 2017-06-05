@@ -39,7 +39,7 @@ class animation:
         assert alpha <= 1, "alpha too large!"
         assert alpha >= 0, "alpha must be between 0 and 1!"
         self.S = S.postprocess()
-        self.fig = plt.figure(figsize=(13, 10))
+        self.fig = plt.figure(figsize=(13, 10), num=1)
         self.alpha = alpha
 
 
@@ -98,15 +98,15 @@ class animation:
 
         """
         print("Drawing full animation.")
-        mpl_Writer = anim.writers[writer]
-        mpl_writer = mpl_Writer(fps=15, metadata=dict(artist='Me'), bitrate=1800) # TODO: does bitrate matter here
-
         # noinspection PyTypeChecker
         animation_object = anim.FuncAnimation(self.fig, self.animate, interval=100,
                                               frames=self.frames,
                                               blit=True, init_func=self.init,
                                               fargs=(save,))
         if save:
+            mpl_Writer = anim.writers[writer]
+            mpl_writer = mpl_Writer(fps=15, metadata=dict(artist='Me'), bitrate=1800) # TODO: does bitrate matter here
+
             helpers.make_sure_path_exists(self.S.filename)
             videofile_name = self.S.filename.replace(".hdf5", ".mp4")
             print(f"Saving animation to {videofile_name}")
@@ -127,52 +127,49 @@ class animation:
 class FullAnimation(animation):
     def __init__(self, S, alpha=1, frames="few"):
         super().__init__(S, alpha=alpha, frames=frames)
-        charge_axis = self.fig.add_subplot(421)
-        current_axes = [self.fig.add_subplot(423 + 2 * i) for i in range(3)]
-        phase_axes_x = self.fig.add_subplot(422)
-        phase_axes_y = self.fig.add_subplot(424)
-        phase_axes_z = self.fig.add_subplot(426)
-        freq_axes = self.fig.add_subplot(428)
+        fig, (phase_axes, current_axes, field_axes, bonus_row) = plt.subplots(4, 3, sharex=True, num=1)
+        density_axis, density_perturbation_axis, charge_axes  = bonus_row
 
-        phase_plot_x = PhasePlot(self.S, phase_axes_x, "x", "v_x", self.alpha)
-        phase_plot_y = PhasePlot(self.S, phase_axes_y, "x", "v_y", self.alpha)
-        phase_plot_z = PhasePlot(self.S, phase_axes_z, "x", "v_z", self.alpha)
-        # velocity_histogram = Histogram(self.S, distribution_axes, "v_x")
-        freq_plot = FrequencyPlot(self.S, freq_axes)
-        charge_plot = SpatialDistributionPlot(self.S, charge_axis)
-        iteration = IterationCounter(self.S, freq_axes)
+        phase_plot_x = PhasePlot(self.S, phase_axes[0], "x", "v_x", self.alpha)
+        phase_plot_y = PhasePlot(self.S, phase_axes[1], "x", "v_y", self.alpha)
+        phase_plot_z = PhasePlot(self.S, phase_axes[2], "x", "v_z", self.alpha)
+        charge_plot = ChargeDistributionPlot(self.S, charge_axes, True)
+        density_plot = SpatialDistributionPlot(self.S, density_axis)
+        iteration = IterationCounter(self.S, charge_axes)
         current_plots = TripleCurrentPlot(self.S, current_axes)
-        field_plots = TripleFieldPlot(self.S, [current_ax.twinx() for current_ax in current_axes])
+        field_plots = TripleFieldPlot(self.S, field_axes)
+        density_perturbation_plot = SpatialPerturbationDistributionPlot(S, density_perturbation_axis)
 
         plots = [phase_plot_x,
                  phase_plot_y,
                  phase_plot_z,
-                 freq_plot,
                  charge_plot,
+                 density_plot,
                  iteration,
                  current_plots,
+                 density_perturbation_plot,
                  field_plots]
         super().add_plots(plots)
 
 class FastAnimation(animation):
     def __init__(self, S, alpha=1, frames="few"):
         super().__init__(S, alpha=alpha, frames=frames)
-        charge_axis = self.fig.add_subplot(421)
+        density_axis = self.fig.add_subplot(421)
         current_axes = [self.fig.add_subplot(423 + 2 * i) for i in range(3)]
         field_axes = [self.fig.add_subplot(424 + 2 * i) for i in range(2)]
-        freq_axes = self.fig.add_subplot(428)
+        charge_axis = self.fig.add_subplot(428)
         density_perturbation_axis = self.fig.add_subplot(422)
 
-        freq_plot = FrequencyPlot(self.S, freq_axes)
+        charge_plot = ChargeDistributionPlot(self.S, charge_axis, check_poisson=True)
         density_perturbation_plot = SpatialPerturbationDistributionPlot(S, density_perturbation_axis)
-        charge_plot = SpatialDistributionPlot(self.S, charge_axis)
-        iteration = IterationCounter(self.S, freq_axes)
+        density_plot = SpatialDistributionPlot(self.S, density_axis)
+        iteration = IterationCounter(self.S, charge_axis)
         current_plots = TripleCurrentPlot(self.S, current_axes)
         field_plots = TripleFieldPlot(self.S, field_axes)
 
         plots = [
-                 freq_plot,
                  charge_plot,
+                 density_plot,
                  iteration,
                  current_plots,
                  density_perturbation_plot,
