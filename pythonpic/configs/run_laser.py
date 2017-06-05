@@ -8,9 +8,9 @@ from ..helper_functions.physics import epsilon_zero, electric_charge, lightspeed
 from functools import partial
 from ..visualization.plotting import plots
 from ..visualization import animation
-plots = partial(plots, animation_type = animation.FullAnimation)
+plots = partial(plots, animation_type = animation.FullAnimation, alpha=0.3)
 
-VERSION = 11
+VERSION = 13
 laser_wavelength = 1.064e-6 # meters
 laser_intensity = 1e23 # watt/meters squared
 impulse_duration = 1e-13 # seconds
