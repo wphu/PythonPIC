@@ -42,7 +42,7 @@ class Species:
         particle mass
     N : int
         number of macroparticles
-    grid : Grid or Frame
+    grid : Grid
         parent grid
     name : str
         name of group
