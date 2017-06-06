@@ -1,5 +1,6 @@
 # coding=utf-8
 import numpy as np
+import pandas
 
 
 def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q, L):
@@ -34,14 +35,11 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q, L):
     time = time[active]
 
     while active.any():
+        # print(f"{10*'='}ITERATION {counter}{10*'='}")
         counter += 1
         actives.append(active.sum())
         if counter > 4:
-            # import matplotlib.pyplot as plt
-            # plt.plot(actives)
-            # plt.show()
             raise Exception("Infinite recurrence!")
-
         logical_coordinates_n = (x_particles // dx).astype(int)
         particle_in_left_half = x_particles / dx - logical_coordinates_n <= 0.5
         # CHECK: investigate what happens when particle is at center
@@ -60,7 +58,7 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q, L):
         t1[case1] = -(x_particles[case1] - (logical_coordinates_n[case1]) * dx) / x_velocity[case1]
         t1[case2] = -(x_particles[case2] - (logical_coordinates_n[case2] + 0.5) * dx) / x_velocity[case2]
         t1[case3] = ((logical_coordinates_n[case3] + 1) * dx - x_particles[case3]) / x_velocity[case3]
-        t1[case4] = ((logical_coordinates_n[case4] + 1.5) * dx - x_particles[case4]) / x_velocity[case4]
+        t1[case4] = ((logical_coordinates_n[case4] + 0.5) * dx - x_particles[case4]) / x_velocity[case4]
         time[velocity_zero] = 0
         switches_cells = t1 < time
         switches_cells[velocity_zero] = False
@@ -68,7 +66,7 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q, L):
         logical_coordinates_depo = logical_coordinates_n.copy()
         logical_coordinates_depo[case2 | case3] += 1
         if (~switches_cells).any():
-            nonswitching_current_contribution = q * x_velocity[~switches_cells] * time[~switches_cells]
+            nonswitching_current_contribution = q * x_velocity[~switches_cells] * time[~switches_cells] / dt
             j_x += np.bincount(logical_coordinates_depo[~switches_cells] + 1, nonswitching_current_contribution,
                                minlength=j_x.size)
 
@@ -83,6 +81,25 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q, L):
         new_locations[case2] = (logical_coordinates_n[case2] + 0.5) * dx - epsilon
         new_locations[case3] = (logical_coordinates_n[case3] + 1) * dx + epsilon
         new_locations[case4] = (logical_coordinates_n[case4] + 0.5) * dx + epsilon
+        # df = pandas.DataFrame()
+        # df['active'] = active
+        # df['x_particles'] = x_particles
+        # df['x_velocity'] = x_velocity
+        # df['logical_pos'] = np.floor(x_particles / dx * 2) /2
+        # df['time'] = time
+        # df['logical_coordinates_n'] = logical_coordinates_n
+        # df['logical_coordinates_depo'] = logical_coordinates_depo
+        # df['t1'] = t1
+        # df['time_overflow'] = time - t1
+        # df['velocity_zero'] = velocity_zero
+        # df['switches'] = switches_cells
+        # case = np.zeros_like(x_particles, dtype=int)
+        # case[case1] = 1
+        # case[case2] = 2
+        # case[case3] = 3
+        # case[case4] = 4
+        # df['case'] = case
+        # print(df)
         active = switches_cells
         x_particles = new_locations[active]
         x_velocity = x_velocity[active]
