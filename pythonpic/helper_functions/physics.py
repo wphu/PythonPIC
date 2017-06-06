@@ -93,15 +93,10 @@ def critical_density(wavelength):
     ----------
     wavelength : in meters
 
-    Examples
-    ----------
-    >>> critical_density(1)
-    1115085555081946.6
-    >>> critical_density(1115085555081946.6**0.5)
-    1.0
-
     Returns
     -------
+    float
+        the critical plasma density
 
     """
     n_c = electron_rest_mass * epsilon_zero * ((2 * np.pi * lightspeed) / (electric_charge * wavelength)) ** 2
