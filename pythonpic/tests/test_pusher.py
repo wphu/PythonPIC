@@ -21,11 +21,6 @@ def _pusher(request):
     return request.param
 
 
-@pytest.fixture(params=[particle_push.rela_boris_push_lpic, particle_push.rela_boris_push_bl])
-def _rela_pusher(request):
-    return request.param
-
-
 @pytest.fixture(params=np.linspace(0.1, 0.9, 10))
 def _v0(request):
     return request.param
@@ -48,10 +43,9 @@ def g_aperiodic():
     g = Grid(T=3, L=1, NG=10, periodic=False)
     return g
 
-def plot(pusher, t, analytical_result, simulation_result,
+def plot(t, analytical_result, simulation_result,
          message="Difference between analytical and simulated results!"):
     fig, (ax1, ax2) = plt.subplots(2, sharex=True)
-    fig.suptitle(pusher)
     ax1.plot(t, analytical_result, "b-", label="analytical result")
     ax1.plot(t, simulation_result, "ro--", label="simulation result")
 
@@ -83,12 +77,12 @@ def test_constant_field(g, _pusher, _N_particles):
         s.push(uniform_field)
 
     assert np.allclose(s.position_history[:, 0], x_analytical, atol=atol, rtol=rtol), \
-        plot(_rela_pusher, t, x_analytical, s.position_history[:, 0])
+        plot(t, x_analytical, s.position_history[:, 0])
 
 
 # noinspection PyUnresolvedReferences
-def test_relativistic_constant_field(g, _rela_pusher, _N_particles):
-    s = Species(1, 1, _N_particles, g, pusher=_rela_pusher)
+def test_relativistic_constant_field(g, _N_particles):
+    s = Species(1, 1, _N_particles, g)
     t = np.arange(0, g.T, g.dt * s.save_every_n_iterations) - g.dt / 2
 
     def uniform_field(x):
@@ -100,16 +94,16 @@ def test_relativistic_constant_field(g, _rela_pusher, _N_particles):
         s.save_particle_values(i)
         s.push(uniform_field)
 
-    assert (s.velocity_history < 1).all(), plot(_rela_pusher, t, v_analytical, s.velocity_history[:, 0, 0],
+    assert (s.velocity_history < 1).all(), plot(t, v_analytical, s.velocity_history[:, 0, 0],
                                                 f"Velocity went over c! Max velocity: {s.velocity_history.max()}")
     assert np.allclose(s.velocity_history[:, 0, 0], v_analytical, atol=atol, rtol=rtol), \
-        plot(_rela_pusher, t, v_analytical, s.velocity_history[:, 0, 0], )
+        plot(t, v_analytical, s.velocity_history[:, 0, 0], )
 
 
 # noinspection PyUnresolvedReferences
-def test_relativistic_magnetic_field(g,_rela_pusher, _N_particles, _v0):
+def test_relativistic_magnetic_field(g, _N_particles, _v0):
     B0 = 1
-    s = Species(1, 1, _N_particles, g, pusher=_rela_pusher)
+    s = Species(1, 1, _N_particles, g)
     t = np.arange(0, g.T, g.dt * s.save_every_n_iterations) - g.dt / 2
     s.v[:, 1] = _v0
 
@@ -126,18 +120,18 @@ def test_relativistic_magnetic_field(g,_rela_pusher, _N_particles, _v0):
     for i in range(g.NT):
         s.save_particle_values(i)
         s.push(uniform_electric_field, uniform_magnetic_field)
-    assert (s.velocity_history < 1).all(), plot(_rela_pusher, t, vy_analytical, s.velocity_history[:, 0, 1],
+    assert (s.velocity_history < 1).all(), plot(t, vy_analytical, s.velocity_history[:, 0, 1],
                                                 f"Velocity went over c! Max velocity: {s.velocity_history.max()}")
     assert np.allclose(s.velocity_history[:, 0, 1], vy_analytical, atol=atol, rtol=rtol), \
-        plot(_rela_pusher, t, vy_analytical, s.velocity_history[:, 0, 1], )
+        plot(t, vy_analytical, s.velocity_history[:, 0, 1], )
 
 
 # noinspection PyUnresolvedReferences
 @pytest.mark.parametrize("E0", np.linspace(-10, 10, 10))
-def test_relativistic_harmonic_oscillator(g, _rela_pusher, _N_particles, E0):
+def test_relativistic_harmonic_oscillator(g, _N_particles, E0):
     E0 = 1
     omega = 2 * np.pi / g.T
-    s = Species(1, 1, _N_particles, g, pusher=_rela_pusher)
+    s = Species(1, 1, _N_particles, g)
     t = np.arange(0, g.T, g.dt * s.save_every_n_iterations) - g.dt / 2
 
     t_s = t - g.dt / 2
@@ -152,10 +146,10 @@ def test_relativistic_harmonic_oscillator(g, _rela_pusher, _N_particles, E0):
         s.save_particle_values(i)
         s.push(lambda x: electric_field(x, i * g.dt))
 
-    assert (s.velocity_history < 1).all(), plot(_rela_pusher, t, v_analytical, s.velocity_history[:, 0, 0],
+    assert (s.velocity_history < 1).all(), plot(t, v_analytical, s.velocity_history[:, 0, 0],
                                                 f"Velocity went over c! Max velocity: {s.velocity_history.max()}")
     assert np.allclose(s.velocity_history[:, 0, 0], v_analytical, atol=atol, rtol=rtol), \
-        plot(_rela_pusher, t, v_analytical, s.velocity_history[:, 0, 0], )
+        plot(t, v_analytical, s.velocity_history[:, 0, 0], )
 
 
 
