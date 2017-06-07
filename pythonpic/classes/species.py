@@ -5,7 +5,7 @@ import numpy as np
 from ..helper_functions.helpers import calculate_particle_snapshots, calculate_particle_iter_step, \
     is_this_saved_iteration, convert_global_to_particle_iter
 from ..algorithms import density_profiles
-from ..algorithms.particle_push import rela_boris_push_bl as rela_boris_push
+from ..algorithms.particle_push import rela_boris_push
 
 MAX_SAVED_PARTICLES = int(1e4)
 

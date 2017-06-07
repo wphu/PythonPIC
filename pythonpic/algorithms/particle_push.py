@@ -22,59 +22,7 @@ def boris_push(species, E, dt, B):
     return species.x + v_new[:, 0] * dt, v_new, energy
 
 
-# @numba.njit() # OPTIMIZE: add numba to this algorithm
-def rotation_matrix(t: np.ndarray, s: np.ndarray, n: int) -> np.ndarray:
-    """
-    Implements the heavy lifting rotation matrix calculation of the Boris pusher
-    Parameters
-    ----------
-    t (np.ndarray): vector
-    s (np.ndarray): vector
-    n (int): number of particles
-
-    Returns
-    -------
-    result (np.ndarray): rotation matrix
-    """
-    result = np.zeros((n, 3, 3))
-    result[:] = np.eye(3)
-
-    sz = s[:, 2]
-    sy = s[:, 1]
-    tz = t[:, 2]
-    ty = t[:, 1]
-    sztz = sz * tz
-    syty = sy * ty
-    result[:, 0, 0] -= sztz
-    result[:, 0, 0] -= syty
-    result[:, 0, 1] = sz
-    result[:, 1, 0] = -sz
-    result[:, 0, 2] = -sy
-    result[:, 2, 0] = sy
-    result[:, 1, 1] -= sztz
-    result[:, 2, 2] -= syty
-    result[:, 2, 1] = sy * tz
-    result[:, 1, 2] = sz * ty
-    return result
-
-
-def lpic_solve(t, s, N, uminus):
-    rot = rotation_matrix(t, s, N)  # array of shape (3,3) for each of N_particles, so (N_particles, 3, 3)
-    uplus = np.einsum('ijk,ik->ij', rot, uminus)
-    return uplus
-
-
-def bl_solve(t, s, N, uminus):
-    # u' = u- + u- x t 
-    uprime = uminus + np.cross(uminus, t)
-    # v+ = u- + u' x s
-    uplus = uminus + np.cross(uprime, s)
-    return uplus
-
-
-# @numba.njit()
-def rela_boris_push(species, E: np.ndarray, dt: float, B: np.ndarray,
-                    solve=bl_solve):
+def rela_boris_push(species, E: np.ndarray, dt: float, B: np.ndarray):
     """
     relativistic Boris pusher
     """
@@ -87,7 +35,10 @@ def rela_boris_push(species, E: np.ndarray, dt: float, B: np.ndarray,
     # rotate to add magnetic field
     t = B * species.eff_q * dt / (2 * species.eff_m * gamma_from_u(uminus, species.c))  # above eq 23 LPIC
     s = 2 * t / (1 + t * t)
-    uplus = solve(t, s, species.N, uminus)
+    # u' = u- + u- x t
+    uprime = uminus + np.cross(uminus, t)
+    # v+ = u- + u' x s
+    uplus = uminus + np.cross(uprime, s)
 
     # add second half of electric force
     u_new = uplus + half_force
@@ -100,6 +51,3 @@ def rela_boris_push(species, E: np.ndarray, dt: float, B: np.ndarray,
     x_new = species.x + v_new[:, 0] * dt
     return x_new, v_new, energy
 
-
-rela_boris_push_bl = functools.partial(rela_boris_push, solve=bl_solve)
-rela_boris_push_lpic = functools.partial(rela_boris_push, solve=lpic_solve)
