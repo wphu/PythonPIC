@@ -39,7 +39,7 @@ class animation:
         assert alpha <= 1, "alpha too large!"
         assert alpha >= 0, "alpha must be between 0 and 1!"
         self.S = S.postprocess()
-        self.fig = plt.figure(figsize=(13, 10), num=1)
+        self.fig = plt.figure(figsize=(13, 10))
         self.alpha = alpha
 
 
@@ -124,10 +124,15 @@ class animation:
             self.fig.savefig(file_name)
         return self.fig
 
+from matplotlib import gridspec
 class FullAnimation(animation):
     def __init__(self, S, alpha=1, frames="few"):
         super().__init__(S, alpha=alpha, frames=frames)
-        fig, (phase_axes, current_axes, field_axes, bonus_row) = plt.subplots(4, 3, sharex=True, num=1)
+        gs = gridspec.GridSpec(4, 3, )
+        phase_axes = [plt.subplot(gs[0, i]) for i in range(3)]
+        current_axes = [plt.subplot(gs[1, i]) for i in range(3)]
+        field_axes = [plt.subplot(gs[2, i]) for i in range(3)]
+        bonus_row = [plt.subplot(gs[3, i]) for i in range(3)]
         density_axis, density_perturbation_axis, charge_axes  = bonus_row
 
         phase_plot_x = PhasePlot(self.S, phase_axes[0], "x", "v_x", self.alpha)
