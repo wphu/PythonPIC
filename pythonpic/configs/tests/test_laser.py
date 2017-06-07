@@ -1,6 +1,7 @@
 # coding=utf-8
 import pytest
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from pythonpic.helper_functions.helpers import make_sure_path_exists
 from pythonpic.visualization.time_snapshots import SpatialPerturbationDistributionPlot
@@ -23,39 +24,99 @@ from ..run_laser import laser, lightspeed, npic, electric_charge, electron_rest_
 #     s = S.list_species[0]
 #     assert np.allclose(s.density_history[0], s.density_history[-1]), plots()
 
-def test_longitudinal_current():
+@pytest.mark.parametrize(["init_pos", "init_vx", "expected"], [
+    [9.45, 0.9, np.array([0, 0.056, 0.944, 0])], # cases 3, 4
+    [9.55, 0.9, np.array([0, 0, 1, 0])], # cases 3, 4
+    [9.95, 0.9, np.array([0, 0, 0.611, 0.389])], # cases 3, 4
+    [9.05, 0.9, np.array([0, 0.5, 0.5, 0])], # cases 3, 4
+    [9.45, -0.9, np.array([0, 1, 0, 0])], # cases 1, 2
+    [9.55, -0.9, np.array([0, 0.944, 0.056, 0])], # cases 1, 2
+    [9.95, -0.9, np.array([0, 0.5, 0.5, 0])], # cases 1, 2
+    [9.05, -0.9, np.array([0.389, 0.611, 0, 0])], # cases 1, 2
+
+    [9.05, 0.0, np.array([0, 0, 0, 0])],
+    [9.05, 0.1, np.array([0, 1, 0, 0])], # cases 3, 4
+    [9.45, 0.1, np.array([0, 0.5, 0.5, 0])], # cases 3, 4
+    [9.55, 0.1, np.array([0, 0, 1, 0])], # cases 3, 4
+    [9.95, 0.1, np.array([0, 0, 1, 0])], # cases 3, 4
+    [9.05, -0.1, np.array([0, 1, 0, 0])], # cases 3, 4
+    [9.45, -0.1, np.array([0, 1, 0, 0])], # cases 3, 4
+    [9.55, -0.1, np.array([0, 0.5, 0.5, 0])], # cases 3, 4
+    [9.95, -0.1, np.array([0, 0, 1, 0])], # cases 3, 4
+    ])
+def test_longitudinal_current(init_pos, init_vx, expected):
     S = laser("test_current", 0, 0, 0, 0)
     print(f"dx: {S.grid.dx}, dt: {S.grid.dt}, Neuler: {S.grid.NG}")
     p = Particle(S.grid,
-                 9.45*S.grid.dx,
-                 0.9*lightspeed,
+                 init_pos*S.grid.dx,
+                 init_vx*lightspeed,
                  q=-electric_charge,
                  m=electron_rest_mass,
                  scaling=npic)
-    print(p.q, p.m, p.scaling)
     S.grid.list_species = [p]
     S.grid.gather_current([p])
-    investigated_density = S.grid.current_density_x[10:12]
-    target_density = np.array([-2.3838e13, -4.0184e14])
-    error = (investigated_density - target_density) /target_density * 100
-    for a, b, c, d in zip(np.arange(10, 12)-1, investigated_density, target_density, error):
-        print(f"{a} {b:.9e} {c:.9e} E{d:.3f}%")
-    assert np.allclose(investigated_density, target_density, rtol=1e-2)
+    investigated_density = S.grid.current_density_x[9:13] /(p.eff_q * init_vx * lightspeed)
+    if init_vx == 0.0:
+        investigated_density[...] = 0
 
-# def test_transversal_current():
-#     S = laser("test_current", 0, 0, 0, 0)
-#     p = Particle(S.grid,
-#                  9.95*S.grid.dx,
-#                  0.9*lightspeed,
-#                  0.01*lightspeed,
-#                  q=-electric_charge,
-#                  m=electron_rest_mass,
-#                  scaling=npic)
-#     S.grid.list_species = [p]
-#     S.grid.gather_current([p])
-#     for a, b in zip(np.arange(20)-2, S.grid.current_density_yz[:20, 0]):
-#         print(f"{a} {b:.9e}")
-#     assert False
+    target_density = expected
+    error = (investigated_density - target_density) /target_density * 100
+    error[(investigated_density - target_density) == 0] = 0
+    print(pd.DataFrame({"indices": np.arange(9, 13)-1,
+                        "found density":investigated_density,
+                        "target density":target_density,
+                        "error %":error}))
+    assert np.allclose(target_density, investigated_density, rtol=1e-2, atol = 1e-3)
+
+@pytest.mark.parametrize(["init_pos", "init_vx", "expected"], [
+    [9.45, 0.9, np.array([0, 0.001, 0.597, 0.401, 0])], # X c 1 4 2
+    [9.45, 0.1, np.array([0, 0.012, 0.975, 0.013, 0])], # X c 1 3
+    [9.45, -0.1, np.array([0, 0.1, 0.9, 0, 0])], # c 2
+    [9.45, -0.9, np.array([0, 0.5, 0.5, 0, 0])], # c 1 3
+    [9.55, -0.9, np.array([0, 0.401, 0.597, 0.001, 0])], # X c 4 1 3
+    [9.55, -0.1, np.array([0, 0.013, 0.975, 0.012, 0])], # X c
+    [9.55, 0.1, np.array([0, 0, 0.9, 0.1, 0])], # c 3
+    [9.55, 0.9, np.array([0, 0, 0.5, 0.5, 0])], # c 4 2
+    [9.05, -0.9, np.array([0.068, 0.764, 0.168, 0, 0])], # c 1 4 2
+    [9.05, -0.1, np.array([0, 0.5, 0.5, 0, 0])], # c 1 3
+    [9.05, 0.1, np.array([0, 0.4, 0.6, 0, 0])], # c 2
+    [9.05, 0.9, np.array([0, 0.112, 0.775, 0.113, 0])], # c 1 3
+    [9.95, -0.9, np.array([0, 0.113, 0.775, 0.112, 0])], # c
+    [9.95, -0.1, np.array([0, 0, 0.6, 0.4, 0])], # c
+    [9.95, 0.1, np.array([0, 0, 0.5, 0.5, 0])], # c
+    [9.95, 0.9, np.array([0, 0, 0.168, 0.764, 0.068])], # c
+    [9.95, 0, np.array([0, 0, 0.550, 0.450, 0])], # c
+    [9.55, 0, np.array([0, 0, 0.950, 0.050, 0])], # c
+    [9.45, 0, np.array([0, 0.050, 0.950, 0, 0])], # c
+    [9.05, 0, np.array([0, 0.450, 0.550, 0, 0])], # c
+    [9.5, 0, np.array([0, 0, 1, 0, 0])], # c
+    [9.5, -0.9, np.array([0, 0.450, 0.550, 0, 0])], # c
+    [9.5, -0.1, np.array([0, 0.05, 0.95, 0, 0])], # c
+    [9.5, 0.1, np.array([0, 0, 0.950, 0.05, 0])], # c
+    [9.5, 0.9, np.array([0, 0, 0.550, 0.450, 0])], # c
+    ])
+def test_transversal_current(init_pos, init_vx, expected):
+    S = laser("test_current", 0, 0, 0, 0)
+    print(f"dx: {S.grid.dx}, dt: {S.grid.dt}, Neuler: {S.grid.NG}")
+    init_vy = 0.01
+    p = Particle(S.grid,
+                 init_pos*S.grid.dx,
+                 init_vx*lightspeed,
+                 init_vy*lightspeed,
+                 q=-electric_charge,
+                 m=electron_rest_mass,
+                 scaling=npic)
+    S.grid.list_species = [p]
+    S.grid.gather_current([p])
+    investigated_density = S.grid.current_density_yz[9:14, 0] / p.eff_q / init_vy / lightspeed
+    target_density = expected
+    error = (investigated_density - target_density) * 100
+    error[investigated_density != 0] /= investigated_density[investigated_density !=0]
+    print(pd.DataFrame({"indices": np.arange(9, 14)-2,
+                       "found density":investigated_density,
+                       "target density":target_density,
+                       "error %":error}))
+    assert np.allclose(investigated_density, target_density, rtol=1e-2, atol=1e-3)
 #
 # def test_pusher():
 #     S = laser("test_current", 0, 0, 0, 0)

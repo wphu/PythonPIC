@@ -46,7 +46,6 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q, L):
         particle_in_right_half = x_particles / dx - logical_coordinates_n > 0.5
         velocity_to_left = x_velocity < 0
         velocity_to_right = x_velocity > 0
-        velocity_zero = x_velocity == 0
 
         case1 = particle_in_left_half & velocity_to_left
         case2 = particle_in_right_half & velocity_to_left
@@ -59,9 +58,7 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q, L):
         t1[case2] = -(x_particles[case2] - (logical_coordinates_n[case2] + 0.5) * dx) / x_velocity[case2]
         t1[case3] = ((logical_coordinates_n[case3] + 1) * dx - x_particles[case3]) / x_velocity[case3]
         t1[case4] = ((logical_coordinates_n[case4] + 0.5) * dx - x_particles[case4]) / x_velocity[case4]
-        time[velocity_zero] = 0
         switches_cells = t1 < time
-        switches_cells[velocity_zero] = False
 
         logical_coordinates_depo = logical_coordinates_n.copy()
         logical_coordinates_depo[case2 | case3] += 1
@@ -98,6 +95,7 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q, L):
         # case[case2] = 2
         # case[case3] = 3
         # case[case4] = 4
+        # print(case)
         # df['case'] = case
         # print(df)
         active = switches_cells
@@ -121,9 +119,10 @@ def periodic_longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, d
 def transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
     # print("Transversal deposition")
     epsilon = 1e-10 * dx
-    time = np.ones_like(x_particles) * dt
+    time = np.ones_like(x_particles, dtype=float) * dt
     counter = 0
     active = np.ones_like(x_particles, dtype=bool)
+    # dataframes = []
     while active.any():
         counter += 1
         if counter > 4:
@@ -132,12 +131,9 @@ def transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
             # plt.show()
             raise Exception("Infinite recurrence!")
         # print(active.sum())
-        velocity = velocity[active]
         x_velocity = velocity[:, 0]
         y_velocity = velocity[:, 1]
         z_velocity = velocity[:, 2]
-        x_particles = x_particles[active]
-        time = time[active]
 
         logical_coordinates_n = (x_particles // dx).astype(int)
         particle_in_left_half = x_particles / dx - logical_coordinates_n < 0.5
@@ -145,6 +141,7 @@ def transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
 
         velocity_to_left = x_velocity < 0
         velocity_to_right = x_velocity > 0
+        velocity_zero = x_velocity == 0
 
         t1 = np.empty_like(x_particles)
         s = np.empty_like(x_particles)
@@ -154,22 +151,24 @@ def transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
         case2 = particle_in_left_half & velocity_to_right
         case3 = particle_in_right_half & velocity_to_right
         case4 = particle_in_right_half & velocity_to_left
+
         t1[case1] = - (x_particles[case1] - logical_coordinates_n[case1] * dx) / x_velocity[case1]
-        s[case1] = logical_coordinates_n[case1] * dx - epsilon
         t1[case2] = ((logical_coordinates_n[case2] + 0.5) * dx - x_particles[case2]) / x_velocity[case2]
-        s[case2] = (logical_coordinates_n[case2] + 0.5) * dx + epsilon
         t1[case3] = ((logical_coordinates_n[case3] + 1) * dx - x_particles[case3]) / x_velocity[case3]
-        s[case3] = (logical_coordinates_n[case3] + 1) * dx + epsilon
         t1[case4] = -(x_particles[case4] - (logical_coordinates_n[case4] + 0.5) * dx) / x_velocity[case4]
+        t1[velocity_zero] = np.inf
+
+        s[case1] = logical_coordinates_n[case1] * dx - epsilon
+        s[case2] = (logical_coordinates_n[case2] + 0.5) * dx + epsilon
+        s[case3] = (logical_coordinates_n[case3] + 1) * dx + epsilon
         s[case4] = (logical_coordinates_n[case4] + 0.5) * dx - epsilon
         s[x_velocity == 0] = x_particles[x_velocity == 0]
 
         time_overflow = time - t1
-        time_overflow[x_velocity == 0] = 0
         switches_cells = time_overflow > 0
         time_in_this_iteration = time.copy()
         time_in_this_iteration[switches_cells] = t1[switches_cells]
-        time_in_this_iteration[x_velocity == 0] = 0
+        time_in_this_iteration[x_velocity == 0] = dt
 
         jy_contribution = q * y_velocity / dt * time_in_this_iteration
         jz_contribution = q * z_velocity / dt * time_in_this_iteration
@@ -181,15 +180,26 @@ def transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
         change_in_coverage = sign * x_velocity * time_in_this_iteration / dx
         s1 = s0 + change_in_coverage
         w = 0.5 * (s0 + s1)
+        # c1 = switches_cells & particle_in_left_half
+        # c2 = ~switches_cells & particle_in_left_half
+        # c3 = ~switches_cells & particle_in_right_half
+        # c4 = switches_cells & particle_in_right_half
+        # w = np.zeros_like(x_particles)
+        # paren = (x_particles + 0.5 * x_velocity * time_in_this_iteration ) /dx
+        # w[c1 | c2] = 0.5 - logical_coordinates_n[c1 | c2] + paren[c1 | c2]
+        # w[c3 | c4] = 1.5 + logical_coordinates_n[c3 | c4] - paren[c3 | c4]
 
         logical_coordinates_depo = logical_coordinates_n.copy()
         logical_coordinates_depo[particle_in_left_half] -= 1
         logical_coordinates_depo[particle_in_right_half] += 1
 
         y_contribution_to_current_cell = w * jy_contribution
-        y_contribution_to_next_cell = (1 - w) * jy_contribution
         z_contribution_to_current_cell = w * jz_contribution
+        y_contribution_to_next_cell = (1 - w) * jy_contribution
         z_contribution_to_next_cell = (1 - w) * jz_contribution
+        # y_contribution_to_next_cell = np.zeros_like(y_contribution_to_current_cell)
+        # y_contribution_to_next_cell[c1 | c4] = (1 - w [c1|c4]) * q * y_velocity[c1 | c4] / dt * t1[c1 | c4]
+        # y_contribution_to_next_cell[c2 | c3] = (1 - w [c2|c3]) * q * y_velocity[c2 | c3] / dt * time[c2 | c3]
 
         # assert (w <= 1).all(), f"w {w} > 1"
         # assert (w >= 0.5).all(), f"w {w} < 0.5"
@@ -212,6 +222,38 @@ def transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
         j_yz[:, 0] += np.bincount(logical_coordinates_depo + 2, y_contribution_to_next_cell, minlength=j_yz[:, 1].size)
         j_yz[:, 1] += np.bincount(logical_coordinates_depo + 2, z_contribution_to_next_cell, minlength=j_yz[:, 1].size)
 
+        # case = np.zeros_like(x_particles, dtype=int)
+        # case[case1] = 1
+        # case[case2] = 2
+        # case[case3] = 3
+        # case[case4] = 4
+        # c= np.zeros_like(x_particles, dtype=int)
+        # c[c1] = 1
+        # c[c2] = 2
+        # c[c3] = 3
+        # c[c4] = 4
+        # df = pandas.DataFrame(index=[counter])
+        # df['active'] = active
+        # df['case'] = case
+        # df['c'] = c
+        # df['x_particles/dx'] = x_particles/dx
+        # # df['x_velocity'] = x_velocity
+        # df['logical_pos'] = np.floor(x_particles / dx * 2) /2
+        # df['time/dt'] = time/dt
+        # df['t1/dt'] = t1/dt
+        # df['toverflow/dt'] = time_overflow/dt
+        # df['logical_coordinates_n'] = logical_coordinates_n
+        # df['w'] = w
+        # df['logical_coordinates_depo'] = logical_coordinates_depo
+        # df['1-w'] = 1-w
+        # df['time_in_this_iteration/dt'] = time_in_this_iteration/dt
+        # df['s/dx'] = s/dx
+        # # df['contribution_to_next'] = y_contribution_to_next_cell
+        # # df['t1'] = t1
+        # # df['time_overflow'] = time - t1
+        # # df['velocity_zero'] = velocity_zero
+        # df['switches'] = switches_cells
+        # dataframes.append(df)
         # if counter > 2:
         #     string =f"""iteration:\t{counter}
         #           dx: {dx}
@@ -253,7 +295,7 @@ def transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
         x_particles = s[active]
         velocity = velocity[active]
         active = np.ones_like(x_particles, dtype=bool)
-
+    # print(pandas.concat(dataframes))
 def aperiodic_transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
     transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q)
     j_yz[:2] = 0
