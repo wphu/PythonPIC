@@ -61,16 +61,19 @@ def plots(file,
                 anim.snapshot_animation()
             if save_animation or show_animation:
                 anim_object = anim.full_animation(save_animation)
-        if show_animation or show_static:
-            plt.show()
-        else:
-            plt.clf()
-            plt.close("all")
         if save_static or show_static:
             filename = S.filename.replace(".hdf5", ".png") if save_static else None
             static = static_plots.static_plots(S, filename)
             if not show_static:
                 plt.close(static)
+        if show_animation or show_static:
+            try:
+                plt.show()
+            except KeyboardInterrupt:
+                print("Quitting.")
+                plt.close("all")
+        else:
+            plt.close("all")
 
 
 if __name__ == "__main__":

@@ -23,9 +23,13 @@ class Plot:
         self.ax = ax
         self.plots = []
 
+        L = S.grid.L
         self.ax.set_xlim(0, S.grid.L)
-        ax.set_xlabel(r"Position $x$ [m]")
+        self.ax.set_xlabel(rf"Position $x$ (L={L:.3e} m)")
         self.ax.grid()
+        xticks = np.linspace(0, L, 7)
+        self.ax.set_xticks(xticks)
+        self.ax.xaxis.set_ticklabels([f"{x/L:.1f}L" for x in xticks])
         self.ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True,
                                  useOffset=False)  # TODO axis=both?
         # self.ax.yaxis.set_label_position("right")
