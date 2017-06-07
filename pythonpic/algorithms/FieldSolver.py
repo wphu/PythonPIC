@@ -1,6 +1,6 @@
 # coding=utf-8
 import functools
-
+import numba
 import numpy as np
 from scipy import fftpack as fft
 
@@ -37,6 +37,7 @@ def PoissonLongitudinalSolver(rho, k, NG, epsilon_0=1, neutralize=True):
     return field
 
 
+@numba.njit()
 def BunemanTransversalSolver(electric_field, magnetic_field, current_yz, dt, c, epsilon_0):
     # dt = dx/c
     Fplus = 0.5 * (electric_field[:, 0] + c * magnetic_field[:, 1])
@@ -59,7 +60,7 @@ def BunemanTransversalSolver(electric_field, magnetic_field, current_yz, dt, c, 
 
     return new_electric_field, new_magnetic_field
 
-
+@numba.njit()
 def BunemanLongitudinalSolver(electric_field, current_x, dt, epsilon_0):
     return electric_field - dt / epsilon_0 * current_x[:-1]
 
