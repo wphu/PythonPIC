@@ -2,8 +2,7 @@
 """mathematical algorithms for the particle pusher, Leapfrog and Boris"""
 import functools
 import numpy as np
-
-from ..helper_functions.physics import gamma_from_v, gamma_from_u
+from numba import jit
 
 
 def boris_push(species, E, dt, B):
@@ -21,19 +20,15 @@ def boris_push(species, E, dt, B):
     energy = (species.v * v_new * (0.5 * species.eff_m)).sum()
     return species.x + v_new[:, 0] * dt, v_new, energy
 
-
-def rela_boris_push(species, E: np.ndarray, dt: float, B: np.ndarray):
-    """
-    relativistic Boris pusher
-    """
-    init_gamma = gamma_from_v(species.v, species.c)
-    u = species.v * init_gamma
-    half_force = species.eff_q * E / species.eff_m * dt * 0.5  # eq. 21 LPIC # array of shape (N_particles, 3)
+@jit()
+def rela_boris(x, v, c, eff_q, E, B, dt, eff_m):
+    u = v / np.sqrt(1 - ((v ** 2).sum(axis=1, keepdims=True)) / c ** 2)  # below eq 22 LPIC
+    half_force = eff_q * E / eff_m * dt * 0.5  # eq. 21 LPIC # array of shape (N_particles, 3)
     # add first half of electric force
     uminus = u + half_force
 
     # rotate to add magnetic field
-    t = B * species.eff_q * dt / (2 * species.eff_m * gamma_from_u(uminus, species.c))  # above eq 23 LPIC
+    t = B * eff_q * dt / (2 * eff_m * np.sqrt(1 + ((uminus ** 2).sum(axis=1, keepdims=True) / c ** 2)))
     s = 2 * t / (1 + t * t)
     # u' = u- + u- x t
     uprime = uminus + np.cross(uminus, t)
@@ -44,10 +39,16 @@ def rela_boris_push(species, E: np.ndarray, dt: float, B: np.ndarray):
     u_new = uplus + half_force
 
     # CHECK: check correctness of relativistic kinetic energy calculation (needs to be at half timestep!)
-    final_gamma = gamma_from_u(u_new, species.c)
+    final_gamma = np.sqrt(1 + ((u_new ** 2).sum(axis=1, keepdims=True) / c ** 2))
     v_new = u_new / final_gamma
     # CHECK mean_gamma = (init_gamma + final_gamma)*0.5
-    energy = ((final_gamma - 1) * species.eff_m * species.c ** 2).sum()
-    x_new = species.x + v_new[:, 0] * dt
+    energy = ((final_gamma - 1) * eff_m * c ** 2).sum()
+    x_new = x + v_new[:, 0] * dt
     return x_new, v_new, energy
+
+def rela_boris_push(species, E: np.ndarray, dt: float, B: np.ndarray):
+    """
+    relativistic Boris pusher
+    """
+    return rela_boris(species.x, species.v, species.c, species.eff_q, E, B, dt, species.eff_m)
 

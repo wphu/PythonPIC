@@ -68,15 +68,6 @@ def did_it_thermalize(S):
     return np.abs(initial_velocities - average_velocities) > initial_velocity_stds
 
 
-@numba.jit()
-def gamma_from_v(v, c):
-    # print((v**2).sum(axis=1).max()**0.5 / c)
-    return 1 / np.sqrt(1 - ((v ** 2).sum(axis=1, keepdims=True)) / c ** 2)  # below eq 22 LPIC
-
-
-@numba.jit()
-def gamma_from_u(u, c):
-    return np.sqrt(1 + ((u ** 2).sum(axis=1, keepdims=True) / c ** 2))
 
 
 epsilon_zero = 8.854187817e-12  # F/m
