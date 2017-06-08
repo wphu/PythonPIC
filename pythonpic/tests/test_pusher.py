@@ -5,7 +5,7 @@ import pytest
 
 from ..helper_functions import physics
 from ..algorithms import particle_push
-from ..classes import Species, Grid
+from ..classes import Species, Grid, Particle
 
 atol = 1e-1
 rtol = 1e-4
@@ -148,6 +148,26 @@ def test_relativistic_harmonic_oscillator(g, _N_particles, E0):
     assert np.allclose(s.velocity_history[:, 0, 0], v_analytical, atol=atol, rtol=rtol), \
         plot(t, v_analytical, s.velocity_history[:, 0, 0], )
 
+# def test_high_relativistic_velocity(g):
+#     s = Particle(g, 0, 1, _N_particles, g)
+#     t = np.arange(0, g.T, g.dt * s.save_every_n_iterations) - g.dt / 2
+#
+#     t_s = t - g.dt / 2
+#     v_analytical = E0 * s.c * s.q * np.sin(omega * t_s) / np.sqrt(
+#         (E0 * s.q * np.sin(omega * t_s)) ** 2 + (s.m * omega * s.c) ** 2)
+#
+#     def electric_field(x, t):
+#         return np.array([[1, 0, 0]], dtype=float) * E0 * np.cos(omega * t), np.array([[0, 0, 0]], dtype=float)
+#
+#     s.init_push(lambda x: electric_field(x, 0))
+#     for i in range(g.NT):
+#         s.save_particle_values(i)
+#         s.push(lambda x: electric_field(x, i * g.dt))
+#
+#     assert (s.velocity_history < 1).all(), plot(t, v_analytical, s.velocity_history[:, 0, 0],
+#                                                 f"Velocity went over c! Max velocity: {s.velocity_history.max()}")
+#     assert np.allclose(s.velocity_history[:, 0, 0], v_analytical, atol=atol, rtol=rtol), \
+#         plot(t, v_analytical, s.velocity_history[:, 0, 0], )
 
 
 def test_periodic_particles(g):

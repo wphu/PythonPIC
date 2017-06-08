@@ -1,14 +1,14 @@
 """Implements interaction of the laser with a hydrogen shield plasma"""
 # coding=utf-8
 import numpy as np
-from ..algorithms import BoundaryCondition
-from ..classes import Grid, Simulation, Species
-from ..helper_functions.physics import epsilon_zero, electric_charge, lightspeed, proton_mass, electron_rest_mass, \
+from pythonpic.algorithms import BoundaryCondition
+from pythonpic.classes import Grid, Simulation, Species
+from pythonpic.helper_functions.physics import epsilon_zero, electric_charge, lightspeed, proton_mass, electron_rest_mass, \
     critical_density
 
 from functools import partial
-from ..visualization.plotting import plots
-from ..visualization import animation
+from pythonpic.visualization.plotting import plots
+from pythonpic.visualization import animation
 plots = partial(plots, animation_type = animation.FullAnimation, alpha=0.3)
 
 VERSION = 17

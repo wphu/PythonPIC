@@ -23,7 +23,7 @@ def boris_push(species, E, dt, B):
 @jit()
 def rela_boris(x, v, c, eff_q, E, B, dt, eff_m):
     u = v / np.sqrt(1 - ((v ** 2).sum(axis=1, keepdims=True)) / c ** 2)  # below eq 22 LPIC
-    half_force = eff_q * E / eff_m * dt * 0.5  # eq. 21 LPIC # array of shape (N_particles, 3)
+    half_force = (eff_q * 0.5 / eff_m * dt) * E  # eq. 21 LPIC # array of shape (N_particles, 3)
     # add first half of electric force
     uminus = u + half_force
 
@@ -42,7 +42,7 @@ def rela_boris(x, v, c, eff_q, E, B, dt, eff_m):
     final_gamma = np.sqrt(1 + ((u_new ** 2).sum(axis=1, keepdims=True) / c ** 2))
     v_new = u_new / final_gamma
     # CHECK mean_gamma = (init_gamma + final_gamma)*0.5
-    energy = ((final_gamma - 1) * eff_m * c ** 2).sum()
+    energy = ((final_gamma.sum() - 1) * eff_m * c ** 2)
     x_new = x + v_new[:, 0] * dt
     return x_new, v_new, energy
 
