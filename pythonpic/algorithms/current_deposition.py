@@ -1,8 +1,8 @@
 # coding=utf-8
 import numpy as np
-import numba
+# from numba import jit
 
-
+# @jit()
 def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q):
     """
 
@@ -40,7 +40,7 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q):
         actives.append(active.sum())
         if counter > 4:
             raise Exception("Infinite recurrence!")
-        logical_coordinates_n = (x_particles // dx).astype(int)
+        logical_coordinates_n = (x_particles // dx).astype(np.int32)
         particle_in_left_half = x_particles / dx - logical_coordinates_n <= 0.5
         # CHECK: investigate what happens when particle is at center
         particle_in_right_half = x_particles / dx - logical_coordinates_n > 0.5
@@ -104,18 +104,19 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q):
         time = new_time[active]
         active = np.ones_like(x_particles, dtype=bool)
 
+# @jit()
 def aperiodic_longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q, L):
     longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q)
     j_x[0] = 0
     j_x[-2:] = 0
 
-
+# @jit()
 def periodic_longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q, L):
     longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q)
     j_x[-3] += j_x[0]
     j_x[1:3] += j_x[-2:]
 
-
+# @jit()
 def transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
     # print("Transversal deposition")
     epsilon = 1e-10 * dx
@@ -135,7 +136,7 @@ def transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
         y_velocity = velocity[:, 1]
         z_velocity = velocity[:, 2]
 
-        logical_coordinates_n = (x_particles // dx).astype(int)
+        logical_coordinates_n = (x_particles // dx).astype(np.int32)
         particle_in_left_half = x_particles / dx - logical_coordinates_n < 0.5
         particle_in_right_half = ~particle_in_left_half
 
@@ -296,11 +297,13 @@ def transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
         velocity = velocity[active]
         active = np.ones_like(x_particles, dtype=bool)
     # print(pandas.concat(dataframes))
+# @jit()
 def aperiodic_transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
     transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q)
     j_yz[:2] = 0
     j_yz[-2:] = 0
 
+# @jit()
 def periodic_transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
     transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q)
     j_yz[-4:-2] += j_yz[:2]
