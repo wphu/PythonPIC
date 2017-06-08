@@ -160,7 +160,6 @@ class Grid:
         result = self.interpolator(xp, np.hstack((self.electric_field, self.magnetic_field)), self.dx)
         return result[:, :3], result[:, 3:]
 
-
     def save_field_values(self, i):
         """Update the i-th set of field values, without those gathered from interpolation (charge\current)"""
         self.charge_density_history[i, :] = self.charge_density[:-1]

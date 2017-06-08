@@ -15,7 +15,6 @@ def PeriodicInterpolateField(x_particles, scalar_field, dx: float):
             right_fractions * scalar_field[(logical_coordinates +1) % NG  + 1]
     return field
 
-
 def AperiodicInterpolateField(x_particles, scalar_field, dx: float):
     """gathers field from grid to particles
 
