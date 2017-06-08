@@ -33,7 +33,7 @@ def test_single_particle_longitudinal_deposition(_position, _velocity):
     g.current_density_x[...] = 0
     g.current_density_yz[...] = 0
     # current_deposition(g, s, dt)
-    longitudinal_current_deposition(g.current_density_x, s.v[:, 0], s.x, g.dx, dt, s.q, g.L)
+    longitudinal_current_deposition(g.current_density_x, s.v[:, 0], s.x, g.dx, dt, s.q)
     collected_longitudinal_weights = g.current_density_x.sum() / s.v[0, 0]
 
     def plot_longitudinal():
@@ -104,7 +104,7 @@ def test_single_particle_above_lightspeed():
     g.current_density_x[...] = 0
     g.current_density_yz[...] = 0
     with pytest.raises(Exception):
-        longitudinal_current_deposition(g.current_density_x, s.v[:, 0], s.x, g.dx, dt, s.q, g.L)
+        longitudinal_current_deposition(g.current_density_x, s.v[:, 0], s.x, g.dx, dt, s.q)
     with pytest.raises(Exception):
         transversal_current_deposition(g.current_density_yz, s.v, s.x, g.dx, dt, s.q)
 
@@ -124,7 +124,7 @@ def test_two_particles_deposition(_position, _velocity, _truefalse, _truefalse2)
         # print(s.x)
         # print(s.v)
         if _truefalse:
-            longitudinal_current_deposition(g.current_density_x, s.v[:, 0], s.x, g.dx, dt, s.q, g.L)
+            longitudinal_current_deposition(g.current_density_x, s.v[:, 0], s.x, g.dx, dt, s.q)
         if _truefalse2:
             transversal_current_deposition(g.current_density_yz, s.v, s.x, g.dx, dt, s.q)
         # print(g.current_density)
@@ -143,7 +143,7 @@ def test_two_particles_deposition(_position, _velocity, _truefalse, _truefalse2)
     # print(s.x)
     # print(s.v)
     if _truefalse:
-        longitudinal_current_deposition(g2.current_density_x, s.v[:, 0], s.x, g2.dx, dt, s.q, g.L)
+        longitudinal_current_deposition(g2.current_density_x, s.v[:, 0], s.x, g2.dx, dt, s.q)
     if _truefalse2:
         transversal_current_deposition(g2.current_density_yz, s.v, s.x, g2.dx, dt, s.q)
     # print(g2.current_density)

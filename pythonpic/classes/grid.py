@@ -152,7 +152,7 @@ class Grid:
         self.current_density_yz[...] = 0.0
         for species in list_species:
             self.current_longitudinal_gather_function(self.current_density_x, species.v[:, 0], species.x, self.dx, self.dt,
-                                                      species.eff_q, self.L)
+                                                      species.eff_q)
             self.current_transversal_gather_function(self.current_density_yz, species.v, species.x, self.dx, self.dt,
                                                      species.eff_q)
 

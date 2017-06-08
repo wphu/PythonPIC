@@ -105,13 +105,13 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q):
         active = np.ones_like(x_particles, dtype=bool)
 
 # @jit()
-def aperiodic_longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q, L):
+def aperiodic_longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q):
     longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q)
     j_x[0] = 0
     j_x[-2:] = 0
 
 # @jit()
-def periodic_longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q, L):
+def periodic_longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q):
     longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q)
     j_x[-3] += j_x[0]
     j_x[1:3] += j_x[-2:]

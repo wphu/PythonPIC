@@ -68,7 +68,7 @@ def test_constant_field(g, _pusher, _N_particles):
     t = np.arange(0, g.T, g.dt * s.save_every_n_iterations) - g.dt / 2
 
     def uniform_field(x):
-        return np.array([[1, 0, 0]], dtype=float)
+        return np.array([[1, 0, 0]], dtype=float), np.array([[0, 0, 0]], dtype=float)
 
     x_analytical = 0.5 * (t + g.dt / 2) ** 2 + 0
     s.init_push(uniform_field)
@@ -86,7 +86,7 @@ def test_relativistic_constant_field(g, _N_particles):
     t = np.arange(0, g.T, g.dt * s.save_every_n_iterations) - g.dt / 2
 
     def uniform_field(x):
-        return np.array([[1, 0, 0]], dtype=float)
+        return np.array([[1, 0, 0]], dtype=float), np.array([[0, 0, 0]], dtype=float)
 
     v_analytical = (t - g.dt / 2) / np.sqrt((t - g.dt / 2) ** 2 + 1)
     s.init_push(uniform_field)
@@ -108,18 +108,15 @@ def test_relativistic_magnetic_field(g, _N_particles, _v0):
     s.v[:, 1] = _v0
 
     def uniform_magnetic_field(x):
-        return np.array([[0, 0, B0]], dtype=float)
-
-    def uniform_electric_field(x):
-        return np.zeros(3, dtype=float)
+        return np.array([[0, 0, 0]], dtype=float), np.array([[0, 0, B0]], dtype=float)
 
     gamma = physics.gamma_from_v(s.v, s.c)[0]
     vy_analytical = _v0 * np.cos(s.q * B0 * (t - g.dt / 2) / (s.m * gamma))
 
-    s.init_push(uniform_electric_field, uniform_magnetic_field)
+    s.init_push(uniform_magnetic_field)
     for i in range(g.NT):
         s.save_particle_values(i)
-        s.push(uniform_electric_field, uniform_magnetic_field)
+        s.push(uniform_magnetic_field)
     assert (s.velocity_history < 1).all(), plot(t, vy_analytical, s.velocity_history[:, 0, 1],
                                                 f"Velocity went over c! Max velocity: {s.velocity_history.max()}")
     assert np.allclose(s.velocity_history[:, 0, 1], vy_analytical, atol=atol, rtol=rtol), \
@@ -139,7 +136,7 @@ def test_relativistic_harmonic_oscillator(g, _N_particles, E0):
         (E0 * s.q * np.sin(omega * t_s)) ** 2 + (s.m * omega * s.c) ** 2)
 
     def electric_field(x, t):
-        return np.array([[1, 0, 0]], dtype=float) * E0 * np.cos(omega * t)
+        return np.array([[1, 0, 0]], dtype=float) * E0 * np.cos(omega * t), np.array([[0, 0, 0]], dtype=float)
 
     s.init_push(lambda x: electric_field(x, 0))
     for i in range(g.NT):
@@ -158,7 +155,8 @@ def test_periodic_particles(g):
     s.distribute_uniformly(g.L)
     s.v[:] = 0.5
     for i in range(g.NT):
-        s.push(lambda x: 0)
+        force = lambda x: (np.array([[0, 0, 0]], dtype=float), np.array([[0, 0, 0]], dtype=float))
+        s.push(force)
         s.apply_bc()
     assert s.N_alive == s.N, "They're dead, Jim."
 
@@ -168,6 +166,7 @@ def test_nonperiodic_particles(g_aperiodic):
     s.distribute_uniformly(g.L)
     s.v[:] = 0.5
     for i in range(g.NT):
-        s.push(lambda x: 0)
+        force = lambda x: (np.array([[0, 0, 0]], dtype=float), np.array([[0, 0, 0]], dtype=float))
+        s.push(force)
         s.apply_bc()
     assert s.N_alive == 0
