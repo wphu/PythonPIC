@@ -11,7 +11,7 @@ from pythonpic.visualization.plotting import plots
 from pythonpic.visualization import animation
 plots = partial(plots, animation_type = animation.FullAnimation, alpha=0.3)
 
-VERSION = 17
+VERSION = 18
 laser_wavelength = 1.064e-6 # meters
 laser_intensity = 1e23 # watt/meters squared
 impulse_duration = 1e-13 # seconds
@@ -44,7 +44,7 @@ default_scaling = npic # CHECK what should be the proper value here?
 category_name = "laser-shield"
 # assert False
 class laser(Simulation):
-    def __init__(self, filename, n_macroparticles, impulse_duration, laser_intensity, perturbation_amplitude):
+    def __init__(self, filename, n_macroparticles, impulse_duration, laser_intensity, perturbation_amplitude, additional_scaling=1):
         """
         A simulation of laser-hydrogen shield interaction.
 
@@ -78,7 +78,7 @@ class laser(Simulation):
         grid = Grid(T=total_time, L=length, NG=number_cells, c =lightspeed, epsilon_0 =epsilon_zero, bc=bc, periodic=False)
 
         if n_macroparticles:
-            scaling = default_scaling * N_MACROPARTICLES / n_macroparticles
+            scaling = default_scaling * N_MACROPARTICLES / n_macroparticles * additional_scaling
             electrons = Species(-electric_charge, electron_rest_mass, n_macroparticles, grid, "electrons", scaling)
             protons = Species(electric_charge, proton_mass, n_macroparticles, grid, "protons", scaling)
             list_species = [electrons, protons]
