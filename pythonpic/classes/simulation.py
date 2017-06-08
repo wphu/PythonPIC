@@ -69,7 +69,7 @@ class Simulation:
         self.grid.init_solver()
         self.grid.apply_bc(0)
         for species in self.list_species:
-            species.init_push(self.grid.electric_field_function, self.grid.magnetic_field_function)
+            species.init_push(self.grid.field_function)
         return self
 
     def iteration(self, i: int, periodic: bool = True):
@@ -89,7 +89,7 @@ class Simulation:
 
         for species in self.list_species:
             species.save_particle_values(i)
-            species.push(self.grid.electric_field_function, self.grid.magnetic_field_function)
+            species.push(self.grid.field_function)
             species.apply_bc()
         self.grid.apply_bc(i)
         self.grid.gather_charge(self.list_species)

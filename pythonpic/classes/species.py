@@ -96,7 +96,7 @@ class Species:
     def kinetic_energy(self):
         return 0.5 * self.m * np.sum(self.v**2) # TODO: make this relativistic
 
-    def init_push(self, electric_field_function, magnetic_field_function=lambda x: np.zeros((x.size, 3))):
+    def init_push(self, field_function):
         """
         Push the particles using the previously set pushing algorithm.
         This is the same thing as seen in `push`, except that it doesn't update positions.
@@ -114,12 +114,11 @@ class Species:
         The kinetic energy of the particles, calculated at half timestep.
         """
 
-        E = electric_field_function(self.x)
-        B = magnetic_field_function(self.x)
+        E, B = field_function(self.x)
         _, self.v, self.energy = self.pusher(self, E, -self.dt * 0.5, B)
         return self.energy
 
-    def push(self, electric_field_function, magnetic_field_function=lambda x: np.zeros((x.size, 3))):
+    def push(self, field_function):
         """
         Push the particles using the previously set pushing algorithm.
 
@@ -135,8 +134,7 @@ class Species:
         The kinetic energy of the particles, calculated at half timestep.
         """
         if self.N_alive:
-            E = electric_field_function(self.x)
-            B = magnetic_field_function(self.x)
+            E, B = field_function(self.x)
             self.x, self.v, self.energy = self.pusher(self, E, self.dt, B)
             return self.energy
         else:

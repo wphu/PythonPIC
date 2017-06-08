@@ -156,11 +156,10 @@ class Grid:
             self.current_transversal_gather_function(self.current_density_yz, species.v, species.x, self.dx, self.dt,
                                                      species.eff_q)
 
-    def electric_field_function(self, xp):
-        return self.interpolator(xp, self.electric_field, self.x, self.dx)
+    def field_function(self, xp):
+        result = self.interpolator(xp, np.hstack((self.electric_field, self.magnetic_field)), self.dx)
+        return result[:, :3], result[:, 3:]
 
-    def magnetic_field_function(self, xp):
-        return self.interpolator(xp, self.magnetic_field, self.x, self.dx)
 
     def save_field_values(self, i):
         """Update the i-th set of field values, without those gathered from interpolation (charge\current)"""

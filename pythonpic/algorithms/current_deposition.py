@@ -1,9 +1,9 @@
 # coding=utf-8
 import numpy as np
-import pandas
+import numba
 
 
-def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q, L):
+def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q):
     """
 
     Parameters
@@ -105,13 +105,13 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q, L):
         active = np.ones_like(x_particles, dtype=bool)
 
 def aperiodic_longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q, L):
-    longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q, L)
+    longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q)
     j_x[0] = 0
     j_x[-2:] = 0
 
 
 def periodic_longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q, L):
-    longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q, L)
+    longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q)
     j_x[-3] += j_x[0]
     j_x[1:3] += j_x[-2:]
 
