@@ -100,7 +100,9 @@ class Grid:
 
             # calculate energy history
             electric_energy = 0.5 * self.epsilon_0 * (self.electric_field_history ** 2).sum(2) # over directions
-            magnetic_energy = 0.5 * (self.magnetic_field_history **2).sum(2) # over directions
+            mu_zero_inv = 1/ (self.epsilon_0 * self.c**2)
+            magnetic_energy = 0.5 * (self.magnetic_field_history **2).sum(2) * mu_zero_inv # over directions
+
             self.grid_energy_history = electric_energy + magnetic_energy
             self.check_on_charge = np.gradient(self.electric_field_history[:, :, 0], self.dx, axis=1) * self.epsilon_0
             # fourier analysis
