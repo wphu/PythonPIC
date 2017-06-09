@@ -4,11 +4,14 @@ from pythonpic.configs.run_laser import laser, impulse_duration, n_macroparticle
 
 args = plotting_parser("Hydrogen shield")
 perturbation_amplitude = 0
-number_particles = 10000
 powers = range(23, 20, -1)
 for power in powers:
     intensity = 10**power
-    s = laser(f"production_run_{power}_{perturbation_amplitude}", n_macroparticles, impulse_duration, intensity, perturbation_amplitude).lazy_run()
+    s = laser(f"production_run_{power}_{perturbation_amplitude}",
+              n_macroparticles,
+              impulse_duration,
+              intensity,
+              perturbation_amplitude=0).lazy_run()
     if any(args):
         plots(s, *args, frames="all")
     del s

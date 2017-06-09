@@ -21,34 +21,41 @@ def boris_push(species, E, dt, B):
     return species.x + v_new[:, 0] * dt, v_new, energy
 
 @jit()
-def rela_boris(x, v, c, eff_q, E, B, dt, eff_m):
-    u = v / np.sqrt(1 - ((v ** 2).sum(axis=1, keepdims=True)) / c ** 2)  # below eq 22 LPIC
+def rela_boris_velocity_kick(v, c, eff_q, E, B, dt, eff_m):
+    # calculate u
+    v /= np.sqrt(1 - ((v ** 2).sum(axis=1, keepdims=True)) / c ** 2)  # below eq 22 LPIC
     half_force = (eff_q * 0.5 / eff_m * dt) * E  # eq. 21 LPIC # array of shape (N_particles, 3)
     # add first half of electric force
-    uminus = u + half_force
+
+    #calculate uminus
+    v += half_force
 
     # rotate to add magnetic field
-    t = B * eff_q * dt / (2 * eff_m * np.sqrt(1 + ((uminus ** 2).sum(axis=1, keepdims=True) / c ** 2)))
-    s = 2 * t / (1 + t * t)
+    t = B * eff_q * dt / (2 * eff_m * np.sqrt(1 + ((v ** 2).sum(axis=1, keepdims=True) / c ** 2)))
     # u' = u- + u- x t
-    uprime = uminus + np.cross(uminus, t)
+    uprime = v + np.cross(v, t)
     # v+ = u- + u' x s
-    uplus = uminus + np.cross(uprime, s)
+    t *= 2
+    t /= (1 + t * t)
+    v += np.cross(uprime, t)
 
     # add second half of electric force
-    u_new = uplus + half_force
+    v += half_force
 
-    # CHECK: check correctness of relativistic kinetic energy calculation (needs to be at half timestep!)
-    final_gamma = np.sqrt(1 + ((u_new ** 2).sum(axis=1, keepdims=True) / c ** 2))
-    v_new = u_new / final_gamma
-    # CHECK mean_gamma = (init_gamma + final_gamma)*0.5
-    energy = ((final_gamma.sum() - 1) * eff_m * c ** 2)
-    x_new = x + v_new[:, 0] * dt
-    return x_new, v_new, energy
+    final_gamma = np.sqrt(1 + ((v ** 2).sum(axis=1, keepdims=True) / c ** 2))
+    v /= final_gamma
+    total_velocity = np.sqrt((v**2).sum(axis=1, keepdims=True))
+    total_velocity *= final_gamma - 1
+    return total_velocity.sum() * dt * eff_m * c ** 2
+
 
 def rela_boris_push(species, E: np.ndarray, dt: float, B: np.ndarray):
     """
     relativistic Boris pusher
     """
-    return rela_boris(species.x, species.v, species.c, species.eff_q, E, B, dt, species.eff_m)
+    energy = rela_boris_velocity_kick(species.v, species.c, species.eff_q,
+            E, B,
+            dt, species.eff_m)
+    new_x = species.x + species.v[:,0] * dt
+    return new_x, species.v, energy
 
