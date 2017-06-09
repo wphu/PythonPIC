@@ -117,8 +117,8 @@ class Grid:
             self.perpendicular_energy_history = self.perpendicular_energy_history.sum(1)
             self.grid_energy_history = self.perpendicular_energy_history + self.longitudinal_energy_history # over positions
 
-            vacuum_wave_impedance_inv = 1/ (self.epsilon_0 * self.c)
-            self.laser_energy_history = np.cumsum(self.laser_energy_history**2) * vacuum_wave_impedance_inv * self.dt
+            vacuum_wave_impedance= 1/ (self.epsilon_0 * self.c)
+            self.laser_energy_history = np.cumsum(self.laser_energy_history**2) / vacuum_wave_impedance * self.dt
 
             self.x_current = self.x + self.dx / 2
             self.postprocessed = True

@@ -4,7 +4,7 @@ from pythonpic.configs.run_laser import laser, impulse_duration, n_macroparticle
 
 args = plotting_parser("Hydrogen shield")
 perturbation_amplitude = 0
-number_particles = 1000
+number_particles = 10000
 powers = range(23, 20, -1)
 for power in powers:
     intensity = 10**power
