@@ -6,7 +6,7 @@ omit =
     *__init__.py
 	*/tests/*
 	*/visualization/*
-	*/configs/*
+	*/algorithms/*
 
 exclude_lines =
     raise NotImplementedError
