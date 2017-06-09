@@ -3,6 +3,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
+from pythonpic.configs.run_laser import laser, npic
+from pythonpic.helper_functions.physics import electric_charge, electron_rest_mass
+
 from ..helper_functions import physics
 from ..algorithms import particle_push
 from ..classes import Species, Grid, Particle
@@ -206,3 +209,28 @@ def test_nonperiodic_particles(g_aperiodic):
         s.push(force)
         s.apply_bc()
     assert s.N_alive == 0
+
+
+def test_laser_pusher():
+    S = laser("test_current", 0, 0, 0, 0)
+    p = Particle(S.grid,
+                 9.45*S.grid.dx,
+                 0,
+                 0,
+                 q=-electric_charge,
+                 m=electron_rest_mass,
+                 scaling=npic)
+    S.grid.list_species = [p]
+    Ev, Bv = (np.array([[0, 1.228e12, 0]]), np.array([[0,0,4.027e3]]))
+    E = lambda x: (Ev, Bv)
+    p.push(E)
+    print(p.v)
+    expected_u = np.array([[5.089e4, -5.5698e6, 0]]) # this is u!
+    expected_v = expected_u #* gamma_from_u(expected_u, S.grid.c)
+    print(expected_v)
+    print((p.v - expected_v)[0,:2] / p.v[0,:2] * 100, "%")
+    # print(f"vx:{a:.9e}\n"
+    #       f"vy:{b:.9e}\n"
+    #       f"vz:{c:.9e}\n"
+    #       f"KE:{e:.9e}\n")
+    assert np.allclose(expected_v, p.v, atol=1e-1, rtol=1e-2)
