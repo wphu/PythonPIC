@@ -124,7 +124,7 @@ def test_relativistic_magnetic_field(g, _N_particles, _v0):
         s.push(uniform_magnetic_field)
     assert (s.velocity_history < 1).all(), plot(t, vy_analytical, s.velocity_history[:, 0, 1],
                                                 f"Velocity went over c! Max velocity: {s.velocity_history.max()}")
-    assert np.allclose(s.kinetic_energy_history[:-1], s.kinetic_energy_history[:-1].mean(), atol=atol, rtol=rtol), "Energy is off!"
+    assert np.allclose(s.kinetic_energy_history[1:-1], s.kinetic_energy_history[1:-1].mean(), atol=atol, rtol=rtol), "Energy is off!"
     assert np.allclose(s.velocity_history[:, 0, 1], vy_analytical, atol=atol, rtol=rtol), \
         plot(t, vy_analytical, s.velocity_history[:, 0, 1], )
 
@@ -169,7 +169,7 @@ def test_high_relativistic_velocity(g, v0):
         s.push(lambda x: no_field(x))
 
     s.save_particle_values(g.NT-1)
-    assert np.allclose(s.kinetic_energy_history[:-1], s.kinetic_energy_history[:-1].mean(), atol=atol, rtol=rtol), "Energy is off!"
+    assert np.allclose(s.kinetic_energy_history[1:-1], s.kinetic_energy_history[1:-1].mean(), atol=atol, rtol=rtol), "Energy is off!"
     assert (s.velocity_history < 1).all(), f"Velocity went over c! Max velocity: {s.velocity_history.max()}"
 
 @pytest.mark.parametrize("v0", [0.9, 0.99, 0.999, 0.9999])
@@ -186,7 +186,7 @@ def test_high_relativistic_velocity_multidirection(g, v0):
         s.push(lambda x: no_field(x))
 
     s.save_particle_values(g.NT-1)
-    assert np.allclose(s.kinetic_energy_history[:-1], s.kinetic_energy_history[:-1].mean(), atol=atol, rtol=rtol), "Energy is off!"
+    assert np.allclose(s.kinetic_energy_history[1:-1], s.kinetic_energy_history[1:-1].mean(), atol=atol, rtol=rtol), "Energy is off!"
     assert (s.velocity_history < 1).all(), f"Velocity went over c! Max velocity: {s.velocity_history.max()}"
 
 def test_periodic_particles(g):
