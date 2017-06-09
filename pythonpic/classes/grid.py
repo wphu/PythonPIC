@@ -109,7 +109,8 @@ class Grid:
             # fourier analysis
             from scipy import fftpack
             self.k_plot = fftpack.rfftfreq(int(self.NG), self.dx)[::2]
-            self.energy_per_mode_history = np.abs(fftpack.rfft(self.perpendicular_energy_history))[:,::2]
+            self.longitudinal_energy_per_mode_history = np.abs(fftpack.rfft(self.longitudinal_energy_history))[:,::2]
+            self.perpendicular_energy_per_mode_history = np.abs(fftpack.rfft(self.perpendicular_energy_history))[:,::2]
 
             self.longitudinal_energy_history  = self.longitudinal_energy_history.sum(1)
             self.perpendicular_energy_history = self.perpendicular_energy_history.sum(1)
