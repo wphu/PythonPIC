@@ -13,7 +13,7 @@ for power in powers:
               intensity,
               perturbation_amplitude=0).lazy_run()
     if any(args):
-        plots(s, *args, frames="all")
+        plots(s, *args, frames="few")
     del s
 # s = laser("production_run_nolaser_e-3", n_macroparticles, impulse_duration, 0, perturbation_amplitude).lazy_run()
 # plots(s, *args, frames="few")

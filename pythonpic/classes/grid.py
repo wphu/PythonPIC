@@ -201,6 +201,7 @@ class Grid:
                                     'current':self.current_density_history,
                                    'Efield':self.electric_field_history,
                                    'Bfield':self.magnetic_field_history,
+                                   'laser':self.laser_energy_history
                                    }
         for key, value in h5py_dataset_dictionary.items():
             grid_data.create_dataset(name=key, dtype=float, data=value)
@@ -251,6 +252,7 @@ def load_grid(grid_data, postprocess=False):
     grid.current_density_history = grid_data['current'][...]
     grid.electric_field_history = grid_data['Efield'][...]
     grid.magnetic_field_history = grid_data['Bfield'][...]
+    grid.laser_energy_history = grid_data['laser'][...]
 
     if postprocess:
         grid.postprocess()

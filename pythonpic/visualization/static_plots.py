@@ -71,8 +71,9 @@ def temperature_time_plot(S, axis, twinaxis=True):
 
 
 def energy_time_plots(S, axis):
+    twin = axis.twinx()
     for species in S.list_species:
-        axis.plot(S.t, species.kinetic_energy_history, "--",
+        twin.plot(S.t, species.kinetic_energy_history, "--",
                   label="Kin.: {}".format(species.name))
     # axis.plot(np.arange(S.NT) * S.dt, S.grid.longitudinal_energy_history, "-", label="Long. E.", alpha=0.7)
     # axis.plot(np.arange(S.NT) * S.dt, S.grid.perpendicular_energy_history, "-", label="Perp. E.", alpha=0.7)
