@@ -10,5 +10,5 @@ for intensity in intensities:
     for scaling in scalings:
         s = laser(f"production_run_{intensity}_{scaling}", n_macroparticles, impulse_duration, intensity, perturbation_amplitude, scaling).lazy_run()
         if any(args):
-            plots(s, *args, frames="all")
+            plots(s, *args, frames="few")
         del s

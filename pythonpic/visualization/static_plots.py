@@ -20,7 +20,7 @@ def static_plot_window(S, N, M):
 
 # REFACTOR: turn these into classes like in animation
 def ESE_time_plots(S, axis):
-    data = S.grid.energy_per_mode_history
+    data = S.grid.longitudinal_energy_per_mode_history
     # wavelengths = 2 * np.pi / S.grid.k_plot
 
     top_values = data.max(axis=0)
@@ -47,7 +47,7 @@ def ESE_time_plots(S, axis):
     axis.set_ylabel("Energy [J]")
     axis.set_xlim(0, S.NT * S.dt)
     axis.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True, useOffset=False)
-    axis.set_title("Energy per spatial mode versus time")
+    axis.set_title("Energy per spatial longitudinal mode versus time")
 
 
 def temperature_time_plot(S, axis, twinaxis=True):

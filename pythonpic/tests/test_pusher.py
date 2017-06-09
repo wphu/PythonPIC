@@ -76,6 +76,7 @@ def test_constant_field(g, _pusher, _N_particles):
         s.save_particle_values(i)
         s.push(uniform_field)
 
+    s.save_particle_values(g.NT-1)
     assert np.allclose(s.position_history[:, 0], x_analytical, atol=atol, rtol=rtol), \
         plot(t, x_analytical, s.position_history[:, 0])
 
@@ -94,6 +95,7 @@ def test_relativistic_constant_field(g, _N_particles):
         s.save_particle_values(i)
         s.push(uniform_field)
 
+    s.save_particle_values(g.NT-1)
     assert (s.velocity_history < 1).all(), plot(t, v_analytical, s.velocity_history[:, 0, 0],
                                                 f"Velocity went over c! Max velocity: {s.velocity_history.max()}")
     assert np.allclose(s.velocity_history[:, 0, 0], v_analytical, atol=atol, rtol=rtol), \
@@ -119,6 +121,7 @@ def test_relativistic_magnetic_field(g, _N_particles, _v0):
         s.push(uniform_magnetic_field)
     assert (s.velocity_history < 1).all(), plot(t, vy_analytical, s.velocity_history[:, 0, 1],
                                                 f"Velocity went over c! Max velocity: {s.velocity_history.max()}")
+    assert np.allclose(s.kinetic_energy_history[:-1], s.kinetic_energy_history[:-1].mean(), atol=atol, rtol=rtol), "Energy is off!"
     assert np.allclose(s.velocity_history[:, 0, 1], vy_analytical, atol=atol, rtol=rtol), \
         plot(t, vy_analytical, s.velocity_history[:, 0, 1], )
 
@@ -143,32 +146,45 @@ def test_relativistic_harmonic_oscillator(g, _N_particles, E0):
         s.save_particle_values(i)
         s.push(lambda x: electric_field(x, i * g.dt))
 
+    s.save_particle_values(g.NT-1)
     assert (s.velocity_history < 1).all(), plot(t, v_analytical, s.velocity_history[:, 0, 0],
                                                 f"Velocity went over c! Max velocity: {s.velocity_history.max()}")
     assert np.allclose(s.velocity_history[:, 0, 0], v_analytical, atol=atol, rtol=rtol), \
         plot(t, v_analytical, s.velocity_history[:, 0, 0], )
 
-# def test_high_relativistic_velocity(g):
-#     s = Particle(g, 0, 1, _N_particles, g)
-#     t = np.arange(0, g.T, g.dt * s.save_every_n_iterations) - g.dt / 2
-#
-#     t_s = t - g.dt / 2
-#     v_analytical = E0 * s.c * s.q * np.sin(omega * t_s) / np.sqrt(
-#         (E0 * s.q * np.sin(omega * t_s)) ** 2 + (s.m * omega * s.c) ** 2)
-#
-#     def electric_field(x, t):
-#         return np.array([[1, 0, 0]], dtype=float) * E0 * np.cos(omega * t), np.array([[0, 0, 0]], dtype=float)
-#
-#     s.init_push(lambda x: electric_field(x, 0))
-#     for i in range(g.NT):
-#         s.save_particle_values(i)
-#         s.push(lambda x: electric_field(x, i * g.dt))
-#
-#     assert (s.velocity_history < 1).all(), plot(t, v_analytical, s.velocity_history[:, 0, 0],
-#                                                 f"Velocity went over c! Max velocity: {s.velocity_history.max()}")
-#     assert np.allclose(s.velocity_history[:, 0, 0], v_analytical, atol=atol, rtol=rtol), \
-#         plot(t, v_analytical, s.velocity_history[:, 0, 0], )
+@pytest.mark.parametrize("v0", [0.9, 0.99, 0.999, 0.9999])
+def test_high_relativistic_velocity(g, v0):
+    s = Particle(g, 0, v0)
+    t = np.arange(0, g.T, g.dt * s.save_every_n_iterations) - g.dt / 2
 
+    def no_field(x):
+        return np.array([[0, 0, 0]], dtype=float), np.array([[0, 0, 0]], dtype=float)
+
+    s.init_push(lambda x: no_field(x))
+    for i in range(g.NT):
+        s.save_particle_values(i)
+        s.push(lambda x: no_field(x))
+
+    s.save_particle_values(g.NT-1)
+    assert np.allclose(s.kinetic_energy_history[:-1], s.kinetic_energy_history[:-1].mean(), atol=atol, rtol=rtol), "Energy is off!"
+    assert (s.velocity_history < 1).all(), f"Velocity went over c! Max velocity: {s.velocity_history.max()}"
+
+@pytest.mark.parametrize("v0", [0.9, 0.99, 0.999, 0.9999])
+def test_high_relativistic_velocity_multidirection(g, v0):
+    s = Particle(g, 0, v0*0.5, v0*0.5, v0*0.5)
+    t = np.arange(0, g.T, g.dt * s.save_every_n_iterations) - g.dt / 2
+
+    def no_field(x):
+        return np.array([[0, 0, 0]], dtype=float), np.array([[0, 0, 0]], dtype=float)
+
+    s.init_push(lambda x: no_field(x))
+    for i in range(g.NT):
+        s.save_particle_values(i)
+        s.push(lambda x: no_field(x))
+
+    s.save_particle_values(g.NT-1)
+    assert np.allclose(s.kinetic_energy_history[:-1], s.kinetic_energy_history[:-1].mean(), atol=atol, rtol=rtol), "Energy is off!"
+    assert (s.velocity_history < 1).all(), f"Velocity went over c! Max velocity: {s.velocity_history.max()}"
 
 def test_periodic_particles(g):
     s = Species(1, 1, 100, g)
