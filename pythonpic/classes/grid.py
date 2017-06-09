@@ -83,6 +83,7 @@ class Grid:
         self.current_density_history = np.zeros((self.NT, self.NG, 3))
         self.electric_field_history = np.zeros((self.NT, self.NG, 3))
         self.magnetic_field_history = np.zeros((self.NT, self.NG, 2))
+        self.laser_energy_history = np.zeros(self.NT, dtype=float)
 
         self.postprocessed = False
 
@@ -116,6 +117,9 @@ class Grid:
             self.perpendicular_energy_history = self.perpendicular_energy_history.sum(1)
             self.grid_energy_history = self.perpendicular_energy_history + self.longitudinal_energy_history # over positions
 
+            vacuum_wave_impedance_inv = 1/ (self.epsilon_0 * self.c)
+            self.laser_energy_history = np.cumsum(self.laser_energy_history**2) * vacuum_wave_impedance_inv * self.dt
+
             self.x_current = self.x + self.dx / 2
             self.postprocessed = True
 
@@ -123,6 +127,7 @@ class Grid:
         # noinspection PyCallingNonCallable
         bc_value = self.bc_function(i * self.dt)
         if bc_value is not None:
+            self.laser_energy_history[i] = bc_value
             self.electric_field[0, 1] = bc_value
             self.magnetic_field[0, 2] = bc_value / self.c
             # TODO: add polarization

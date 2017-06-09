@@ -75,7 +75,8 @@ def energy_time_plots(S, axis):
         axis.plot(S.t, species.kinetic_energy_history, "--",
                   label="Kin.: {}".format(species.name))
     # axis.plot(np.arange(S.NT) * S.dt, S.grid.longitudinal_energy_history, "-", label="Long. E.", alpha=0.7)
-    axis.plot(np.arange(S.NT) * S.dt, S.grid.perpendicular_energy_history, "-", label="Perp. E.", alpha=0.7)
+    # axis.plot(np.arange(S.NT) * S.dt, S.grid.perpendicular_energy_history, "-", label="Perp. E.", alpha=0.7)
+    axis.plot(np.arange(S.NT) * S.dt, S.grid.laser_energy_history, "-", label="Laser E.")
     # axis.plot(np.arange(S.NT) * S.dt, S.grid.grid_energy_history, "-", label="Potential E.", alpha=0.7)
     # axis.plot(np.arange(S.NT) * S.dt, S.total_energy, "-", label="Total E.", lw=3, alpha=0.7)
     axis.grid()

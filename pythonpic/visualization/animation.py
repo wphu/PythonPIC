@@ -138,7 +138,7 @@ class FullAnimation(animation):
         phase_plot_x = PhasePlot(self.S, phase_axes[0], "x", "v_x", self.alpha)
         phase_plot_y = PhasePlot(self.S, phase_axes[1], "x", "v_y", self.alpha)
         phase_plot_z = PhasePlot(self.S, phase_axes[2], "x", "v_z", self.alpha)
-        charge_plot = ChargeDistributionPlot(self.S, charge_axes, True)
+        charge_plot = ChargeDistributionPlot(self.S, charge_axes)
         density_plot = SpatialDistributionPlot(self.S, density_axis)
         iteration = IterationCounter(self.S, charge_axes)
         current_plots = TripleCurrentPlot(self.S, current_axes)
@@ -165,7 +165,7 @@ class FastAnimation(animation):
         charge_axis = self.fig.add_subplot(428)
         density_perturbation_axis = self.fig.add_subplot(422)
 
-        charge_plot = ChargeDistributionPlot(self.S, charge_axis, check_poisson=True)
+        charge_plot = ChargeDistributionPlot(self.S, charge_axis)
         density_perturbation_plot = SpatialPerturbationDistributionPlot(S, density_perturbation_axis)
         density_plot = SpatialDistributionPlot(self.S, density_axis)
         iteration = IterationCounter(self.S, charge_axis)
