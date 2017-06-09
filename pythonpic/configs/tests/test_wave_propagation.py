@@ -33,11 +33,11 @@ def plot_all(field_history, analytical_solution):
 def shape(request):
     return request.param
 
-@pytest.fixture(scope="module", params=[1, 10, 100, 1e9, 1e23])
+@pytest.fixture(scope="module", params=[1, 1000, 1e23])
 def intensity(request):
     return request.param
 
-@pytest.fixture(scope="module", params=[1, 2, 3, 0.1, 0.5])
+@pytest.fixture(scope="module", params=[1, 3, 0.5])
 def wavelength(request):
     return request.param
 
