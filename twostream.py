@@ -5,38 +5,38 @@ from pythonpic.configs.run_twostream import two_stream_instability, plots
 
 
 args = plotting_parser("Two stream instability")
-# S = two_stream_instability("TSe-1",
-#                        NG=512,
-#                        N_electrons=4096,
-#                        plasma_frequency=0.05 / 4,
-#                        v0 = 1e-1
-#                        ).lazy_run()
-# print(did_it_thermalize(S))
-# plots(S, *args)
-# S = two_stream_instability("TSe-2",
-#                        NG=512,
-#                        N_electrons=4096,
-#                        plasma_frequency=0.05 / 4,
-#                        v0 = 1e-2,
-#                        ).lazy_run()
-# print(did_it_thermalize(S))
-# plots(S, *args)
-# S = two_stream_instability("TSe-3",
-#                        NG=512,
-#                        N_electrons=4096,
-#                        plasma_frequency=0.05 / 4,
-#                        v0 = 1e-3,
-#                        ).lazy_run()
-# print(did_it_thermalize(S))
-# plots(S, *args)
-# S = two_stream_instability("TSe-4",
-#                            NG=512,
-#                            N_electrons=4096,
-#                            plasma_frequency=0.05 / 4,
-#                            v0 = 1e-4,
-#                            ).lazy_run()
-# print(did_it_thermalize(S))
-# plots(S, *args)
+S = two_stream_instability("TSe-1",
+                       NG=512,
+                       N_electrons=4096,
+                       plasma_frequency=0.05 / 4,
+                       v0 = 1e-1
+                       ).lazy_run()
+print(did_it_thermalize(S))
+plots(S, *args)
+S = two_stream_instability("TSe-2",
+                       NG=512,
+                       N_electrons=4096,
+                       plasma_frequency=0.05 / 4,
+                       v0 = 1e-2,
+                       ).lazy_run()
+print(did_it_thermalize(S))
+plots(S, *args)
+S = two_stream_instability("TSe-3",
+                       NG=512,
+                       N_electrons=4096,
+                       plasma_frequency=0.05 / 4,
+                       v0 = 1e-3,
+                       ).lazy_run()
+print(did_it_thermalize(S))
+plots(S, *args)
+S = two_stream_instability("TSe-4",
+                           NG=512,
+                           N_electrons=4096,
+                           plasma_frequency=0.05 / 4,
+                           v0 = 1e-4,
+                           ).lazy_run()
+print(did_it_thermalize(S))
+plots(S, *args)
 S = two_stream_instability("TS90p",
                            NG=512,
                            N_electrons=4096,

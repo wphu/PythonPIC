@@ -103,7 +103,7 @@ def test_single_particle_transversal_deposition(_position, _velocity):
 
 def test_single_particle_above_lightspeed():
     g = Grid(1,L=7, NG=7)
-    s = Particle(g, 1*g.dx, g.c*4)
+    s = Particle(g, 1*g.dx, g.c*4, g.c*2)
     dt = g.dx / s.c
     g.current_density_x[...] = 0
     g.current_density_yz[...] = 0
