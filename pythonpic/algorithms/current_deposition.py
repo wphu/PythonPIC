@@ -122,7 +122,7 @@ def transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
     epsilon = 1e-10 * dx
     time = np.ones_like(x_particles, dtype=float) * dt
     counter = 0
-    active = np.ones_like(x_particles, dtype=bool)
+    active = np.any(velocity[:,1:],axis=1)
     # dataframes = []
     while active.any():
         counter += 1

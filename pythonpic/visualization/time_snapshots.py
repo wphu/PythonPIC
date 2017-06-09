@@ -76,12 +76,12 @@ class FrequencyPlot(Plot):
         self.ax.set_xticks(interesting_x)
         self.ax.xaxis.set_ticklabels(np.arange(len(interesting_x)))
         self.ax.set_xlim(interesting_x.min(), interesting_x.max())
-        self.ax.set_ylim(0, S.grid.energy_per_mode_history.max())
+        self.ax.set_ylim(0, S.grid.longitudinal_energy_per_mode_history.max())
 
     def update(self, i):
         # import ipdb; ipdb.set_trace()
         self.plots[0].set_data(self.S.grid.k_plot[self.indices],
-                               self.S.grid.energy_per_mode_history[i][self.indices])
+                               self.S.grid.longitudinal_energy_per_mode_history[i][self.indices])
 
 
 def phaseplot_values(species):
