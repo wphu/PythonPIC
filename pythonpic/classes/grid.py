@@ -35,7 +35,6 @@ class Grid:
             Defines whether the grid is to be treated as periodic or non-periodic.
         """
 
-
         self.c = c
         self.epsilon_0 = epsilon_0
         self.particle_bc = lambda *x: None
@@ -117,7 +116,7 @@ class Grid:
             self.perpendicular_energy_history = self.perpendicular_energy_history.sum(1)
             self.grid_energy_history = self.perpendicular_energy_history + self.longitudinal_energy_history # over positions
 
-            vacuum_wave_impedance= 1/ (self.epsilon_0 * self.c)
+            vacuum_wave_impedance= 1/ (self.epsilon_0 * self.c**2)
             self.laser_energy_history = np.cumsum(self.laser_energy_history**2) / vacuum_wave_impedance * self.dt
 
             self.x_current = self.x + self.dx / 2

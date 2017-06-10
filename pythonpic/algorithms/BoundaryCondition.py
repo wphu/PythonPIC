@@ -72,7 +72,8 @@ class Laser:
         self.envelope_width = envelope_width
         self.envelope_power = envelope_power
         self.laser_intensity = laser_intensity
-        self.laser_amplitude = ((laser_intensity * 2 ) / (c * epsilon_0)) ** 0.5
+        wave_impedance = 1/ (epsilon_0 * c**2)
+        self.laser_amplitude = np.sqrt(self.laser_intensity * wave_impedance)
         t_12 = envelope_center_t
         self._taui = 0.5 / np.log(2)**(1/envelope_power) * t_12
         self._tau = 2**(1/envelope_power) * self._taui

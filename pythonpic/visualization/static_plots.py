@@ -14,7 +14,7 @@ def static_plot_window(S, N, M):
     axes = [[fig.add_subplot(gs[n, m]) for m in range(M)] for n in range(N)]
     fig.suptitle(str(S), fontsize=12)
 
-    gs.update(left=0.075, right=0.95, bottom=0.075, top=0.8, hspace=0.45, wspace=0.025)  # , wspace=0.05, hspace=0.05
+    gs.update(left=0.075, right=0.95, bottom=0.075, top=0.8, hspace=0.45, wspace=0.25)  # , wspace=0.05, hspace=0.05
     return fig, axes
 
 
@@ -44,7 +44,7 @@ def ESE_time_plots(S, axis):
     axis.legend(loc='best')
     axis.grid()
     axis.set_xlabel(f"Time [s] [dt: {S.dt:.2e}]")
-    axis.set_ylabel("Energy [J]")
+    axis.set_ylabel("Energy [J/m^2]")
     axis.set_xlim(0, S.NT * S.dt)
     axis.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True, useOffset=False)
     axis.set_title("Energy per spatial longitudinal mode versus time")
@@ -76,18 +76,21 @@ def energy_time_plots(S, axis, biaxial = False):
     else:
         twin = axis
     for species in S.list_species:
-        twin.plot(S.t, species.kinetic_energy_history, "--",
+        twin.plot(S.t, species.kinetic_energy_history, "-",
                   label="Kin.: {}".format(species.name))
     # axis.plot(np.arange(S.NT) * S.dt, S.grid.longitudinal_energy_history, "-", label="Long. E.", alpha=0.7)
     # axis.plot(np.arange(S.NT) * S.dt, S.grid.perpendicular_energy_history, "-", label="Perp. E.", alpha=0.7)
-    axis.plot(np.arange(S.NT) * S.dt, S.grid.laser_energy_history, ".-", label="Laser E.")
+    axis.plot(np.arange(S.NT) * S.dt, S.grid.laser_energy_history, "m-", label="Laser E.")
     # axis.plot(np.arange(S.NT) * S.dt, S.grid.grid_energy_history, "-", label="Potential E.", alpha=0.7)
     # axis.plot(np.arange(S.NT) * S.dt, S.total_energy, "-", label="Total E.", lw=3, alpha=0.7)
     axis.grid()
     axis.set_xlabel(r"Time $t$")
     axis.set_xlim(0, S.NT * S.dt)
-    axis.set_ylabel(r"Energy $E$ [J]")
+    axis.set_ylabel(r"Energy $E$ [$J/m^2$]")
     axis.legend(loc='best')
+    if biaxial:
+        twin.legend(loc='lower right')
+        twin.set_ylabel("Kinetic energy")
     axis.set_title("Energy evolution")
     axis.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True, useOffset=False)
 
@@ -176,16 +179,15 @@ def static_plots(S, filename=None):
         os.makedirs(os.path.dirname(filename))
     time_fig, axes = static_plot_window(S, 3, 2)
 
-    ESE_time_plots(S, axes[0][0])
     temperature_time_plot(S, axes[1][0])
     energy_time_plots(S, axes[2][0])
-    energy_time_plots(S, axes[2][1], biaxial=True)
+    energy_time_plots(S, axes[0][0], biaxial=True)
     for i in range(2):
         directional_velocity_time_plots(S, axes[i][1], i)
         axes[i][1].yaxis.tick_right()
         axes[i][1].yaxis.set_label_position("right")
 
-    # alive_time_plots(S, axes[2][1])
+    alive_time_plots(S, axes[2][1])
     axes[2][1].yaxis.tick_right()
     axes[2][1].yaxis.set_label_position("right")
 

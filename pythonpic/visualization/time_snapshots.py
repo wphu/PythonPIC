@@ -333,11 +333,13 @@ class CurrentPlot(Plot):
         ax.legend(loc='lower left')
 
         current = S.grid.current_density_history[:, :, j]
-        mean = current.mean()
-        std = 3*current.std()
-
-        mincurrent = mean - std
-        maxcurrent = mean + std
+        # mean = current.mean()
+        # std = 3*current.std()
+        #
+        # mincurrent = mean - std
+        # maxcurrent = mean + std
+        mincurrent = current.min()
+        maxcurrent = current.max()
         try:
             ax.set_ylim(mincurrent, maxcurrent)
         except ValueError as E:
