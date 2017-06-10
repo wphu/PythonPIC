@@ -155,13 +155,39 @@ def test_relativistic_harmonic_oscillator(g, _N_particles, E0):
     assert np.allclose(s.velocity_history[:, 0, 0], v_analytical, atol=atol, rtol=rtol), \
         plot(t, v_analytical, s.velocity_history[:, 0, 0], )
 
-@pytest.mark.parametrize("v0", [0.9, 0.99, 0.999, 0.9999])
+@pytest.mark.parametrize(["v0", "gamma"], [
+    [3/5, 1.25],
+    [4/5, 5/3],
+     ])
+def test_gamma(v0, gamma):
+    v = np.array([[v0, 0, 0]])
+    assert np.isclose(physics.gamma_from_v(v, 1), gamma)
+
+def no_field(x):
+    return np.array([[0, 0, 0]], dtype=float), np.array([[0, 0, 0]], dtype=float)
+
+@pytest.mark.parametrize(["v0", "expected_kin"], [
+    [3/5, 0.15],
+    [4/5, 0.533333333],
+    ])
+def test_kinetic_energy(g, v0, expected_kin, _N_particles):
+    s = Particle(g, 0, v0, scaling=_N_particles)
+    energy = s.push(no_field)
+    total_expected_kin = expected_kin * _N_particles * s.dt * g.c**2
+    assert np.isclose(total_expected_kin, energy)
+
+
+
+@pytest.mark.parametrize("v0", [
+    0.9,
+    0.99,
+    0.999,
+    0.9999,
+    ])
 def test_high_relativistic_velocity(g, v0):
     s = Particle(g, 0, v0)
     t = np.arange(0, g.T, g.dt * s.save_every_n_iterations) - g.dt / 2
 
-    def no_field(x):
-        return np.array([[0, 0, 0]], dtype=float), np.array([[0, 0, 0]], dtype=float)
 
     s.init_push(lambda x: no_field(x))
     for i in range(g.NT):
@@ -169,6 +195,9 @@ def test_high_relativistic_velocity(g, v0):
         s.push(lambda x: no_field(x))
 
     s.save_particle_values(g.NT-1)
+    frac = np.sqrt(np.sum(s.v**2)) * s.dt
+    expected_kinetic_energy = (physics.gamma_from_v(s.v, g.c) - 1).sum() * frac * s.eff_m * g.c**2
+    assert np.isclose(s.kinetic_energy_history[1: -1].mean(), expected_kinetic_energy)
     assert np.allclose(s.kinetic_energy_history[1:-1], s.kinetic_energy_history[1:-1].mean(), atol=atol, rtol=rtol), "Energy is off!"
     assert (s.velocity_history < 1).all(), f"Velocity went over c! Max velocity: {s.velocity_history.max()}"
 

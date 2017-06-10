@@ -93,7 +93,7 @@ class Laser:
         return self.laser_amplitude * self.wave_func(t)
 
     def envelope_func(self, t):
-        return np.exp(-0.5*((t - self._t_0) / self._taui)** self.envelope_power)
+        return np.exp(-((t - self._t_0) / self._tau)** self.envelope_power)
 
     def laser_envelope(self, t):
         return self.laser_amplitude * self.envelope_func(t)
