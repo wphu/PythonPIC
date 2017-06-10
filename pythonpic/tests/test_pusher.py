@@ -8,8 +8,10 @@ from pythonpic.helper_functions.physics import electric_charge, electron_rest_ma
 
 from ..helper_functions import physics
 from ..algorithms import particle_push
-from ..classes import Species, Grid, Particle
+from ..classes import Species, Grid, Particle, Simulation
 
+from pythonpic.visualization.plotting import plots
+from pythonpic.visualization import animation
 atol = 1e-1
 rtol = 1e-4
 
@@ -239,6 +241,34 @@ def test_nonperiodic_particles(g_aperiodic):
         s.apply_bc()
     assert s.N_alive == 0
 
+
+@pytest.mark.parametrize("T", [1.05],)
+def test_energy_conservation_electron(T):
+    g = Grid(T=T, L=10, NG=1000, c=10, periodic=False)
+    electron = Particle(g, 2*g.dx, g.c*0.99, q = -1, m =1e-3, name="electron")
+    filename = f"test_energy_conservation_electron_{T}"
+    sim = Simulation(g, [electron], category_type="test", filename=filename)
+    sim.run(init=False).postprocess()
+    # plt.plot(electron_momentum[:,:,0])
+    # plt.plot(proton_momentum[:,:,0])
+    # plt.plot((electron_momentum + proton_momentum)[:,:,0])
+    plt.plot(electron.momentum_history[:,:,0])
+    plt.show()
+    assert False, plots(sim, show_animation=True, show_static=True, animation_type=animation.OneDimAnimation, frames="all")
+
+@pytest.mark.parametrize("T", [10],)
+def test_energy_conservation(T):
+     g = Grid(T=T, L=10, NG=1000, c=1, periodic=False)
+     electron = Particle(g, g.L/2, g.c*0.99, q = -1, m =1e-3, name="electron")
+     proton = Particle(g, g.L/2, 0, q = 1, m =2, name="proton")
+     filename = f"test_energy_conservation_{T}"
+     sim = Simulation(g, [electron, proton], category_type="test", filename=filename)
+     sim.run(init=False).postprocess()
+     plt.plot(electron.momentum_history[:,:,0])
+     plt.plot(proton.momentum_history[:,:,0])
+     plt.plot((electron.momentum_history + proton.momentum_history)[:,:,0])
+     plt.show()
+     assert False, plots(sim, show_animation=True, show_static=True, animation_type=animation.OneDimAnimation, frames="all")
 
 def test_laser_pusher():
     S = laser("test_current", 0, 0, 0, 0)
