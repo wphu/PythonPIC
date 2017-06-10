@@ -77,9 +77,13 @@ class laser(Simulation):
             bc = lambda x: None
         grid = Grid(T=total_time, L=length, NG=number_cells, c =lightspeed, epsilon_0 =epsilon_zero, bc=bc, periodic=False)
 
+        cells_per_wl = grid.L / laser_wavelength
+        vtherm = 2 * np.pi / cells_per_wl * lightspeed
+
         if n_macroparticles:
             scaling = default_scaling * N_MACROPARTICLES / n_macroparticles * additional_scaling
             electrons = Species(-electric_charge, electron_rest_mass, n_macroparticles, grid, "electrons", scaling)
+            electrons.random_velocity_init(vtherm)
             protons = Species(electric_charge, proton_mass, n_macroparticles, grid, "protons", scaling)
             list_species = [electrons, protons]
         else:

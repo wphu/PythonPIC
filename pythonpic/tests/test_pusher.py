@@ -244,7 +244,7 @@ def test_nonperiodic_particles(g_aperiodic):
 
 @pytest.mark.parametrize("T", [1.05],)
 def test_energy_conservation_electron(T):
-    g = Grid(T=T, L=10, NG=1000, c=10, periodic=False)
+    g = Grid(T=T, L=1, NG=100, c=1, periodic=False)
     electron = Particle(g, 2*g.dx, g.c*0.99, q = -1, m =1e-3, name="electron")
     filename = f"test_energy_conservation_electron_{T}"
     sim = Simulation(g, [electron], category_type="test", filename=filename)
@@ -252,8 +252,8 @@ def test_energy_conservation_electron(T):
     # plt.plot(electron_momentum[:,:,0])
     # plt.plot(proton_momentum[:,:,0])
     # plt.plot((electron_momentum + proton_momentum)[:,:,0])
-    plt.plot(electron.momentum_history[:,:,0])
-    plt.show()
+    # plt.plot(electron.momentum_history[:,:,0])
+    # plt.show()
     assert False, plots(sim, show_animation=True, show_static=True, animation_type=animation.OneDimAnimation, frames="all")
 
 @pytest.mark.parametrize("T", [10],)

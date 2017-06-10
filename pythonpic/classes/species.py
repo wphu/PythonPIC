@@ -129,7 +129,7 @@ class Species:
         """
 
         E, B = field_function(self.x)
-        _, self.v, self.energy = self.pusher(self, E, -self.dt * 0.5, B)
+        _, self.v, self.energy = self.pusher(self, E, +self.dt * 0.5, B)
         return self.energy
 
     def push(self, field_function):
@@ -221,6 +221,14 @@ class Species:
         """
         self.x += np.random.normal(scale=std*self.grid.dx, size=self.N)
         self.apply_bc()
+
+    def random_velocity_init(self, amplitude: float):
+        random_theta = np.random.random(size=self.N) * 2 * np.pi
+        random_phi = np.random.random(size=self.N) * np. pi
+        self.v[:,0] += amplitude * np.cos(random_theta) * np.sin(random_phi)
+        self.v[:,1] += amplitude * np.sin(random_theta) * np.sin(random_phi)
+        self.v[:,2] += amplitude * np.cos(random_phi)
+
 
     """VELOCITY INITIALIZATION"""
 
