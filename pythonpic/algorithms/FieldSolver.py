@@ -28,11 +28,10 @@ def PoissonLongitudinalSolver(rho, k, NG, epsilon_0=1, neutralize=True):
     # DOCUMENTATION: finish this description
     """
 
-    rho_F = fft.fft(rho) # OPTIMIZE check if it's possible to use rfft here
+    rho_F = fft.fft(rho)
     if neutralize:
         rho_F[0] = 0
     field_F = rho_F / (1j * k * epsilon_0)
-    # potential_F = field_F / (-1j * k * epsilon_0)
     field = fft.ifft(field_F).real
     return field
 

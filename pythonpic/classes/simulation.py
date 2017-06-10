@@ -85,7 +85,7 @@ class Simulation:
             2. 2. pushes particles forward
 
         """
-        self.grid.save_field_values(i)  # CHECK: is this the right place, or after loop?
+        self.grid.save_field_values(i)
 
         for species in self.list_species:
             species.save_particle_values(i)

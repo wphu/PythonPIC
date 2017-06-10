@@ -6,6 +6,11 @@ from . import on_failure
 from pythonpic.helper_functions.physics import did_it_thermalize
 from ..run_twostream import two_stream_instability, plots
 
+# def nonlinear_L()
+#
+# @pytest.fixture(scope="module")
+# def nonlinear_regime_run():
+#     sim = two_stream_instability(L=nonlinear_L, )
 
 @pytest.mark.parametrize(["L", "NG", "N_electrons"], [
     (2*np.pi/100, 32, 512),
