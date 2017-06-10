@@ -209,6 +209,8 @@ class Grid:
         #                          data=self.energy_per_mode_history)  # OPTIMIZE: do these in post production
         # grid_data.create_dataset(name="grid energy", dtype=float, data=self.grid_energy_history)
 
+    def __str__(self):
+        return(f"NG{self.NG} dx{self.dx} NT {self.NT} dt {self.dt} c{self.c}eps{self.epsilon_0}")
 
 def load_grid(grid_data, postprocess=False):
     """
