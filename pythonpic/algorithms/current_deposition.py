@@ -1,7 +1,9 @@
 # coding=utf-8
 import numpy as np
+import pandas
 # from numba import jit
 
+c = 299792458 # m /s
 # TODO: this can be optimized plenty
 # @jit()
 def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q):
@@ -36,14 +38,14 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q):
     time = time[active]
 
     while active.any():
-        # print(f"{10*'='}ITERATION {counter}{10*'='}")
+        print(f"{10*'='}ITERATION {counter}{10*'='}")
         counter += 1
         actives.append(active.sum())
         if counter > 4:
             raise Exception("Infinite recurrence!")
         logical_coordinates_n = (x_particles // dx).astype(np.int32)
         particle_in_left_half = x_particles / dx - logical_coordinates_n <= 0.5
-        particle_in_right_half = x_particles / dx - logical_coordinates_n > 0.5
+        particle_in_right_half = x_particles / dx - logical_coordinates_n > 0.5 # TODO negate prev`
         velocity_to_left = x_velocity < 0
         velocity_to_right = x_velocity > 0
 
@@ -62,42 +64,44 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q):
 
         logical_coordinates_depo = logical_coordinates_n.copy()
         logical_coordinates_depo[case2 | case3] += 1
+        current_contribution = x_velocity * q / dt
         if (~switches_cells).any():
-            nonswitching_current_contribution = q * x_velocity[~switches_cells] * time[~switches_cells] / dt
-            j_x += np.bincount(logical_coordinates_depo[~switches_cells] + 1, nonswitching_current_contribution,
-                               minlength=j_x.size)
-
-        new_time = time - t1
+            current_contribution[~switches_cells] *= time[~switches_cells]
         if switches_cells.any():
-            switching_current_contribution = q * x_velocity[switches_cells] * t1[switches_cells] / dt
-            j_x += np.bincount(logical_coordinates_depo[switches_cells] + 1, switching_current_contribution,
-                               minlength=j_x.size)
+            current_contribution[switches_cells] *= t1[switches_cells]
+
+        j_x += np.bincount(logical_coordinates_depo + 1, current_contribution, minlength=j_x.size)
 
         new_locations = np.empty_like(x_particles)
         new_locations[case1] = (logical_coordinates_n[case1]) * dx - epsilon
         new_locations[case2] = (logical_coordinates_n[case2] + 0.5) * dx - epsilon
         new_locations[case3] = (logical_coordinates_n[case3] + 1) * dx + epsilon
         new_locations[case4] = (logical_coordinates_n[case4] + 0.5) * dx + epsilon
-        # df = pandas.DataFrame()
-        # df['active'] = active
-        # df['x_particles'] = x_particles
-        # df['x_velocity'] = x_velocity
-        # df['logical_pos'] = np.floor(x_particles / dx * 2) /2
-        # df['time'] = time
-        # df['logical_coordinates_n'] = logical_coordinates_n
-        # df['logical_coordinates_depo'] = logical_coordinates_depo
-        # df['t1'] = t1
-        # df['time_overflow'] = time - t1
-        # df['velocity_zero'] = velocity_zero
-        # df['switches'] = switches_cells
-        # case = np.zeros_like(x_particles, dtype=int)
-        # case[case1] = 1
-        # case[case2] = 2
-        # case[case3] = 3
-        # case[case4] = 4
-        # print(case)
-        # df['case'] = case
-        # print(df)
+        new_time = time - t1
+
+        #==============DEBUG===================
+        df = pandas.DataFrame()
+        df['active'] = active
+        df['in_left_half'] = particle_in_left_half
+        df['in_right_half'] = particle_in_right_half
+        df['x_particles/dx'] = x_particles / dx
+        df['x_velocity/c'] = x_velocity / c
+        df['logical_pos'] = np.floor(x_particles / dx * 2) /2
+        df['time/dt'] = time/dt
+        df['logical_coordinates_n'] = logical_coordinates_n
+        df['logical_coordinates_depo'] = logical_coordinates_depo
+        df['t1/dt'] = t1/dt
+        df['time_overflow/dt'] = (time - t1)/dt
+        df['switches'] = switches_cells
+        case = np.zeros_like(x_particles, dtype=int)
+        case[case1] = 1
+        case[case2] = 2
+        case[case3] = 3
+        case[case4] = 4
+        print(case)
+        df['case'] = case
+        print(df)
+        #==============DEBUG===================
         active = switches_cells
         x_particles = new_locations[active]
         x_velocity = x_velocity[active]

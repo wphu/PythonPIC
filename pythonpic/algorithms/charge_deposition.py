@@ -19,24 +19,38 @@ def density_deposition(x, dx: float, x_particles):
     to change the index for the right going  (keeping periodic boundary conditions)
     numpy.roll is used
     """
-    logical_coordinates = (x_particles / dx).astype(int)
-    right_fractions = x_particles / dx - logical_coordinates
-    left_fractions = 1 - right_fractions
-    charge_to_right = right_fractions
-    charge_to_left = left_fractions
-    charge_hist_to_right = np.bincount(logical_coordinates+1, charge_to_right, minlength=x.size+1)
-    charge_hist_to_left = np.bincount(logical_coordinates, charge_to_left, minlength=x.size+1)
+    logical_coordinates = (x_particles // dx).astype(int)
+    left_fractions = x_particles / dx - logical_coordinates
+    deposition_indices = np.copy(logical_coordinates)
+    left_half = left_fractions < 0.5
+    right_half = ~left_half
+    deposition_indices[right_half] += 1
+    deposition_indices[left_half] -= 1
+
+
+    charge_to_current = 0.5 * np.ones_like(logical_coordinates)
+    charge_to_other = 0.5 * np.ones_like(logical_coordinates)
+
+    charge_to_current[left_half] += left_fractions[left_half]
+    charge_to_other[left_half] -= left_fractions[left_half]
+
+    charge_to_current[right_half] += 1- left_fractions[right_half]
+    charge_to_other[right_half] -= 1+ left_fractions[right_half]
+
+    charge_hist_to_right = np.bincount(logical_coordinates+1, charge_to_current, minlength=x.size+2)
+    charge_hist_to_left = np.bincount(deposition_indices+1, charge_to_other, minlength=x.size+2)
     return charge_hist_to_right + charge_hist_to_left
 
 
 def periodic_density_deposition(x, dx: float, x_particles):
     result = density_deposition(x, dx, x_particles)
-    result[0] += result[-1]
-    return result
+    result[1] += result[-1]
+    result[-2] += result[0]
+    return result[1:]
 
 
 def aperiodic_density_deposition(x, dx: float, x_particles):
     result = density_deposition(x, dx, x_particles)
-    return result
+    return result[1:]
 
 
