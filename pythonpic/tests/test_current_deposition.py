@@ -332,6 +332,53 @@ def test_longitudinal_current(init_pos, init_vx, expected):
                         "error %":error}))
     assert np.allclose(target_density, investigated_density, rtol=1e-2, atol = 1e-3)
 
+import random
+@pytest.mark.parametrize("n", range(200))
+def test_longitudinal_current_multiples(n):
+    parameters = [
+        [9.45, 0.9, np.array([0, 0.056, 0.944, 0])], # cases 3, 4
+        [9.55, 0.9, np.array([0, 0, 1, 0])], # cases 3, 4
+        [9.95, 0.9, np.array([0, 0, 0.611, 0.389])], # cases 3, 4
+        [9.05, 0.9, np.array([0, 0.5, 0.5, 0])], # cases 3, 4
+        [9.45, -0.9, np.array([0, 1, 0, 0])], # cases 1, 2
+        [9.55, -0.9, np.array([0, 0.944, 0.056, 0])], # cases 1, 2
+        [9.95, -0.9, np.array([0, 0.5, 0.5, 0])], # cases 1, 2
+        [9.05, -0.9, np.array([0.389, 0.611, 0, 0])], # cases 1, 2
+
+        [9.05, 0.1, np.array([0, 1, 0, 0])], # cases 3, 4
+        [9.45, 0.1, np.array([0, 0.5, 0.5, 0])], # cases 3, 4
+        [9.55, 0.1, np.array([0, 0, 1, 0])], # cases 3, 4
+        [9.95, 0.1, np.array([0, 0, 1, 0])], # cases 3, 4
+        [9.05, -0.1, np.array([0, 1, 0, 0])], # cases 3, 4
+        [9.45, -0.1, np.array([0, 1, 0, 0])], # cases 3, 4
+        [9.55, -0.1, np.array([0, 0.5, 0.5, 0])], # cases 3, 4
+        [9.95, -0.1, np.array([0, 0, 1, 0])], # cases 3, 4
+        ]
+    paramset = random.choices(parameters, k=2)
+
+    investigated_density = np.zeros(4)
+    expected_density = np.zeros(4)
+    for init_pos, init_vx, expected in paramset:
+        S = laser("test_current", 0, 0, 0, 0)
+        p = Particle(S.grid,
+                     init_pos*S.grid.dx,
+                     init_vx*lightspeed,
+                     q=-electric_charge,
+                     m=electron_rest_mass,
+                     scaling=npic)
+        S.grid.list_species = [p]
+        S.grid.gather_current([p])
+        investigated_density += S.grid.current_density_x[9:13] / (p.eff_q * init_vx * lightspeed)
+        expected_density += expected
+
+    error = (investigated_density - expected_density) /expected_density * 100
+    error[(investigated_density - expected_density) == 0] = 0
+    print(pd.DataFrame({"indices": np.arange(9, 13)-1,
+                        "found density":investigated_density,
+                        "target density":expected_density,
+                        "error %":error}))
+    assert np.allclose(expected_density, investigated_density, rtol=1e-2, atol = 1e-3)
+
 
 @pytest.mark.parametrize(["init_pos", "init_vx", "expected"], [
     [9.45, 0.9, np.array([0, 0.001, 0.597, 0.401, 0])], # X c 1 4 2
