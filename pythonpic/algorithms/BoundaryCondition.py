@@ -72,7 +72,9 @@ class Laser:
         self.envelope_width = envelope_width
         self.envelope_power = envelope_power
         self.laser_intensity = laser_intensity
-        self.laser_amplitude = ((laser_intensity * 2 ) / (c * epsilon_0)) ** 0.5
+        # import ipdb; ipdb.set_trace()
+        wave_impedance = 1/ (epsilon_0 * c)
+        self.laser_amplitude = np.sqrt(self.laser_intensity * wave_impedance)
         t_12 = envelope_center_t
         self._taui = 0.5 / np.log(2)**(1/envelope_power) * t_12
         self._tau = 2**(1/envelope_power) * self._taui
@@ -91,7 +93,7 @@ class Laser:
         return self.laser_amplitude * self.wave_func(t)
 
     def envelope_func(self, t):
-        return np.exp(-0.5*((t - self._t_0) / self._taui)** self.envelope_power)
+        return np.exp(-((t - self._t_0) / self._tau)** self.envelope_power)
 
     def laser_envelope(self, t):
         return self.laser_amplitude * self.envelope_func(t)
