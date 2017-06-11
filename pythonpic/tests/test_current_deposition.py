@@ -389,20 +389,23 @@ def test_longitudinal_current_particular():
     S = laser("test_current", 0, 0, 0, 0)
     init_pos = np.array([params[0] for params in paramset]) * S.grid.dx
     init_vx = np.array([params[1] for params in paramset]) * S.grid.c
-    for expected, v in zip([params[2] for params in paramset], init_vx):
-        expected_density += expected * v # TODO figure this out
     spec = Species(-electric_charge, electron_rest_mass, 2, S.grid, scaling=npic)
+    for expected, v in zip([params[2] for params in paramset], init_vx):
+        expected_density += expected * v * spec.eff_q # TODO figure this out
     spec.x = init_pos
     spec.v[:,0] = init_vx
     S.grid.list_species = [spec]
     S.grid.gather_current([spec])
-    investigated_density = S.grid.current_density_x[9:13] / (spec.eff_q)
+    investigated_density = S.grid.current_density_x[9:13]
 
     error = (investigated_density - expected_density) /expected_density * 100
     error[(investigated_density - expected_density) == 0] = 0
     print("FINISHED. PARTICLE DATA")
     print(pd.DataFrame({'x/dx': spec.x/S.grid.dx,
-                        'v/c': spec.v[:,0]/spec.c}))
+                        'v/c': spec.v[:,0]/spec.c,
+                        "geom factor times " : spec.eff_q * spec.v[:,0],
+                        }))
+
     print("FINISHED. GRID DATA")
     print(pd.DataFrame({"indices": np.arange(9, 13)-1,
                         "found density":investigated_density,

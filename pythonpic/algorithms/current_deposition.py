@@ -64,13 +64,16 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q):
 
         logical_coordinates_depo = logical_coordinates_n.copy()
         logical_coordinates_depo[case2 | case3] += 1
-        current_contribution = x_velocity * q / dt
-        if (~switches_cells).any():
-            current_contribution[~switches_cells] *= time[~switches_cells]
-        if switches_cells.any():
-            current_contribution[switches_cells] *= t1[switches_cells]
+        time_in_this_iteration = np.copy(time)
+        time_in_this_iteration[switches_cells] = t1[switches_cells]
+        current_contribution = x_velocity * q / dt * time_in_this_iteration
+        # if (~switches_cells).any():
+        # current_contribution[~switches_cells] *= time[~switches_cells]
+        # if switches_cells.any():
+        # current_contribution[switches_cells] *= t1[switches_cells]
 
-        j_x += np.bincount(logical_coordinates_depo + 1, current_contribution, minlength=j_x.size)
+        new_value =np.bincount(logical_coordinates_depo + 1, current_contribution, minlength=j_x.size)
+        j_x += new_value
 
         new_locations = np.empty_like(x_particles)
         new_locations[case1] = (logical_coordinates_n[case1]) * dx - epsilon
@@ -87,11 +90,12 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q):
         df['x_particles/dx'] = x_particles / dx
         df['x_velocity/c'] = x_velocity / c
         df['logical_pos'] = np.floor(x_particles / dx * 2) /2
-        df['time/dt'] = time/dt
         df['logical_coordinates_n'] = logical_coordinates_n
         df['logical_coordinates_depo'] = logical_coordinates_depo
+        df['current_contribution'] = current_contribution / x_velocity / q * dt
+        df['time/dt'] = time/dt
         df['t1/dt'] = t1/dt
-        df['time_overflow/dt'] = (time - t1)/dt
+        df['time_overflow/dt'] = new_time/dt
         df['switches'] = switches_cells
         case = np.zeros_like(x_particles, dtype=int)
         case[case1] = 1
@@ -101,6 +105,13 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q):
         print(case)
         df['case'] = case
         print(df)
+        # print(df[df['logical_coordinates_depo']==9])
+
+        added_indices = new_value != 0
+        bins_df = pandas.DataFrame()
+        # bins_df['indices'] = np.where(logical_coordinates_depo +1)[added_indices]
+        bins_df['values'] = (new_value)[added_indices]
+        print(bins_df)
         #==============DEBUG===================
         active = switches_cells
         x_particles = new_locations[active]
