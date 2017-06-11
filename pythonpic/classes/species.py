@@ -4,8 +4,10 @@ import numpy as np
 
 from ..helper_functions.helpers import calculate_particle_snapshots, calculate_particle_iter_step, \
     is_this_saved_iteration, convert_global_to_particle_iter
+from ..helper_functions.physics import gamma_from_v
 from ..algorithms import density_profiles
 from ..algorithms.particle_push import rela_boris_push
+from scipy.stats import maxwell
 
 MAX_SAVED_PARTICLES = int(1e4)
 
@@ -69,10 +71,10 @@ class Species:
 
         self.save_every_n_iterations = calculate_particle_iter_step(grid.NT)
         self.saved_iterations = calculate_particle_snapshots(grid.NT)
-        self.x = np.zeros(N, dtype=float)
-        self.v = np.zeros((N, 3), dtype=float)
-        self.gathered_density = np.zeros(self.grid.NG+1, dtype=float)
-        self.energy = self.kinetic_energy()
+        self.x = np.zeros(N, dtype=np.float64)
+        self.v = np.zeros((N, 3), dtype=np.float64)
+        self.gathered_density = np.zeros(self.grid.NG+1, dtype=np.float64)
+        self.energy = self.kinetic_energy
         self.alive = np.ones(N, dtype=bool)
         self.name = name
         self.save_every_n_particle, self.saved_particles = n_saved_particles(self.N, MAX_SAVED_PARTICLES)
@@ -93,8 +95,21 @@ class Species:
     def apply_bc(self):
         self.particle_bc(self)
 
+    @property
+    def gamma(self):
+        return gamma_from_v(self.v, self.c)
+
+    @property
+    def v_magnitude(self):
+        return np.sqrt(np.sum(self.v**2, axis=1))
+
+    @property
+    def momentum_history(self):
+        return self.eff_m * np.array([gamma_from_v(v, self.c) * v for v in self.velocity_history])
+
+    @property
     def kinetic_energy(self):
-        return 0.5 * self.m * np.sum(self.v**2) # TODO: make this relativistic
+        return (self.gamma -1) * self.eff_m * self.c**2
 
     def init_push(self, field_function):
         """
@@ -207,6 +222,18 @@ class Species:
         """
         self.x += np.random.normal(scale=std*self.grid.dx, size=self.N)
         self.apply_bc()
+
+    def random_velocity_init(self, amplitude: float):
+        random_theta = np.random.random(size=self.N) * 2 * np.pi
+        random_phi = np.random.random(size=self.N) * np. pi
+        directions_x = np.cos(random_theta) * np.sin(random_phi)
+        directions_y = np.sin(random_theta) * np.sin(random_phi)
+        directions_z = np.cos(random_phi)
+        amplitudes = maxwell.rvs(size=self.N, loc=amplitude)
+        self.v[:,0] += amplitudes * directions_x
+        self.v[:,1] += amplitudes * directions_y
+        self.v[:,2] += amplitudes * directions_z
+
 
     """VELOCITY INITIALIZATION"""
 
