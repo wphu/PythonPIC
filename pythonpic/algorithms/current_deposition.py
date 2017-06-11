@@ -1,7 +1,10 @@
 # coding=utf-8
 import numpy as np
+import pandas
 # from numba import jit
 
+c = 299792458 # m /s
+# TODO: this can be optimized plenty
 # @jit()
 def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q):
     """
@@ -28,22 +31,19 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q):
     time = np.ones_like(x_particles) * dt
     epsilon = dx * 1e-9
     counter = 0
-    actives = []
+    # actives = []
     active = x_velocity != 0
     x_particles = x_particles[active]
     x_velocity = x_velocity[active]
     time = time[active]
 
     while active.any():
-        # print(f"{10*'='}ITERATION {counter}{10*'='}")
         counter += 1
-        actives.append(active.sum())
         if counter > 4:
             raise Exception("Infinite recurrence!")
         logical_coordinates_n = (x_particles // dx).astype(np.int32)
         particle_in_left_half = x_particles / dx - logical_coordinates_n <= 0.5
-        # CHECK: investigate what happens when particle is at center
-        particle_in_right_half = x_particles / dx - logical_coordinates_n > 0.5
+        particle_in_right_half = x_particles / dx - logical_coordinates_n > 0.5 # TODO negate prev`
         velocity_to_left = x_velocity < 0
         velocity_to_right = x_velocity > 0
 
@@ -60,35 +60,42 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q):
         t1[case4] = ((logical_coordinates_n[case4] + 0.5) * dx - x_particles[case4]) / x_velocity[case4]
         switches_cells = t1 < time
 
-        logical_coordinates_depo = logical_coordinates_n.copy()
-        logical_coordinates_depo[case2 | case3] += 1
-        if (~switches_cells).any():
-            nonswitching_current_contribution = q * x_velocity[~switches_cells] * time[~switches_cells] / dt
-            j_x += np.bincount(logical_coordinates_depo[~switches_cells] + 1, nonswitching_current_contribution,
-                               minlength=j_x.size)
+        logical_coordinates_depo = np.where(particle_in_right_half, logical_coordinates_n+1, logical_coordinates_n)
+        time_in_this_iteration = np.where(switches_cells, t1, time)
+        current_contribution = x_velocity * q / dt * time_in_this_iteration
+        # if (~switches_cells).any():
+        # current_contribution[~switches_cells] *= time[~switches_cells]
+        # if switches_cells.any():
+        # current_contribution[switches_cells] *= t1[switches_cells]
 
-        new_time = time - t1
-        if switches_cells.any():
-            switching_current_contribution = q * x_velocity[switches_cells] * t1[switches_cells] / dt
-            j_x += np.bincount(logical_coordinates_depo[switches_cells] + 1, switching_current_contribution,
-                               minlength=j_x.size)
+        new_value =np.bincount(logical_coordinates_depo + 1, current_contribution, minlength=j_x.size)
+        j_x += new_value
 
         new_locations = np.empty_like(x_particles)
         new_locations[case1] = (logical_coordinates_n[case1]) * dx - epsilon
         new_locations[case2] = (logical_coordinates_n[case2] + 0.5) * dx - epsilon
         new_locations[case3] = (logical_coordinates_n[case3] + 1) * dx + epsilon
         new_locations[case4] = (logical_coordinates_n[case4] + 0.5) * dx + epsilon
+        new_time = time - time_in_this_iteration
+
+        #==============DEBUG===================
+        # actives.append(active.sum())
+        # print(f"{10*'='}ITERATION {counter}{10*'='}")
         # df = pandas.DataFrame()
-        # df['active'] = active
-        # df['x_particles'] = x_particles
-        # df['x_velocity'] = x_velocity
+        # # df['active'] = active
+        # # df['in_left_half'] = particle_in_left_half
+        # # df['in_right_half'] = particle_in_right_half
+        # df['x_particles/dx'] = x_particles / dx
+        # df['x_velocity/c'] = x_velocity / c
         # df['logical_pos'] = np.floor(x_particles / dx * 2) /2
-        # df['time'] = time
         # df['logical_coordinates_n'] = logical_coordinates_n
         # df['logical_coordinates_depo'] = logical_coordinates_depo
-        # df['t1'] = t1
-        # df['time_overflow'] = time - t1
-        # df['velocity_zero'] = velocity_zero
+        # df['current_contribution'] = current_contribution #/ x_velocity / q
+        # df['current_contribution_normed'] = current_contribution / x_velocity / q
+        # df['time/dt'] = time/dt
+        # df['t1/dt'] = t1/dt
+        # df['time_overflow/dt'] = new_time/dt
+        # df['time_in_this/dt'] = time_in_this_iteration/dt
         # df['switches'] = switches_cells
         # case = np.zeros_like(x_particles, dtype=int)
         # case[case1] = 1
@@ -98,6 +105,14 @@ def longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, dt, q):
         # print(case)
         # df['case'] = case
         # print(df)
+        # # print(df[df['logical_coordinates_depo']==9])
+        #
+        # added_indices = new_value != 0
+        # bins_df = pandas.DataFrame()
+        # # bins_df['indices'] = np.where(logical_coordinates_depo +1)[added_indices]
+        # bins_df['values'] = (new_value)[added_indices]
+        # print(bins_df)
+        #==============DEBUG===================
         active = switches_cells
         x_particles = new_locations[active]
         x_velocity = x_velocity[active]
@@ -120,9 +135,9 @@ def periodic_longitudinal_current_deposition(j_x, x_velocity, x_particles, dx, d
 def transversal_current_deposition(j_yz, velocity, x_particles, dx, dt, q):
     # print("Transversal deposition")
     epsilon = 1e-10 * dx
-    time = np.ones_like(x_particles, dtype=float) * dt
+    time = np.ones_like(x_particles, dtype=np.float64) * dt
     counter = 0
-    active = np.ones_like(x_particles, dtype=bool)
+    active = np.any(velocity[:,1:],axis=1)
     # dataframes = []
     while active.any():
         counter += 1
