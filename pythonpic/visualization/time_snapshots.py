@@ -34,6 +34,7 @@ class Plot:
         xticks = np.linspace(0, L, 7)
         self.ax.set_xticks(xticks)
         self.ax.xaxis.set_ticklabels([f"{x/L:.1f}L" for x in xticks])
+        # self.ax.set_xticks(S.grid.x)
         self.ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True,
                                  useOffset=False)  # TODO axis=both?
         # self.ax.yaxis.set_label_position("right")
@@ -305,7 +306,7 @@ class FieldPlot(Plot):
             maxfield = max([max_e, max_b])
         else:
             maxfield = max_e
-        print(f"For direction {directions[j]}, maxfield is {maxfield}")
+        print(f"For direction {directions[j]}, maxfield is {maxfield:.2e}")
         self.ax.set_ylim(-maxfield, maxfield)
         self.ax.legend(loc='upper right')
 

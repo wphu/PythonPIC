@@ -7,6 +7,7 @@ from ..helper_functions.helpers import calculate_particle_snapshots, calculate_p
 from ..helper_functions.physics import gamma_from_v
 from ..algorithms import density_profiles
 from ..algorithms.particle_push import rela_boris_push
+from scipy.stats import maxwell
 
 MAX_SAVED_PARTICLES = int(1e4)
 
@@ -225,9 +226,14 @@ class Species:
     def random_velocity_init(self, amplitude: float):
         random_theta = np.random.random(size=self.N) * 2 * np.pi
         random_phi = np.random.random(size=self.N) * np. pi
-        self.v[:,0] += amplitude * np.cos(random_theta) * np.sin(random_phi)
-        self.v[:,1] += amplitude * np.sin(random_theta) * np.sin(random_phi)
-        self.v[:,2] += amplitude * np.cos(random_phi)
+        directions_x = np.cos(random_theta) * np.sin(random_phi)
+        directions_y = np.sin(random_theta) * np.sin(random_phi)
+        directions_z = np.cos(random_phi)
+        amplitudes = maxwell.rvs(size=self.N, loc=amplitude)
+        self.v[:,0] += amplitudes * directions_x
+        self.v[:,1] += amplitudes * directions_y
+        self.v[:,2] += amplitudes * directions_z
+        # print(amplitudes.mean() - amplitude)
 
 
     """VELOCITY INITIALIZATION"""

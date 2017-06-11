@@ -11,7 +11,7 @@ from pythonpic.visualization.plotting import plots
 from pythonpic.visualization import animation
 plots = partial(plots, animation_type = animation.FullAnimation, alpha=0.3)
 
-VERSION = 21
+VERSION = 23
 laser_wavelength = 1.064e-6 # meters
 laser_intensity = 1e23 # watt/meters squared
 impulse_duration = 1e-13 # seconds
@@ -44,7 +44,7 @@ default_scaling = npic # CHECK what should be the proper value here?
 category_name = "laser-shield"
 # assert False
 class laser(Simulation):
-    def __init__(self, filename, n_macroparticles, impulse_duration, laser_intensity, perturbation_amplitude, additional_scaling=1):
+    def __init__(self, filename, n_macroparticles, impulse_duration, laser_intensity, perturbation_amplitude, additional_scaling=1, runtime_multiplier=1):
         """
         A simulation of laser-hydrogen shield interaction.
 
@@ -75,9 +75,10 @@ class laser(Simulation):
             bc = bc_laser.laser_pulse
         else:
             bc = lambda x: None
-        grid = Grid(T=total_time, L=length, NG=number_cells, c =lightspeed, epsilon_0 =epsilon_zero, bc=bc, periodic=False)
+        grid = Grid(T=total_time*runtime_multiplier, L=length, NG=int(number_cells * 1.4), c =lightspeed, epsilon_0 =epsilon_zero, bc=bc, periodic=False)
 
-        cells_per_wl = grid.L / laser_wavelength
+        cells_per_wl = laser_wavelength / grid.dx
+        print(cells_per_wl)
         vtherm = 2 * np.pi / cells_per_wl * lightspeed
 
         if n_macroparticles:
