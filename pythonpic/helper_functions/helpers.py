@@ -69,7 +69,7 @@ def report_progress(i: int, NT: int, beginning_time = None):
         time_delta = time.time() - beginning_time
         time_per_iteration = time_delta / i
         estimated_remaining_time = iterations_left * time_per_iteration
-        start_string += f" Estimated {estimated_remaining_time:.0f}s left."
+        start_string += f" Current runtime: {time_delta:.0f}s; {estimated_remaining_time:.0f}s estimated left."
     print(start_string)
 
 
