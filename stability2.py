@@ -7,7 +7,7 @@ for number_particles, n_cells in [
     # [10000, int(number_cells/2)], #stable
     [10000, int(number_cells/3)], # kinda stable but weird
     # [20000, number_cells], # stable
-    [20000, int(number_cells/2)], # CHECK
+    [20000, int(number_cells/2)], # stable
     ]:
     s = uniform(f"{number_particles}_{n_cells}_stability2", number_particles, n_cells).lazy_run()
     if any(args):

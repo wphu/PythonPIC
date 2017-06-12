@@ -103,7 +103,7 @@ class Species:
 
     @property
     def v_magnitude(self):
-        return np.sqrt(np.sum(self.v**2, axis=1))
+        return np.sqrt(np.sum(self.v**2, axis=1, keepdims=True))
 
     @property
     def momentum_history(self):
@@ -111,7 +111,9 @@ class Species:
 
     @property
     def kinetic_energy(self):
-        return ((self.gamma -1)*self.v_magnitude).sum() * self.dt * self.eff_m * self.c**2
+        total_vel = self.v_magnitude
+        total_vel *= self.gamma -1
+        return total_vel.sum() * self.dt * self.eff_m * self.c**2
 
     def init_push(self, field_function):
         """
