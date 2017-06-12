@@ -53,7 +53,7 @@ class Simulation:
                 species.postprocess()
                 self.total_kinetic_energy += species.kinetic_energy_history
             print("Postprocessing simulation.")
-            self.total_energy =  self.total_kinetic_energy + self.grid.grid_energy_history
+            # self.total_energy =  self.total_kinetic_energy + self.grid.grid_energy_history
             self.postprocessed = True
         return self
 

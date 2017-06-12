@@ -40,7 +40,7 @@ scaling = npic# CHECK what should be the proper value here?
 category_name = "laser-shield"
 # assert False
 class uniform(Simulation):
-    def __init__(self, filename, n_macroparticles):
+    def __init__(self, filename, n_macroparticles, n_cells):
         """
         A simulation of laser-hydrogen shield interaction.
 
@@ -58,7 +58,7 @@ class uniform(Simulation):
         perturbation_amplitude : float
             Amplitude of the initial position perturbation.
         """
-        grid = Grid(T=total_time, L=length, NG=int(number_cells), c =lightspeed, epsilon_0 =epsilon_zero, periodic=False)
+        grid = Grid(T=total_time, L=length, NG=int(n_cells), c =lightspeed, epsilon_0 =epsilon_zero, periodic=False)
 
 
         cells_per_wl = laser_wavelength / grid.dx

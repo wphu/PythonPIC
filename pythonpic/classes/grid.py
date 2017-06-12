@@ -87,7 +87,25 @@ class Grid:
 
         self.postprocessed = False
 
-    def postprocess(self):
+    def postprocess_fourier(self):
+        self.longitudinal_energy_history  = 0.5 * self.epsilon_0 * (self.electric_field_history[:,:,0] ** 2)
+        perpendicular_electric_energy = 0.5 * self.epsilon_0 * (self.electric_field_history[:,:,1:] ** 2).sum(2) # over directions
+        mu_zero_inv = 1/ (self.epsilon_0 * self.c**2)
+        magnetic_energy = 0.5 * (self.magnetic_field_history **2).sum(2) * mu_zero_inv # over directions
+
+        self.perpendicular_energy_history = perpendicular_electric_energy + magnetic_energy
+        self.check_on_charge = np.gradient(self.electric_field_history[:, :, 0], self.dx, axis=1) * self.epsilon_0
+        # fourier analysis
+        from scipy import fftpack
+        self.k_plot = fftpack.rfftfreq(int(self.NG), self.dx)[::2]
+        self.longitudinal_energy_per_mode_history = np.abs(fftpack.rfft(self.longitudinal_energy_history))[:,::2]
+        self.perpendicular_energy_per_mode_history = np.abs(fftpack.rfft(self.perpendicular_energy_history))[:,::2]
+
+        self.longitudinal_energy_history  = self.longitudinal_energy_history.sum(1)
+        self.perpendicular_energy_history = self.perpendicular_energy_history.sum(1)
+        self.grid_energy_history = self.perpendicular_energy_history + self.longitudinal_energy_history # over positions
+
+    def postprocess(self, fourier=False):
         if not self.postprocessed:
             print("Postprocessing grid.")
 
@@ -98,24 +116,10 @@ class Grid:
             magnetic_field_history[:,:,1:] = self.magnetic_field_history
             self.magnetic_field_history = magnetic_field_history
 
+            if fourier:
+                self.postprocess_fourier()
 
             # calculate energy history
-            self.longitudinal_energy_history  = 0.5 * self.epsilon_0 * (self.electric_field_history[:,:,0] ** 2)
-            perpendicular_electric_energy = 0.5 * self.epsilon_0 * (self.electric_field_history[:,:,1:] ** 2).sum(2) # over directions
-            mu_zero_inv = 1/ (self.epsilon_0 * self.c**2)
-            magnetic_energy = 0.5 * (self.magnetic_field_history **2).sum(2) * mu_zero_inv # over directions
-
-            self.perpendicular_energy_history = perpendicular_electric_energy + magnetic_energy
-            self.check_on_charge = np.gradient(self.electric_field_history[:, :, 0], self.dx, axis=1) * self.epsilon_0
-            # fourier analysis
-            from scipy import fftpack
-            self.k_plot = fftpack.rfftfreq(int(self.NG), self.dx)[::2]
-            self.longitudinal_energy_per_mode_history = np.abs(fftpack.rfft(self.longitudinal_energy_history))[:,::2]
-            self.perpendicular_energy_per_mode_history = np.abs(fftpack.rfft(self.perpendicular_energy_history))[:,::2]
-
-            self.longitudinal_energy_history  = self.longitudinal_energy_history.sum(1)
-            self.perpendicular_energy_history = self.perpendicular_energy_history.sum(1)
-            self.grid_energy_history = self.perpendicular_energy_history + self.longitudinal_energy_history # over positions
 
             vacuum_wave_impedance= 1/ (self.epsilon_0 * self.c)
             self.laser_energy_history = np.cumsum(self.laser_energy_history**2) / vacuum_wave_impedance * self.dt

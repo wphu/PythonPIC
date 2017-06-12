@@ -135,9 +135,13 @@ class FullAnimation(animation):
         bonus_row = [plt.subplot(gs[3, i]) for i in range(3)]
         density_axis, density_perturbation_axis, charge_axes  = bonus_row
 
-        phase_plot_x = PhasePlot(self.S, phase_axes[0], "x", "v_x", self.alpha)
-        phase_plot_y = PhasePlot(self.S, phase_axes[1], "x", "v_y", self.alpha)
-        phase_plot_z = PhasePlot(self.S, phase_axes[2], "x", "v_z", self.alpha)
+        if any([species.individual_diagnostics for species in S.list_species]):
+            phase_plot_x = PhasePlot(self.S, phase_axes[0], "x", "v_x", self.alpha)
+            phase_plot_y = PhasePlot(self.S, phase_axes[1], "x", "v_y", self.alpha)
+            phase_plot_z = PhasePlot(self.S, phase_axes[2], "x", "v_z", self.alpha)
+            plots = [phase_plot_x, phase_plot_y, phase_plot_z]
+        else:
+            plots = []
         charge_plot = ChargeDistributionPlot(self.S, charge_axes)
         density_plot = SpatialDistributionPlot(self.S, density_axis)
         iteration = IterationCounter(self.S, charge_axes)
@@ -145,9 +149,7 @@ class FullAnimation(animation):
         field_plots = TripleFieldPlot(self.S, field_axes)
         density_perturbation_plot = SpatialPerturbationDistributionPlot(S, density_perturbation_axis)
 
-        plots = [phase_plot_x,
-                 phase_plot_y,
-                 phase_plot_z,
+        plots += [
                  charge_plot,
                  density_plot,
                  iteration,
@@ -192,7 +194,11 @@ class OneDimAnimation(animation):
         phase_axes_x = self.fig.add_subplot(322)
         freq_axes = self.fig.add_subplot(325)
 
-        phase_plot_x = PhasePlot(self.S, phase_axes_x, "x", "v_x", self.alpha)
+        if any([species.individual_diagnostics for species in S.list_species]):
+            phase_plot_x = PhasePlot(self.S, phase_axes_x, "x", "v_x", self.alpha)
+            plots = [phase_plot_x]
+        else:
+            plots = []
         freq_plot = FrequencyPlot(self.S, freq_axes)
         density_plot = SpatialDistributionPlot(self.S, density_axis)
         charge_plot = ChargeDistributionPlot(self.S, charge_axis)
@@ -200,7 +206,7 @@ class OneDimAnimation(animation):
         current_plot = CurrentPlot(self.S, current_axis, 0)
         field_plot = FieldPlot(self.S, field_axis, 0)
 
-        plots = [phase_plot_x,
+        plots += [
                  freq_plot,
                  density_plot,
                  charge_plot,

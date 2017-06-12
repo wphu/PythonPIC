@@ -53,7 +53,7 @@ class Species:
     pusher : function 
         particle push algorithm
     """
-    def __init__(self, q, m, N, grid, name="particles", scaling=1, pusher=rela_boris_push):
+    def __init__(self, q, m, N, grid, name="particles", scaling=1, pusher=rela_boris_push, individual_diagnostics=False):
         self.q = q
         self.m = m
         self.N = int(N)
@@ -79,8 +79,10 @@ class Species:
         self.name = name
         self.save_every_n_particle, self.saved_particles = n_saved_particles(self.N, MAX_SAVED_PARTICLES)
 
-        self.position_history = np.zeros((self.saved_iterations, self.saved_particles), dtype=float)
-        self.velocity_history = np.zeros((self.saved_iterations, self.saved_particles, 3), dtype=float)
+        self.individual_diagnostics = individual_diagnostics
+        if individual_diagnostics:
+            self.position_history = np.zeros((self.saved_iterations, self.saved_particles), dtype=float)
+            self.velocity_history = np.zeros((self.saved_iterations, self.saved_particles, 3), dtype=float)
 
         self.density_history = np.zeros((self.NT, self.grid.NG), dtype=float)
         self.velocity_mean_history = np.zeros((self.NT, 3), dtype=float)
@@ -271,7 +273,7 @@ class Species:
         """Update the i-th set of particle values"""
         N_alive = self.x.size
         self.density_history[i] = self.gathered_density[:-1]
-        if is_this_saved_iteration(i, self.save_every_n_iterations):
+        if self.individual_diagnostics and is_this_saved_iteration(i, self.save_every_n_iterations):
             save_every_n_particle, saved_particles = n_saved_particles(N_alive, self.saved_particles)
 
             # print(f"out of {N_alive} save every {save_every_n_particle} with mean x {self.x.mean()}")
@@ -307,8 +309,9 @@ class Species:
         species_data.attrs['m'] = self.m
         species_data.attrs['scaling'] = self.scaling
 
-        species_data.create_dataset(name="x", dtype=float, data=self.position_history)
-        species_data.create_dataset(name="v", dtype=float, data=self.velocity_history)
+        if self.individual_diagnostics:
+            species_data.create_dataset(name="x", dtype=float, data=self.position_history)
+            species_data.create_dataset(name="v", dtype=float, data=self.velocity_history)
         species_data.create_dataset(name="Kinetic energy", dtype=float, data=self.kinetic_energy_history)
 
         species_data.create_dataset(name="v_mean", dtype=float, data=self.velocity_mean_history)
@@ -353,14 +356,16 @@ def load_species(species_data, grid, postprocess=False):
     scaling = species_data.attrs['scaling']
 
 
-    species = Species(q, m, N, grid, name, scaling)
+    species = Species(q, m, N, grid, name, scaling, individual_diagnostics=False)
     species.velocity_mean_history = species_data["v_mean"][...]
     species.velocity_squared_mean_history = species_data["v2_mean"][...]
     species.velocity_std_history = species_data["v_std"][...]
     species.density_history = species_data["density_history"][...]
 
-    species.position_history = species_data["x"][...]
-    species.velocity_history = species_data["v"][...]
+    if "x" in species_data and "v" in species_data:
+        species.individual_diagnostics = True
+        species.position_history = species_data["x"][...]
+        species.velocity_history = species_data["v"][...]
     species.N_alive_history = species_data["N_alive_history"][...]
     species.kinetic_energy_history = species_data["Kinetic energy"][...]
     if postprocess:
