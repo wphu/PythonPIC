@@ -78,7 +78,6 @@ class Grid:
             self.interpolator = field_interpolation.AperiodicInterpolateField
             self.solver = FieldSolver.BunemanSolver
 
-
         self.list_species = []
         self.postprocessed = False
 
@@ -253,3 +252,37 @@ def load_grid(file, postprocess=False):
     if not postprocessed:
         grid.postprocess()
     return grid
+
+class TestGrid(Grid):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.charge_density_history = np.zeros((self.NT, self.NG))
+        self.current_density_history = np.zeros((self.NT, self.NG, 3))
+        self.electric_field_history = np.zeros((self.NT, self.NG, 3))
+        self.magnetic_field_history = np.zeros((self.NT, self.NG, 3))
+        self.laser_energy_history = np.zeros(self.NT, dtype=float)
+    def postprocess(self, fourier=True):
+        if not self.postprocessed:
+            print("Postprocessing grid.")
+            self.t = np.arange(self.NT) * self.dt
+            if fourier:
+                self.longitudinal_energy_history  = 0.5 * self.epsilon_0 * (self.electric_field_history[:,:,0] ** 2)
+                perpendicular_electric_energy = 0.5 * self.epsilon_0 * (self.electric_field_history[:,:,1:] ** 2).sum(2) # over directions
+                mu_zero_inv = 1/ (self.epsilon_0 * self.c**2)
+                magnetic_energy = 0.5 * (self.magnetic_field_history **2).sum(2) * mu_zero_inv # over directions
+
+                self.perpendicular_energy_history = perpendicular_electric_energy + magnetic_energy
+                self.check_on_charge = np.gradient(self.electric_field_history[:, :, 0], self.dx, axis=1) * self.epsilon_0
+                # fourier analysis
+                from scipy import fftpack
+                self.k_plot = fftpack.rfftfreq(int(self.NG), self.dx)[::2]
+                self.longitudinal_energy_per_mode_history = np.abs(fftpack.rfft(self.longitudinal_energy_history))[:,::2]
+                self.perpendicular_energy_per_mode_history = np.abs(fftpack.rfft(self.perpendicular_energy_history))[:,::2]
+
+                self.longitudinal_energy_history  = self.longitudinal_energy_history.sum(1)
+                self.perpendicular_energy_history = self.perpendicular_energy_history.sum(1)
+                self.grid_energy_history = self.perpendicular_energy_history + self.longitudinal_energy_history # over positions
+            vacuum_wave_impedance= 1/ (self.epsilon_0 * self.c)
+            np.cumsum(self.laser_energy_history**2/ vacuum_wave_impedance * self.dt)
+            self.x_current = self.x + self.dx / 2
+            self.postprocessed = True

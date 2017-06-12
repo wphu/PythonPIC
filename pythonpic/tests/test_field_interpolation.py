@@ -1,7 +1,9 @@
 import numpy as np
 import pytest
 import matplotlib.pyplot as plt
-from pythonpic.classes import Grid, Species
+from pythonpic.classes import Species
+from pythonpic.classes import TestSpecies as Species
+from pythonpic.classes import TestGrid as Grid
 
 
 @pytest.mark.parametrize('func', [lambda x: x + 3, lambda x: x**2, lambda x: np.sin(2*np.pi*x)])

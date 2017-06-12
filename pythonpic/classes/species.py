@@ -53,7 +53,7 @@ class Species:
     pusher : function 
         particle push algorithm
     """
-    def __init__(self, q, m, N, grid, name="particles", scaling=1, pusher=rela_boris_push, individual_diagnostics=False):
+    def __init__(self, q, m, N, grid, name="particles", scaling=1, pusher=rela_boris_push, individual_diagnostics=False, testing=False):
         self.q = q
         self.m = m
         self.N = int(N)
@@ -91,6 +91,9 @@ class Species:
         self.N_alive_history = np.zeros(self.NT, dtype=int)
         self.kinetic_energy_history = np.zeros(self.NT+1)
         self.pusher = pusher
+
+        if testing:
+            self.prepare_history_arrays_numpy()
 
         self.postprocessed = False
 
@@ -375,8 +378,22 @@ def load_species(f, species_name, grid, postprocess=False):
         species.postprocess()
     return species
 
+class TestSpecies(Species):
 
-class Particle(Species):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.individual_diagnostics:
+            self.position_history = np.zeros((self.saved_iterations, self.saved_particles), dtype=float)
+            self.velocity_history = np.zeros((self.saved_iterations, self.saved_particles, 3), dtype=float)
+
+        self.density_history = np.zeros((self.NT, self.grid.NG), dtype=float)
+        self.velocity_mean_history = np.zeros((self.NT, 3), dtype=float)
+        self.velocity_squared_mean_history = np.zeros((self.NT, 3), dtype=float)
+        self.velocity_std_history = np.zeros((self.NT, 3), dtype=float)
+        self.N_alive_history = np.zeros(self.NT, dtype=int)
+        self.kinetic_energy_history = np.zeros(self.NT+1)
+
+class Particle(TestSpecies):
     """
     A helper class for quick creation of a single particle for test purposes.
     Parameters
@@ -409,4 +426,5 @@ class Particle(Species):
         self.v[:, 0] = vx
         self.v[:, 1] = vy
         self.v[:, 2] = vz
+
 

@@ -8,7 +8,9 @@ from ..helper_functions.helpers import make_sure_path_exists
 from ..visualization.time_snapshots import SpatialPerturbationDistributionPlot
 
 from ..algorithms import density_profiles
-from ..classes import Species, Grid, Simulation
+from ..classes import Species, Simulation
+from pythonpic.classes import TestGrid as Grid
+from pythonpic.classes import TestSpecies as Species
 from ..visualization.time_snapshots import SpatialPerturbationDistributionPlot
 
 @pytest.fixture(params=np.linspace(0.05, 0.3, 3), scope='module')

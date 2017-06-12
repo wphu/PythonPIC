@@ -2,8 +2,10 @@
 import numpy as np
 import pytest
 
-from ..classes import Grid, Particle, Simulation, load_simulation
+from ..classes import Particle, Simulation, load_simulation
 from ..helper_functions.helpers import config_filename
+from pythonpic.classes import TestSpecies as Species
+from pythonpic.classes import TestGrid as Grid
 
 
 @pytest.fixture(scope="module")
