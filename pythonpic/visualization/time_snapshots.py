@@ -158,7 +158,7 @@ class SpatialDistributionPlot(Plot):
         for species in S.list_species:
             self.plots.append(self.ax.plot([], [], "-", label=species.name)[0])
         if len(S.list_species):
-            self.ax.set_ylim(0, 1.2*max([species.density_history.max() for species in S.list_species]))
+            self.ax.set_ylim(0, 1.2*max([species.density_history[...].max() for species in S.list_species]))
             self.ax.legend(loc='best')
 
     def update(self, i):

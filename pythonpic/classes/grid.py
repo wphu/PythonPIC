@@ -1,6 +1,7 @@
 """The spatial grid"""
 # coding=utf-8
 import numpy as np
+import h5py
 import scipy.fftpack as fft
 
 from ..helper_functions import physics
@@ -79,13 +80,32 @@ class Grid:
 
 
         self.list_species = []
-        self.charge_density_history = np.zeros((self.NT, self.NG))
-        self.current_density_history = np.zeros((self.NT, self.NG, 3))
-        self.electric_field_history = np.zeros((self.NT, self.NG, 3))
-        self.magnetic_field_history = np.zeros((self.NT, self.NG, 2))
-        self.laser_energy_history = np.zeros(self.NT, dtype=float)
-
         self.postprocessed = False
+
+    def prepare_history_arrays_h5py(self, f):
+        self.file = f
+        group = self.file.create_group("grid")
+        self.charge_density_history = group.create_dataset(name="rho", dtype=float, shape=(self.NT, self.NG))
+        self.current_density_history = group.create_dataset(name="current", dtype=float, shape=(self.NT, self.NG, 3))
+        self.electric_field_history = group.create_dataset(name="Efield", dtype=float, shape=(self.NT, self.NG, 3))
+        self.magnetic_field_history = group.create_dataset(name="Bfield", dtype=float, shape=(self.NT, self.NG, 3))
+        self.laser_energy_history = group.create_dataset(name="laser", dtype=float, shape=(self.NT,))
+        group.create_dataset(name="x", dtype=float, data=self.x)
+
+        h5py_dictionary = {'NGrid': self.NG,
+                           'L': self.L,
+                           'epsilon_0': self.epsilon_0,
+                           'c': self.c,
+                           'dt': self.dt,
+                           'dx': self.dx,
+                           'NT': self.NT,
+                           'T': self.T,
+                           'periodic': self.periodic,
+                           'postprocessed': self.postprocessed
+                           }
+        for key, value in h5py_dictionary.items():
+            group.attrs[key] = value
+
 
     def postprocess_fourier(self):
         self.longitudinal_energy_history  = 0.5 * self.epsilon_0 * (self.electric_field_history[:,:,0] ** 2)
@@ -106,26 +126,21 @@ class Grid:
         self.grid_energy_history = self.perpendicular_energy_history + self.longitudinal_energy_history # over positions
 
     def postprocess(self, fourier=False):
+        group = self.file['grid']
         if not self.postprocessed:
             print("Postprocessing grid.")
-
-            self.t = np.arange(self.NT) * self.dt
-
-            # increase size of magnetic field history
-            magnetic_field_history = np.zeros((self.NT, self.NG, 3), dtype=float)
-            magnetic_field_history[:,:,1:] = self.magnetic_field_history
-            self.magnetic_field_history = magnetic_field_history
-
+            self.t = group.create_dataset(name="t", data=np.arange(self.NT) * self.dt)
             if fourier:
                 self.postprocess_fourier()
-
-            # calculate energy history
-
             vacuum_wave_impedance= 1/ (self.epsilon_0 * self.c)
-            self.laser_energy_history = np.cumsum(self.laser_energy_history**2) / vacuum_wave_impedance * self.dt
-
-            self.x_current = self.x + self.dx / 2
+            np.cumsum(self.laser_energy_history[...]**2/ vacuum_wave_impedance * self.dt, out=self.laser_energy_history[...])
+            self.x_current = group.create_dataset(name="x_current", data=self.x + self.dx / 2)
             self.postprocessed = True
+            group.attrs['postprocessed'] = True
+            self.file.flush()
+        else:
+            self.t = group['t']
+            self.x_current = group['x_current']
 
     def apply_bc(self, i):
         # noinspection PyCallingNonCallable
@@ -181,43 +196,13 @@ class Grid:
         self.current_density_history[i, :, 0] = self.current_density_x[1:-2]
         self.current_density_history[i, :, 1:] = self.current_density_yz[2:-2]
         self.electric_field_history[i] = self.electric_field[1:-1]
-        self.magnetic_field_history[i] = self.magnetic_field[1:-1, 1:]
+        self.magnetic_field_history[i] = self.magnetic_field[1:-1]
 
-    def save_to_h5py(self, grid_data):
-        """
-        Saves all grid data to h5py file
-        grid_data: h5py group in premade hdf5 file
-        """
-        h5py_dictionary = {'NGrid': self.NG,
-                           'L': self.L,
-                           'epsilon_0': self.epsilon_0,
-                           'c': self.c,
-                           'dt': self.dt,
-                           'dx': self.dx,
-                           'NT': self.NT,
-                           'T': self.T,
-                           'periodic': self.periodic
-                           }
-        for key, value in h5py_dictionary.items():
-            grid_data.attrs[key] = value
-        h5py_dataset_dictionary = {'x':self.x,
-                                   'rho':self.charge_density_history,
-                                    'current':self.current_density_history,
-                                   'Efield':self.electric_field_history,
-                                   'Bfield':self.magnetic_field_history,
-                                   'laser':self.laser_energy_history
-                                   }
-        for key, value in h5py_dataset_dictionary.items():
-            grid_data.create_dataset(name=key, dtype=float, data=value)
-
-        # grid_data.create_dataset(name="energy per mode", dtype=float,
-        #                          data=self.energy_per_mode_history)  # OPTIMIZE: do these in post production
-        # grid_data.create_dataset(name="grid energy", dtype=float, data=self.grid_energy_history)
 
     def __str__(self):
         return(f"NG{self.NG} dx{self.dx} NT {self.NT} dt {self.dt} c{self.c}eps{self.epsilon_0}")
 
-def load_grid(grid_data, postprocess=False):
+def load_grid(file, postprocess=False):
     """
     Loads grid data and create a Grid object.
 
@@ -232,6 +217,7 @@ def load_grid(grid_data, postprocess=False):
     Grid
         the loaded grid.
     """
+    grid_data = file['grid']
     NG = grid_data.attrs['NGrid']
     L = grid_data.attrs['L']
     epsilon_0 = grid_data.attrs['epsilon_0']
@@ -241,8 +227,10 @@ def load_grid(grid_data, postprocess=False):
     dt = grid_data.attrs['dt']
     T = grid_data.attrs['T']
     periodic = grid_data.attrs['periodic']
+    postprocessed = grid_data.attrs['postprocessed']
+    print("file is", postprocessed)
 
-    x = grid_data['x'][...]
+    x = grid_data['x']
     grid = Grid(T = T,
                 L = L,
                 NG = NG,
@@ -250,16 +238,18 @@ def load_grid(grid_data, postprocess=False):
                 epsilon_0 = epsilon_0,
                 periodic = periodic
                 )
+    grid.postprocessed = postprocessed
+    grid.file = file
     assert grid.dx == dx
     assert grid.dt == dt
     assert grid.NT == NT
     assert np.allclose(x, grid.x)
-    grid.charge_density_history = grid_data['rho'][...]
-    grid.current_density_history = grid_data['current'][...]
-    grid.electric_field_history = grid_data['Efield'][...]
-    grid.magnetic_field_history = grid_data['Bfield'][...]
-    grid.laser_energy_history = grid_data['laser'][...]
+    grid.charge_density_history = grid_data['rho']
+    grid.current_density_history = grid_data['current']
+    grid.electric_field_history = grid_data['Efield']
+    grid.magnetic_field_history = grid_data['Bfield']
+    grid.laser_energy_history = grid_data['laser']
 
-    if postprocess:
+    if not postprocessed:
         grid.postprocess()
     return grid
