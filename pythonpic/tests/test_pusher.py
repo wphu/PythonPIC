@@ -69,7 +69,7 @@ def plot(t, analytical_result, simulation_result,
 
 
 def test_constant_field(g, _pusher, _N_particles):
-    s = Species(1, 1, _N_particles, g, pusher=_pusher)
+    s = Species(1, 1, _N_particles, g, pusher=_pusher, individual_diagnostics=True)
     t = np.arange(0, g.T, g.dt * s.save_every_n_iterations) - g.dt / 2
 
     def uniform_field(x):
@@ -88,7 +88,7 @@ def test_constant_field(g, _pusher, _N_particles):
 
 # noinspection PyUnresolvedReferences
 def test_relativistic_constant_field(g, _N_particles):
-    s = Species(1, 1, _N_particles, g)
+    s = Species(1, 1, _N_particles, g, individual_diagnostics=True)
     t = np.arange(0, g.T, g.dt * s.save_every_n_iterations) - g.dt / 2
 
     def uniform_field(x):
@@ -110,7 +110,7 @@ def test_relativistic_constant_field(g, _N_particles):
 # noinspection PyUnresolvedReferences
 def test_relativistic_magnetic_field(g, _N_particles, _v0):
     B0 = 1
-    s = Species(1, 1, _N_particles, g)
+    s = Species(1, 1, _N_particles, g, individual_diagnostics=True)
     t = np.arange(0, g.T, g.dt * s.save_every_n_iterations) - g.dt / 2
     s.v[:, 1] = _v0
 
@@ -136,7 +136,7 @@ def test_relativistic_magnetic_field(g, _N_particles, _v0):
 def test_relativistic_harmonic_oscillator(g, _N_particles, E0):
     E0 = 1
     omega = 2 * np.pi / g.T
-    s = Species(1, 1, _N_particles, g)
+    s = Species(1, 1, _N_particles, g, individual_diagnostics=True)
     t = np.arange(0, g.T, g.dt * s.save_every_n_iterations) - g.dt / 2
 
     t_s = t - g.dt / 2
@@ -221,7 +221,7 @@ def test_high_relativistic_velocity_multidirection(g, v0):
     assert (s.velocity_history < 1).all(), f"Velocity went over c! Max velocity: {s.velocity_history.max()}"
 
 def test_periodic_particles(g):
-    s = Species(1, 1, 100, g)
+    s = Species(1, 1, 100, g, individual_diagnostics=True)
     s.distribute_uniformly(g.L)
     s.v[:] = 0.5
     for i in range(g.NT):
@@ -232,7 +232,7 @@ def test_periodic_particles(g):
 
 def test_nonperiodic_particles(g_aperiodic):
     g = g_aperiodic
-    s = Species(1, 1, 100, g)
+    s = Species(1, 1, 100, g, individual_diagnostics=True)
     s.distribute_uniformly(g.L)
     s.v[:] = 0.5
     for i in range(g.NT):

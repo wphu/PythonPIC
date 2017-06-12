@@ -403,7 +403,7 @@ class Particle(Species):
     """
     def __init__(self, grid, x, vx, vy=0, vz=0, q=1, m=1, name="Test particle", scaling=1, pusher=rela_boris_push):
         # noinspection PyArgumentEqualDefault
-        super().__init__(q, m, 1, grid, name, scaling = scaling, pusher=pusher)
+        super().__init__(q, m, 1, grid, name, scaling = scaling, pusher=pusher, individual_diagnostics=True)
         self.x[:] = x
         self.v[:, 0] = vx
         self.v[:, 1] = vy
