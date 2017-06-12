@@ -63,7 +63,7 @@ class uniform(Simulation):
 
         cells_per_wl = laser_wavelength / grid.dx
         print(cells_per_wl)
-        vtherm = 2 * np.pi / cells_per_wl * lightspeed
+        vtherm = 2 * np.pi / cells_per_wl * lightspeed * 10
         print(vtherm / lightspeed)
 
 
