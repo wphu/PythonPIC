@@ -109,7 +109,7 @@ class Species:
 
     @property
     def kinetic_energy(self):
-        return (self.gamma -1) * self.eff_m * self.c**2
+        return ((self.gamma -1)*self.v_magnitude).sum() * self.dt * self.eff_m * self.c**2
 
     def init_push(self, field_function):
         """

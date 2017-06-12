@@ -7,6 +7,23 @@ from matplotlib import gridspec
 
 from ..helper_functions.helpers import calculate_particle_snapshots, colors, directions
 
+class TimePlot:
+    def __init__(self, S, ax):
+        self.S = S
+        if isinstance(ax, str):
+            fig, self.ax = plt.subplots()
+        else:
+            self.ax = ax
+        self.plots = []
+        self.t = self.S.grid.t
+        self.ax.set_xlim(0, self.grid.T)
+        self.ax.set_xlabel(rf"Time $t$ (T={T:.3e} s)")
+        self.ax.grid()
+        tticks = np.linspace(0, self.grid.T, 7)
+        self.ax.set_xticks(tticks)
+        self.ax.xaxis.set_ticklabels([f"{T/L:.1f}L" for t in tticks])
+        self.ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True,
+                                 useOffset=False)  # TODO axis=both?
 
 def static_plot_window(S, N, M):
     fig = plt.figure(figsize=(10, 8))
