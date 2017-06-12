@@ -39,7 +39,7 @@ class Grid:
         self.c = c
         self.epsilon_0 = epsilon_0
         self.particle_bc = lambda *x: None
-        self.x, self.dx = np.linspace(0, L, NG, retstep=True, endpoint=False)
+        self.x, self.dx = np.linspace(0, L, NG, retstep=True, endpoint=False, dtype=np.float64)
         self.x_interpolation = np.arange(NG+2)*self.dx - self.dx
 
         self.dt = self.dx / c
@@ -47,11 +47,11 @@ class Grid:
         self.NT = physics.calculate_number_timesteps(T, self.dt)
         self.epsilon_0 = epsilon_0
 
-        self.charge_density = np.zeros(NG + 1)
-        self.current_density_x = np.zeros((NG + 3))
-        self.current_density_yz = np.zeros((NG + 4, 2))
-        self.electric_field = np.zeros((NG + 2, 3))
-        self.magnetic_field = np.zeros((NG + 2, 3))
+        self.charge_density = np.zeros(NG + 1, dtype=np.float64)
+        self.current_density_x = np.zeros((NG + 3), dtype=np.float64)
+        self.current_density_yz = np.zeros((NG + 4, 2), dtype=np.float64)
+        self.electric_field = np.zeros((NG + 2, 3), dtype=np.float64)
+        self.magnetic_field = np.zeros((NG + 2, 3), dtype=np.float64)
 
         self.L = L
         self.NG = NG
@@ -210,6 +210,8 @@ class Grid:
         #                          data=self.energy_per_mode_history)  # OPTIMIZE: do these in post production
         # grid_data.create_dataset(name="grid energy", dtype=float, data=self.grid_energy_history)
 
+    def __str__(self):
+        return(f"NG{self.NG} dx{self.dx} NT {self.NT} dt {self.dt} c{self.c}eps{self.epsilon_0}")
 
 def load_grid(grid_data, postprocess=False):
     """

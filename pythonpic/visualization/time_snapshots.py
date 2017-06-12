@@ -2,6 +2,7 @@
 import itertools
 
 import numpy as np
+import matplotlib.pyplot as plt
 
 from ..helper_functions.helpers import is_this_saved_iteration, convert_global_to_particle_iter, colors, directions
 
@@ -20,7 +21,10 @@ class Plot:
 
     def __init__(self, S, ax):
         self.S = S
-        self.ax = ax
+        if isinstance(ax, str):
+            fig, self.ax = plt.subplots()
+        else:
+            self.ax = ax
         self.plots = []
 
         L = S.grid.L
@@ -66,7 +70,7 @@ class FrequencyPlot(Plot):
 
     def __init__(self, S, ax):
         super().__init__(S, ax)
-        self.plots.append(ax.plot([], [], "o-", label="energy per mode")[0])
+        self.plots.append(self.ax.plot([], [], "o-", label="energy per mode")[0])
         self.ax.set_xlabel(r"Wavevector mode $k$")
         self.ax.set_ylabel(r"Energy $E$")
         max_interesting = S.grid.k_plot.max() * 0.3
@@ -76,12 +80,12 @@ class FrequencyPlot(Plot):
         self.ax.set_xticks(interesting_x)
         self.ax.xaxis.set_ticklabels(np.arange(len(interesting_x)))
         self.ax.set_xlim(interesting_x.min(), interesting_x.max())
-        self.ax.set_ylim(0, S.grid.energy_per_mode_history.max())
+        self.ax.set_ylim(0, S.grid.longitudinal_energy_per_mode_history.max())
 
     def update(self, i):
         # import ipdb; ipdb.set_trace()
         self.plots[0].set_data(self.S.grid.k_plot[self.indices],
-                               self.S.grid.energy_per_mode_history[i][self.indices])
+                               self.S.grid.longitudinal_energy_per_mode_history[i][self.indices])
 
 
 def phaseplot_values(species):
@@ -128,7 +132,7 @@ class PhasePlot(Plot):
             maxys = max([np.max(np.abs(y)) for y in self.y])
             self.ax.set_ylim(-maxys, maxys)
         for i, species in enumerate(S.list_species):
-            self.plots.append(ax.plot([], [], colors[i] + ".", alpha=alpha)[0])
+            self.plots.append(self.ax.plot([], [], colors[i] + ".", alpha=alpha)[0])
         # self.ax.yaxis.set_label_position("right")
         self.ax.set_xlabel(rf"${v1}$")
         self.ax.set_ylabel(rf"${v2}$")
@@ -152,10 +156,10 @@ class SpatialDistributionPlot(Plot):
         super().__init__(S, ax)
         ax.set_ylabel(f"Particle density $n$")
         for species in S.list_species:
-            self.plots.append(ax.plot([], [], "-", label=species.name)[0])
+            self.plots.append(self.ax.plot([], [], "-", label=species.name)[0])
         if len(S.list_species):
-            ax.set_ylim(0, 1.2*max([species.density_history.max() for species in S.list_species]))
-            ax.legend(loc='best')
+            self.ax.set_ylim(0, 1.2*max([species.density_history.max() for species in S.list_species]))
+            self.ax.legend(loc='best')
 
     def update(self, i):
         for species, plot in zip(self.S.list_species, self.plots):
@@ -164,11 +168,11 @@ class SpatialDistributionPlot(Plot):
 class SpatialPerturbationDistributionPlot(SpatialDistributionPlot):
     def __init__(self, S, ax):
         super().__init__(S, ax)
-        ax.set_ylabel(r"$\Delta n = n - n(t=0)$")
+        self.ax.set_ylabel(r"$\Delta n = n - n(t=0)$")
         self.y = [species.density_history - species.density_history[0] for species in S.list_species]
         if len(S.list_species):
-            ax.set_ylim(min([1.2 * y.min() for y in self.y]),max([1.2 * y.max() for y in self.y]))
-            ax.legend(loc='best')
+            self.ax.set_ylim(min([1.2 * y.min() for y in self.y]),max([1.2 * y.max() for y in self.y]))
+            self.ax.legend(loc='best')
 
     def update(self, i):
         for species, plot, y in zip(self.S.list_species, self.plots, self.y):
@@ -181,15 +185,15 @@ class ChargeDistributionPlot(Plot):
 
     def __init__(self, S, ax, check_poisson=False):
         super().__init__(S, ax)
-        self.plots.append(ax.plot([], [], "-", alpha=0.8, label="charge")[0])
-        ax.set_ylabel(f"Charge density $\\rho$")
+        self.plots.append(self.ax.plot([], [], "-", alpha=0.8, label="charge")[0])
+        self.ax.set_ylabel(f"Charge density $\\rho$")
         mincharge = np.min(S.grid.charge_density_history)
         maxcharge = np.max(S.grid.charge_density_history)
-        ax.set_ylim(mincharge, maxcharge)
+        self.ax.set_ylim(mincharge, maxcharge)
         self.check_poisson = check_poisson
         if check_poisson:
-            self.plots.append(ax.plot([], [], "-", alpha=0.8, label=r"$\varepsilon_0 \partial E/ \partial x$")[0])
-            ax.legend(loc='lower left')
+            self.plots.append(self.ax.plot([], [], "-", alpha=0.8, label=r"$\varepsilon_0 \partial E/ \partial x$")[0])
+            self.ax.legend(loc='lower left')
 
     def update(self, i):
         self.plots[0].set_data(self.S.grid.x, self.S.grid.charge_density_history[i, :])
@@ -221,7 +225,7 @@ class Histogram(Plot):
             bin_array = np.linspace(v.min(), v.max(), n_bins)
             self.bin_arrays.append(bin_array)
             self.plots.append(
-                ax.plot(*calculate_histogram_data(v[0], bin_array), colors[i])[0])
+                self.ax.plot(*calculate_histogram_data(v[0], bin_array), colors[i])[0])
         self.ax.set_xlabel(rf"${v1}$")
         self.ax.set_ylabel(r"Number of particles")
 
@@ -292,18 +296,18 @@ class FieldPlot(Plot):
     def __init__(self, S, ax, j):
         super().__init__(S, ax)
         self.j = j
-        self.plots.append(ax.plot([], [], "-", label=f"$E_{directions[j]}$")[0])
-        ax.set_ylabel(r"Fields $E$, $B$")
+        self.plots.append(self.ax.plot([], [], "-", label=f"$E_{directions[j]}$")[0])
+        self.ax.set_ylabel(r"Fields $E$, $B$")
         max_e = np.max(np.abs(S.grid.electric_field_history[:, :, j]))
         if j != 0:
-            self.plots.append(ax.plot([], [], "-", label=f"$B_{directions[j]}$")[0])
+            self.plots.append(self.ax.plot([], [], "-", label=f"$B_{directions[j]}$")[0])
             max_b = np.max(np.abs(S.grid.magnetic_field_history[:, :, j]))
             maxfield = max([max_e, max_b])
         else:
             maxfield = max_e
-        print(f"For direction {directions[j]}, maxfield is {maxfield}")
-        ax.set_ylim(-maxfield, maxfield)
-        ax.legend(loc='upper right')
+        print(f"For direction {directions[j]}, maxfield is {maxfield:.2e}")
+        self.ax.set_ylim(-maxfield, maxfield)
+        self.ax.legend(loc='upper right')
 
     def update(self, i):
         self.plots[0].set_data(self.S.grid.x, self.S.grid.electric_field_history[i, :, self.j])
@@ -325,19 +329,21 @@ class CurrentPlot(Plot):
         super().__init__(S, ax)
         self.j = j
         x = S.grid.x_current if j == 0 else S.grid.x
-        self.plots.append(ax.plot(x, S.grid.current_density_history[0, :, j], "-",
+        self.plots.append(self.ax.plot(x, S.grid.current_density_history[0, :, j], "-",
                                   alpha=0.9,
                                   label=fr"$j_{directions[j]}$")[0])
-        ax.set_ylabel(f"Current density $j_{directions[j]}$")
-        ax.tick_params('y')
-        ax.legend(loc='lower left')
+        self.ax.set_ylabel(f"Current density $j_{directions[j]}$")
+        self.ax.tick_params('y')
+        self.ax.legend(loc='lower left')
 
         current = S.grid.current_density_history[:, :, j]
-        mean = current.mean()
-        std = 3*current.std()
-
-        mincurrent = mean - std
-        maxcurrent = mean + std
+        # mean = current.mean()
+        # std = 3*current.std()
+        #
+        # mincurrent = mean - std
+        # maxcurrent = mean + std
+        mincurrent = current.min()
+        maxcurrent = current.max()
         try:
             ax.set_ylim(mincurrent, maxcurrent)
         except ValueError as E:

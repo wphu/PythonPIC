@@ -103,7 +103,7 @@ def test_single_particle_transversal_deposition(_position, _velocity):
 
 def test_single_particle_above_lightspeed():
     g = Grid(1,L=7, NG=7)
-    s = Particle(g, 1*g.dx, g.c*4)
+    s = Particle(g, 1*g.dx, g.c*4, g.c*2)
     dt = g.dx / s.c
     g.current_density_x[...] = 0
     g.current_density_yz[...] = 0
@@ -257,16 +257,16 @@ def test_many_particles_periodic_deposition(N, _velocity):
     assert np.allclose(transversal_collected_weights, 1), ("Transversal weights don't match!", plot())
 
 
-@pytest.mark.parametrize("periodic", [False, True])
-def test_single_particle_deposition_simulation(periodic):
-    g = Grid(T=100, L=1, NG=100, c=1, periodic=periodic)
-    s = Particle(g, g.L / 2, g.dx, g.dx, -g.dx)
-    sim = Simulation(g, [s], category_type="test",
-                     filename=f"test_single_particle_depo_sim_{'' if periodic else 'a'}periodic")
-    try:
-        sim.run().postprocess()
-    except Exception as E:
-        assert False, (E, plots(sim, show_animation=True, show_static=True))
+# @pytest.mark.parametrize("periodic", [False, True])
+# def test_single_particle_deposition_simulation(periodic):
+#     g = Grid(T=100, L=1, NG=100, c=1, periodic=periodic)
+#     s = Particle(g, g.L / 2, g.dx, g.dx, -g.dx)
+#     sim = Simulation(g, [s], category_type="test",
+#                      filename=f"test_single_particle_depo_sim_{'' if periodic else 'a'}periodic")
+#     try:
+#         sim.run().postprocess()
+#     except Exception as E:
+#         assert False, (E, plots(sim, show_animation=True, show_static=True))
 
 if __name__ == '__main__':
     test_single_particle_transversal_deposition(3.01, 1)
