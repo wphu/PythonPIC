@@ -51,8 +51,6 @@ def test_species_io(test_io_helper):
     assert np.allclose(s.dt, s2.dt)
     assert np.allclose(s.NT, s2.NT)
     assert np.allclose(s.c, s2.c)
-    assert np.allclose(s.position_history, s2.position_history)
-    assert np.allclose(s.velocity_history, s2.velocity_history)
     assert np.allclose(s.velocity_mean_history, s2.velocity_mean_history)
     assert np.allclose(s.velocity_std_history, s2.velocity_std_history)
     assert np.allclose(s.postprocessed, s2.postprocessed)

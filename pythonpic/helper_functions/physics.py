@@ -52,7 +52,7 @@ def get_dominant_mode(S):
     :return: number of dominant mode
     :rtype: int
     """
-    S.postprocess()
+    S.grid.postprocess_fourier()
     data = S.grid.longitudinal_energy_per_mode_history
     weights = (data ** 2).sum(axis=0) / (data ** 2).sum()
 
@@ -62,9 +62,9 @@ def get_dominant_mode(S):
 
 
 def did_it_thermalize(S):
-    initial_velocities = np.array([s.velocity_history[0, :, 0].mean() for s in S.list_species])
-    initial_velocity_stds = np.array([s.velocity_history[-1, :, 0].std() for s in S.list_species])
-    average_velocities = np.array([s.velocity_history[-1, :, 0].mean() for s in S.list_species])
+    initial_velocities = np.array([s.velocity_mean_history[0] for s in S.list_species])
+    initial_velocity_stds = np.array([s.velocity_std_history[0] for s in S.list_species])
+    average_velocities = np.array([s.velocity_mean_history[-1] for s in S.list_species])
     return np.abs(initial_velocities - average_velocities) > initial_velocity_stds
 
 
