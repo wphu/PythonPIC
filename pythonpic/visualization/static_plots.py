@@ -74,8 +74,8 @@ def temperature_time_plot(S, axis, twinaxis=True):
 
     for species in S.list_species:
         t = S.t
-        meanv = species.velocity_mean_history
-        meanv2 = species.velocity_squared_mean_history
+        meanv = species.velocity_mean_history[...]
+        meanv2 = species.velocity_squared_mean_history[...]
         temperature = meanv2 - meanv**2
         temperature_t = temperature.sum(axis=1)
         axis.plot(t, temperature_t, label=species.name)

@@ -10,6 +10,7 @@ from ..configs.run_coldplasma import cold_plasma_oscillations
 from ..visualization.plotting import plots
 from ..visualization import animation
 from ..visualization.static_plots import static_plots
+from pythonpic.classes import TestSpecies as Species
 
 
 @pytest.fixture(scope="module")

@@ -8,7 +8,9 @@ from pythonpic.helper_functions.physics import electric_charge, electron_rest_ma
 
 from ..helper_functions import physics
 from ..algorithms import particle_push
-from ..classes import Species, Grid, Particle, Simulation
+from ..classes import Species, Particle, Simulation
+from pythonpic.classes import TestGrid as Grid
+from pythonpic.classes import TestSpecies as Species
 
 from pythonpic.visualization.plotting import plots
 from pythonpic.visualization import animation

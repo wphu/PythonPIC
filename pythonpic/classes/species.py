@@ -53,7 +53,7 @@ class Species:
     pusher : function 
         particle push algorithm
     """
-    def __init__(self, q, m, N, grid, name="particles", scaling=1, pusher=rela_boris_push, individual_diagnostics=False):
+    def __init__(self, q, m, N, grid, name="particles", scaling=1, pusher=rela_boris_push, individual_diagnostics=False, testing=False):
         self.q = q
         self.m = m
         self.N = int(N)
@@ -92,8 +92,32 @@ class Species:
         self.kinetic_energy_history = np.zeros(self.NT+1)
         self.pusher = pusher
 
+        if testing:
+            self.prepare_history_arrays_numpy()
+
         self.postprocessed = False
 
+    def prepare_history_arrays_h5py(self, f):
+        self.file = f
+        if "species" not in self.file:
+            self.file.create_group("species")
+        self.group = group = self.file["species"].create_group(self.name)
+        if self.individual_diagnostics:
+            self.position_history  = group.create_dataset(name="x", dtype=float, shape=(self.saved_iterations, self.saved_particles))
+            self.velocity_history = group.create_dataset(name="v", dtype=float, shape=(self.saved_iterations, self.saved_particles))
+        self.density_history = group.create_dataset(name="density_history", dtype=float, shape=(self.NT, self.grid.NG))
+        self.velocity_mean_history = group.create_dataset(name="v_mean", dtype=float, shape=(self.NT, 3))
+        self.velocity_squared_mean_history = group.create_dataset(name="v2_mean", dtype=float, shape=(self.NT, 3))
+        self.velocity_std_history = group.create_dataset(name="v_std", dtype=float, shape=(self.NT, 3))
+        self.N_alive_history = group.create_dataset(name="N_alive_history", dtype=int, shape=(self.NT,))
+        self.kinetic_energy_history = group.create_dataset(name="Kinetic energy", dtype=float, shape=(self.NT,))
+
+        group.attrs['name'] = self.name
+        group.attrs['N'] = self.N
+        group.attrs['q'] = self.q
+        group.attrs['m'] = self.m
+        group.attrs['scaling'] = self.scaling
+        group.attrs['postprocessed'] = self.postprocessed
     def apply_bc(self):
         self.particle_bc(self)
 
@@ -293,41 +317,14 @@ class Species:
             self.velocity_std_history[i] = self.v.std(axis=0)
         self.kinetic_energy_history[i] = self.energy
 
-    def save_to_h5py(self, species_data):
-        """
-        Saves all species data to h5py file
 
-        Parameters
-        ----------
-        species_data : h5py group
-            h5py group for this species in pre-made hdf5 file
-        Returns
-        -------
-
-        """
-        species_data.attrs['name'] = self.name
-        species_data.attrs['N'] = self.N
-        species_data.attrs['q'] = self.q
-        species_data.attrs['m'] = self.m
-        species_data.attrs['scaling'] = self.scaling
-
-        if self.individual_diagnostics:
-            species_data.create_dataset(name="x", dtype=float, data=self.position_history)
-            species_data.create_dataset(name="v", dtype=float, data=self.velocity_history)
-        species_data.create_dataset(name="Kinetic energy", dtype=float, data=self.kinetic_energy_history)
-
-        species_data.create_dataset(name="v_mean", dtype=float, data=self.velocity_mean_history)
-        species_data.create_dataset(name="v2_mean", dtype=float, data=self.velocity_squared_mean_history)
-        species_data.create_dataset(name="v_std", dtype=float, data=self.velocity_std_history)
-        species_data.create_dataset(name="N_alive_history", dtype=int, data=self.N_alive_history)
-        species_data.create_dataset(name="density_history", dtype=float, data=self.density_history)
 
     def postprocess(self):
         if not self.postprocessed:
             print(f"Postprocessing {self.name}.")
-            self.density_history *= self.scaling
-            self.kinetic_energy_history = 0.5 * (self.kinetic_energy_history[1:] + self.kinetic_energy_history[:-1])
-            self.postprocessed = True
+            self.density_history[...] *= self.scaling
+            self.postprocessed = self.group.attrs['postprocessed'] = True
+            self.file.flush()
 
     def __repr__(self, *args, **kwargs):
         return f"Species(q={self.q:.4f},m={self.m:.4f},N={self.N},name=\"{self.name}\",NT={self.NT})"
@@ -336,7 +333,7 @@ class Species:
         return f"{self.N} {self.scaling:.2e}-{self.name} with q = {self.q:.2e}, m = {self.m:.2e}, {self.saved_iterations} saved history " \
                f"steps over {self.NT} iterations"
 
-def load_species(species_data, grid, postprocess=False):
+def load_species(f, species_name, grid, postprocess=False):
     """
     Loads species data from h5py file.
     Parameters
@@ -351,31 +348,52 @@ def load_species(species_data, grid, postprocess=False):
     -------
 
     """
+    name = species_name
+    species_data = f['species'][species_name]
     name = species_data.attrs['name']
     N = species_data.attrs['N']
     q = species_data.attrs['q']
     m = species_data.attrs['m']
     scaling = species_data.attrs['scaling']
+    postprocessed = species_data.attrs['postprocessed']
 
 
     species = Species(q, m, N, grid, name, scaling, individual_diagnostics=False)
-    species.velocity_mean_history = species_data["v_mean"][...]
-    species.velocity_squared_mean_history = species_data["v2_mean"][...]
-    species.velocity_std_history = species_data["v_std"][...]
-    species.density_history = species_data["density_history"][...]
+    species.velocity_mean_history = species_data["v_mean"]
+    species.velocity_squared_mean_history = species_data["v2_mean"]
+    species.velocity_std_history = species_data["v_std"]
+    species.density_history = species_data["density_history"]
+    species.file = f
+    species.group = species_data
+    species.postprocessed = postprocessed
+
 
     if "x" in species_data and "v" in species_data:
         species.individual_diagnostics = True
-        species.position_history = species_data["x"][...]
-        species.velocity_history = species_data["v"][...]
-    species.N_alive_history = species_data["N_alive_history"][...]
-    species.kinetic_energy_history = species_data["Kinetic energy"][...]
-    if postprocess:
+        species.position_history = species_data["x"]
+        species.velocity_history = species_data["v"]
+    species.N_alive_history = species_data["N_alive_history"]
+    species.kinetic_energy_history = species_data["Kinetic energy"]
+    if not postprocessed:
         species.postprocess()
     return species
 
+class TestSpecies(Species):
 
-class Particle(Species):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.individual_diagnostics:
+            self.position_history = np.zeros((self.saved_iterations, self.saved_particles), dtype=float)
+            self.velocity_history = np.zeros((self.saved_iterations, self.saved_particles, 3), dtype=float)
+
+        self.density_history = np.zeros((self.NT, self.grid.NG), dtype=float)
+        self.velocity_mean_history = np.zeros((self.NT, 3), dtype=float)
+        self.velocity_squared_mean_history = np.zeros((self.NT, 3), dtype=float)
+        self.velocity_std_history = np.zeros((self.NT, 3), dtype=float)
+        self.N_alive_history = np.zeros(self.NT, dtype=int)
+        self.kinetic_energy_history = np.zeros(self.NT+1)
+
+class Particle(TestSpecies):
     """
     A helper class for quick creation of a single particle for test purposes.
     Parameters
@@ -408,4 +426,5 @@ class Particle(Species):
         self.v[:, 0] = vx
         self.v[:, 1] = vy
         self.v[:, 2] = vz
+
 

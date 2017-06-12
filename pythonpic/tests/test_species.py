@@ -2,6 +2,7 @@
 import pytest
 import numpy as np
 from ..classes.species import n_saved_particles
+from pythonpic.classes import TestSpecies as Species
 
 @pytest.fixture(params=np.logspace(0, 6, 12, dtype=int))
 def n_available(request):

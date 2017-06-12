@@ -3,8 +3,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
-from ..classes import Grid, Simulation
+from ..classes import Simulation
+from pythonpic.classes import TestGrid as Grid
 from ..visualization.time_snapshots import FieldPlot, CurrentPlot
+from pythonpic.classes import TestSpecies as Species
 
 @pytest.fixture(params=[10, 100], scope='module')
 def NG(request):

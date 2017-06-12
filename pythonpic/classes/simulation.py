@@ -113,15 +113,30 @@ class Simulation:
         self: Simulation
             The simulation, for chaining purposes.
         """
-        if init:
-            self.grid_species_initialization()
-        start_time = time.time()
-        for i in range(self.NT):
-            if self.considered_large and i % (self.NT // 100) == 0:
-                report_progress(i, self.NT, start_time)
-            self.iteration(i)
-        self.runtime = time.time() - start_time
-        return self
+        try:
+            if not os.path.exists(os.path.dirname(self.filename)):
+                os.makedirs(os.path.dirname(self.filename))
+            self.grid_file = h5py.File(self.filename, "w")
+            specgroup = self.grid_file.create_group("species")
+            for species in self.list_species:
+                species.prepare_history_arrays_h5py(self.grid_file)
+            self.grid.prepare_history_arrays_h5py(self.grid_file)
+            if init:
+                self.grid_species_initialization()
+            start_time = time.time()
+            for i in range(self.NT):
+                if self.considered_large and i % (self.NT // 100) == 0:
+                    report_progress(i, self.NT, start_time)
+                self.iteration(i)
+            self.runtime = time.time() - start_time
+            return self
+        except KeyboardInterrupt:
+            self.grid_file.close()
+            print("Simulation interrupted. Remove data? y to remove.")
+            if "y" == input().lower():
+                os.remove(self.filename)
+                print("Deleted file.")
+            exit()
 
     def lazy_run(self):
         """Does a simulation run() unless there's already a saved data with that file.
@@ -156,22 +171,17 @@ class Simulation:
         filename by default is the timestamp for the simulation."""
         if not os.path.exists(os.path.dirname(self.filename)):
             os.makedirs(os.path.dirname(self.filename))
-        with h5py.File(self.filename, "w") as f:
-            grid_data = f.create_group('grid')
-            self.grid.save_to_h5py(grid_data)
+        f = self.grid_file
 
-            all_species = f.create_group('species')
-            for species in self.list_species:
-                species_data = all_species.create_group(species.name)
-                species.save_to_h5py(species_data)
 
-            f.attrs['dt'] = self.dt
-            f.attrs['NT'] = self.NT
-            f.attrs['run_date'] = self.run_date
-            f.attrs['git_version'] = self.git_version
-            f.attrs['title'] = self.title
-            f.attrs['runtime'] = self.runtime
-            f.attrs['considered_large'] = self.considered_large
+        f.attrs['dt'] = self.dt
+        f.attrs['NT'] = self.NT
+        f.attrs['run_date'] = self.run_date
+        f.attrs['git_version'] = self.git_version
+        f.attrs['title'] = self.title
+        f.attrs['runtime'] = self.runtime
+        f.attrs['considered_large'] = self.considered_large
+        self.grid_file.flush()
         print(f"Saved file to {self.filename}")
         return self
 
@@ -202,16 +212,15 @@ def load_simulation(filename: str) -> Simulation:
     -------
     Simulation
     """
-    with h5py.File(filename, "r") as f:
-        title = f.attrs['title']
-        grid_data = f['grid']
-        grid = load_grid(grid_data, postprocess=True)
+    f = h5py.File(filename, "r+")
+    title = f.attrs['title']
+    grid = load_grid(f, postprocess=True)
 
-        all_species = [load_species(f['species'][species_group_name], grid, postprocess=True)
-                       for species_group_name in f['species']]
-        run_date = f.attrs['run_date']
-        git_version = f.attrs['git_version']
-        considered_large = f.attrs['considered_large']
+    all_species = [load_species(f, species_group_name, grid, postprocess=True)
+                   for species_group_name in f['species']]
+    run_date = f.attrs['run_date']
+    git_version = f.attrs['git_version']
+    considered_large = f.attrs['considered_large']
     S = Simulation(grid, all_species, run_date=run_date, git_version=git_version, filename=filename, title=title, considered_large=considered_large)
     S.filename = filename
 
