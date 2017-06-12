@@ -214,3 +214,24 @@ class OneDimAnimation(animation):
                  current_plot,
                  field_plot]
         super().add_plots(plots)
+
+class ParticleDensityAnimation(animation):
+    def __init__(self, S, alpha, frames="few"):
+        super().__init__(S, frames=frames)
+        density_axis = self.fig.add_subplot(221)
+        charge_x_axis = self.fig.add_subplot(222)
+        charge_y_axis = self.fig.add_subplot(223)
+        charge_z_axis = self.fig.add_subplot(224)
+        current_plots = TripleCurrentPlot(self.S, [charge_x_axis, charge_y_axis, charge_z_axis])
+        density_plot = SpatialDistributionPlot(self.S, density_axis)
+        iteration = IterationCounter(self.S, charge_x_axis)
+
+
+        plots = [
+            density_plot,
+            current_plots,
+            iteration]
+        super().add_plots(plots)
+
+
+

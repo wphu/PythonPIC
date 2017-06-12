@@ -37,7 +37,7 @@ npic = 0.01 * critical_density(laser_wavelength)
 
 scaling = npic# CHECK what should be the proper value here?
 
-category_name = "laser-shield"
+category_name = "stability"
 # assert False
 class uniform(Simulation):
     def __init__(self, filename, n_macroparticles, n_cells):
@@ -58,7 +58,7 @@ class uniform(Simulation):
         perturbation_amplitude : float
             Amplitude of the initial position perturbation.
         """
-        grid = Grid(T=total_time, L=length, NG=int(n_cells), c =lightspeed, epsilon_0 =epsilon_zero, periodic=False)
+        grid = Grid(T=total_time, L=length, NG=int(n_cells), c =lightspeed, epsilon_0 =epsilon_zero, periodic=True)
 
 
         cells_per_wl = laser_wavelength / grid.dx
@@ -81,11 +81,11 @@ class uniform(Simulation):
         else:
             list_species = []
 
-        description = "Hydrogen shield-laser interaction"
+        description = "Stability test"
 
         super().__init__(grid, list_species,
                          filename=filename,
-                         category_type="laser-shield",
+                         category_type="stability",
                          config_version=VERSION,
                          title=description,
                          considered_large = True)
@@ -93,7 +93,7 @@ class uniform(Simulation):
 
     def grid_species_initialization(self):
         for species in self.list_species:
-            print(f"Distributing {species.name} nonuniformly.")
+            print(f"Distributing {species.name} uniformly.")
             species.distribute_uniformly(self.grid.L)
         print("Finished initial distribution of particles.")
         super().grid_species_initialization()
